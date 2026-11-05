@@ -100,7 +100,6 @@ echo '<button class="navbar-toggler position-absolute d-md-none collapsed" type=
    </div>
   </div>
 </header><main>';
- include('includes/sidebarmenu.inc');
  
  echo '<main id="view-panel" class="container">'
          . '<div class="responsive">'
