@@ -83,25 +83,6 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         }
     }
 
-    // TEMPORARY DIAGNOSTIC: test all five Purchases transaction links only.
-    // Reports and Maintenance remain hidden until the Transactions list is verified.
-    if ($moduleKey === 'Purchases') {
-        $firstFiveTransactions = isset($moduleSections['Transactions'])
-            ? array_slice($moduleSections['Transactions'], 0, 5)
-            : array();
-        $moduleSections = count($firstFiveTransactions) > 0
-            ? array('Transactions' => $firstFiveTransactions)
-            : array();
-    }
-
-    // TEMPORARY DIAGNOSTIC: test whether the fifth Purchases link target is involved.
-    // Keep its caption, but temporarily point it to the fourth link's known target.
-    if ($moduleKey === 'Purchases' &&
-        isset($moduleSections['Transactions'][4]) &&
-        isset($moduleSections['Transactions'][3])) {
-        $moduleSections['Transactions'][4]['href'] = $moduleSections['Transactions'][3]['href'];
-    }
-
     if (count($moduleSections) === 0) {
         continue;
     }
