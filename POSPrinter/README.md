@@ -15,7 +15,7 @@ This service sends ESC/POS receipt data to a network thermal printer over TCP (n
 3. Set a long random `apiToken`.
 4. Put the exact same token in the root `config.php` as `$POSPrintToken`.
 5. Set `allowedOrigins` to the exact origin(s) from which the POS page is served. Include scheme and port, e.g. `http://localhost:90` or `https://pos.example.com`.
-6. Set `$POSPrintUrl` in root `config.php` to the Node service URL. For a service on the same computer as the browser, use `http://localhost:3000/print-receipt`. For a shared printer host, use that host's LAN IP.
+6. Set `$POSPrintUrl` in root `config.php` to the Node service URL. For a service on the same computer as the browser, use `http://127.0.0.1:3000/print-receipt`. For a shared printer host, use that host's LAN IP.
 7. Run:
 
 ```bash
@@ -35,4 +35,4 @@ This implementation targets network ESC/POS printers. A USB-only printer needs a
 
 The browser sends the receipt to Node.js. Node.js confirms the printer socket write. Then the browser calls `POSajax/save-receipt.php` to save the receipt header and lines in MySQL. If printing succeeds but the database save fails, the UI explicitly reports that state; check the database before attempting another print.
 
-The existing M-Pesa screen is not connected to Safaricom Daraja and therefore does not confirm an M-Pesa payment. Do not treat its current print action as proof of payment.
+The M-Pesa flow is manual: the cashier must verify the payment in the M-Pesa confirmation message or statement and confirm the prompt before a receipt is printed. It is not connected to Safaricom Daraja/STK Push. The cash drawer pulse is sent only after a cash sale is saved; the printer and drawer must support ESC/POS drawer kick.
