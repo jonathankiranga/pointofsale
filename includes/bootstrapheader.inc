@@ -70,10 +70,7 @@ if (!function_exists('GetTempLabrefNo')) {
  }
  
  $documentno = GetTempLabrefNo(10,$db);
-echo '<button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <input class="form-control form-control-dark w-100" type="text" placeholder="Next Batch No is '.$documentno.'" aria-label="Search">
+echo '<input class="form-control form-control-dark w-100" type="text" placeholder="Next Batch No is '.$documentno.'" aria-label="Search">
   <div class="navbar-nav">
     <div class="nav-item text-nowrap">
  	<a class="nav-link text-white" href="index.php?link=Logout" onclick="return confirm(\''._('Are you sure you wish to logout?').'\');"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#logout"/></svg>' . _('Logout') . '</a>
