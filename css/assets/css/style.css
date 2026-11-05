@@ -1855,7 +1855,7 @@ nav#mainsidebar .erp-module-menu > summary {
 #headerid {
     position: sticky;
     top: 0;
-    z-index: 1030;
+    z-index: 1;
 }
 
 nav#mainsidebar {
