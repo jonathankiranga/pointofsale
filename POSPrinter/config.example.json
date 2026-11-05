@@ -1,0 +1,32 @@
+{
+  "serviceHost": "127.0.0.1",
+  "servicePort": 3000,
+  "apiToken": "REPLACE_WITH_A_LONG_RANDOM_SECRET",
+  "defaultPrinterId": "counter-1",
+  "allowedOrigins": ["http://localhost:90", "http://127.0.0.1:90"],
+  "printers": [
+    {
+      "id": "counter-1",
+      "name": "Counter 1 network thermal printer",
+      "adapter": "network-escpos",
+      "host": "192.168.1.50",
+      "port": 9100,
+      "paperColumns": 42,
+      "timeoutMs": 10000,
+      "cut": true,
+      "cashDrawer": true,
+      "drawerPin": 0,
+      "drawerOnTime": 25,
+      "drawerOffTime": 250
+    },
+    {
+      "id": "windows-queue",
+      "name": "Windows installed printer",
+      "adapter": "system-queue",
+      "queue": "Receipt Printer",
+      "timeoutMs": 20000,
+      "cashDrawer": false
+    }
+  ],
+  "maxRequestBytes": 1048576
+}
