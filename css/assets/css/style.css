@@ -1833,7 +1833,7 @@ header#headerid + main {
     overflow: hidden;
 }
 
-nav#mainsidebar {
+header#headerid + main > nav#mainsidebar {
     position: relative;
     top: auto;
     left: auto;
@@ -1949,7 +1949,7 @@ main#view-panel {
         overflow: visible;
     }
 
-    nav#mainsidebar {
+    header#headerid + main > nav#mainsidebar {
         position: relative;
         width: 100%;
         min-width: 0;
