@@ -106,6 +106,10 @@ function makeReceipt(data) {
     output.push(Buffer.from([0x1B, 0x45, 0x00]));
     output.push(Buffer.from(line('Cash', money(data.cash)) + '\n'));
     output.push(Buffer.from(line('Change', money(data.change)) + '\n'));
+    output.push(Buffer.from(line('Payment', clean(data.paymentMethod || 'CASH')) + '\n'));
+    if (data.paymentMethod === 'MPESA' && data.mpesaPhone) {
+        output.push(Buffer.from(line('M-Pesa', clean(data.mpesaPhone)) + '\n'));
+    }
     output.push(Buffer.from('-'.repeat(WIDTH) + '\n'));
     output.push(Buffer.from([0x1B, 0x61, 0x01]));
     output.push(Buffer.from('Thank you. Karibu tena!\n\n\n'));
@@ -186,7 +190,7 @@ const server = http.createServer(async (req, res) => {
         }, origin);
     }
 
-    if (req.method !== 'POST' || req.url !== '/print-receipt') {
+    if (req.method !== 'POST' || (req.url !== '/print-receipt' && req.url !== '/open-drawer')) {
         return json(res, 404, { success: false, message: 'Endpoint not found.' }, origin);
     }
 
@@ -195,10 +199,16 @@ const server = http.createServer(async (req, res) => {
     }
 
     try {
+        if (req.url === '/open-drawer') {
+            // ESC/POS cash drawer pulse on pin 2. Printer and drawer must support it.
+            await sendToPrinter(Buffer.from([0x1B, 0x70, 0x00, 0x19, 0xFA]));
+            return json(res, 200, { success: true, message: 'Cash drawer pulse sent.' }, origin);
+        }
+
         const data = await readBody(req);
         const receipt = makeReceipt(data);
         await sendToPrinter(receipt);
-        return json(res, 200, { success: true, message: 'Receipt sent to the printer.', documentno: clean(data.docno) }, origin);
+        return json(res, 200, { success: true, message: 'Receipt data sent to the printer.', documentno: clean(data.docno) }, origin);
     } catch (error) {
         console.error(new Date().toISOString(), error.message);
         return json(res, 400, { success: false, message: error.message }, origin);
