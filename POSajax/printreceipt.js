@@ -56,6 +56,11 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
 }
 
 function printReceipt(paymentMethod, mpesaPhone) {
+    if (window.POS_PRINT_IN_PROGRESS) {
+        showCustomDialog('A receipt operation is already in progress. Please wait.');
+        return;
+    }
+
     let receiptData;
 
     try {
@@ -71,6 +76,8 @@ function printReceipt(paymentMethod, mpesaPhone) {
         return;
     }
 
+    window.POS_PRINT_IN_PROGRESS = true;
+
     $.ajax({
         url: printUrl,
         type: 'POST',
@@ -85,12 +92,16 @@ function printReceipt(paymentMethod, mpesaPhone) {
         if (response && response.success) {
             SaveReceipt(receiptData);
         } else {
+            window.POS_PRINT_IN_PROGRESS = false;
             showCustomDialog((response && response.message) ? response.message : 'The printer did not confirm the receipt.');
         }
-    }).fail(function(jqXHR, textStatus) {
-        // Fallback is handled by PHP. This is useful where the browser cannot
-        // reach the local Node service directly, provided PHP can reach it.
-        fallbackToCurl(receiptData, textStatus);
+    }).fail(function(jqXHR) {
+        // Do not automatically retry through PHP: a timeout can occur after
+        // the printer has already received the job, and a retry could print twice.
+        const detail = jqXHR.responseJSON && jqXHR.responseJSON.message
+            ? ' ' + jqXHR.responseJSON.message
+            : '';
+        showCustomDialog('The printer service did not confirm the result. Check the printer before retrying to avoid a duplicate receipt.' + detail);
     });
 }
 
@@ -133,6 +144,7 @@ function SaveReceipt(receiptData) {
             if (receiptData.paymentMethod === 'CASH') {
                 openCashDrawer();
             }
+            window.POS_PRINT_IN_PROGRESS = false;
             showCustomDialog('Receipt printed and sale saved successfully. Receipt: ' + response.documentno);
         } else {
             showCustomDialog((response && response.message) ? response.message : 'Receipt printed, but the sale could not be saved. Do not print again; contact the administrator.');
@@ -147,7 +159,7 @@ function SaveReceipt(receiptData) {
 }
 
 function openCashDrawer() {
-    const drawerUrl = String(window.POS_PRINT_URL || '').replace(/\\/print-receipt(?:\\?.*)?$/, '/open-drawer');
+    const drawerUrl = String(window.POS_PRINT_URL || '').replace('/print-receipt', '/open-drawer');
     if (!drawerUrl || drawerUrl === window.POS_PRINT_URL) {
         return;
     }
