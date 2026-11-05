@@ -92,7 +92,7 @@
         <span>Press "crtl+F3" M-Pesa</span>
         <h4>Select Payment Method:</h4>
         <button id="pay-mpesa-btn"><svg  width="36" height="36"><use xlink:href="POScss/svg.svg#simcard"/></svg>M-Pesa</button>
-        <button id="pay-cash-btn"><svg  width="36" height="36"><use xlink:href="POScss/svg.svg#print"/></svg>Print</button>
+        <button id="pay-cash-btn"><svg  width="36" height="36"><use xlink:href="POScss/svg.svg#print"/></svg>Complete Cash Sale</button>
     </div>
 </div>
 
@@ -101,7 +101,7 @@
         <span class="checkout-modal-close">&times;</span>
         <label for="customer-mpesa-no">Mpesa:</label>
         <input type="number" id="customer-mpesa-no" placeholder="254xxxxxx">
-         <button id="process-mpesa-btn"><svg  width="36" height="36"><use xlink:href="POScss/svg.svg#print"/></svg>Print</button>
+         <button id="process-mpesa-btn"><svg  width="36" height="36"><use xlink:href="POScss/svg.svg#print"/></svg>Confirm Payment & Complete Sale</button>
     </div>
 </div>
 
