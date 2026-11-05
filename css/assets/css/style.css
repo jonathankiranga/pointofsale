@@ -1641,6 +1641,12 @@ nav#sidebar {
     border-radius: 12px;
 }
 
+#headerid {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
 main#view-panel {
   margin-left: 300px; 
   width: calc(100% - 300px);
@@ -1912,8 +1918,8 @@ nav#mainsidebar > ul.navbar-nav a {
 }
 
 main#view-panel {
-    margin-left: 270px !important;
-    width: calc(100% - 270px) !important;
+    margin-left: 0 !important;
+    width: 100% !important;
     min-width: 0;
 }
 
