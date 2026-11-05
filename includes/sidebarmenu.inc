@@ -85,7 +85,8 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         continue;
     }
 
-    echo '<li class="nav-item mb-1"><details class="erp-module-menu" name="erp-module-accordion">';
+    echo '<li class="nav-item mb-1"><details class="erp-module-menu" name="erp-module-accordion" data-module-key="' .
+         htmlspecialchars($moduleKey, ENT_QUOTES, 'UTF-8') . '">';
     echo '<summary class="nav-link link-dark fw-semibold" style="cursor:pointer;">' .
          htmlspecialchars($moduleLabel, ENT_QUOTES, 'UTF-8') . '</summary>';
     echo '<div class="ms-3">';
@@ -117,3 +118,50 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         <li class="nav-item"><?php echo DisplayDateTime(); ?></li>
     </ul>
 </nav>
+
+<script>
+(function () {
+    var sidebar = document.getElementById("mainsidebar");
+    if (!sidebar) {
+        return;
+    }
+
+    var menus = sidebar.querySelectorAll("details.erp-module-menu[data-module-key]");
+    var storageKey = "posERP.sidebar.openModule:" + window.location.pathname;
+    var savedModule = null;
+
+    try {
+        savedModule = window.localStorage.getItem(storageKey);
+    } catch (error) {
+        // Continue with normal menu behaviour when browser storage is unavailable.
+    }
+
+    if (savedModule) {
+        menus.forEach(function (menu) {
+            if (menu.getAttribute("data-module-key") === savedModule) {
+                menu.open = true;
+            }
+        });
+    }
+
+    menus.forEach(function (menu) {
+        var summary = menu.querySelector(":scope > summary");
+        if (!summary) {
+            return;
+        }
+
+        summary.addEventListener("click", function () {
+            var willOpen = !menu.open;
+            try {
+                if (willOpen) {
+                    window.localStorage.setItem(storageKey, menu.getAttribute("data-module-key"));
+                } else {
+                    window.localStorage.removeItem(storageKey);
+                }
+            } catch (error) {
+                // The accordion remains usable even if persistence is blocked.
+            }
+        });
+    });
+})();
+</script>
