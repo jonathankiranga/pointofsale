@@ -24,6 +24,7 @@ $DefaultDatabase = 'posv1';
 // on the same computer as the browser, or a LAN address when it runs elsewhere.
 // Example: 'http://192.168.1.50:3000/print-receipt'
 $POSPrintUrl = 'http://localhost:3000/print-receipt';
+$POSPrintToken = 'CHANGE-THIS-TO-A-LONG-RANDOM-SECRET';
 
 $SessionLifeTime = 3600;
 $MaximumExecutionTime = 3600;
