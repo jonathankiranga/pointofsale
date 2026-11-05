@@ -23,7 +23,7 @@ $DefaultDatabase = 'posv1';
 // POS receipt printing service URL. Use localhost when the printer service runs
 // on the same computer as the browser, or a LAN address when it runs elsewhere.
 // Example: 'http://192.168.1.50:3000/print-receipt'
-$POSPrintUrl = 'http://localhost:3000/print-receipt';
+$POSPrintUrl = 'http://127.0.0.1:3000/print-receipt';
 $POSPrintToken = 'CHANGE-THIS-TO-A-LONG-RANDOM-SECRET';
 
 $SessionLifeTime = 3600;
