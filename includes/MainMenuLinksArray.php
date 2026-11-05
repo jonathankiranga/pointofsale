@@ -234,7 +234,7 @@ $MenuItems['Purchases']['Transactions']['Caption'] = array(_('Purchase\'s Order'
                                                            _('Goods Received Note'),
                                                            _('Supplier\'s Purchase Invoice'),
                                                            _('Supplier\'s Return Stock'),
-                                                           _('Supplier\'s Debit Note'));
+                                                           _('Payables Debit Note'));
 
 
 $MenuItems['Purchases']['Transactions']['URL'] = array('/PurchaseOder.php',
