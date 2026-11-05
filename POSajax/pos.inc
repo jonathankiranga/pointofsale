@@ -1,139 +1,217 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retail POS System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#101828">
+    <title>SmartERPlims POS Terminal</title>
     <link rel="stylesheet" href="POScss/completecss.css">
     <link rel="stylesheet" href="POScss/posstyle.css">
-    <script type="text/javascript" src = "javascripts/3.5.1/jquery.min.js"></script>
-   </head>
-<body>
-    <!-- POS Ribbon Menu -->
-    <div class="pos-ribbon">
-       <ul>
-       <li id="company"><a><svg width="24" height="24"><use xlink:href="POScss/svg.svg#home"/></svg><?php echo stripslashes($_SESSION['CompanyRecord']['coyname']);?></a></li>
-       <li id="userlog"><a><svg width="24" height="24"><use xlink:href="POScss/svg.svg#people-circle"/></svg>User:<?php echo stripslashes($_SESSION['UsersRealName']); ?></a></li>
-       <li><a href="PosLogout.php"><svg width="24" height="24"><use xlink:href="POScss/svg.svg#logout"/></svg>Log OUT</a></li>
-       <li><a href="#" id="delete-selected-link"><svg width="24" height="24"><use xlink:href="POScss/svg.svg#trash"/></svg>Delete</a></li> 
-       <li><a href="#" id="save-transaction-link"><svg  width="24" height="24"><use xlink:href="POScss/svg.svg#memory"/></svg>MS</a></li>
-       <li><a href="#" id="recall-transaction-link"><svg  width="24" height="24"><use xlink:href="POScss/svg.svg#recall"/></svg>MR</a></li>
-       <li><a href="#" id="show-bill-link"><svg  width="24" height="24"><use xlink:href="POScss/svg.svg#print"/></svg>CheckOut</a></li>
-       <li><a href="#" id="find-items-link"><svg  width="24" height="24"><use xlink:href="POScss/svg.svg#barcode"/></svg>Search Stock</a></li>
-      </ul>
+    <link rel="stylesheet" href="POScss/pos-touch.css">
+    <script src="javascripts/3.5.1/jquery.min.js"></script>
+</head>
+<body class="pos-touch-mode">
+    <div class="pos-terminal">
+        <header class="pos-topbar">
+            <div class="pos-brand">
+                <span class="pos-brand-mark"><svg width="27" height="27" aria-hidden="true"><use xlink:href="POScss/svg.svg#home"/></svg></span>
+                <div>
+                    <strong>Smarternow POS</strong>
+                    <small id="company"><?php echo htmlspecialchars(stripslashes($_SESSION['CompanyRecord']['coyname']), ENT_QUOTES, 'UTF-8'); ?></small>
+                </div>
+            </div>
+            <div class="pos-session">
+                <span class="pos-status-dot"></span>
+                <span id="userlog">Cashier: <?php echo htmlspecialchars(stripslashes($_SESSION['UsersRealName']), ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="pos-session-divider"></span>
+                <span id="cashsaleno" class="pos-sale-number"></span>
+                <script>
+                    document.getElementById('cashsaleno').textContent = 'CS-' + Date.now();
+                </script>
+                <a class="pos-logout" href="PosLogout.php" aria-label="Log out">
+                    <svg width="21" height="21" aria-hidden="true"><use xlink:href="POScss/svg.svg#logout"/></svg>
+                    <span>Log out</span>
+                </a>
+            </div>
+        </header>
+
+        <nav class="pos-actionbar" aria-label="Point of sale actions">
+            <button type="button" class="pos-action" id="find-items-link">
+                <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#barcode"/></svg>
+                <span>Find product</span>
+            </button>
+            <button type="button" class="pos-action" id="save-transaction-link">
+                <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#memory"/></svg>
+                <span>Save sale</span>
+            </button>
+            <button type="button" class="pos-action" id="recall-transaction-link">
+                <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#recall"/></svg>
+                <span>Recall sale</span>
+            </button>
+            <button type="button" class="pos-action pos-action-danger" id="delete-selected-link">
+                <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#trash"/></svg>
+                <span>Remove line</span>
+            </button>
+            <div class="pos-scan-hint">
+                <span class="pos-scan-indicator"></span>
+                Scan barcode or use Find product
+            </div>
+        </nav>
+
+        <main class="pos-main">
+            <section class="pos-cart-card" aria-label="Current sale">
+                <div class="pos-section-heading">
+                    <div>
+                        <span class="pos-eyebrow">CURRENT TRANSACTION</span>
+                        <h1>Sale items</h1>
+                    </div>
+                    <span class="pos-cart-count" id="pos-cart-label">Cart</span>
+                </div>
+                <div class="pos-table-wrap">
+                    <table id="sales-table">
+                        <thead>
+                            <tr>
+                                <th>Barcode</th>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Unit price</th>
+                                <th>VAT rate</th>
+                                <th>VAT</th>
+                                <th class="pos-line-total-heading">Line total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Existing POS JavaScript creates and updates sale rows here. -->
+                        </tbody>
+                    </table>
+                    <div class="pos-empty-hint" aria-hidden="true">
+                        <span class="pos-empty-icon">＋</span>
+                        <strong>Ready for your first item</strong>
+                        <span>Scan a product barcode or tap Find product</span>
+                    </div>
+                </div>
+            </section>
+
+            <aside id="total-amount-container" class="pos-summary-card" aria-label="Sale totals">
+                <div class="pos-summary-top">
+                    <span class="pos-eyebrow">PAYMENT SUMMARY</span>
+                    <span class="pos-summary-currency">KES</span>
+                </div>
+                <div class="pos-total-label">Amount due</div>
+                <div class="pos-grand-total"><span id="total-amount">0.00</span></div>
+                <div class="pos-tax-line">
+                    <span>VAT included</span>
+                    <strong>KES <span id="tax-amount">0.00</span></strong>
+                </div>
+                <div class="pos-summary-divider"></div>
+                <button type="button" id="show-bill-link" class="pos-checkout-button">
+                    <span class="pos-checkout-icon"><svg width="25" height="25" aria-hidden="true"><use xlink:href="POScss/svg.svg#money"/></svg></span>
+                    <span>Proceed to payment</span>
+                    <span class="pos-checkout-arrow">›</span>
+                </button>
+                <div class="pos-payment-shortcuts">
+                    <span>Keyboard shortcuts</span>
+                    <kbd>Ctrl</kbd> + <kbd>F1</kbd>
+                    <span>Checkout</span>
+                </div>
+            </aside>
+        </main>
     </div>
-    <div id="homePageNav">
-        <span id="cashsaleno"></span>
-        <script>
-        const cashsalenoInput = document.getElementById('cashsaleno');
-        cashsalenoInput.textContent = `CS-${Date.now()}`;
+
+    <div id="modal-overlay"></div>
+
+    <div id="receipt-modal" style="display:none;">
+        <div id="receipt-content">
+            <h3>Sales Receipt</h3>
+            <pre id="receipt-text"></pre>
+        </div>
+    </div>
+
+    <div id="search-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Find product">
+        <div class="modal-content pos-dialog">
+            <div class="pos-dialog-header">
+                <div><span class="pos-eyebrow">PRODUCT CATALOGUE</span><h2>Find a product</h2></div>
+                <button type="button" class="checkout-modal-close pos-close-button" aria-label="Close">&times;</button>
+            </div>
+            <input type="text" id="search-input" placeholder="Search barcode or product description..." autocomplete="off">
+            <div id="search-results"><!-- Existing searchstock.js populates results. --></div>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Checkout">
+        <div class="modal-content pos-dialog pos-checkout-dialog">
+            <div class="pos-dialog-header">
+                <div><span class="pos-eyebrow">COMPLETE SALE</span><h2>Payment</h2></div>
+                <button type="button" class="checkout-modal-close pos-close-button" aria-label="Close">&times;</button>
+            </div>
+            <div class="pos-payment-due">
+                <span>Total to pay</span>
+                <strong>KES <span id="checkout-total">0.00</span></strong>
+            </div>
+            <label for="customer-cash">Cash received (KES)</label>
+            <input type="number" inputmode="decimal" id="customer-cash" placeholder="Enter amount received" min="0" step="0.01">
+            <div class="pos-change-display"><span>Change</span><strong id="customer-change">0.00</strong></div>
+            <div id="denomination-list-container" style="display:none;">
+                <h3>Change in denominations</h3>
+                <div id="denomination-list"></div>
+            </div>
+            <h3 class="pos-payment-method-heading">Choose payment method</h3>
+            <div class="pos-payment-methods">
+                <button type="button" id="pay-cash-btn" class="pos-payment-choice pos-cash-choice">
+                    <svg width="30" height="30" aria-hidden="true"><use xlink:href="POScss/svg.svg#print"/></svg>
+                    <strong>Cash</strong><span>Print receipt</span>
+                </button>
+                <button type="button" id="pay-mpesa-btn" class="pos-payment-choice pos-mpesa-choice">
+                    <svg width="30" height="30" aria-hidden="true"><use xlink:href="POScss/svg.svg#simcard"/></svg>
+                    <strong>M-Pesa</strong><span>Verify payment</span>
+                </button>
+            </div>
+            <p class="pos-shortcut-note">Keyboard: Ctrl + F2 for cash · Ctrl + F3 for M-Pesa</p>
+        </div>
+    </div>
+
+    <div id="mpesa-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="M-Pesa payment">
+        <div class="modal-content-small pos-dialog pos-small-dialog">
+            <div class="pos-dialog-header">
+                <div><span class="pos-eyebrow">M-PESA PAYMENT</span><h2>Customer number</h2></div>
+                <button type="button" class="checkout-modal-close pos-close-button" aria-label="Close">&times;</button>
+            </div>
+            <label for="customer-mpesa-no">M-Pesa phone number</label>
+            <input type="tel" inputmode="numeric" id="customer-mpesa-no" placeholder="2547XXXXXXXX" autocomplete="tel">
+            <button type="button" id="process-mpesa-btn" class="pos-primary-button">Confirm and print receipt</button>
+        </div>
+    </div>
+
+    <div id="recall-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Recall saved sale">
+        <div class="modal-content-small pos-dialog pos-small-dialog">
+            <div class="pos-dialog-header">
+                <div><span class="pos-eyebrow">SAVED TRANSACTIONS</span><h2>Recall sale</h2></div>
+                <button type="button" class="checkout-modal-close pos-close-button" aria-label="Close">&times;</button>
+            </div>
+            <label for="reference-list">Saved reference</label>
+            <select id="reference-list"><option value="">Select a reference</option></select>
+            <button type="button" id="recall-button" class="pos-primary-button">Recall selected sale</button>
+        </div>
+    </div>
+
+    <div id="custom-dialog" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="POS message">
+        <div class="modal-content pos-dialog pos-message-dialog">
+            <div class="pos-dialog-header">
+                <span class="pos-eyebrow">POS MESSAGE</span>
+                <button type="button" class="dialog-close pos-close-button" aria-label="Close">&times;</button>
+            </div>
+            <p id="dialog-message"></p>
+            <button type="button" id="dialog-ok-btn" class="pos-primary-button">OK</button>
+        </div>
+    </div>
+
+    <script src="POSajax/posscript.js"></script>
+    <script src="POSajax/searchstock.js"></script>
+    <script>
+        window.POS_PRINT_URL = <?php echo json_encode($POSPrintUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+        window.POS_PRINT_TOKEN = <?php echo json_encode($POSPrintToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+        window.POS_PRINTER_ID = <?php echo json_encode(isset($POSPrinterId) ? $POSPrinterId : '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
     </script>
-        <h2>Smarternow POS</h2>
-        <table id="sales-table">
-            <thead>
-                <tr>
-                    <th>Barcode</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>VAT Rate</th>
-                    <th>VAT</th>
-                    <th>Line Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Rows will be dynamically added here -->
-            </tbody>
-        </table>
-      </div> 
-    <div id="total-amount-container">
-        <p>Total Amount: <span id="total-amount">0.00</span></p>
-        <p>Tax (VAT): <span id="tax-amount">0.00</span></p>
-       <br/><span>Press "crtl+F1" Checkout 
-           <svg  width="36" height="36"><use xlink:href="POScss/svg.svg#money"/></svg>
-           <svg  width="36" height="36"><use xlink:href="POScss/svg.svg#simcard"/></svg>
-       </span>
-    </div>
-    
-      
-<div id="modal-overlay"></div>
-<!-- Receipt Modal -->
-<div id="receipt-modal" style="display:none;">
-    <div id="receipt-content">
-        <h3>Sales Receipt</h3>
-        <pre id="receipt-text"></pre> 
-    </div>
-</div>
-    
-
-<div id="search-modal" class="modal"  style="display:none;">
-    <div class="modal-content">
-        <span class="checkout-modal-close">&times;</span>
-        <div id="search-results">
-            <!-- Search results will be populated here -->
-        </div>
-        <input type="text" id="search-input" placeholder="Search by barcode, description, or price...">
-    </div>
-</div>
-
-<div id="checkout-modal" class="modal"  style="display:none;">
-    <div class="modal-content">
-        <span class="checkout-modal-close">&times;</span>
-        <h2>Total Amount: <span id="checkout-total">0.00</span></h2>
-        <br/>
-        <label for="customer-cash">Customer Cash:</label>
-        <input type="number" id="customer-cash" placeholder="Enter cash amount">
-        <p>Change: <span id="customer-change">0.00</span></p>
-        <div id="denomination-list-container" style="display:none;">
-        <h3>Change in Denominations:</h3>
-        <div id="denomination-list"></div>
-        </div>
-        <span>Press "crtl+F3" M-Pesa</span>
-        <h4>Select Payment Method:</h4>
-        <button id="pay-mpesa-btn"><svg  width="36" height="36"><use xlink:href="POScss/svg.svg#simcard"/></svg>M-Pesa</button>
-        <button id="pay-cash-btn"><svg  width="36" height="36"><use xlink:href="POScss/svg.svg#print"/></svg>Complete Cash Sale</button>
-    </div>
-</div>
-
-<div id="mpesa-modal" class="modal"  style="display:none;">
-    <div class="modal-content-small">
-        <span class="checkout-modal-close">&times;</span>
-        <label for="customer-mpesa-no">Mpesa:</label>
-        <input type="number" id="customer-mpesa-no" placeholder="254xxxxxx">
-         <button id="process-mpesa-btn"><svg  width="36" height="36"><use xlink:href="POScss/svg.svg#print"/></svg>Confirm Payment & Complete Sale</button>
-    </div>
-</div>
-
-<div id="recall-modal" class="modal"  style="display:none;">
-    <div class="modal-content-small">
-        <span class="checkout-modal-close">&times;</span>
-        <button id="recall-button">Recall Data</button> 
-        <select id="reference-list">
-            <option value="">Select Reference to Recall</option>
-        </select>
-        
-    </div>
-</div>
-    
-    
- <!-- Custom Dialog Box -->
-<div id="custom-dialog" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="dialog-close">&times;</span>
-        <p id="dialog-message"></p>
-        <button id="dialog-ok-btn">OK</button>
-    </div>
-</div>
-
-
-<script type="text/javascript" src = "POSajax/posscript.js"></script>
-<script type="text/javascript" src = "POSajax/searchstock.js"></script>
-<script>
-    window.POS_PRINT_URL = <?php echo json_encode($POSPrintUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
-    window.POS_PRINT_TOKEN = <?php echo json_encode($POSPrintToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
-    window.POS_PRINTER_ID = <?php echo json_encode(isset($POSPrinterId) ? $POSPrinterId : '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
-</script>
-<script type="text/javascript" src = "POSajax/printreceipt.js"></script>
+    <script src="POSajax/printreceipt.js"></script>
 </body>
 </html>

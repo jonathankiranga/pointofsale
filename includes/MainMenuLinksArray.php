@@ -171,14 +171,16 @@ $MenuItems['Approval']['Maintenance']['URL'] = array('/DimensionTypes.php',
                                                      '/Budgets.php');
 
 /***********************************************/
-$MenuItems['Sales']['Transactions']['Caption'] = array(_('Lab Sample Registration'),
+$MenuItems['Sales']['Transactions']['Caption'] = array(_('Point of Sale (Touch)'),
+                                                       _('Lab Sample Registration'),
                                                        _('Lab Data Entry'),
                                                        _('Lab First Review'),
                                                        _('Lab Final Review'),
                                                        _('Sales Invoice'),
                                                        _('Sales Quotation'));
 
-$MenuItems['Sales']['Transactions']['URL'] = array('/Laboratory.php',
+$MenuItems['Sales']['Transactions']['URL'] = array('/posindex.php',
+                                                   '/Laboratory.php',
                                                    '/LaboratoryDataEntry.php',
                                                    '/LaboratoryReview.php',
                                                    '/LaboratoryFinalReview.php',
@@ -234,7 +236,7 @@ $MenuItems['Purchases']['Transactions']['Caption'] = array(_('Purchase\'s Order'
                                                            _('Goods Received Note'),
                                                            _('Supplier\'s Purchase Invoice'),
                                                            _('Supplier\'s Return Stock'),
-                                                           _('Supplier\'s Debit Note'));
+                                                           _('Payables Debit Note'));
 
 
 $MenuItems['Purchases']['Transactions']['URL'] = array('/PurchaseOder.php',
@@ -252,12 +254,8 @@ $MenuItems['Purchases']['Reports']['URL'] = array('/PDFPrintgrn.php',
                                                   '/PDFPrintPurchaseOrder.php',
                                                   '/PDFPrintAssetgrn.php');
 
-$MenuItems['Purchases']['Maintenance']['Caption'] = array(_('Vendor Posting Groups'),
-                                                          _('Maintain Vendor'));
-
-
-$MenuItems['Purchases']['Maintenance']['URL'] = array('/SupplierPostingGroups.php',
-                                                      '/Supplier.php');
+// Vendor Posting Groups and Maintain Supplier are already available under Accounts Payable.
+// Keep a single menu entry for each destination to avoid duplicate navigation items.
 
 
 /***********************************************/
