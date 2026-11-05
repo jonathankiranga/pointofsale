@@ -16,6 +16,7 @@ if ($conn->connect_error) {
     exit;
 }
 $sql = "SELECT stockmaster.barcode, stockmaster.descrip AS description,
+               stockmaster.postinggroup AS category,
                IFNULL(vatcategory.vat, 0) AS vat,
                IFNULL(stockmaster.sellingprice, 0) AS unit_price
         FROM stockmaster
