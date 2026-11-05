@@ -1,0 +1,52 @@
+-- MySQL dump 10.13  Distrib 8.0.26, for Win64 (x86_64)
+--
+-- Host: localhost    Database: posv1
+-- ------------------------------------------------------
+-- Server version	8.0.26
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `unit`
+--
+
+DROP TABLE IF EXISTS `unit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `unit` (
+  `code` char(10) DEFAULT NULL,
+  `descrip` char(50) NOT NULL,
+  `sns` char(10) DEFAULT NULL,
+  `pkey` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `unit`
+--
+
+LOCK TABLES `unit` WRITE;
+/*!40000 ALTER TABLE `unit` DISABLE KEYS */;
+INSERT INTO `unit` VALUES ('U1','TEST',NULL,1),('U2','Cfu/g',NULL,2),('U3','Cfu/ml',NULL,3),('U4','Cfu/100ml',NULL,4),('U5','Cfu/25ml',NULL,5),('U6','Cfu/25g',NULL,6),('U7','Cfu/25g',NULL,7),('U8','ppb',NULL,8),('U9','100ml',NULL,9),('U10','1 Pkt',NULL,10),('U11','Pkts',NULL,11),('U12','g',NULL,12),('U13','Kg',NULL,13),('U14','PCs',NULL,14),('U15','500ML',NULL,15),('U16','500mg',NULL,16),('U17','100mg',NULL,17),('U18','50mg',NULL,18),('U19','250mg',NULL,19),('U20','1kg',NULL,20),('U21','25g',NULL,21),('U22','500g',NULL,22),('U23','250g',NULL,23),('U24','100g',NULL,24),('U25','50g',NULL,25),('U26','25g',NULL,26),('U27','100pcs/pk',NULL,27),('U28','100pcs/pk',NULL,28),('U29','2.5L',NULL,29),('U30','1 L',NULL,30),('U31','500 ML',NULL,31),('U32','Kit',NULL,32),('U33','Pcs',NULL,33);
+/*!40000 ALTER TABLE `unit` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-11-05 12:14:23
