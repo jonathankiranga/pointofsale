@@ -453,7 +453,7 @@ function fetchProduct(barcode) {
              updateLineTotal();
             // Add a new blank row ONLY IF there are no other blank rows
          //   if (document.querySelector('#sales-table tbody tr.blank-row') === null) {
-             if($('#sales-table tbody tr.blank-row') === null) {
+             if ($('#sales-table tbody tr.blank-row').length === 0) {
                 addNewBlankRow();
             }
              // Remove the 'blank-row' class since this row is no longer blank

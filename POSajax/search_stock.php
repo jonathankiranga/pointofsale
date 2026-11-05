@@ -27,12 +27,12 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 header('Content-Type: application/json');
-$product=array();
-if ($result->num_rows > 0) {
-    $product[] = $result->fetch_assoc();
-} 
- 
- echo json_encode($product);
+$product = array();
+while ($row = $result->fetch_assoc()) {
+    $product[] = $row;
+}
+
+echo json_encode($product);
 $stmt->close();
 $conn->close();
 ?>
