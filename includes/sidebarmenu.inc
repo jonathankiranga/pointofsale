@@ -1,6 +1,6 @@
 <?php
 // Horizontal ERP navigation. Module keys, not captions, provide unique menu identifiers.
-$posAppPath = str_replace('\\\\', '/', dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/'));
+$posAppPath = str_replace('\\', '/', dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/'));
 $posAppPath = rtrim($posAppPath, '/');
 $posTerminalUrl = ($posAppPath === '' || $posAppPath === '.') ? '/posindex.php' : $posAppPath . '/posindex.php';
 
