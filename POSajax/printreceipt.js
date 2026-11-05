@@ -72,16 +72,22 @@ function printReceipt(paymentMethod, mpesaPhone) {
     }
 
     const printUrl = window.POS_PRINT_URL;
-    if (!printUrl) {
-        showCustomDialog('Receipt printing service URL is not configured in config.php.');
-        return;
-    }
 
     window.POS_PRINT_IN_PROGRESS = true;
 
-    // Persist the sale first. A printer failure must never leave a printed
-    // receipt for a sale that was not committed to the database.
-    SaveReceipt(receiptData, function() {
+    // Saving the sale is the transaction. Printing is an optional follow-up
+    // and must never prevent the sale from being committed.
+    SaveReceipt(receiptData, function(saveResponse) {
+        completeSaleSave(receiptData);
+        window.POS_PRINT_IN_PROGRESS = false;
+
+        if (!printUrl) {
+            showCustomDialog('Sale completed and saved. Receipt printing is not configured.');
+            return;
+        }
+
+        // A printer outage, missing printer or print-service error must not
+        // reverse or block the sale that has already been saved.
         $.ajax({
             url: printUrl,
             type: 'POST',
@@ -92,18 +98,17 @@ function printReceipt(paymentMethod, mpesaPhone) {
             timeout: 20000
         }).done(function(response) {
             if (response && response.success) {
-                completeReceiptPrint(receiptData, response);
+                if (receiptData.paymentMethod === 'CASH') {
+                    openCashDrawer();
+                }
+                const documentNo = response.documentno || receiptData.docno;
+                showCustomDialog('Sale completed and saved. Receipt printed successfully: ' + documentNo);
             } else {
-                window.POS_PRINT_IN_PROGRESS = false;
-                showCustomDialog((response && response.message)
-                    ? 'Sale saved, but printing failed: ' + response.message
-                    : 'Sale saved, but the printer did not confirm the receipt. Retry printing using the same receipt number.');
+                showCustomDialog('Sale completed and saved. Receipt could not be printed: ' +
+                    ((response && response.message) ? response.message : 'Printer did not confirm the receipt.'));
             }
-        }).fail(function(jqXHR) {
-            window.POS_PRINT_IN_PROGRESS = false;
-            const detail = jqXHR.responseJSON && jqXHR.responseJSON.message
-                ? ' ' + jqXHR.responseJSON.message : '';
-            showCustomDialog('Sale saved, but the printer did not confirm the result. Check the printer before retrying.' + detail);
+        }).fail(function() {
+            showCustomDialog('Sale completed and saved. The printer is unavailable; you can print the receipt later.');
         });
     });
 }
@@ -137,22 +142,15 @@ function SaveReceipt(receiptData, onSaved) {
     });
 }
 
-function completeReceiptPrint(receiptData, printResponse) {
+function completeSaleSave(receiptData) {
+    // Reset the terminal immediately after the database confirms the sale.
+    // Printer availability is deliberately not part of this completion step.
     clearTable();
     $('#customer-cash').val('');
     $('#customer-change').text('0.00');
     $('#customer-mpesa-no').val('');
     $('#cashsaleno').text('CS-' + Date.now());
     closeModal();
-
-    if (receiptData.paymentMethod === 'CASH') {
-        openCashDrawer();
-    }
-
-    window.POS_PRINT_IN_PROGRESS = false;
-    const documentNo = printResponse && printResponse.documentno
-        ? printResponse.documentno : receiptData.docno;
-    showCustomDialog('Sale saved and receipt printed successfully. Receipt: ' + documentNo);
 }
 
 function openCashDrawer() {
