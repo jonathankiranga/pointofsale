@@ -51,20 +51,27 @@ $(document).ready(function() {
         
     });
    
-    // Handle payment button clicks
+    // Cash payment is validated before the receipt is printed and saved.
     $('#pay-cash-btn').click(function() {
-        // Print receipt and open cash drawer
-        printReceipt();
-        openCashDrawer();
-        closeModal();
-        alert('Cash payment processed.'); // Placeholder for M-Pesa payment logic
+        handleCashPayment();
     });
 
+    // M-Pesa requires the cashier to verify payment before printing.
     $('#pay-mpesa-btn').click(function() {
-        // Print receipt for M-Pesa
-        printReceipt();
-        closeModal(); // Close modal for M-Pesa payment
-        alert('M-Pesa payment processed.'); // Placeholder for M-Pesa payment logic
+        handleMpesaPayment();
+    });
+
+    $('#process-mpesa-btn').click(function(event) {
+        event.preventDefault();
+        const phone = $('#customer-mpesa-no').val().trim();
+        if (!/^254[17][0-9]{8}$/.test(phone)) {
+            showCustomDialog('Enter a valid Kenyan M-Pesa number in 2547XXXXXXXX or 2541XXXXXXXX format.');
+            return;
+        }
+        if (!window.confirm('Have you received and verified this M-Pesa payment in your M-Pesa confirmation message or statement?')) {
+            return;
+        }
+        printReceipt('MPESA', phone);
     });
     
     $('#show-bill-link').on('click', function(event) {
@@ -495,35 +502,48 @@ function fillAnySavedDataOnLoading() {
 }
 
 function showReceiptModal() {
-    // Dummy items and total for the receipt
-   printReceipt();
+    // Kept for compatibility with any existing callers; opening this preview
+    // must not trigger a print or save operation.
+    $('#receipt-modal').show();
 }
 
 function handleCashPayment() {
-    printReceipt();
-    openCashDrawer();
-    closeModal();
+    const total = parseFloat($('#total-amount').text()) || 0;
+    const cash = parseFloat($('#customer-cash').val());
+
+    if (total <= 0) {
+        showCustomDialog('Add at least one product before completing the sale.');
+        return;
+    }
+    if (!Number.isFinite(cash) || cash < total) {
+        showCustomDialog('Enter sufficient cash before printing the receipt.');
+        return;
+    }
+
+    printReceipt('CASH', '');
 }
 
 function handleMpesaPayment() {
-    let lineValue = parseFloat($("#total-amount").text()) || 0; 
-    // Fallback to 0 if invalid
-    $("#customer-cash").val(lineValue.toFixed(2));  // Correct method invocation
-    $('#customer-change').text(0);
-    $('#denomination-list').empty(); // Clear denomination list if insufficient cash
-    $('#denomination-list-container').hide();  // Hide the container for the list
-    $('#mpesa-modal').show();  // Show the modal
+    const total = parseFloat($('#total-amount').text()) || 0;
+    if (total <= 0) {
+        showCustomDialog('Add at least one product before completing the sale.');
+        return;
+    }
+
+    $('#customer-cash').val(total.toFixed(2));
+    $('#customer-change').text('0.00');
+    $('#denomination-list').empty();
+    $('#denomination-list-container').hide();
+    $('#checkout-modal').hide();
+    $('#mpesa-modal').show();
 }
 
 function closeModal() {
     $('.modal').hide();
 }
 
-// Function to open cash drawer using ESC/POS command
-function openCashDrawer() {
-    alert('Cash drawer opened! (Simulated)'); // Replace this with actual cash drawer command for your printer.
-     $('#receipt-modal').hide(); // Close the modal after printing
-}
+// Cash drawer opening is handled by the Node.js ESC/POS printer service
+// after the receipt has been printed and the sale has been saved.
 
 function viewInventoryReport() {
     $('#search-modal').show(); // Show the receipt modal
