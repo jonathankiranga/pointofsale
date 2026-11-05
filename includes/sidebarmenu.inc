@@ -83,6 +83,17 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         }
     }
 
+    // TEMPORARY DIAGNOSTIC: test the first four Purchases transaction links only.
+    // Reports and Maintenance remain hidden until the Transactions list is verified.
+    if ($moduleKey === 'Purchases') {
+        $firstFourTransactions = isset($moduleSections['Transactions'])
+            ? array_slice($moduleSections['Transactions'], 0, 4)
+            : array();
+        $moduleSections = count($firstFourTransactions) > 0
+            ? array('Transactions' => $firstFourTransactions)
+            : array();
+    }
+
     if (count($moduleSections) === 0) {
         continue;
     }
