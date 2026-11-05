@@ -7,7 +7,7 @@ include('includes/AccountBalance.inc');
 include('includes/GetBalance_withfilter.inc');
 $Doctypes=array();
     
-    $Results = DB_query("Select [typeid],[typename] from [systypes_1]",$db);
+    $Results = DB_query("Select `typeid`,`typename` from `systypes_1`",$db);
     while($roe = DB_fetch_array($Results)){
         $Doctypes[$roe['typeid']] = $roe['typename'];
     }
@@ -15,13 +15,13 @@ $Doctypes=array();
 
 if(isset($_GET['Drill'])){
         
-        $SQL="SELECT [accdesc],[balance_income] FROM [acct] where [accno]='".$_GET['Drill']."'";
+        $SQL="SELECT `accdesc`,`balance_income` FROM `acct` where `accno`='".$_GET['Drill']."'";
         $ResultIndex = DB_query($SQL,$db);
         $row = DB_fetch_row($ResultIndex);
         $AccountName = $row[0];
         
-        $REsults = DB_query('Select  min(B.[start_date]), max(B.End_date), periodno 
-        from [FinancialPeriods] B  where B.closed=0  Group by periodno',$db);
+        $REsults = DB_query('Select  min(B.`start_date`), max(B.End_date), periodno 
+        from `FinancialPeriods` B  where B.closed=0  Group by periodno',$db);
         
        $financialPeriods = DB_fetch_row($REsults);
        $StartDate = $financialPeriods[0];
@@ -84,7 +84,7 @@ Function Showhtml(){
      Global $db,$Doctypes;
     
     
-    $SQL="SELECT [accdesc],[balance_income] FROM [acct] where [accno]='".$_POST['Accountcode']."'";
+    $SQL="SELECT `accdesc`,`balance_income` FROM `acct` where `accno`='".$_POST['Accountcode']."'";
     $ResultIndex = DB_query($SQL,$db);
     $row = DB_fetch_row($ResultIndex);
     $AccountName = $row[0];
@@ -171,7 +171,7 @@ FUNCTION PDFoutput(){
     $firstrowpos = 0;
     $lastrow = 0;
     
-    $SQL="SELECT [accdesc],[balance_income] FROM [acct] where [accno]='".$_POST['Accountcode']."'";
+    $SQL="SELECT `accdesc`,`balance_income` FROM `acct` where `accno`='".$_POST['Accountcode']."'";
     $ResultIndex = DB_query($SQL,$db);
     $row = DB_fetch_row($ResultIndex);
     $AccountName = $row[0];
@@ -189,7 +189,7 @@ FUNCTION PDFoutput(){
        $ResultDrill=DB_query($SQLDrilldown,$db);
        while($row=DB_fetch_array($ResultDrill)){
            if($row['AMOUNT']!=0){
-               //[accountcode]
+               //`accountcode`
                 $debit = 0;$credit = 0; $Balance += $row['AMOUNT'];
                 if($row['AMOUNT']>0){
                    $debit = $row['AMOUNT'];
@@ -279,7 +279,7 @@ $YPos -= (2 * $line_height);
 Function GetAccount($accno){
     global $db;
     
-   $sql="select [accdesc] from acct where [accno]='".$accno."'";
+   $sql="select `accdesc` from acct where `accno`='".$accno."'";
    $ResultIndex = DB_query($sql,$db);
    $Row_Memo = DB_fetch_row($ResultIndex);
    
