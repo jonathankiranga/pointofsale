@@ -60,7 +60,7 @@ for($index = 1; $index <= $_SESSION['__FormQuote']['numberoflines']; $index++) {
     foreach ($_SESSION['__FormQuote']["TEST"][$index] as $parameterid => $parametercode){
         $salesprice += $_SESSION['__FormQuote']["AMOUNT"][$index][$parametercode];
         
-        $itemlist .= $_SESSION['_LaboratoryStandards'][$SampleType][$parametercode]['Parameter'].' ,';
+        $itemlist .= $parametercode.' ,';
     } 
      
    $baseamount=$salesprice;
