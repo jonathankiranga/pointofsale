@@ -208,8 +208,8 @@ function PostGL($period,$journal,$doc){
       from SalesHeader 
       join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
       join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-      join LaboratoryStandards on LaboratoryStandards.ParameterID=salesline.code
-      join inventorypostinggroup on inventorypostinggroup.code=LaboratoryStandards.category
+      join sampletypes on sampletypes.sampletypeid=SalesLine.code
+      join inventorypostinggroup on inventorypostinggroup.code=sampletypes.salesgroup
       join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
       where SalesLine.[documentno]='%s' and SalesLine.documenttype =13
       )",$journal,$period,$doc);
@@ -251,8 +251,8 @@ function VATPostGL($period,$journal,$doc){
       ,SalesLine.[sampleID] as narration
       from SalesHeader join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
       join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-      join LaboratoryStandards on LaboratoryStandards.ParameterID=salesline.code
-      join inventorypostinggroup on inventorypostinggroup.code=LaboratoryStandards.category
+      join sampletypes on sampletypes.sampletypeid=SalesLine.code
+      join inventorypostinggroup on inventorypostinggroup.code=sampletypes.salesgroup
       join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
       where SalesLine.[documentno]='%s' and SalesLine.documenttype =13
       )",$journal,$period,$doc);
