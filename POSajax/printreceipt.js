@@ -1,4 +1,4 @@
-function collectReceiptData() {
+function collectReceiptData(paymentMethod, mpesaPhone) {
     const items = [];
 
     $('#sales-table tbody tr').each(function() {
@@ -49,15 +49,17 @@ function collectReceiptData() {
         cash: Number.isFinite(cashValue) ? cashValue : total,
         change: Number.isFinite(changeValue) ? changeValue : 0,
         currency: 'KES',
+        paymentMethod: paymentMethod || 'CASH',
+        mpesaPhone: mpesaPhone || '',
         printedAt: new Date().toISOString()
     };
 }
 
-function printReceipt() {
+function printReceipt(paymentMethod, mpesaPhone) {
     let receiptData;
 
     try {
-        receiptData = collectReceiptData();
+        receiptData = collectReceiptData(paymentMethod, mpesaPhone);
     } catch (error) {
         showCustomDialog(error.message);
         return;
@@ -128,6 +130,9 @@ function SaveReceipt(receiptData) {
             $('#customer-change').text('0.00');
             $('#cashsaleno').text('CS-' + Date.now());
             closeModal();
+            if (receiptData.paymentMethod === 'CASH') {
+                openCashDrawer();
+            }
             showCustomDialog('Receipt printed and sale saved successfully. Receipt: ' + response.documentno);
         } else {
             showCustomDialog((response && response.message) ? response.message : 'Receipt printed, but the sale could not be saved. Do not print again; contact the administrator.');
@@ -138,5 +143,24 @@ function SaveReceipt(receiptData) {
             message += ' ' + jqXHR.responseJSON.message;
         }
         showCustomDialog(message);
+    });
+}
+
+function openCashDrawer() {
+    const drawerUrl = String(window.POS_PRINT_URL || '').replace(/\\/print-receipt(?:\\?.*)?$/, '/open-drawer');
+    if (!drawerUrl || drawerUrl === window.POS_PRINT_URL) {
+        return;
+    }
+
+    $.ajax({
+        url: drawerUrl,
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        headers: { 'X-Print-Token': window.POS_PRINT_TOKEN || '' },
+        data: JSON.stringify({}),
+        timeout: 10000
+    }).fail(function() {
+        console.warn('The receipt was saved, but the cash drawer command could not be sent.');
     });
 }
