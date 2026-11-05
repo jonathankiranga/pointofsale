@@ -1,28 +1,11 @@
 
 $(document).ready(function() {
-    let barcodeBuffer = ''; // Buffer to store barcode values
-   // Event delegation for dynamically created .barcode elements
-    $('tbody').on('focusin', '.barcode', function() {
-        const barcodeInput = $(this); // The .barcode input that received focus
-     // Attach a keydown event listener to the focused .barcode input
-        barcodeInput.on('keydown', function(e) {
-            if (e.key === 'Enter') { // If Enter key is pressed
-                e.preventDefault();
-                if (barcodeBuffer) {
-                    fetchProduct(barcodeBuffer); // Process the full barcode
-                    barcodeBuffer = ''; // Clear buffer after processing
-                }
-            } else {
-                // Add character to the barcode buffer
-                barcodeBuffer += e.key;
-                console.log(`Current Barcode Buffer: ${barcodeBuffer}`); // Log the buffer
-            }
-        });
-      // Clear buffer when the input loses focus
-        barcodeInput.on('focusout', function() {
-            barcodeBuffer = ''; // Clear buffer on focus loss
-            console.log("Buffer cleared on focusout");
-        });
+    // One delegated handler supports dynamically added barcode cells.
+    $('#sales-table tbody').on('keydown', '.barcode[contenteditable="true"]', function(event) {
+        if (event.key !== 'Enter') { return; }
+        event.preventDefault();
+        const barcode = $(this).text().trim();
+        if (barcode) { fetchProduct(barcode); }
     });
      
        // Detect barcode input from scanner (usually appends Enter key after scan)
@@ -435,10 +418,13 @@ function fetchProduct(barcode) {
             //  const blankRow = document.querySelector('#sales-table tbody tr.blank-row'); 
             // Select the current blank row
               const blankRow = $('#sales-table tbody tr.blank-row');
-              const vatper = product.vat;
-              const vatamount= (product.unit_price * vatper * 0.01).toFixed(2);
+              if (!blankRow.length) { addNewBlankRow(); }
+              const targetRow = $('#sales-table tbody tr.blank-row').first();
+              const vatper = parseFloat(product.vat) || 0;
+              const unitPrice = parseFloat(product.unit_price) || 0;
+              const vatamount = (unitPrice * vatper * 0.01).toFixed(2);
                // Replace the blank row with the product data
-                $('#sales-table tbody tr.blank-row').html(`
+                targetRow.html(`
                     <td class="barcode">${product.barcode}</td>
                     <td>${product.description}</td>
                     <td contenteditable="true" class="quantity">1</td>
@@ -449,11 +435,11 @@ function fetchProduct(barcode) {
                 `).removeClass('blank-row'); // Remove 'blank-row' class
 
                 // Remove the contenteditable attribute from the barcode cell
-                $('#sales-table tbody tr.blank-row .barcode').removeAttr('contenteditable');
+                targetRow.find('.barcode').removeAttr('contenteditable');
              updateLineTotal();
             // Add a new blank row ONLY IF there are no other blank rows
          //   if (document.querySelector('#sales-table tbody tr.blank-row') === null) {
-             if($('#sales-table tbody tr.blank-row') === null) {
+             if ($('#sales-table tbody tr.blank-row').length === 0) {
                 addNewBlankRow();
             }
              // Remove the 'blank-row' class since this row is no longer blank
