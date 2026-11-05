@@ -1,0 +1,17 @@
+'use strict';
+function safeText(v){return String(v==null?'':v).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,' ').replace(/\r\n?/g,'\n').trim();}
+function number(v,label){const n=Number(v);if(!Number.isFinite(n)||n<0)throw new Error(label+' must be a valid non-negative number.');return n;}
+function money(v){return number(v,'Amount').toFixed(2);}
+function wrap(value,width){const words=safeText(value).split(/\s+/),lines=[];let line='';for(const word of words){if(!word)continue;if(word.length>width){if(line)lines.push(line);line='';for(let i=0;i<word.length;i+=width){const part=word.slice(i,i+width);if(part.length===width)lines.push(part);else line=part;}}else if(!line)line=word;else if((line+' '+word).length<=width)line+=' '+word;else{lines.push(line);line=word;}}if(line)lines.push(line);return lines;}
+function rightLine(left,right,width){const r=safeText(right),l=safeText(left),n=Math.max(1,width-r.length-1);return(l.length>n?l.slice(0,n):l).padEnd(n,' ')+' '+r;}
+function formatReceipt(data,profile){
+ if(!data||!Array.isArray(data.items)||!data.items.length)throw new Error('Receipt must contain at least one sale item.');
+ if(!safeText(data.docno))throw new Error('Receipt number is required.');
+ const width=Math.max(24,Math.min(64,Number(profile.paperColumns||42))),out=[],add=x=>out.push(x),rule='-'.repeat(width);
+ add(Buffer.from([27,64,27,97,1,27,69,1]));wrap(data.company||'Retail POS',width).forEach(x=>add(Buffer.from(x+'\n')));add(Buffer.from([27,69,0]));add(Buffer.from('SALES RECEIPT\n'));add(Buffer.from([27,97,0]));add(Buffer.from(rule+'\n'));add(Buffer.from('Receipt: '+safeText(data.docno)+'\n'));if(data.userlog)add(Buffer.from('Cashier: '+safeText(data.userlog)+'\n'));add(Buffer.from('Date: '+safeText(data.printedAt||new Date().toISOString())+'\n'));add(Buffer.from(rule+'\n'));
+ data.items.forEach((item,i)=>{const d=safeText(item.description),q=number(item.quantity,'Item quantity'),p=number(item.unitPrice,'Unit price'),t=number(item.lineTotal,'Line total');if(!d||q<=0)throw new Error('Sale item '+(i+1)+' has invalid description or quantity.');wrap(d,width).forEach(x=>add(Buffer.from(x+'\n')));add(Buffer.from(rightLine(q+' x '+money(p),money(t),width)+'\n'));});
+ const vat=number(data.totalVAT||0,'VAT'),total=number(data.total,'Total'),cash=number(data.cash==null?total:data.cash,'Cash'),change=number(data.change||0,'Change');
+ add(Buffer.from(rule+'\n'+rightLine('VAT',money(vat),width)+'\n'));add(Buffer.from([27,69,1]));add(Buffer.from(rightLine('TOTAL '+safeText(data.currency||'KES'),money(total),width)+'\n'));add(Buffer.from([27,69,0]));add(Buffer.from(rightLine('Tendered',money(cash),width)+'\n'+rightLine('Change',money(change),width)+'\n'+rightLine('Payment',safeText(data.paymentMethod||'CASH'),width)+'\n'));if(data.paymentMethod==='MPESA'&&data.mpesaPhone)add(Buffer.from('M-Pesa: '+safeText(data.mpesaPhone)+'\n'));add(Buffer.from(rule+'\n'));add(Buffer.from([27,97,1]));add(Buffer.from('Thank you. Karibu tena!\n\n\n'));if(profile.cut!==false)add(Buffer.from([29,86,0]));return Buffer.concat(out);
+}
+function formatDrawerPulse(p){const pin=Number(p.drawerPin==null?0:p.drawerPin),on=Number(p.drawerOnTime==null?25:p.drawerOnTime),off=Number(p.drawerOffTime==null?250:p.drawerOffTime);if(![0,1].includes(pin)||on<0||on>255||off<0||off>255)throw new Error('Invalid cash drawer pulse configuration.');return Buffer.from([27,112,pin,on,off]);}
+module.exports={formatReceipt,formatDrawerPulse,safeText,wrap};
