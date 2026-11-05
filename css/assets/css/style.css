@@ -1819,18 +1819,34 @@ label{
     background-repeat: no-repeat;
     background-position: center;
 }
-/* ERP sidebar layout: keep the menu aligned below the fixed application header. */
-nav#mainsidebar {
-    position: fixed;
-    top: 93px;
-    left: 0;
-    bottom: 0;
-    z-index: 100;
+/* ERP sidebar layout.
+   The application header is in normal document flow. Keep the sidebar in the
+   content row so it starts immediately below the header instead of guessing
+   a fixed top offset that can overlap it. */
+header#headerid + main {
     display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    height: calc(100vh - 93px);
+    max-height: calc(100vh - 93px);
+    min-height: 0;
+    overflow: hidden;
+}
+
+nav#mainsidebar {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+    display: flex;
+    flex: 0 0 270px;
     flex-direction: column;
     width: 270px;
-    height: auto;
     min-width: 270px;
+    height: auto;
+    min-height: 0;
     margin: 0;
     padding: 12px 10px !important;
     overflow-x: hidden;
@@ -1847,54 +1863,59 @@ nav#mainsidebar > ul {
 }
 
 nav#mainsidebar > ul.nav-pills {
-    flex: 1 1 auto;
-    overflow-x: hidden;
-    overflow-y: auto;
+    display: block;
+    flex: 0 0 auto;
+    overflow: visible;
     margin: 0;
     padding: 0 0 12px;
 }
 
 nav#mainsidebar .nav-item,
 nav#mainsidebar .erp-module-menu {
-    width: 100%;
-    min-width: 0;
-}
-
-nav#mainsidebar .nav-link,
-nav#mainsidebar .erp-module-menu > summary {
     display: block;
     width: 100%;
     min-width: 0;
-    padding: 8px 10px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    line-height: 1.35;
-    border-radius: 6px;
 }
 
 nav#mainsidebar .erp-module-menu > summary {
+    display: list-item;
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+    border-radius: 6px;
     cursor: pointer;
-    list-style-position: inside;
+}
+
+nav#mainsidebar .erp-module-menu[open] > summary {
+    margin-bottom: 4px;
 }
 
 nav#mainsidebar .erp-module-menu > div.ms-3 {
+    display: block;
     margin-left: .35rem !important;
 }
 
 nav#mainsidebar .erp-module-menu > div > div {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 nav#mainsidebar .erp-module-menu ul {
+    display: block;
     margin: 0;
     padding: 0;
 }
 
 nav#mainsidebar .erp-module-menu ul .nav-link {
+    display: block;
+    width: 100%;
     padding: 6px 8px 6px 14px;
+    white-space: normal;
+    overflow-wrap: anywhere;
     font-size: .82rem;
 }
 
@@ -1906,23 +1927,30 @@ nav#mainsidebar > ul.navbar-nav {
 
 nav#mainsidebar > ul.navbar-nav li,
 nav#mainsidebar > ul.navbar-nav a {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 main#view-panel {
-    margin-left: 270px !important;
-    width: calc(100% - 270px) !important;
+    flex: 1 1 auto;
+    margin-left: 0 !important;
+    width: auto !important;
     min-width: 0;
+    height: 100%;
+    max-height: 100%;
+    overflow: auto !important;
 }
 
 @media (max-width: 767.98px) {
+    header#headerid + main {
+        display: block;
+        height: auto;
+        max-height: none;
+        overflow: visible;
+    }
+
     nav#mainsidebar {
         position: relative;
-        top: auto;
-        left: auto;
-        bottom: auto;
         width: 100%;
         min-width: 0;
         max-height: 42vh;
@@ -1931,7 +1959,8 @@ main#view-panel {
     }
 
     main#view-panel {
-        margin-left: 0 !important;
         width: 100% !important;
+        height: auto;
+        max-height: none;
     }
 }
