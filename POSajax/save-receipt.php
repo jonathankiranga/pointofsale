@@ -19,9 +19,9 @@ if (!is_array($receiptData) || empty($receiptData['items']) || empty($receiptDat
 /* Reuse the POS application session, database connection and user context. */
 $PathPrefix = '../';
 include('../includes/globalsession.inc');
-include('../includes/DateFunctions.inc');
-include('../includes/SQL_CommonFunctions.inc');
-include('../Ajax/DatafunctionsForAjax.inc');
+include_once('../includes/DateFunctions.inc');
+include_once('../includes/SQL_CommonFunctions.inc');
+include_once('../Ajax/DatafunctionsForAjax.inc');
 
 if (empty($_SESSION['DatabaseName']) || empty($_SESSION['UserID'])) {
     posSaveResponse(false, 'Your POS session has expired. Sign in again.', 401);
