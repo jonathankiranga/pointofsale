@@ -169,6 +169,7 @@ var menuStyles = [
 ];
 
 var menuItems = [
+       ["Point of Sale","posindex.php", "bank.gif", "bank.gif", "", "", "", "", "", "", "", ],
        ["Customers","", "sales.gif", "sales.gif", "", "", "", "", "", "", "", ],
         ["|New","", "icon_xp3_3.gif", "icon_xp3_3o.gif", "", "", "", "", "", "", "", ],
             ["||Customer Posting Group Setup","index.php?link=CustomersPostingGroups", "", "", "", "", "", "", "", "", "", ],
