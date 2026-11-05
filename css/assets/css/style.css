@@ -1820,6 +1820,33 @@ label{
     background-position: center;
 }
 
+
+/* Keep ERP module headings in view while the active submenu scrolls independently. */
+nav#mainsidebar .erp-module-menu > div.ms-3 {
+    box-sizing: border-box;
+    max-height: min(34vh, 280px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding-right: 4px;
+}
+
+nav#mainsidebar .erp-module-menu[open] {
+    flex: 0 0 auto;
+}
+
+nav#mainsidebar .erp-module-menu > summary {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-height: 650px) {
+    nav#mainsidebar .erp-module-menu > div.ms-3 {
+        max-height: 26vh;
+    }
+}
+
 /* ERP application shell: align the sidebar to the measured header height. */
 :root {
     --app-header-height: 72px;
