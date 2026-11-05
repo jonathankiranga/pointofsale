@@ -1,17 +1,20 @@
 /* global bootstrap: false */
 (function () {
-  'use strict'
-  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-    new bootstrap.Tooltip(tooltipTriggerEl)
-  })
-})()
+  'use strict';
 
-var clientHeight = document.getElementById('headerid').clientHeight;
+  var tooltipTriggerList = [].slice.call(
+    document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  );
 
-document.getElementById('mainsidebar').style.position='absolute';
-document.getElementById('mainsidebar').style.top=(28+clientHeight)+'px';
+  if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }
 
-document.getElementById('view-panel').style.position='absolute';
-document.getElementById('view-panel').style.top=(28+clientHeight)+'px';
-
+  /*
+   * Sidebar and content positioning is controlled by css/assets/css/style.css.
+   * Do not assign inline position/top values here: those override the responsive
+   * fixed-sidebar layout and can push menu headings outside the initial viewport.
+   */
+})();
