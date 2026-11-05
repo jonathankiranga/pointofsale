@@ -39,6 +39,7 @@ echo '<img src="css/xenos/images/company.png" title="'._('Company').'" alt="'._(
 echo '</a>';
  
 echo ' <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">';
+echo '<li><a class="nav-link text-white" href="posindex.php"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#basket"/></svg>' . _('Point of Sale') . '</a></li>';
 echo '<li><a class="nav-link text-white" href="index.php?link=UserSettings"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#table"/></svg>User Logged : ' . stripslashes($_SESSION['UsersRealName']).'</a></li>';
 		
 if (isset($Title)) {
