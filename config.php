@@ -20,6 +20,11 @@ $AllowCompanySelectionBox = 'ShowSelectionBox';
 //The system administrator name use the user input mail;
 $SysAdminEmail = '';
 $DefaultDatabase = 'posv1';
+// POS receipt printing service URL. Use localhost when the printer service runs
+// on the same computer as the browser, or a LAN address when it runs elsewhere.
+// Example: 'http://192.168.1.50:3000/print-receipt'
+$POSPrintUrl = 'http://localhost:3000/print-receipt';
+
 $SessionLifeTime = 3600;
 $MaximumExecutionTime = 3600;
 $CryptFunction = 'sha1';
