@@ -38,7 +38,9 @@ if(isset($_GET['link'])){
    $_SESSION['SCRIPT_NAME_BASE']="$getpage.php" ;
 }
 
-if($_SESSION['SCRIPT_NAME_BASE']=='Logout.php'){
+$scriptNameBase = isset($_SESSION['SCRIPT_NAME_BASE']) ? $_SESSION['SCRIPT_NAME_BASE'] : '';
+
+if ($scriptNameBase === 'Logout.php') {
     session_unset();
     session_destroy();
     $PageSecurity=0;
@@ -50,8 +52,8 @@ if($_SESSION['SCRIPT_NAME_BASE']=='Logout.php'){
     echo '<main id="view-panel" class="container">';
     include('includes/boostrapfooter.inc');
     
-}elseif(isset($_SESSION['SCRIPT_NAME_BASE'])){
-    include $_SESSION['SCRIPT_NAME_BASE'] ;
+} elseif ($scriptNameBase !== '') {
+    include $scriptNameBase;
 }else{
     $PageSecurity=0;
     include('includes/session.inc');
