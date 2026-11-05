@@ -81,25 +81,25 @@ echo '<button class="navbar-toggler position-absolute d-md-none collapsed" type=
   </div>
 </header><script>
 (function () {
-    var header = document.getElementById('headerid');
+    var header = document.getElementById("headerid");
     if (!header) {
         return;
     }
 
     var updateHeaderHeight = function () {
         document.documentElement.style.setProperty(
-            '--app-header-height',
-            header.getBoundingClientRect().height + 'px'
+            "--app-header-height",
+            header.getBoundingClientRect().height + "px"
         );
     };
 
     updateHeaderHeight();
 
-    if (typeof ResizeObserver !== 'undefined') {
+    if (typeof ResizeObserver !== "undefined") {
         var headerObserver = new ResizeObserver(updateHeaderHeight);
         headerObserver.observe(header);
     } else {
-        window.addEventListener('resize', updateHeaderHeight);
+        window.addEventListener("resize", updateHeaderHeight);
     }
 })();
 </script>';
