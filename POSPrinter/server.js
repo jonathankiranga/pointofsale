@@ -46,7 +46,7 @@ function money(value) {
 }
 
 function clean(value) {
-    return String(value == null ? '' : value).replace(/[\\x00-\\x1F\\x7F]/g, ' ').trim();
+    return String(value == null ? '' : value).replace(/[\x00-\x1F\x7F]/g, ' ').trim();
 }
 
 function fit(value, width) {
