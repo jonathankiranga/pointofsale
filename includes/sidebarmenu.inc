@@ -14,6 +14,7 @@ if (!$hadDefaultDisplayRecordsMax) {
 }
 
 $erpModuleLabels = array(
+    'Sales' => _('Sales'),
     'GeneralLedger' => _('General Ledger'),
     'AccountsReceivable' => _('Accounts Receivable'),
     'AccountsPayable' => _('Accounts Payable'),
@@ -31,9 +32,6 @@ $erpMenuSections = array('Transactions', 'Reports', 'Maintenance');
         </button>
         <div class="collapse navbar-collapse" id="erpModuleNavigation">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link fw-semibold" href="<?php echo htmlspecialchars($posTerminalUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">Point of Sale (Touch)</a>
-                </li>
 <?php foreach ($erpModuleLabels as $moduleKey => $moduleLabel): ?>
 <?php
     if (!isset($MenuItems[$moduleKey]) || !is_array($MenuItems[$moduleKey])) {
@@ -62,10 +60,15 @@ $erpMenuSections = array('Transactions', 'Reports', 'Maintenance');
             if (!empty($queryString)) {
                 parse_str($queryString, $queryParams);
             }
-            $queryParams = array_merge(array('link' => $pageName), $queryParams);
+            if (strcasecmp($scriptFile, 'posindex.php') === 0) {
+                $itemHref = $posTerminalUrl;
+            } else {
+                $queryParams = array_merge(array('link' => $pageName), $queryParams);
+                $itemHref = 'index.php?' . http_build_query($queryParams);
+            }
             $sectionItems[] = array(
                 'caption' => $captions[$i],
-                'href' => 'index.php?' . http_build_query($queryParams)
+                'href' => $itemHref
             );
         }
         if (count($sectionItems) > 0) {
