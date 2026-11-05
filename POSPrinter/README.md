@@ -16,7 +16,8 @@ Direct USB, serial and Bluetooth adapters are not bundled in this release. Use a
 2. Copy `config.example.json` to `config.json`.
 3. Set a random `apiToken` (at least 24 characters); match it to `$POSPrintToken` in the POS root `config.php`.
 4. Configure one or more printer profiles and set `defaultPrinterId`.
-5. Add the exact POS origin (scheme and port) to `allowedOrigins`.
+5. In the POS root `config.php`, set `$POSPrinterId` to a profile ID to override the default, or leave it blank to use `defaultPrinterId`.
+6. Add the exact POS origin (scheme and port) to `allowedOrigins`.
 6. Run `npm start`; run unit tests using `npm test`.
 
 ## API
