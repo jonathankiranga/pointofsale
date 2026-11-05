@@ -25,6 +25,8 @@ $DefaultDatabase = 'posv1';
 // Example: 'http://192.168.1.50:3000/print-receipt'
 $POSPrintUrl = 'http://127.0.0.1:3000/print-receipt';
 $POSPrintToken = 'CHANGE-THIS-TO-A-LONG-RANDOM-SECRET';
+// Optional printer profile ID from POSPrinter/config.json. Leave blank to use defaultPrinterId.
+$POSPrinterId = '';
 
 $SessionLifeTime = 3600;
 $MaximumExecutionTime = 3600;
