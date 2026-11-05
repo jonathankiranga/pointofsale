@@ -51,6 +51,7 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
         currency: 'KES',
         paymentMethod: paymentMethod || 'CASH',
         mpesaPhone: mpesaPhone || '',
+        printerId: window.POS_PRINTER_ID || '',
         printedAt: new Date().toISOString()
     };
 }

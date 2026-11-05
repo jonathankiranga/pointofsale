@@ -1,13 +1,9 @@
 {
-  "name": "pointofsale-printer-service",
+  "name": "pointofsale-print-agent",
   "version": "1.0.0",
   "private": true,
-  "description": "Local ESC/POS network receipt printer service for the POS application",
+  "description": "Extensible local printing service for the POS application",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "engines": {
-    "node": ">=18"
-  }
+  "scripts": { "start": "node server.js", "test": "node --test" },
+  "engines": { "node": ">=18" }
 }
