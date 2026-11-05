@@ -20,7 +20,7 @@ if(isset($_GET['DocumentNo'])){
     
     $array=array();
     $sql=sprintf("select Account,transtype,itemcode,amount,narration from"
-            . " JournalEntries where [Docdate]='%s' and [JournalNo]='%s'",
+            . " JournalEntries where `Docdate`='%s' and `JournalNo`='%s'",
             trim($_GET['Docdate']),trim($_GET['DocumentNo']));
     
    
@@ -201,8 +201,8 @@ class journalentries {
     function GetBankDetails($accountCode){
          Global $db;
          
-        $resultindex=DB_query("SELECT [BankAccounts].[currency],[currencies].[rate]
-        FROM [BankAccounts] join [currencies] on [BankAccounts].[currency]=[currencies].[currabrev] where [accountcode]='".$accountCode."'", $db);
+        $resultindex=DB_query("SELECT `BankAccounts`.`currency`,`currencies`.`rate`
+        FROM `BankAccounts` join `currencies` on `BankAccounts`.`currency`=`currencies`.`currabrev` where `accountcode`='".$accountCode."'", $db);
         
         $row=DB_fetch_row($resultindex);
         $BankArray['currency']=$row[0];
@@ -214,7 +214,7 @@ class journalentries {
     function GetCustomerCurrency($itemcode){
         global $db;
         
-        $ResultIndex = DB_query("select [curr_cod] FROM [debtors] where itemcode='".$itemcode."'", $db);
+        $ResultIndex = DB_query("select `curr_cod` FROM `debtors` where itemcode='".$itemcode."'", $db);
         $rows = DB_fetch_row($ResultIndex);
         $postingGroups['curr_cod'] = $rows[0];
         
@@ -224,7 +224,7 @@ class journalentries {
     function GetSupplierCurrency($itemcode){
         global $db;
         
-        $ResultIndex = DB_query("select [curr_cod] FROM [creditors] where itemcode='".$itemcode."'", $db);
+        $ResultIndex = DB_query("select `curr_cod` FROM `creditors` where itemcode='".$itemcode."'", $db);
         $rows = DB_fetch_row($ResultIndex);
         $postingGroups['curr_cod'] = $rows[0];
         
@@ -269,7 +269,7 @@ class journalentries {
         $array=array();
         
         if($type=='debtors'){
-               $sql="SELECT [itemcode],[customer] FROM [debtors] where [itemcode]='".$itemcode."'";
+               $sql="SELECT `itemcode`,`customer` FROM `debtors` where `itemcode`='".$itemcode."'";
                $ResultIndex = DB_query($sql,$db);
                $row = DB_fetch_row($ResultIndex);
                $array['accno']=$row[0];
@@ -277,7 +277,7 @@ class journalentries {
         } 
         
         if($type=='creditors'){
-               $sql="SELECT [itemcode],[customer] FROM [creditors] where (IsEmployee is null) and [itemcode]='".$itemcode."'";
+               $sql="SELECT `itemcode`,`customer` FROM `creditors` where (IsEmployee is null) and `itemcode`='".$itemcode."'";
                $ResultIndex = DB_query($sql,$db);
                $row = DB_fetch_row($ResultIndex);
                $array['accno']=$row[0];
@@ -285,7 +285,7 @@ class journalentries {
         }
         
         if($type=='employee'){
-            $sql="SELECT [itemcode],[customer] FROM [creditors] where IsEmployee=1 and [itemcode]='".$itemcode."'";
+            $sql="SELECT `itemcode`,`customer` FROM `creditors` where IsEmployee=1 and `itemcode`='".$itemcode."'";
             $ResultIndex = DB_query($sql,$db);
                $row = DB_fetch_row($ResultIndex);
                $array['accno']=$row[0];
@@ -294,7 +294,7 @@ class journalentries {
         }
         
         if($type=='bank'){
-               $sql="SELECT [accountcode],[bankName] FROM [BankAccounts] where [accountcode]='".$itemcode."'";
+               $sql="SELECT `accountcode`,`bankName` FROM `BankAccounts` where `accountcode`='".$itemcode."'";
                $ResultIndex = DB_query($sql,$db);
                $row = DB_fetch_row($ResultIndex);
                $array['accno']=$row[0];
@@ -302,7 +302,7 @@ class journalentries {
         }
         
         if($type=='GL'){
-               $sql="SELECT [accno],[accdesc] FROM [acct] where [accno]='".$itemcode."' ";
+               $sql="SELECT `accno`,`accdesc` FROM `acct` where `accno`='".$itemcode."' ";
                $ResultIndex = DB_query($sql,$db);
                $row = DB_fetch_row($ResultIndex);
                $array['accno']=$row[0];
@@ -332,7 +332,7 @@ class journalentries {
      Function GetGL($account,$db){
         $array= array();
         
-        $ResultIndex = DB_query("SELECT [accno],[accdesc] FROM [acct] where [accno]='".$account."' ", $db);
+        $ResultIndex = DB_query("SELECT `accno`,`accdesc` FROM `acct` where `accno`='".$account."' ", $db);
         $row = DB_fetch_row($ResultIndex);
         
         $array['accno']=$row[0];
@@ -352,10 +352,10 @@ class journalentries {
         $BalanceSheet[2]=":Suspense";
       
         if($default==false){
-          $sql = "Select accno,CONVERT(VARCHAR(50),Rtrim([accdesc])) as accdesc,ReportCode,ReportStyle,[balance_income] FROM [acct] "
-              . " where [ReportStyle]=0 and [direct]=1 and [inactive]=0 order by accdesc,ReportCode asc";
+          $sql = "Select accno,TRIM(`accdesc`) as accdesc,ReportCode,ReportStyle,`balance_income` FROM `acct` "
+              . " where `ReportStyle`=0 and `direct`=1 and `inactive`=0 order by accdesc,ReportCode asc";
         }else{
-          $sql = "Select accno,CONVERT(VARCHAR(50),Rtrim([accdesc])) as accdesc,ReportCode,ReportStyle,[balance_income] FROM [acct] "
+          $sql = "Select accno,TRIM(`accdesc`) as accdesc,ReportCode,ReportStyle,`balance_income` FROM `acct` "
                . " where accno='".$default."' order by accdesc,ReportCode asc";
         }
                      
@@ -381,7 +381,7 @@ class journalentries {
         $array ='<select name="'.$objname.'"  onchange="ReloadForm(Journal.update)">';
         
         if($type=='debtors'){
-            $ResultIndex = DB_query("SELECT [itemcode],[customer] FROM [debtors] order by customer", $db);
+            $ResultIndex = DB_query("SELECT `itemcode`,`customer` FROM `debtors` order by customer", $db);
             while($row = DB_fetch_array($ResultIndex)){
              $selected=(trim($row['itemcode']) == trim($value))?'selected="selected"':'';       
                
@@ -390,7 +390,7 @@ class journalentries {
         
         }
             if($type=='creditors'){
-            $ResultIndex = DB_query("SELECT [itemcode],[customer] FROM [creditors]  where IsEmployee is null order by customer", $db);
+            $ResultIndex = DB_query("SELECT `itemcode`,`customer` FROM `creditors`  where IsEmployee is null order by customer", $db);
              while($row = DB_fetch_array($ResultIndex)){
                 $selected=(trim($row['itemcode']) == trim($value))?'selected="selected"':'';
                 $array .='<option value="'.$row['itemcode'].'" '.$selected.'>'.$row['customer'].'</option>';
@@ -398,7 +398,7 @@ class journalentries {
         } 
         
         if($type=='employee'){
-            $ResultIndex = DB_query("SELECT [itemcode],[customer] FROM [creditors] where IsEmployee=1  order by customer asc", $db);
+            $ResultIndex = DB_query("SELECT `itemcode`,`customer` FROM `creditors` where IsEmployee=1  order by customer asc", $db);
              while($row = DB_fetch_array($ResultIndex)){
                 $selected=(trim($row['itemcode']) == trim($value))?'selected="selected"':'';
                 $array .='<option value="'.$row['itemcode'].'" '.$selected.'>'.$row['customer'].'</option>';
@@ -406,7 +406,7 @@ class journalentries {
           } 
          
           if($type=='bank'){
-                $ResultIndex = DB_query("SELECT [accountcode],[bankName] FROM [BankAccounts]", $db);
+                $ResultIndex = DB_query("SELECT `accountcode`,`bankName` FROM `BankAccounts`", $db);
                  while($row = DB_fetch_array($ResultIndex)){
                     $selected=(trim($row['accountcode']) == trim($value))?'selected="selected"':'';
                    $array .='<option value="'.$row['accountcode'].'" '.$selected.'>'.$row['bankName'].'</option>';
@@ -415,7 +415,7 @@ class journalentries {
         
         
         if($type=='GL'){
-                $ResultIndex = DB_query("Select accno,accdesc,ReportCode,ReportStyle,[balance_income] FROM [acct] where [ReportStyle]=0 and [direct]=1 and [inactive]=0 order by ReportCode,accdesc asc", $db);
+                $ResultIndex = DB_query("Select accno,accdesc,ReportCode,ReportStyle,`balance_income` FROM `acct` where `ReportStyle`=0 and `direct`=1 and `inactive`=0 order by ReportCode,accdesc asc", $db);
                 while($row = DB_fetch_array($ResultIndex)){
                     $selected= (trim($row['accno'])==trim($value)?'selected="selected"':'');
                     $array .='<option value="'.$row['accno'].'" '.$selected.'>'.$row['accdesc'].' "'.$BalanceSheet[$row['balance_income']].'"</option>';
@@ -478,29 +478,29 @@ class journalentries {
             case 1:
                 // debtors
                  $SQL="SELECT
-                    [postinggroups].[debtorsaccount]
-                    FROM [debtors] 
-                    join [postinggroups] on [debtors].[customerposting]=[postinggroups].[code]
-                    where [itemcode]='".$acount."'";
+                    `postinggroups`.`debtorsaccount`
+                    FROM `debtors` 
+                    join `postinggroups` on `debtors`.`customerposting`=`postinggroups`.`code`
+                    where `itemcode`='".$acount."'";
 
                 break;
             case 2: 
                 // creditors
                $SQL="SELECT
-                    [arpostinggroups].creditorsaccount
-                    FROM [creditors] 
-                    join [arpostinggroups] on [creditors].[supplierposting]=[arpostinggroups].[code]
-                    where [itemcode]='".$acount."'";
+                    `arpostinggroups`.creditorsaccount
+                    FROM `creditors` 
+                    join `arpostinggroups` on `creditors`.`supplierposting`=`arpostinggroups`.`code`
+                    where `itemcode`='".$acount."'";
 
                 break;
             case 3: 
                 // bank
-                $SQL="SELECT [PostingGroup] FROM [BankAccounts] where accountcode='".$acount."'";
+                $SQL="SELECT `PostingGroup` FROM `BankAccounts` where accountcode='".$acount."'";
 
                 break;
             case 4: 
                 // bank
-                $SQL="SELECT [accno] FROM [acct] where [accno]='".$acount."' ";
+                $SQL="SELECT `accno` FROM `acct` where `accno`='".$acount."' ";
                break;
             default:
                 break;
@@ -517,50 +517,50 @@ class journalentries {
         global $db;
      $SQLARRAY=array();
        
-    $SQLARRAY[]="Delete FROM [JournalEntries] where [JournalNo] in (select [journalno] from [Generalledger] G where  G.[Docdate]='".$TransDate."'  and  G.[DocumentNo]='".$DocumentNO."')";
+    $SQLARRAY[]="Delete FROM `JournalEntries` where `JournalNo` in (select `journalno` from `Generalledger` G where  G.`Docdate`='".$TransDate."'  and  G.`DocumentNo`='".$DocumentNO."')";
    
-    $SQLARRAY[]="delete from [Generalledger] where [DocumentType]='".$Documenttype."' and  [journalno] in (select [journalno] from [Generalledger] G where  G.[Docdate]='".$TransDate."'  and  G.[DocumentNo]='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `Generalledger` where `DocumentType`='".$Documenttype."' and  `journalno` in (select `journalno` from `Generalledger` G where  G.`Docdate`='".$TransDate."'  and  G.`DocumentNo`='".$DocumentNO."')";
            
-    $SQLARRAY[]="delete from [Generalledger] where [DocumentType]='".$Documenttype."' and  [journalno] in (select [journal] from [BankTransactions] G where G.[Docdate]='".$TransDate."'  and  G.[DocumentNo] ='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `Generalledger` where `DocumentType`='".$Documenttype."' and  `journalno` in (select `journal` from `BankTransactions` G where G.`Docdate`='".$TransDate."'  and  G.`DocumentNo` ='".$DocumentNO."')";
     
-    $SQLARRAY[]="delete from [BankTransactions] where [doctype]='".$Documenttype."' and  [journal] in (select [journal] from [BankTransactions] G where G.[Docdate]='".$TransDate."'  and G.[DocumentNo] ='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `BankTransactions` where `doctype`='".$Documenttype."' and  `journal` in (select `journal` from `BankTransactions` G where G.`Docdate`='".$TransDate."'  and G.`DocumentNo` ='".$DocumentNO."')";
     
-    $SQLARRAY[]="delete from [BankTransactions] where [doctype]='".$Documenttype."' and  [journal] in (select [journal] from [creditorsledger] C  where  C.[date]='".$TransDate."'  and  C.[systypes_1]='".$Documenttype."' and  C.[invref]='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `BankTransactions` where `doctype`='".$Documenttype."' and  `journal` in (select `journal` from `creditorsledger` C  where  C.`date`='".$TransDate."'  and  C.`systypes_1`='".$Documenttype."' and  C.`invref`='".$DocumentNO."')";
     
-    $SQLARRAY[]="delete from [Generalledger] where [DocumentType]='".$Documenttype."' and  [journalno] in (select [journal] from [creditorsledger] C where C.[date]='".$TransDate."'  and  C.[systypes_1]='".$Documenttype."' and  C.[invref]='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `Generalledger` where `DocumentType`='".$Documenttype."' and  `journalno` in (select `journal` from `creditorsledger` C where C.`date`='".$TransDate."'  and  C.`systypes_1`='".$Documenttype."' and  C.`invref`='".$DocumentNO."')";
      
-    $SQLARRAY[]="delete from [creditorsledger] where [systypes_1]='".$Documenttype."' and [journal] in (select [journal] from [creditorsledger] C where C.[date]='".$TransDate."' and  C.[systypes_1]='".$Documenttype."' and C.[invref]='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `creditorsledger` where `systypes_1`='".$Documenttype."' and `journal` in (select `journal` from `creditorsledger` C where C.`date`='".$TransDate."' and  C.`systypes_1`='".$Documenttype."' and C.`invref`='".$DocumentNO."')";
     
-    $SQLARRAY[]="delete from [SupplierStatement] where [Documenttype]='".$Documenttype."' and  [Date]='".$TransDate."'  and   [Documentno]='".$DocumentNO."'";
+    $SQLARRAY[]="delete from `SupplierStatement` where `Documenttype`='".$Documenttype."' and  `Date`='".$TransDate."'  and   `Documentno`='".$DocumentNO."'";
     
-    $SQLARRAY[]="delete from [BankTransactions] where [doctype]='".$Documenttype."' and  [journal] in (select [journal] from [debtorsledger] C where  C.[date]='".$TransDate."' and  C.[invref]='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `BankTransactions` where `doctype`='".$Documenttype."' and  `journal` in (select `journal` from `debtorsledger` C where  C.`date`='".$TransDate."' and  C.`invref`='".$DocumentNO."')";
   
-    $SQLARRAY[]="delete from [Generalledger] where [DocumentType]='".$Documenttype."' and  [journalno] in (select [journal] from [debtorsledger] C where C.[date]='".$TransDate."' and  C.[invref]='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `Generalledger` where `DocumentType`='".$Documenttype."' and  `journalno` in (select `journal` from `debtorsledger` C where C.`date`='".$TransDate."' and  C.`invref`='".$DocumentNO."')";
      
-    $SQLARRAY[]="delete from [debtorsledger] where [journal] in (select [journal] from [debtorsledger] C where C.[date]='".$TransDate."' and  C.[invref]='".$DocumentNO."')";
+    $SQLARRAY[]="delete from `debtorsledger` where `journal` in (select `journal` from `debtorsledger` C where C.`date`='".$TransDate."' and  C.`invref`='".$DocumentNO."')";
     
-    $SQLARRAY[]="delete from [CustomerStatement] where [Date]='".$TransDate."' and  [Documentno]='".$_POST['DocumentNO']."'  and [Documenttype]='".$Documenttype."'";
+    $SQLARRAY[]="delete from `CustomerStatement` where `Date`='".$TransDate."' and  `Documentno`='".$_POST['DocumentNO']."'  and `Documenttype`='".$Documenttype."'";
       
-    $SQLARRAY[]="delete from [stockledger] where [date]='".$TransDate."' and  [invref]='".$DocumentNO."'";
+    $SQLARRAY[]="delete from `stockledger` where `date`='".$TransDate."' and  `invref`='".$DocumentNO."'";
  
-    $SQLARRAY[]="delete from [tanktrans] where [date]='".$TransDate."' and  [batchno]='".$DocumentNO."'";
+    $SQLARRAY[]="delete from `tanktrans` where `date`='".$TransDate."' and  `batchno`='".$DocumentNO."'";
  
-    $SQLARRAY[]="Delete FROM [SupplierStatement] where [Documenttype]='".$Documenttype."' and [JournalNo] in (select [journal] FROM [pettdoc] where [petteycashno]='".$DocumentNO."')";
-    $SQLARRAY[]="Delete FROM [creditorsledger] where [systypes_1]='".$Documenttype."' and [journal] in (select [journal] FROM [pettdoc] where [petteycashno]='".$DocumentNO."')";
+    $SQLARRAY[]="Delete FROM `SupplierStatement` where `Documenttype`='".$Documenttype."' and `JournalNo` in (select `journal` FROM `pettdoc` where `petteycashno`='".$DocumentNO."')";
+    $SQLARRAY[]="Delete FROM `creditorsledger` where `systypes_1`='".$Documenttype."' and `journal` in (select `journal` FROM `pettdoc` where `petteycashno`='".$DocumentNO."')";
     
-    $SQLARRAY[]="Delete FROM [BankTransactions] where [doctype]='".$Documenttype."' and  [journal] in (select [journal] FROM [pettdoc] where [petteycashno]='".$DocumentNO."')";
-    $SQLARRAY[]="Delete FROM [Generalledger] where [journalno] in (select [journal] FROM [pettdoc] where [petteycashno]='".$DocumentNO."')";
+    $SQLARRAY[]="Delete FROM `BankTransactions` where `doctype`='".$Documenttype."' and  `journal` in (select `journal` FROM `pettdoc` where `petteycashno`='".$DocumentNO."')";
+    $SQLARRAY[]="Delete FROM `Generalledger` where `journalno` in (select `journal` FROM `pettdoc` where `petteycashno`='".$DocumentNO."')";
     
-    $SQLARRAY[]="Delete FROM [CustomerStatement] where [JournalNo] in (select [journal] FROM [pettdoc] where [petteycashno]='".$DocumentNO."')";
-    $SQLARRAY[]="Delete FROM [debtorsledger] where [journal] in (select [journal] FROM [pettdoc] where [petteycashno]='".$DocumentNO."')";
+    $SQLARRAY[]="Delete FROM `CustomerStatement` where `JournalNo` in (select `journal` FROM `pettdoc` where `petteycashno`='".$DocumentNO."')";
+    $SQLARRAY[]="Delete FROM `debtorsledger` where `journal` in (select `journal` FROM `pettdoc` where `petteycashno`='".$DocumentNO."')";
     
-    $SQLARRAY[]="Delete FROM [pettdoc] where [petteycashno]='".$DocumentNO."'";
+    $SQLARRAY[]="Delete FROM `pettdoc` where `petteycashno`='".$DocumentNO."'";
    
-    $SQLARRAY[]="Delete FROM [PurchaseLine] where [documentno] ='".$DocumentNO."'";
-    $SQLARRAY[]="Delete FROM [PurchaseHeader] where [documentno] ='".$DocumentNO."'";
+    $SQLARRAY[]="Delete FROM `PurchaseLine` where `documentno` ='".$DocumentNO."'";
+    $SQLARRAY[]="Delete FROM `PurchaseHeader` where `documentno` ='".$DocumentNO."'";
    
-    $SQLARRAY[]="Delete FROM [SalesLine] where [documentno] ='".$DocumentNO."'";
-    $SQLARRAY[]="Delete FROM [SalesHeader] where [documentno] ='".$DocumentNO."'";
+    $SQLARRAY[]="Delete FROM `SalesLine` where `documentno` ='".$DocumentNO."'";
+    $SQLARRAY[]="Delete FROM `SalesHeader` where `documentno` ='".$DocumentNO."'";
     
     
     
@@ -595,17 +595,17 @@ return  $rowcount;
         $this->JOURNAL=$_SESSION['JournalEntryDetails'];
         foreach ($this->JOURNAL as $key => $row)  {
            
-          $this->JournalArray[]=  sprintf("INSERT INTO [JournalEntries]
-          ([Docdate],[JournalNo],[Currency],[Dimension_1],[Dimension_2],[Account],[Balaccount],[transtype],[itemcode],[narration],[amount])
+          $this->JournalArray[]=  sprintf("INSERT INTO `JournalEntries`
+          (`Docdate`,`JournalNo`,`Currency`,`Dimension_1`,`Dimension_2`,`Account`,`Balaccount`,`transtype`,`itemcode`,`narration`,`amount`)
            VALUES ('%s','%s','%s','%s','%s','%s' ,'%s','%s','%s','%s',%f)", FormatDateForSQL($_POST['date']),$_POST['JournalNo'],$_POST['currency'],$_POST['DimensionOne'],$_POST['DimensionTwo'],
            $row['account'],$row['account'], $row['acctype'],$row['itemcode'],$_POST['comments'],$row['amount']);
            
           if($row['acctype']=='GL'){
-           $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
-           ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],
-           [balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,
-           [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],
-           [dimension],[dimension2]) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
+           $this->JournalArray[]= sprintf("INSERT INTO `Generalledger`
+           (`journalno`,`Docdate`,`period`,`DocumentNo`,`DocumentType`,`accountcode`,
+           `balaccountcode`,`amount`,`currencycode`,`ExchangeRate`,`cutomercode`,`suppliercode` ,
+           `bankcode`,`reconcilled`,`narration`,`ExchangeRateDiff`,`VATaccountcode`,`VATamount`,
+           `dimension`,`dimension2`) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
             '%s','%s','%s','%s','%s','%s','%s')", $JOURNAL,FormatDateForSQL($_POST['date']),$periodno,
             $_POST['JournalNo'],'0',$row['account'],$row['itemcode'],abs($row['amount']),
             $_POST['currency'],$Conrate,(($row['acctype']=='debtors')?$row['itemcode']:''),
@@ -627,20 +627,20 @@ return  $rowcount;
                 $credit = $row['account'];
             }
             
-            $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
-           ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],
-           [balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,
-           [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],
-           [dimension],[dimension2]) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
+            $this->JournalArray[]= sprintf("INSERT INTO `Generalledger`
+           (`journalno`,`Docdate`,`period`,`DocumentNo`,`DocumentType`,`accountcode`,
+           `balaccountcode`,`amount`,`currencycode`,`ExchangeRate`,`cutomercode`,`suppliercode` ,
+           `bankcode`,`reconcilled`,`narration`,`ExchangeRateDiff`,`VATaccountcode`,`VATamount`,
+           `dimension`,`dimension2`) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
             '%s','%s','%s','%s','%s','%s','%s')", $JOURNAL,FormatDateForSQL($_POST['date']),$periodno,
             $_POST['JournalNo'],'0',$debit,$credit,abs($row['amount']),$_POST['currency'],$Conrate,(($row['acctype']=='debtors')?$row['itemcode']:''),
             (($row['acctype']=='creditors')?$row['itemcode']:''),(($row['acctype']=='bank')?$row['itemcode']:''),0,
             $_POST['comments'],'0','','0',$_POST['DimensionOne'],$_POST['DimensionTwo'] );
             
             
-            $this->JournalArray[]=  sprintf("INSERT INTO [BankTransactions]
-           ([bankcode],[DocDate],[doctype],[DocumentNo],[TransType],[journal],
-           [amount],[narrative] ,[exchangerate],[itemcode]) values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s') ",
+            $this->JournalArray[]=  sprintf("INSERT INTO `BankTransactions`
+           (`bankcode`,`DocDate`,`doctype`,`DocumentNo`,`TransType`,`journal`,
+           `amount`,`narrative` ,`exchangerate`,`itemcode`) values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s') ",
             $row['itemcode'],FormatDateForSQL($_POST['date']),'0',$_POST['JournalNo'],$row['acctype'],$JOURNAL,
             ($row['amount'] * $Conrate)* -1,$_POST['comments'] ,$Conrate ,$row['account']);
          }
@@ -658,23 +658,23 @@ return  $rowcount;
                      $credit = $row['account'];
                  }
             
-                $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
-               ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,
-               [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],[dimension],[dimension2]) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
+                $this->JournalArray[]= sprintf("INSERT INTO `Generalledger`
+               (`journalno`,`Docdate`,`period`,`DocumentNo`,`DocumentType`,`accountcode`,`balaccountcode`,`amount`,`currencycode`,`ExchangeRate`,`cutomercode`,`suppliercode` ,
+               `bankcode`,`reconcilled`,`narration`,`ExchangeRateDiff`,`VATaccountcode`,`VATamount`,`dimension`,`dimension2`) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
                 '%s','%s','%s','%s','%s','%s','%s')", $JOURNAL,FormatDateForSQL($_POST['date']),$periodno,
                 $_POST['JournalNo'],'0',$debit,$credit,abs($row['amount']),$_POST['currency'],$Conrate,(($row['acctype']=='debtors')?$row['itemcode']:''),
                 (($row['acctype']=='creditors')?$row['itemcode']:''),(($row['acctype']=='bank')?$row['itemcode']:''),0,
                 $_POST['comments'],'0','','0',$_POST['DimensionOne'],$_POST['DimensionTwo'] );
 
                  
-                 $this->JournalArray[]=  sprintf("INSERT INTO [CustomerStatement]
-                ([Date],[Documentno] ,[Documenttype] ,[Accountno],[Grossamount] ,[JournalNo],[Dimension_One],[Dimension_Two],[Currency]) VALUES ('%s','%s','%s' ,'%s' ,%f ,'%s' ,'%s' ,'%s' ,'%s')",
+                 $this->JournalArray[]=  sprintf("INSERT INTO `CustomerStatement`
+                (`Date`,`Documentno` ,`Documenttype` ,`Accountno`,`Grossamount` ,`JournalNo`,`Dimension_One`,`Dimension_Two`,`Currency`) VALUES ('%s','%s','%s' ,'%s' ,%f ,'%s' ,'%s' ,'%s' ,'%s')",
                 FormatDateForSQL($_POST['date']),$_POST['JournalNo'],'0',$row['itemcode'],($row['amount'] * $Conrate)* -1,
                 $JOURNAL,$_POST['DimensionOne'],$_POST['DimensionTwo'],$_POST['currency']);
                  
                  
-                $this->JournalArray[]=sprintf("INSERT INTO [debtorsledger]
-                ([date],[details],[flag],[invref] ,[acctfolio],[amount],[type],[curr_cod],[curr_rat],[i_n_t],[period],[journal],[typ],[systypes_1],[ledger])
+                $this->JournalArray[]=sprintf("INSERT INTO `debtorsledger`
+                (`date`,`details`,`flag`,`invref` ,`acctfolio`,`amount`,`type`,`curr_cod`,`curr_rat`,`i_n_t`,`period`,`journal`,`typ`,`systypes_1`,`ledger`)
                  VALUES ('%s','%s','%s','%s','%s',%f,'%s','%s',%f,'%s','%s','%s','%s','%s','%s')",FormatDateForSQL($_POST['date']),
                  $_POST['comments'],'DR',$_POST['JournalNo'],$row['itemcode'],($row['amount'] * $Conrate)* -1,'J',$_POST['currency'],
                  $Conrate,'J',$periodno,$JOURNAL,'J','0', $row['account'] );
@@ -694,9 +694,9 @@ return  $rowcount;
                     $credit = $row['account'];
                 }
             
-                $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
-               ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,[bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],
-               [dimension],[dimension2]) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
+                $this->JournalArray[]= sprintf("INSERT INTO `Generalledger`
+               (`journalno`,`Docdate`,`period`,`DocumentNo`,`DocumentType`,`accountcode`,`balaccountcode`,`amount`,`currencycode`,`ExchangeRate`,`cutomercode`,`suppliercode` ,`bankcode`,`reconcilled`,`narration`,`ExchangeRateDiff`,`VATaccountcode`,`VATamount`,
+               `dimension`,`dimension2`) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
                 '%s','%s','%s','%s','%s','%s','%s')", $JOURNAL,FormatDateForSQL($_POST['date']),$periodno, $_POST['JournalNo'],'0',$debit,$credit,abs($row['amount']),$_POST['currency'],$Conrate,(($row['acctype']=='debtors')?$row['itemcode']:''),
                 (($row['acctype']=='creditors')?$row['itemcode']:''),(($row['acctype']=='bank')?$row['itemcode']:''),0,
                 $_POST['comments'],'0','','0',$_POST['DimensionOne'],$_POST['DimensionTwo'] );
@@ -704,14 +704,14 @@ return  $rowcount;
                  
                  
       
-               $this->JournalArray[] = sprintf("INSERT INTO [SupplierStatement]
-                ([Date],[Documentno] ,[Documenttype] ,[Accountno],[Grossamount] ,[JournalNo],[Dimension_One],[Dimension_Two],[Currency]) VALUES
+               $this->JournalArray[] = sprintf("INSERT INTO `SupplierStatement`
+                (`Date`,`Documentno` ,`Documenttype` ,`Accountno`,`Grossamount` ,`JournalNo`,`Dimension_One`,`Dimension_Two`,`Currency`) VALUES
                 ('%s','%s','%s' ,'%s' ,%f ,'%s' ,'%s' ,'%s' ,'%s')", FormatDateForSQL($_POST['date']),$_POST['JournalNo'],'0',$row['itemcode'],($row['amount'] * $Conrate)* -1,
                 $JOURNAL,$_POST['DimensionOne'],$_POST['DimensionTwo'],$_POST['currency']);
                  
                  
-                $this->JournalArray[] = sprintf("INSERT INTO [creditorsledger]
-                ([date],[details],[flag],[invref] ,[acctfolio],[amount],[type],[curr_cod],[curr_rat],[i_n_t],[period],[journal],[typ],[systypes_1],[ledger])
+                $this->JournalArray[] = sprintf("INSERT INTO `creditorsledger`
+                (`date`,`details`,`flag`,`invref` ,`acctfolio`,`amount`,`type`,`curr_cod`,`curr_rat`,`i_n_t`,`period`,`journal`,`typ`,`systypes_1`,`ledger`)
                  VALUES ('%s','%s','%s','%s','%s',%f,'%s','%s',%f,'%s','%s','%s','%s','%s','%s')",FormatDateForSQL($_POST['date']),
                  $_POST['comments'],'DR',$_POST['JournalNo'],$row['itemcode'],($row['amount'] * $Conrate)* -1,'J',$_POST['currency'],
                  $Conrate,'J',$periodno,$JOURNAL,'J','0', $row['account'] );
