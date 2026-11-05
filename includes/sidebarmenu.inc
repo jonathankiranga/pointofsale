@@ -21,7 +21,7 @@ $hadDefaultDisplayRecordsMax = isset($_SESSION['DefaultDisplayRecordsMax']);
 if (!$hadDefaultDisplayRecordsMax) {
     $_SESSION['DefaultDisplayRecordsMax'] = 10;
 }
-include_once('includes/MainMenuLinksArray.php');
+include_once(dirname(__FILE__) . '/MainMenuLinksArray.php');
 if (!$hadDefaultDisplayRecordsMax) {
     unset($_SESSION['DefaultDisplayRecordsMax']);
 }
@@ -57,15 +57,9 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
             $scriptPath = parse_url($rawUrl, PHP_URL_PATH);
             $scriptFile = basename($scriptPath);
 
-            // Resolve menu targets from this include's parent application directory.
-            // is_file($scriptFile) alone depends on PHP's current working directory and
-            // incorrectly hides valid root-level pages when index.php is reached via WAMP.
-            $applicationRoot = realpath(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..');
-            $scriptFullPath = ($applicationRoot !== false && $scriptFile !== '')
-                ? $applicationRoot . DIRECTORY_SEPARATOR . $scriptFile
-                : '';
-
-            if ($scriptFile === '' || $scriptFullPath === '' || !is_file($scriptFullPath)) {
+            // Keep the menu definition as the source of truth. These legacy URLs may
+            // be routed by index.php and must not be hidden by filesystem checks.
+            if ($scriptFile === '') {
                 continue;
             }
 
