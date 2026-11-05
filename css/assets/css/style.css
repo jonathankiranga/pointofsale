@@ -1960,8 +1960,8 @@ main#view-panel {
     height: calc(100vh - var(--app-header-height));
     max-height: none;
     margin-top: 0;
-    margin-left: 270px !important;
-    width: calc(100% - 270px) !important;
+    margin-left: 0 !important;
+    width: 100% !important;
     min-width: 0;
     overflow: auto !important;
     padding: .75rem;
