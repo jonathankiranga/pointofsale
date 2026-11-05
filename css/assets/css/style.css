@@ -1819,3 +1819,119 @@ label{
     background-repeat: no-repeat;
     background-position: center;
 }
+/* ERP sidebar layout: keep the menu aligned below the fixed application header. */
+nav#mainsidebar {
+    position: fixed;
+    top: 93px;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    width: 270px;
+    height: auto;
+    min-width: 270px;
+    margin: 0;
+    padding: 12px 10px !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #f8f9fa !important;
+    border-right: 1px solid #e2e6ea;
+    border-radius: 0;
+    box-shadow: 2px 0 8px rgba(16, 24, 40, .05);
+}
+
+nav#mainsidebar > ul {
+    width: 100%;
+    min-width: 0;
+}
+
+nav#mainsidebar > ul.nav-pills {
+    flex: 1 1 auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0 0 12px;
+}
+
+nav#mainsidebar .nav-item,
+nav#mainsidebar .erp-module-menu {
+    width: 100%;
+    min-width: 0;
+}
+
+nav#mainsidebar .nav-link,
+nav#mainsidebar .erp-module-menu > summary {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+    border-radius: 6px;
+}
+
+nav#mainsidebar .erp-module-menu > summary {
+    cursor: pointer;
+    list-style-position: inside;
+}
+
+nav#mainsidebar .erp-module-menu > div.ms-3 {
+    margin-left: .35rem !important;
+}
+
+nav#mainsidebar .erp-module-menu > div > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+nav#mainsidebar .erp-module-menu ul {
+    margin: 0;
+    padding: 0;
+}
+
+nav#mainsidebar .erp-module-menu ul .nav-link {
+    padding: 6px 8px 6px 14px;
+    font-size: .82rem;
+}
+
+nav#mainsidebar > ul.navbar-nav {
+    flex: 0 0 auto;
+    padding-top: 8px;
+    border-top: 1px solid #e2e6ea;
+}
+
+nav#mainsidebar > ul.navbar-nav li,
+nav#mainsidebar > ul.navbar-nav a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+main#view-panel {
+    margin-left: 270px !important;
+    width: calc(100% - 270px) !important;
+    min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+    nav#mainsidebar {
+        position: relative;
+        top: auto;
+        left: auto;
+        bottom: auto;
+        width: 100%;
+        min-width: 0;
+        max-height: 42vh;
+        border-right: 0;
+        border-bottom: 1px solid #e2e6ea;
+    }
+
+    main#view-panel {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+}
