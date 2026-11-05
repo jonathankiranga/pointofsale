@@ -1,0 +1,13 @@
+{
+  "serviceHost": "127.0.0.1",
+  "servicePort": 3000,
+  "apiToken": "CHANGE-THIS-TO-A-LONG-RANDOM-SECRET",
+  "printerHost": "SET_PRINTER_IP",
+  "printerPort": 9100,
+  "paperColumns": 42,
+  "printerTimeoutMs": 10000,
+  "allowedOrigins": [
+    "http://localhost",
+    "http://127.0.0.1"
+  ]
+}
