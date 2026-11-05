@@ -2,6 +2,19 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
 <?php
+// Resolve the POS URL from the application's current installation path.
+$posAppPath = str_replace('\\', '/', dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/'));
+$posAppPath = rtrim($posAppPath, '/');
+$posTerminalUrl = ($posAppPath === '' || $posAppPath === '.') ? '/posindex.php' : $posAppPath . '/posindex.php';
+?>
+      <li class="nav-item">
+        <a href="<?php echo htmlspecialchars($posTerminalUrl, ENT_QUOTES, 'UTF-8'); ?>" id="PointOfSaleNav" class="nav-link link-dark" target="_blank" rel="noopener">
+          <svg class="bi me-2" width="16" height="16"><use xlink:href="#basket"/></svg>
+          Point of Sale <span class="text-muted">(Touch)</span>
+        </a>
+      </li>
+
+<?php
 // Restore the original ERP module navigation from the repository's menu definitions.
 // Missing legacy targets are skipped so the menu never points to non-existent PHP files.
 $hadDefaultDisplayRecordsMax = isset($_SESSION['DefaultDisplayRecordsMax']);
