@@ -97,7 +97,6 @@ echo '<div class="navbar-nav">
    </div>
   </div>
 </header><main>';
- include('includes/sidebarmenu.inc');
  
  echo '<main id="view-panel" class="container">'
          . '<div class="responsive">'
