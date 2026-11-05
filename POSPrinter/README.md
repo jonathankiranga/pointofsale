@@ -1,38 +1,43 @@
-# POS Node.js receipt printer
+# POS Print Agent
 
-This service sends ESC/POS receipt data to a network thermal printer over TCP (normally port 9100). It uses Node.js built-in modules; no npm dependencies are required.
+Extensible Node.js local printing service. PHP/MySQL remains responsible for sales, payments, stock and accounting; this agent only transports receipt bytes to configured printer hardware or operating-system queues.
 
-## Requirements
+## Included adapters
 
-- Node.js 18 or newer.
-- An ESC/POS-compatible thermal receipt printer reachable over the network.
-- The printer IP address and its raw TCP printing port (usually 9100).
+- `network-escpos`: raw ESC/POS over TCP for Ethernet/Wi-Fi receipt printers (commonly port 9100); supports cash-drawer pulse.
+- `system-queue`: raw ESC/POS via Windows RAW spooler or CUPS `lp -o raw` on Linux/macOS. This can address USB, Bluetooth virtual ports or LAN printers installed as raw-capable OS queues; vendor drivers may alter ESC/POS bytes.
+- `plugin`: custom trusted adapter modules in `plugins/`. See `plugins/README.md`.
+
+Direct USB, serial and Bluetooth adapters are not bundled in this release. Use a suitable OS queue or add a device-specific plugin. Compatibility depends on OS drivers, permissions, printer language and model.
 
 ## Install
 
-1. Copy `config.example.json` to `config.json`.
-2. Set `printerHost` to the printer's actual LAN IP address.
-3. Set a long random `apiToken`.
-4. Put the exact same token in the root `config.php` as `$POSPrintToken`.
-5. Set `allowedOrigins` to the exact origin(s) from which the POS page is served. Include scheme and port, e.g. `http://localhost:90` or `https://pos.example.com`.
-6. Set `$POSPrintUrl` in root `config.php` to the Node service URL. For a service on the same computer as the browser, use `http://127.0.0.1:3000/print-receipt`. For a shared printer host, use that host's LAN IP.
-7. Run:
+1. Install Node.js 18+.
+2. Copy `config.example.json` to `config.json`.
+3. Set a random `apiToken` (at least 24 characters); match it to `$POSPrintToken` in the POS root `config.php`.
+4. Configure one or more printer profiles and set `defaultPrinterId`.
+5. Add the exact POS origin (scheme and port) to `allowedOrigins`.
+6. Run `npm start`; run unit tests using `npm test`.
 
-```bash
-cd POSPrinter
-npm start
-```
+## API
 
-Open `http://127.0.0.1:3000/health` on the computer running the service. It reports whether a printer IP is configured.
+Except `GET /health`, requests require `X-Print-Token`.
 
-## Network printer notes
+- `GET /health`: service and printer profile status.
+- `GET /api/printers`: configured printer profiles.
+- `POST /print-receipt`: backward-compatible endpoint used by current POS JavaScript.
+- `POST /api/print`: equivalent receipt endpoint.
+- `POST /open-drawer`: ESC/POS cash drawer pulse.
+- `POST /api/test-print`: test receipt.
 
-The Node service defaults to listening only on 127.0.0.1, suitable when it runs on the same PC as the POS browser. If several POS terminals must use one printer service, change `serviceHost` to `0.0.0.0`, set `$POSPrintUrl` to the server's LAN IP, add each POS website origin to `allowedOrigins`, and allow TCP port 3000 through the server firewall. Keep the API token private.
+Payload accepts the current POS fields: `company`, `userlog`, `docno`, `items[]` (`description`, `quantity`, `unitPrice`, `lineTotal`), `totalVAT`, `total`, `cash`, `change`, `currency`, `paymentMethod`, `mpesaPhone`; optional `printerId` selects a profile.
 
-This implementation targets network ESC/POS printers. A USB-only printer needs an OS-specific spooler/USB adapter and is not supported by this raw TCP transport.
+A successful network result means TCP accepted the bytes; a successful OS queue result means the spooler accepted the job. Neither proves that paper physically emerged. Test on each actual printer model before production deployment.
 
-## Receipt flow
+## Security
 
-The browser sends the receipt to Node.js. Node.js confirms the printer socket write. Then the browser calls `POSajax/save-receipt.php` to save the receipt header and lines in MySQL. If printing succeeds but the database save fails, the UI explicitly reports that state; check the database before attempting another print.
+Keep the agent on the POS terminal and bind to `127.0.0.1` for single-terminal installations. For a shared print host, bind to `0.0.0.0`, use its LAN IP, restrict firewall access, and configure exact browser origins. Do not expose this service to the public internet. An HTTP agent can be blocked as mixed content from an HTTPS POS site; use a secure local-agent deployment or HTTPS reverse proxy.
 
-The M-Pesa flow is manual: the cashier must verify the payment in the M-Pesa confirmation message or statement and confirm the prompt before a receipt is printed. It is not connected to Safaricom Daraja/STK Push. The cash drawer pulse is sent only after a cash sale is saved; the printer and drawer must support ESC/POS drawer kick.
+## Scope boundary
+
+This agent does not create sales, verify M-Pesa, deduct stock or post accounts. Those remain PHP/MySQL POS responsibilities.
