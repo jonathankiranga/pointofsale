@@ -83,6 +83,18 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         }
     }
 
+    // TEMPORARY DIAGNOSTIC: show only the first two Purchases transaction links.
+    // This isolates the submenu contents without changing the menu definitions,
+    // JavaScript accordion behaviour, or CSS.
+    if ($moduleKey === 'Purchases') {
+        $firstTwoTransactions = isset($moduleSections['Transactions'])
+            ? array_slice($moduleSections['Transactions'], 0, 2)
+            : array();
+        $moduleSections = count($firstTwoTransactions) > 0
+            ? array('Transactions' => $firstTwoTransactions)
+            : array();
+    }
+
     if (count($moduleSections) === 0) {
         continue;
     }
