@@ -46,7 +46,6 @@ if($_SESSION['SCRIPT_NAME_BASE']=='Logout.php'){
     include('includes/session.inc');
     $Title =_('index');
     include('includes/bootstrapheader.inc');
-    include('includes/sidebarmenu.inc');
     echo '<main id="view-panel" class="container">';
     include('includes/boostrapfooter.inc');
     
@@ -57,7 +56,6 @@ if($_SESSION['SCRIPT_NAME_BASE']=='Logout.php'){
     include('includes/session.inc');
     $Title =_('index');
     include('includes/bootstrapheader.inc');
-    include('includes/sidebarmenu.inc');
     echo '<main id="view-panel" class="container">';
     include('includes/boostrapfooter.inc');
    
