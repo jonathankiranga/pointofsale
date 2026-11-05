@@ -1,143 +1,142 @@
-function printReceipt() {
-    const company  = $('#company').text();
-    const userlog  = $('#userlog').text();
-    const cashsaleno = $('cashsaleno').text();
-    const totalVAT = $('#tax-amount').text();
-    const total   = $('#total-amount').text();
-    const cash    = $('#customer-cash').val();
-    const change  = $('#customer-change').text();
-    const reciept = $('#cashsaleno').text();
+function collectReceiptData() {
     const items = [];
 
     $('#sales-table tbody tr').each(function() {
-        // Fetch values from each row
-        const barcode = $(this).find('td').eq(0).text().trim();
-        const description = $(this).find('td').eq(1).text().trim();
-        const quantity = $(this).find('.quantity').text().trim();
-        const unitPrice = $(this).find('.unit-price').text().trim();
-        const lineTotal = $(this).find('.line-total').text().trim();
-        const linevat   = $(this).find('.vat-per').text().trim();
+        const $row = $(this);
+        const barcode = $row.find('td').eq(0).text().trim();
+        const description = $row.find('td').eq(1).text().trim();
 
-        if (barcode !== '' && description !== '') {
-            // Add product details to the items array
+        if (barcode && description && !$row.hasClass('blank-row')) {
+            const quantity = parseFloat($row.find('.quantity').text()) || 0;
+            const unitPrice = parseFloat($row.find('.unit-price').text()) || 0;
+            const vatRate = parseFloat($row.find('.vat-per').text()) || 0;
+            const vatAmount = parseFloat($row.find('.VAT-total').text()) || 0;
+            const lineTotal = parseFloat($row.find('.line-total').text()) || 0;
+
+            if (quantity <= 0 || unitPrice < 0 || lineTotal < 0) {
+                throw new Error('One or more sales lines contain invalid quantities or prices.');
+            }
+
             items.push({
                 barcode: barcode,
                 description: description,
                 quantity: quantity,
                 unitPrice: unitPrice,
-                linevat:linevat,
+                vatRate: vatRate,
+                vatAmount: vatAmount,
                 lineTotal: lineTotal
             });
-     
         }
     });
 
-    // Send receipt data to the server for printing
-    const receiptData = {
-        company:company,
-        cashsaleno:cashsaleno,
-        userlog:userlog,
-        docno: reciept,
+    if (!items.length) {
+        throw new Error('There are no sale items to print.');
+    }
+
+    const total = parseFloat($('#total-amount').text()) || 0;
+    const totalVAT = parseFloat($('#tax-amount').text()) || 0;
+    const cashValue = parseFloat($('#customer-cash').val());
+    const changeText = $('#customer-change').text().trim();
+    const changeValue = parseFloat(changeText);
+
+    return {
+        company: $('#company').text().trim(),
+        userlog: $('#userlog').text().trim(),
+        docno: $('#cashsaleno').text().trim(),
         items: items,
         total: total,
-        totalVAT:totalVAT,
-        cash: cash,
-        change: change
+        totalVAT: totalVAT,
+        cash: Number.isFinite(cashValue) ? cashValue : total,
+        change: Number.isFinite(changeValue) ? changeValue : 0,
+        currency: 'KES',
+        printedAt: new Date().toISOString()
     };
+}
 
-    
-    // First attempt with $.post
-    const printUrl = window.POS_PRINT_URL;
-    if (!printUrl) {
-        alert('Receipt printing service URL is not configured. Set $POSPrintUrl in config.php.');
+function printReceipt() {
+    let receiptData;
+
+    try {
+        receiptData = collectReceiptData();
+    } catch (error) {
+        showCustomDialog(error.message);
         return;
     }
 
-    $.post(printUrl, receiptData, function(response) {
-        if (response.success) {
-            SaveReceipt();
-        } else {
-            alert('Error printing receipt.');
-        }
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        console.log("JavaScript POST failed, falling back to PHP cURL. Error:", textStatus, errorThrown);
-        // If $.post fails, fall back to PHP using cURL
-        fallbackToCurl(receiptData);
-    });
-    
-    
-    
-}
+    const printUrl = window.POS_PRINT_URL;
+    if (!printUrl) {
+        showCustomDialog('Receipt printing service URL is not configured in config.php.');
+        return;
+    }
 
-function fallbackToCurl(receiptData) {
     $.ajax({
-        url: 'fallback.php',  // PHP file that will handle the cURL request
+        url: printUrl,
         type: 'POST',
-        data: { receiptData: JSON.stringify(receiptData) },
-        success: function(response) {
-            if (response.success) {
-                SaveReceipt();  // Success, call SaveReceipt
-            } else {
-                alert('Error printing receipt via PHP cURL.');
-            }
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        headers: {
+            'X-Print-Token': window.POS_PRINT_TOKEN || ''
         },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert('Error during cURL fallback request: ' + textStatus);
-        }
-    });
-}
-
-function SaveReceipt() {
-    const total = $('#total-amount').text();
-    const cash = $('#customer-cash').val();
-    const change = $('#customer-change').text();
-     const items = [];
-
-    $('#sales-table tbody tr').each(function() {
-        // Fetch values from each row
-        const barcode = $(this).find('td').eq(0).text().trim();
-        const description = $(this).find('td').eq(1).text().trim();
-        const quantity  = $(this).find('.quantity').text().trim();
-        const unitPrice = $(this).find('.unit-price').text().trim();
-        const lineTotal = $(this).find('.line-total').text().trim();
-        const linevat   = $(this).find('.vat-per').text().trim();
-
-        if (barcode !== '' && description !== '') {
-            // Add product details to the items array
-            items.push({
-                barcode: barcode,
-                description: description,
-                quantity: quantity,
-                unitPrice: unitPrice,
-                linevat:linevat,
-                lineTotal: lineTotal
-            });
-        }
-    });
-
-    // Prepare receipt data
-    const receiptData = {
-        items: items,
-        total: parseFloat(total.replace('$', '')),
-        cash: parseFloat(cash),
-        change: parseFloat(change.replace('$', ''))
-    };
-
-    // Send receipt data to the server via AJAX to save in MySQL
-    $.ajax({
-        url: 'save-receipt.php',
-        type: 'POST',
-        contentType: 'application/json',
         data: JSON.stringify(receiptData),
-        success: function(response) {
-            if (response.success) {
-                clearTable();
-            } else {
-                alert('Error saving receipt.');
-            }
-        },
-        error: function() {
-            alert('Error connecting to server.');
+        timeout: 20000
+    }).done(function(response) {
+        if (response && response.success) {
+            SaveReceipt(receiptData);
+        } else {
+            showCustomDialog((response && response.message) ? response.message : 'The printer did not confirm the receipt.');
         }
+    }).fail(function(jqXHR, textStatus) {
+        // Fallback is handled by PHP. This is useful where the browser cannot
+        // reach the local Node service directly, provided PHP can reach it.
+        fallbackToCurl(receiptData, textStatus);
+    });
+}
+
+function fallbackToCurl(receiptData, browserError) {
+    $.ajax({
+        url: 'POSajax/fallback.php',
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify(receiptData),
+        timeout: 25000
+    }).done(function(response) {
+        if (response && response.success) {
+            SaveReceipt(receiptData);
+        } else {
+            showCustomDialog((response && response.message) ? response.message : 'Receipt printing failed. Check that the Node.js service and printer are running.');
+        }
+    }).fail(function() {
+        showCustomDialog('Could not contact the Node.js printing service. Browser error: ' + browserError + '. Check the printer service address and network connection.');
+    });
+}
+
+function SaveReceipt(receiptData) {
+    // Save only after the printer has confirmed the print operation.
+    // Include the document number so PHP can identify the receipt.
+    $.ajax({
+        url: 'POSajax/save-receipt.php',
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify(receiptData),
+        timeout: 20000
+    }).done(function(response) {
+        if (response && response.success) {
+            clearTable();
+            $('#customer-cash').val('');
+            $('#customer-change').text('0.00');
+            $('#cashsaleno').text('CS-' + Date.now());
+            closeModal();
+            showCustomDialog('Receipt printed and sale saved successfully. Receipt: ' + response.documentno);
+        } else {
+            showCustomDialog((response && response.message) ? response.message : 'Receipt printed, but the sale could not be saved. Do not print again; contact the administrator.');
+        }
+    }).fail(function(jqXHR) {
+        let message = 'Receipt printed, but saving the sale failed. Do not print again until the sale is checked.';
+        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+            message += ' ' + jqXHR.responseJSON.message;
+        }
+        showCustomDialog(message);
     });
 }
