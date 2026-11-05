@@ -252,12 +252,8 @@ $MenuItems['Purchases']['Reports']['URL'] = array('/PDFPrintgrn.php',
                                                   '/PDFPrintPurchaseOrder.php',
                                                   '/PDFPrintAssetgrn.php');
 
-$MenuItems['Purchases']['Maintenance']['Caption'] = array(_('Vendor Posting Groups'),
-                                                          _('Maintain Vendor'));
-
-
-$MenuItems['Purchases']['Maintenance']['URL'] = array('/SupplierPostingGroups.php',
-                                                      '/Supplier.php');
+// Vendor Posting Groups and Maintain Supplier are already available under Accounts Payable.
+// Keep a single menu entry for each destination to avoid duplicate navigation items.
 
 
 /***********************************************/
