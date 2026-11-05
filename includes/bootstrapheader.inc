@@ -79,6 +79,29 @@ echo '<button class="navbar-toggler position-absolute d-md-none collapsed" type=
  	<a class="nav-link text-white" href="index.php?link=Logout" onclick="return confirm(\''._('Are you sure you wish to logout?').'\');"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#logout"/></svg>' . _('Logout') . '</a>
    </div>
   </div>
-</header><main>';
+</header><script>
+(function () {
+    var header = document.getElementById('headerid');
+    if (!header) {
+        return;
+    }
+
+    var updateHeaderHeight = function () {
+        document.documentElement.style.setProperty(
+            '--app-header-height',
+            header.getBoundingClientRect().height + 'px'
+        );
+    };
+
+    updateHeaderHeight();
+
+    if (typeof ResizeObserver !== 'undefined') {
+        var headerObserver = new ResizeObserver(updateHeaderHeight);
+        headerObserver.observe(header);
+    } else {
+        window.addEventListener('resize', updateHeaderHeight);
+    }
+})();
+</script>';
 
 ?>
