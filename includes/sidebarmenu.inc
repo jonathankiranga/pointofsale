@@ -57,8 +57,15 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
             $scriptPath = parse_url($rawUrl, PHP_URL_PATH);
             $scriptFile = basename($scriptPath);
 
-            // Do not expose stale menu entries whose page is absent from this installation.
-            if ($scriptFile === '' || !is_file($scriptFile)) {
+            // Resolve menu targets from this include's parent application directory.
+            // is_file($scriptFile) alone depends on PHP's current working directory and
+            // incorrectly hides valid root-level pages when index.php is reached via WAMP.
+            $applicationRoot = realpath(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..');
+            $scriptFullPath = ($applicationRoot !== false && $scriptFile !== '')
+                ? $applicationRoot . DIRECTORY_SEPARATOR . $scriptFile
+                : '';
+
+            if ($scriptFile === '' || $scriptFullPath === '' || !is_file($scriptFullPath)) {
                 continue;
             }
 
