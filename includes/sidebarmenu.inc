@@ -94,6 +94,14 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
             : array();
     }
 
+    // TEMPORARY DIAGNOSTIC: test whether the fifth Purchases link target is involved.
+    // Keep its caption, but temporarily point it to the fourth link's known target.
+    if ($moduleKey === 'Purchases' &&
+        isset($moduleSections['Transactions'][4]) &&
+        isset($moduleSections['Transactions'][3])) {
+        $moduleSections['Transactions'][4]['href'] = $moduleSections['Transactions'][3]['href'];
+    }
+
     if (count($moduleSections) === 0) {
         continue;
     }
