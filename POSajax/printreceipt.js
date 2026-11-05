@@ -32,7 +32,7 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
     });
 
     if (!items.length) {
-        throw new Error('There are no sale items to print.');
+        throw new Error('There are no sale items to complete.');
     }
 
     const total = parseFloat($('#total-amount').text()) || 0;
@@ -59,7 +59,7 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
 
 function printReceipt(paymentMethod, mpesaPhone) {
     if (window.POS_PRINT_IN_PROGRESS) {
-        showCustomDialog('A receipt operation is already in progress. Please wait.');
+        showCustomDialog('A sale is already being saved. Please wait.');
         return;
     }
 
