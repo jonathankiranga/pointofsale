@@ -85,7 +85,7 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         continue;
     }
 
-    echo '<li class="nav-item mb-1"><details class="erp-module-menu">';
+    echo '<li class="nav-item mb-1"><details class="erp-module-menu" name="erp-module-accordion">';
     echo '<summary class="nav-link link-dark fw-semibold" style="cursor:pointer;">' .
          htmlspecialchars($moduleLabel, ENT_QUOTES, 'UTF-8') . '</summary>';
     echo '<div class="ms-3">';
