@@ -170,6 +170,7 @@ var menuStyles = [
 
 var menuItems = [
        ["Customers","", "sales.gif", "sales.gif", "", "", "", "", "", "", "", ],
+       ["Point of Sale","posindex.php", "bank.gif", "bank.gif", "", "", "", "", "", "", "", ],
         ["|New","", "icon_xp3_3.gif", "icon_xp3_3o.gif", "", "", "", "", "", "", "", ],
             ["||Customer Posting Group Setup","index.php?link=CustomersPostingGroups", "", "", "", "", "", "", "", "", "", ],
             ["||New Customer","index.php?link=Customer", "", "", "", "", "", "", "", "", "", ],
