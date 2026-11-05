@@ -87,7 +87,7 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         continue;
     }
 
-    echo '<li class="nav-item mb-1"><details class="erp-module-menu" name="erp-module-accordion" data-module-key="' .
+    echo '<li class="nav-item mb-1"><details class="erp-module-menu" data-module-key="' .
          htmlspecialchars($moduleKey, ENT_QUOTES, 'UTF-8') . '">';
     echo '<summary class="nav-link link-dark fw-semibold" style="cursor:pointer;">' .
          htmlspecialchars($moduleLabel, ENT_QUOTES, 'UTF-8') . '</summary>';
@@ -128,41 +128,52 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         return;
     }
 
-    var menus = sidebar.querySelectorAll("details.erp-module-menu[data-module-key]");
+    var menus = Array.prototype.slice.call(
+        sidebar.querySelectorAll("details.erp-module-menu[data-module-key]")
+    );
     var storageKey = "posERP.sidebar.openModule:" + window.location.pathname;
-    var savedModule = null;
 
+    function saveOpenMenu(menu) {
+        try {
+            if (menu) {
+                window.localStorage.setItem(storageKey, menu.getAttribute("data-module-key"));
+            } else {
+                window.localStorage.removeItem(storageKey);
+            }
+        } catch (error) {
+            // Menu interaction must continue when browser storage is unavailable.
+        }
+    }
+
+    var savedModule = null;
     try {
         savedModule = window.localStorage.getItem(storageKey);
     } catch (error) {
-        // Continue with normal menu behaviour when browser storage is unavailable.
-    }
-
-    if (savedModule) {
-        menus.forEach(function (menu) {
-            if (menu.getAttribute("data-module-key") === savedModule) {
-                menu.open = true;
-            }
-        });
+        // Continue with all menus closed when browser storage is unavailable.
     }
 
     menus.forEach(function (menu) {
+        menu.open = !!(savedModule &&
+            menu.getAttribute("data-module-key") === savedModule);
+
         var summary = menu.querySelector(":scope > summary");
         if (!summary) {
             return;
         }
 
-        summary.addEventListener("click", function () {
+        summary.addEventListener("click", function (event) {
+            event.preventDefault();
+
             var willOpen = !menu.open;
-            try {
-                if (willOpen) {
-                    window.localStorage.setItem(storageKey, menu.getAttribute("data-module-key"));
-                } else {
-                    window.localStorage.removeItem(storageKey);
+
+            menus.forEach(function (otherMenu) {
+                if (otherMenu !== menu) {
+                    otherMenu.open = false;
                 }
-            } catch (error) {
-                // The accordion remains usable even if persistence is blocked.
-            }
+            });
+
+            menu.open = willOpen;
+            saveOpenMenu(willOpen ? menu : null);
         });
     });
 })();
