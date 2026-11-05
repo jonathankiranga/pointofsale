@@ -114,52 +114,6 @@ form {
     line-height: 1.25; 
 }
 
-#erpTopMenu {
-  position: relative;
-  z-index: 1020;
-  width: 100%;
-}
-
-#erpTopMenu .navbar-nav {
-  align-items: stretch;
-}
-
-#erpTopMenu .nav-link {
-  color: #343a40;
-  font-weight: 600;
-  padding: .65rem .85rem;
-}
-
-#erpTopMenu .nav-link:hover,
-#erpTopMenu .nav-link:focus,
-#erpTopMenu .nav-link[aria-expanded="true"] {
-  color: #0d6efd;
-  background: #e9ecef;
-}
-
-#erpTopMenu .dropdown-menu {
-  min-width: 16rem;
-  max-height: 70vh;
-  overflow-y: auto;
-  z-index: 1030;
-}
-
-#erpTopMenu .dropdown-header {
-  color: #6c757d;
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: .7rem;
-}
-
-@media (max-width: 991.98px) {
-  #erpTopMenu .navbar-nav {
-    align-items: stretch;
-  }
-
-  #erpTopMenu .dropdown-menu {
-    max-height: 55vh;
-  }
-}
 
 .table-responsive {
     max-height:600px;
