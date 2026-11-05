@@ -47,7 +47,13 @@ function printReceipt() {
 
     
     // First attempt with $.post
-    $.post('http://localhost:3000/print-receipt', receiptData, function(response) {
+    const printUrl = window.POS_PRINT_URL;
+    if (!printUrl) {
+        alert('Receipt printing service URL is not configured. Set $POSPrintUrl in config.php.');
+        return;
+    }
+
+    $.post(printUrl, receiptData, function(response) {
         if (response.success) {
             SaveReceipt();
         } else {
