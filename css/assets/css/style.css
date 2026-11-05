@@ -1629,32 +1629,12 @@ section {
 
 
 
-nav#sidebar {
-    height: calc(100%);
-    position: fixed;
-    z-index: 99;
-  /*  left: 0px;*/
-    width: 265px;
-    font-size: 12px;
-    top: 8em;
-    padding: 10px 0 0 9px;
-    border-radius: 12px;
-}
-
 #headerid {
     position: sticky;
     top: 0;
     z-index: 1;
 }
 
-main#view-panel {
-  margin-left: 300px; 
-  width: calc(100% - 300px);
-  margin-top: 2.5 rem;
-  padding: .5 em;
-  overflow: auto !important;
- }
- 
 a.nav-item {
     position: relative;
     display: block;
@@ -1671,12 +1651,6 @@ a.nav-item:hover, .nav-item.active {
     border-radius: 12px 0 0 12px;
     border-right: 4px solid #3c21f7;
     color: #3c21f7;
-}
-main#view-panel{
-    margin-left: 272px;
-    width: calc(100% - 273px);
-   /* margin-top: 6.8em;*/
-    padding: 0.5em;
 }
 .toast{
   display: none;
@@ -1825,119 +1799,17 @@ label{
     background-repeat: no-repeat;
     background-position: center;
 }
-/* ERP sidebar layout: keep the menu aligned below the fixed application header. */
-nav#mainsidebar {
-    position: fixed;
-    top: 93px;
-    left: 0;
-    bottom: 0;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    width: 270px;
-    height: auto;
-    min-width: 270px;
-    margin: 0;
-    padding: 12px 10px !important;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background: #f8f9fa !important;
-    border-right: 1px solid #e2e6ea;
-    border-radius: 0;
-    box-shadow: 2px 0 8px rgba(16, 24, 40, .05);
-}
-
-nav#mainsidebar > ul {
-    width: 100%;
-    min-width: 0;
-}
-
-nav#mainsidebar > ul.nav-pills {
-    flex: 1 1 auto;
-    overflow-x: hidden;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0 0 12px;
-}
-
-nav#mainsidebar .nav-item,
-nav#mainsidebar .erp-module-menu {
-    width: 100%;
-    min-width: 0;
-}
-
-nav#mainsidebar .nav-link,
-nav#mainsidebar .erp-module-menu > summary {
-    display: block;
-    width: 100%;
-    min-width: 0;
-    padding: 8px 10px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    line-height: 1.35;
-    border-radius: 6px;
-}
-
-nav#mainsidebar .erp-module-menu > summary {
-    cursor: pointer;
-    list-style-position: inside;
-}
-
-nav#mainsidebar .erp-module-menu > div.ms-3 {
-    margin-left: .35rem !important;
-}
-
-nav#mainsidebar .erp-module-menu > div > div {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-nav#mainsidebar .erp-module-menu ul {
-    margin: 0;
-    padding: 0;
-}
-
-nav#mainsidebar .erp-module-menu ul .nav-link {
-    padding: 6px 8px 6px 14px;
-    font-size: .82rem;
-}
-
-nav#mainsidebar > ul.navbar-nav {
-    flex: 0 0 auto;
-    padding-top: 8px;
-    border-top: 1px solid #e2e6ea;
-}
-
-nav#mainsidebar > ul.navbar-nav li,
-nav#mainsidebar > ul.navbar-nav a {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+/* The legacy Deluxe Menu is layered above the page content.
+   dmenu.js assigns menu layers z-index values starting at 1000. */
+#headerid {
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 main#view-panel {
+    box-sizing: border-box;
     margin-left: 0 !important;
     width: 100% !important;
     min-width: 0;
-}
-
-@media (max-width: 767.98px) {
-    nav#mainsidebar {
-        position: relative;
-        top: auto;
-        left: auto;
-        bottom: auto;
-        width: 100%;
-        min-width: 0;
-        max-height: 42vh;
-        border-right: 0;
-        border-bottom: 1px solid #e2e6ea;
-    }
-
-    main#view-panel {
-        margin-left: 0 !important;
-        width: 100% !important;
-    }
 }
