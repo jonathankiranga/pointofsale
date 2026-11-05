@@ -13,7 +13,9 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
             const vatAmount = parseFloat($row.find('.VAT-total').text()) || 0;
             const lineTotal = parseFloat($row.find('.line-total').text()) || 0;
 
-            if (quantity <= 0 || unitPrice < 0 || lineTotal < 0) {
+            if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(unitPrice) ||
+                unitPrice < 0 || !Number.isFinite(lineTotal) || lineTotal < 0 ||
+                !Number.isFinite(vatAmount) || vatAmount < 0) {
                 throw new Error('One or more sales lines contain invalid quantities or prices.');
             }
 
@@ -36,8 +38,7 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
     const total = parseFloat($('#total-amount').text()) || 0;
     const totalVAT = parseFloat($('#tax-amount').text()) || 0;
     const cashValue = parseFloat($('#customer-cash').val());
-    const changeText = $('#customer-change').text().trim();
-    const changeValue = parseFloat(changeText);
+    const changeValue = parseFloat($('#customer-change').text());
 
     return {
         company: $('#company').text().trim(),
@@ -63,7 +64,6 @@ function printReceipt(paymentMethod, mpesaPhone) {
     }
 
     let receiptData;
-
     try {
         receiptData = collectReceiptData(paymentMethod, mpesaPhone);
     } catch (error) {
@@ -79,55 +79,36 @@ function printReceipt(paymentMethod, mpesaPhone) {
 
     window.POS_PRINT_IN_PROGRESS = true;
 
-    $.ajax({
-        url: printUrl,
-        type: 'POST',
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-        headers: {
-            'X-Print-Token': window.POS_PRINT_TOKEN || ''
-        },
-        data: JSON.stringify(receiptData),
-        timeout: 20000
-    }).done(function(response) {
-        if (response && response.success) {
-            SaveReceipt(receiptData);
-        } else {
+    // Persist the sale first. A printer failure must never leave a printed
+    // receipt for a sale that was not committed to the database.
+    SaveReceipt(receiptData, function() {
+        $.ajax({
+            url: printUrl,
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            headers: { 'X-Print-Token': window.POS_PRINT_TOKEN || '' },
+            data: JSON.stringify(receiptData),
+            timeout: 20000
+        }).done(function(response) {
+            if (response && response.success) {
+                completeReceiptPrint(receiptData, response);
+            } else {
+                window.POS_PRINT_IN_PROGRESS = false;
+                showCustomDialog((response && response.message)
+                    ? 'Sale saved, but printing failed: ' + response.message
+                    : 'Sale saved, but the printer did not confirm the receipt. Retry printing using the same receipt number.');
+            }
+        }).fail(function(jqXHR) {
             window.POS_PRINT_IN_PROGRESS = false;
-            showCustomDialog((response && response.message) ? response.message : 'The printer did not confirm the receipt.');
-        }
-    }).fail(function(jqXHR) {
-        // Do not automatically retry through PHP: a timeout can occur after
-        // the printer has already received the job, and a retry could print twice.
-        const detail = jqXHR.responseJSON && jqXHR.responseJSON.message
-            ? ' ' + jqXHR.responseJSON.message
-            : '';
-        showCustomDialog('The printer service did not confirm the result. Check the printer before retrying to avoid a duplicate receipt.' + detail);
+            const detail = jqXHR.responseJSON && jqXHR.responseJSON.message
+                ? ' ' + jqXHR.responseJSON.message : '';
+            showCustomDialog('Sale saved, but the printer did not confirm the result. Check the printer before retrying.' + detail);
+        });
     });
 }
 
-function fallbackToCurl(receiptData, browserError) {
-    $.ajax({
-        url: 'POSajax/fallback.php',
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json; charset=utf-8',
-        data: JSON.stringify(receiptData),
-        timeout: 25000
-    }).done(function(response) {
-        if (response && response.success) {
-            SaveReceipt(receiptData);
-        } else {
-            showCustomDialog((response && response.message) ? response.message : 'Receipt printing failed. Check that the Node.js service and printer are running.');
-        }
-    }).fail(function() {
-        showCustomDialog('Could not contact the Node.js printing service. Browser error: ' + browserError + '. Check the printer service address and network connection.');
-    });
-}
-
-function SaveReceipt(receiptData) {
-    // Save only after the printer has confirmed the print operation.
-    // Include the document number so PHP can identify the receipt.
+function SaveReceipt(receiptData, onSaved) {
     $.ajax({
         url: 'POSajax/save-receipt.php',
         type: 'POST',
@@ -137,26 +118,41 @@ function SaveReceipt(receiptData) {
         timeout: 20000
     }).done(function(response) {
         if (response && response.success) {
-            clearTable();
-            $('#customer-cash').val('');
-            $('#customer-change').text('0.00');
-            $('#cashsaleno').text('CS-' + Date.now());
-            closeModal();
-            if (receiptData.paymentMethod === 'CASH') {
-                openCashDrawer();
+            if (typeof onSaved === 'function') {
+                onSaved(response);
             }
-            window.POS_PRINT_IN_PROGRESS = false;
-            showCustomDialog('Receipt printed and sale saved successfully. Receipt: ' + response.documentno);
         } else {
-            showCustomDialog((response && response.message) ? response.message : 'Receipt printed, but the sale could not be saved. Do not print again; contact the administrator.');
+            window.POS_PRINT_IN_PROGRESS = false;
+            showCustomDialog((response && response.message)
+                ? response.message
+                : 'The sale could not be saved. No receipt was sent to the printer.');
         }
     }).fail(function(jqXHR) {
-        let message = 'Receipt printed, but saving the sale failed. Do not print again until the sale is checked.';
+        window.POS_PRINT_IN_PROGRESS = false;
+        let message = 'The sale could not be saved. No receipt was sent to the printer.';
         if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
             message += ' ' + jqXHR.responseJSON.message;
         }
         showCustomDialog(message);
     });
+}
+
+function completeReceiptPrint(receiptData, printResponse) {
+    clearTable();
+    $('#customer-cash').val('');
+    $('#customer-change').text('0.00');
+    $('#customer-mpesa-no').val('');
+    $('#cashsaleno').text('CS-' + Date.now());
+    closeModal();
+
+    if (receiptData.paymentMethod === 'CASH') {
+        openCashDrawer();
+    }
+
+    window.POS_PRINT_IN_PROGRESS = false;
+    const documentNo = printResponse && printResponse.documentno
+        ? printResponse.documentno : receiptData.docno;
+    showCustomDialog('Sale saved and receipt printed successfully. Receipt: ' + documentNo);
 }
 
 function openCashDrawer() {
@@ -174,6 +170,6 @@ function openCashDrawer() {
         data: JSON.stringify({}),
         timeout: 10000
     }).fail(function() {
-        console.warn('The receipt was saved, but the cash drawer command could not be sent.');
+        console.warn('The receipt was saved and printed, but the cash drawer command could not be sent.');
     });
 }
