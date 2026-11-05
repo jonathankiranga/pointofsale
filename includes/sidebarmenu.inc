@@ -83,17 +83,6 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
         }
     }
 
-    // TEMPORARY DIAGNOSTIC: show only the first three Purchases transaction links.
-    // Add one link at a time to isolate the entry that triggers the menu issue.
-    if ($moduleKey === 'Purchases') {
-        $firstThreeTransactions = isset($moduleSections['Transactions'])
-            ? array_slice($moduleSections['Transactions'], 0, 3)
-            : array();
-        $moduleSections = count($firstThreeTransactions) > 0
-            ? array('Transactions' => $firstThreeTransactions)
-            : array();
-    }
-
     if (count($moduleSections) === 0) {
         continue;
     }
