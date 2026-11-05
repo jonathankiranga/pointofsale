@@ -129,6 +129,9 @@
 
 <script type="text/javascript" src = "POSajax/posscript.js"></script>
 <script type="text/javascript" src = "POSajax/searchstock.js"></script>
+<script>
+    window.POS_PRINT_URL = <?php echo json_encode($POSPrintUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+</script>
 <script type="text/javascript" src = "POSajax/printreceipt.js"></script>
 </body>
 </html>
