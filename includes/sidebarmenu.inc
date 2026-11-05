@@ -124,57 +124,49 @@ foreach ($erpModuleLabels as $moduleKey => $moduleLabel) {
 <script>
 (function () {
     var sidebar = document.getElementById("mainsidebar");
-    if (!sidebar) {
-        return;
-    }
+    if (!sidebar) return;
 
     var menus = Array.prototype.slice.call(
         sidebar.querySelectorAll("details.erp-module-menu[data-module-key]")
     );
     var storageKey = "posERP.sidebar.openModule:" + window.location.pathname;
 
-    function saveOpenMenu(menu) {
+    function saveOpenMenu(key) {
         try {
-            if (menu) {
-                window.localStorage.setItem(storageKey, menu.getAttribute("data-module-key"));
-            } else {
-                window.localStorage.removeItem(storageKey);
-            }
-        } catch (error) {
-            // Menu interaction must continue when browser storage is unavailable.
-        }
+            if (key) localStorage.setItem(storageKey, key);
+            else localStorage.removeItem(storageKey);
+        } catch (e) {}
     }
 
-    var savedModule = null;
-    try {
-        savedModule = window.localStorage.getItem(storageKey);
-    } catch (error) {
-        // Continue with all menus closed when browser storage is unavailable.
-    }
-
+    // Restore previously open module
+    var saved = null;
+    try { saved = localStorage.getItem(storageKey); } catch (e) {}
     menus.forEach(function (menu) {
-        menu.open = !!(savedModule &&
-            menu.getAttribute("data-module-key") === savedModule);
+        menu.open = (saved && menu.getAttribute("data-module-key") === saved);
+    });
 
+    // Exclusive accordion — capture phase so we win the race with the browser
+    menus.forEach(function (menu) {
         var summary = menu.querySelector(":scope > summary");
-        if (!summary) {
-            return;
-        }
+        if (!summary) return;
 
-        summary.addEventListener("click", function (event) {
-            event.preventDefault();
+        summary.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
 
             var willOpen = !menu.open;
 
-            menus.forEach(function (otherMenu) {
-                if (otherMenu !== menu) {
-                    otherMenu.open = false;
-                }
+            menus.forEach(function (other) {
+                other.open = false;
             });
 
-            menu.open = willOpen;
-            saveOpenMenu(willOpen ? menu : null);
-        });
+            if (willOpen) {
+                menu.open = true;
+                saveOpenMenu(menu.getAttribute("data-module-key"));
+            } else {
+                saveOpenMenu(null);
+            }
+        }, true); // capture = true
     });
 })();
 </script>
