@@ -1080,7 +1080,7 @@ function GetPeriod ($TransDate, $db, $UseProhibit=false) {
 Function CreateNewFinancialPeriod(){
     Global $db;
     
-    $sql="SELECT [confvalue] from [config] where [confname]='FinancialYearBegins'";
+    $sql="SELECT `confvalue` from `config` where `confname`='FinancialYearBegins'";
     $ResultIndex=DB_query($sql,$db);
     $Datevaluerow=DB_fetch_row($ResultIndex);
     $SQLDATE=array();
@@ -1093,13 +1093,13 @@ Function CreateNewFinancialPeriod(){
            ##DATE_ADD('".$Y."', INTERVAL ".$index+1." MONTH)
         for ($index =0; $index < 12; $index++) {
             if($index==0){
-               $SQLDATE[]="INSERT INTO [FinancialPeriods] ([start_date],[end_date] ,[Name],[newyear],[closed],[periodno])
-               VALUES (DATE_ADD('".$Y."', INTERVAL ".$index." MONTH),DATE_ADD('".$Y."', INTERVAL ".($index+1)." MONTH)-1,MONTHNAME(DATE_ADD('".$Y."', INTERVAL ".($index+1)." MONTH)),1,0,".$YearPeriod.")";
+               $SQLDATE[]="INSERT INTO `FinancialPeriods` (`start_date`,`end_date` ,`Name`,`newyear`,`closed`,`periodno`)
+               VALUES (DATE_ADD('".$Y."', INTERVAL ".$index." MONTH),DATE_SUB(DATE_ADD('".$Y."', INTERVAL ".($index+1)." MONTH), INTERVAL 1 DAY),MONTHNAME(DATE_ADD('".$Y."', INTERVAL ".($index+1)." MONTH)),1,0,".$YearPeriod.")";
             }else{
-               $SQLDATE[]="INSERT INTO [FinancialPeriods] ([start_date],[end_date] ,[Name],[newyear],[closed],[periodno])
-               VALUES (DATE_ADD('".$Y."', INTERVAL ".$index." MONTH),DATE_ADD('".$Y."', INTERVAL ".($index+1)." MONTH)-1,MONTHNAME(DATE_ADD('".$Y."', INTERVAL ".($index)." MONTH)),0,0,".$YearPeriod.")";
+               $SQLDATE[]="INSERT INTO `FinancialPeriods` (`start_date`,`end_date` ,`Name`,`newyear`,`closed`,`periodno`)
+               VALUES (DATE_ADD('".$Y."', INTERVAL ".$index." MONTH),DATE_SUB(DATE_ADD('".$Y."', INTERVAL ".($index+1)." MONTH), INTERVAL 1 DAY),MONTHNAME(DATE_ADD('".$Y."', INTERVAL ".($index)." MONTH)),0,0,".$YearPeriod.")";
             
-               $SQLDATE[]="Update [config] set [confvalue]=convert(DATE_ADD(M,".(1+$index).",'".$Y."'),date) where [confname]='FinancialYearBegins'";
+               $SQLDATE[]="Update `config` set `confvalue`=DATE_ADD('".$Y."', INTERVAL ".(1+$index)." MONTH) where `confname`='FinancialYearBegins'";
             }
         }
         
@@ -1116,13 +1116,13 @@ Function CreateNewFinancialPeriod(){
 Function RollOverFinancialPeriods(){
        Global $db;
     
-    $sql="SELECT [confvalue] from [config] where [confname]='FinancialYearBegins'";
+    $sql="SELECT `confvalue` from `config` where `confname`='FinancialYearBegins'";
     $ResultIndex=DB_query($sql,$db);
     $Datevaluerow=DB_fetch_row($ResultIndex);
     $SQLDATE=array();
     
     if(Is_date(ConvertSQLDate($Datevaluerow[0]))){
-    DB_query("UPDATE [FinancialPeriods] SET [closed]=1 ",$db);
+    DB_query("UPDATE `FinancialPeriods` SET `closed`=1 ",$db);
     }
 }
 
