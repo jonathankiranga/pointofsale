@@ -30,6 +30,7 @@ $erpModuleLabels = array(
     'GeneralLedger' => _('General Ledger'),
     'AccountsReceivable' => _('Accounts Receivable'),
     'AccountsPayable' => _('Accounts Payable'),
+    'Purchases' => _('Purchases'),
     'Inventory' => _('Inventory')
 );
 $erpMenuSections = array('Transactions', 'Reports', 'Maintenance');
