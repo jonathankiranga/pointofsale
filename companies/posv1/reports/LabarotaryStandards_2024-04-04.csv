@@ -1,0 +1,2102 @@
+Sample Type Name : Others
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 4833,Yes,Microbiological,0
+"Yeast & Molds, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 21527-1,Yes,Microbiological,0
+"Staphylococcus aureus, cfu/g,10,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 16649-2,No,Microbiological,0
+"Pseudomonas aeruginosa, mm min,10,ISO 16266,No,Microbiological,0
+"A. brasiliensis, mm min,10,ISO 21527-1,No,Microbiological,0
+"C. albicans, mm min,10,ISO 21527-1,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Available oxygen, cm<sup>3</sup>/10ml,<br>(No Limits Defined),LWTP 071,No,Chemical,0
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Sodium hydroxide concentration,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Residue levels,<br>,,No,Chemical,0
+"GCMS Analysis,x<sup>2</sup>(No Limits Defined),GCMS 002,No,Chemical,0
+"Salmonella, per 25g,X<sup>2</sup>(No Limits Defined),ISO 6579,No,Microbiological,0
+"Crude fibre, %,X<sup>2</sup>,AOAC 978.10,No,Chemical,0
+"Total Ash, %,X<sup>2</sup>,AOAC 942.05,No,Chemical,0
+"Phosphorus, %,X<sup>2</sup>,AOAC 968.08,No,Chemical,0
+"Calcium, %,X<sup>2</sup>,AOAC 927.02,No,Chemical,0
+"Sodium, mg/kg,X<sup>2</sup>,AOAC 976.25,No,Chemical,1500
+"Crude Fibre, %,X<sup>2</sup>,ISO 5498,No,Chemical,1500
+"Sugars, %,X<sup>2</sup>,AOAC 925.46,No,Chemical,1500
+"Titratable acidity as tartaric acid g/L,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Brix % m/v,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Acid insoluble ash %m/m,X<font size="1"><sup>2</sup></font>,ISO 5983,No,Chemical,0
+"Thermophilic anaerobes producing gas other than H<sub>2</sub>S, max,2(40%),ICUMSA GS 2/3-49,No,Microbiological,0
+"Total thermophilic spore count, max per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Thermophilic flat sour spores, max, per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Polarization <sup>o</sup>S, min.,99.7,ICUMSA GS 2/3-1,No,Chemical,0
+"Invert sugar, % m/m, max,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Sulphur dioxide, ppm, max,15,,No,Chemical,0
+"Moisture content, max,0.1,ICUMSA Method GS 2/1,No,Chemical,0
+"Conductivity%max,0.04,ICUMSA Method GS 2/3,No,Chemical,0
+"color ,NM max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"h20&nbsp; insoluble matter mg/kg max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"Arsenic mg/kg ,max,1,AOAC 2013.06,No,Chemical,0
+"Lead mg/kg max,0.5,AOAC 2013.06,No,Chemical,0
+"copper mg/kg max,2,ICUMSA Method GS 2/3,No,Chemical,0
+"Potassium permanganate Assay, %&nbsp;<br>,X<sup>2</sup><br>(No Limits Defined),USP 29-NF24,No,Chemical,0
+"Moisture, % m/m<br>,X<sup>2</sup><br>(No Limits Defined),ASTM C471M-01,No,Chemical,0
+"Aluminium Oxide as Al2O3, % by mass,X<sup>2</sup>,ASTM D857-02,No,Chemical,0
+"Sodium Oxide as Na2O, % by mass,X<sup>2</sup>,ASTM C471M-01,No,Chemical,0
+"Disintergration,<br>(No Limits Defined),US pharmacopia,No,Chemical,0
+"Assay,<br>(No Limits Defined),US Pharmacopia,No,Chemical,0
+"Staphylococcus aureus, cfu/g,X2,ISO 6888-1,No,Microbiological,0
+"Coliforms,<br>,,No,Microbiological,0
+"Dissolved Oxygen, mg/L,X<sup>2</sup>,ISO 17289,No,Chemical,0
+"Trihalomethane<br>,X<sup>2</sup><br>,US EPA 501,No,Chemical,8000
+"Iodine<br>,X<sup>2</sup><br>,AOAC 935.14,No,Chemical,1613
+"Listeria monocytogenes, cfu/g,X<sup>2</sup>,ISO 11290-1,No,Microbiological,0
+"<span style="font-size: 13.2px;">ABV , % V/V</span>,X<sup>2</sup>,EAS 104,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l, Max</span>,1000,EAS 104,No,Chemical,0
+"Higher Alchocols as aml alchocol, mg/l, max,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Methanol, mg/l, MaX</span>,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,No,Chemical,0
+
+Sample Type Name : Effluent into the Environment
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"PH,6.5-8.5,ISO 10523,No,Chemical,500
+"Colour in Hazen Unit,15,APHA 2120 B,Yes,Chemical,500
+"Biological Oxygen Demand - (BOD5 at 20<sup>o</sup>C), mg/l,30,APHA 5210 B,No,Chemical,750
+"Total Ammonia, mg/l,100,ISO 11732,No,Chemical,0
+"fecal coliforms, cfu per 100ml,X<sup>2</sup>(No Limits Defined),ISO 9308-1,No,Chemical,0
+"Chemical Oxygen Demand (COD), mg/l,50,APHA 5220 D,No,Chemical,750
+"Total Dissolved Solids (TDS), mg/l,1200,ASTM D 5907,No,Chemical,0
+"Total Suspended Solids (TSS), mg/l,30,APHA 2540,No,Chemical,750
+"Oil and grease, mg/l,Nil,EPA 1664 A,No,Chemical,800
+"Zinc as Zn, mg/l,0.5,ISO 8288,No,Chemical,0
+"Lead as Pb, mg/l,0.01,ISO 8288,No,Chemical,0
+"Copper as Cu, mg/l,1.0,ISO 8288,Yes,Chemical,0
+"Iron as Fe, mg/l,10,ISO 6332,No,Chemical,0
+"Manganese as Mn, mg/l,10,ISO 6333,No,Chemical,0
+"Detergents, mg/l,Nil,LWTP 041,No,Chemical,0
+"Boron as B, mg/l,1.0,LWTM 112070,No,Chemical,0
+"Alkyl mercury compounds as Hg, mg/l,Not Detected,AOAC 32.278,No,Chemical,0
+"Total Mercury, mg/l,0.005,LWTP 028,No,Chemical,0
+"Cadmium as Cd, Mg/l,0.01,ISO 5961,No,Chemical,0
+"Selenium as Se, mg/l,0.01,ISO 17379-2,No,Chemical,0
+"Total Nickel as Ni, mg/l,0.3,ASTM D1886,No,Chemical,0
+"Total Chromium, mg/l,2,AOAC 2.048,No,Chemical,800
+"Chromium VI, mg/l,0.05,AOAC 2.048,No,Chemical,0
+"Arsenic as As, mg/l,0.02,ASTM D2972-15,No,Chemical,0
+"Sulphides, mg/l,0.1,AOAC 34.019,No,Chemical,750
+"Phenols, mg/l,0.001,APHA 5530 C,No,Chemical,800
+"Total cyanogen, mg/l,Not Detectable,AOAC 4.093,No,Chemical,0
+"Chloride, in mg/l,250,LWTM 101804,No,Chemical,0
+"Free Residual chlorine, in mg./L,0.10,LWTP 012,No,Chemical,0
+"Fluoride as F, mg/l,1.5,ISO 10359,No,Chemical,0
+"Total Phosphorus as P, mg/l,X<sup>2</sup>(No Limits Defined),LWTP 024,No,Chemical,0
+"Total Nitrogen as N, mg/l,X<sup>2</sup>(No Limits Defined),LWTP 037,No,Chemical,0
+"Total Coliforms, cfu per 100 ml,30,ISO 9308-1,Yes,Microbiological,750
+"E. Coli, cfu per 100 ml.,Nil,ISO 9308-1,No,Microbiological,750
+"Surfactants,X<sup>2</sup>(No Limits Defined),APHA 5540 C,No,Chemical,750
+"Gold,X<sup>2</sup>(No Limits Defined),LWTP 029,No,Chemical,0
+"Temperature,20-35,ASTM D 5464,No,Chemical,0
+"Free available chlorine,X<sup>2</sup>(No Limits Defined),LWTP 012,No,Chemical,0
+"Total Organic Carbon,X<sup>2</sup>(No Limits Defined),APHA 5310D,No,Chemical,0
+"Dissolved Oxygen,&nbsp;,X<sup>2</sup>(No Limits Defined),ISO 17289,No,Chemical,0
+"Aluminium, mg/l,X<sup>2</sup>(No Limits Defined),ISO 12020,No,Chemical,0
+"Sulphate, mg/l,X<sup>2</sup>(No Limits Defined),ISO 22743,No,Chemical,0
+"1,1,1- trichloroethane, mg/l,3,GCMS 002,No,Chemical,0
+"1,1,2- trichloroethane, mg/l,0.06,GCMS 002,No,Chemical,0
+"1,1- dichloroethylene, mg/l,0.2,GCMS 002,No,Chemical,0
+"1,2- dichloroethane, mg/l,0.04,GCMS 002,No,Chemical,0
+"1,3- dichloropropene, mg/l,0.02,GCMS 002,No,Chemical,0
+"Ammonia Nitrogen, mg/l,100,AOAC 2.066,No,Chemical,0
+"Benzene, mg/l,0.1,GCMS 002,No,Chemical,0
+"Boron and its compounds,mg/l,10,LWTM 112070,No,Chemical,0
+"Cadmium and its compounds, mg/l,0.1,ISO 5961,No,Chemical,0
+"Carbon tetrachloride,0.02,LWTP 042,No,Chemical,0
+"cis-1,2- dichloro ethylene,0.4,GCMS 002,No,Chemical,0
+"Dichloromethane, mg/l,0.2,GCMS 002,No,Chemical,0
+"Fluoride and its compounds, mg/l,8,ISO 10359,No,Chemical,0
+"Lead and its compounds, mg/l,0.1,ISO 8288,No,Chemical,0
+"n-Hexane extracts (animal and vegetable fats), mg/l,30,LWTP 045,No,Chemical,0
+"n-Hexane extracts (mineral oil), mg/l,5,LWTP 045,No,Chemical,0
+"Organo-Phosphorous compounds, mg/l,1.0,LWTP 043,No,Chemical,0
+"Polychlorinated biphenyls, PCBs, mg/l,0.003,GCMS 003,No,Chemical,0
+"Selenium and its compounds, mg/l,0.1,LWTP 046,No,Chemical,15000
+"Hexavalent chromium VI compounds, mg/l,0.5,LWTM 114758,No,Chemical,0
+"Simazine, mg/l,0.03,LWTP 047,No,Chemical,0
+"Tetrachloroethylene, mg/l,0.1,GCMS 002,No,Chemical,0
+"Thiobencarb, mg/l,0.1,GCMS 002,No,Chemical,0
+"Thiram, mg/l,0.06,GCMS 002,No,Chemical,0
+"Trichloroethylene, mg/l,0.3,GCMS 002,No,Chemical,0
+"Whole Effluent Toxicity,X<sup>2</sup>(No Limits Defined),LWTP 044,No,Chemical,0
+"Tin as Sn, mg/l,NIL(No Limits Defined),LWTP 076,No,Chemical,0
+"Conductivity(ÂµS/cm)max,X<sup>2</sup>(No Limits Defined),ISO 7888,No,Chemical,0
+"Settleable Solids,X<sup>2</sup>(No Limits Defined),	APHA 2540,No,Chemical,0
+"Total hardness, mg/l,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Total Nitrogen, mg/l,X<sup>2</sup>(No Limits Defined),ISO 7890,No,Chemical,0
+"Nitrite, mg/l,X<sup>2</sup>(No Limits Defined),ISO 7890,No,Chemical,0
+"Total Phosphorus, mg/l,X<sup>2</sup>(No Limits Defined),ISO 15681,No,Chemical,0
+"Cobalt, mg/l,X<sup>2</sup>(No Limits Defined),ASTM D3558,No,Chemical,0
+"Staphylococcus aureus,X<sup>2</sup>,,No,Microbiological,0
+
+Sample Type Name : EFFLUENT DISCHARGE TO PUBLIC SEWER 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH,6-9,APHA 4500H+,Yes,Chemical,300
+"Colour in Hazen units,40,APHA 2120B,Yes,Chemical,500
+"Temperature,20-35,ASTM D 5464,Yes,Chemical,450
+"Fecal coliforms,X<sup>2</sup>(No Limits Defined),ISO 9308-1,No,Chemical,1000
+"E. coli,X<sup>2</sup>(No Limits Defined),ISO 9308-1,No,Microbiological,1300
+"Sulphide,2,LWTP 034,Yes,Chemical,1500
+"Gold,X<sup>2</sup>(No Limits Defined),LWTP 029,No,Chemical,4000
+"Mercury,0.05,LWTP 028,Yes,Chemical,1800
+"Free Available chlorine,0.10,LWTP 012,Yes,Chemical,800
+"Chromium VI, mg/l,0.05,LWTP 019,Yes,Chemical,1500
+"Ammonia Nitrogen, mg/l,20,APHA 4500,Yes,Chemical,3000
+"Arsenic, mg/l,0.02,ISO 8288,Yes,Chemical,1800
+"Total Suspended solids (TSS), mg/l,250,APHA  2540,Yes,Chemical,800
+"Nickel, mg/l,3.0,LWTP 114783,Yes,Chemical,1800
+"Phenols, mg/l,10,APHA 5530 C+D,Yes,Chemical,1500
+"Detergents, mg/l,15,LWTP 020,Yes,Chemical,2000
+"Selenium, mg/l,0.2,LWTP 108030,Yes,Chemical,2000
+"Total Cyanide, mg/l,2,LWTP 109701,Yes,Chemical,3000
+"Alkyl Mercury,Not Detectable,LWTP 035,Yes,Chemical,3000
+"Calcium carbide,Nil,LWTP 036,Yes,Chemical,3000
+"Chloroform,Nil,LWTP 037,Yes,Chemical,2000
+"Inflammable solvents,Nil,LWTP 038,Yes,Chemical,2000
+"Radioactive residues,Nil,LWTP 039,Yes,Chemical,2000
+"Total Dissolved Solids (TDS), mg/l,2000,ASTM D5907,Yes,Chemical,200
+"Substances with an obnoxious smell,Absent,LWTP 029,Yes,Chemical,300
+"Total organic carbon,X<sup>2</sup>(No Limits Defined),APHA 5310 D,No,Chemical,950
+"Aluminium,X<sup>2</sup>(No Limits Defined),ISO 8288,No,Chemical,1800
+"Residual chlorine,X<sup>2</sup>(No Limits Defined),LWTP 012,No,Chemical,800
+"Surfactants,X<sup>2</sup>(No Limits Defined),APHA 5540C,No,Chemical,1500
+"Total Phosphorous,X<sup>2</sup>(No Limits Defined),LWTP 024,No,Chemical,1500
+"Dissolved Oxygen, mg/l,X<sup>2</sup>(No Limits Defined),LWTP 040,No,Chemical,1500
+"Total Nitrogen,X<sup>2</sup>(No Limits Defined),LWTP 037,No,Chemical,2000
+"Total plate count, cfu/ml,X<sup>2</sup>(No Limits Defined),,No,Microbiological,1000
+"Free & saline ammonia, mg/l,4.0,APHA 4500,Yes,Chemical,1500
+"Biological oxygen demand (BOD5 @20ÂºC), mg/l,500,APHA 5210B,Yes,Chemical,1500
+"Degreasing Solvents,Nil,ISO 3175,Yes,Chemical,1500
+"Chemical oxygen demand (COD),mg/l,1000,APHA 5220D,Yes,Chemical,1800
+"Oil and Grease, mg/l,10,EPA 1664A,Yes,Chemical,1800
+"Lead as Pb, mg/l,1.0,ISO 8288,Yes,Chemical,1500
+"Zinc as Zn, mg/l,5.0,ISO 8288,Yes,Chemical,1000
+"Copper as Cu, mg/l,1.0,ISO 8288,Yes,Chemical,1000
+"Iron as Fe, mg/l,X<sup>2</sup>(No Limits Defined),ISO 6332,No,Chemical,1000
+"Calcium as Ca, mg/l,X<sup>2</sup>(No Limits Defined),ISO 7980,No,Chemical,1500
+"Manganese as Mn, mg/l,X<sup>2</sup>(No Limits Defined),ISO 6333,No,Chemical,1500
+"Sodium as Na, mg/l,X<sup>2</sup>(No Limits Defined),ISO 9964-1,No,Chemical,1500
+"Phosphate PO<sub>4</sub><sup>2-</sup>, mg/l,30,ISO 15681,Yes,Chemical,800
+"Nitrates NO<sup>3-</sup>, mg/l,20,ISO 7890,Yes,Chemical,800
+"Total Coliforms, cfu/100ml,X<sup>2</sup>(No Limits Defined),ISO 9308-1,No,Microbiological,1000
+"Total Chromium, mg/l,2.0,AOAC 2048,Yes,Chemical,1500
+"Cadmium, mg/l<br>,0.5,ISO 8288,Yes,Chemical,1500
+"Ammonia,Total in mg/L Max<br>,2<br>,4500-NH3,No,Chemical,0
+"Sulphate as SO<sub>4</sub>, mg/l,X<sup>2</sup>,ISO 22743,No,Chemical,800
+
+Sample Type Name : Potable Water-Natural
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Colour(TCU max),50,ISO 7887,Yes,Chemical,250
+"Turbidity (NTU), max.,25,ISO 7027,Yes,Chemical,400
+"pH,5.5-9.5,ISO 10523,Yes,Chemical,450
+"Taste,Not objectionable,ISO 13301:2002,Yes,Chemical,250
+"Odour,Odourless,ISO 13301:2002,Yes,Chemical,250
+"Conductivity(ÂµS/cm)max,2500,ISO 7888,Yes,Chemical,500
+"Suspended matter (TSS), mg/l,Not detectable,ISO 11923,No,Chemical,750
+"Total Dissolved Solids (TDS), mg/l,1500,ASTM D 5907,No,Chemical,750
+"Total Hardness, as CaCO<sub style="vertical-align: sub;">3, mg/l</sub>,600,ISO 6059,Yes,Chemical,750
+"Aluminium, as AI<sup>+++, </sup><sub>mg/l</sub><br>,0.2,ISO 12020,No,Chemical,0
+"Chloride, as Cl<sup>-</sup>, mg/l<br>,250,ISO 9297,Yes,Chemical,750
+"Total Iron as Fe, mg/l<br>,0.3,ISO 6332,Yes,Chemical,800
+"Sodium, as&nbsp; Na<sup>+, </sup>mg/l<br>,200,ISO 9964-1,Yes,Chemical,800
+"Sulphate SO<sub>4</sub><sup>2- </sup>, mg/l<br>,400,ISO 22743,No,Chemical,800
+"Zinc, as Zn<sup>++</sup><sub>, mg/l</sub><br>,5,ISO 8288,No,Chemical,0
+"Magnesium, as Mg<sup>++</sup><sub>, mg/l</sub><br>,100,ISO 7980,No,Chemical,800
+"Calcium, as Ca<sup>++</sup><sub>,mg/l</sub><br>,150,ISO 7980,No,Chemical,800
+"Arsenic, as As, mg/l<br>,0.01,ISO 11969,No,Chemical,0
+"Cadmium as Cd<br>,0.003,ISO 5961,No,Chemical,0
+"Lead, as Pb, mg/l<br>,0.01,ISO 8288,No,Chemical,0
+"Mercury(total as Hg), MG/L<br>,0.001,ISO 12846,No,Chemical,0
+"Manganese, as Mn, mg/l<br>,0.1,ISO 6333,No,Chemical,0
+"Selenium, as Se, mg/l<br>,0.01,ISO 9965,No,Chemical,0
+"Ammonia (NH<sub>3</sub>), mg/l<br>,0.5,ISO 11732,Yes,Chemical,900
+"Chromium Total, as Cr, mg/l<br>,0.05,ISO 9174,No,Chemical,0
+"Nickel, as Ni, mg/l<br>,0.02,ISO 8288,No,Chemical,0
+"Cyanide, as CN, mg/l<br>,0.01,ISO 6703,No,Chemical,0
+"Barium, as Ba, mg/l<br>,0.7,ISO 14911,No,Chemical,0
+"Nitrate as NO<sub>3, mg/l</sub><br>,45,ISO 7890,Yes,Chemical,750
+"Boron, as Boric acid, mg/l<br>,2.4,ISO 9390,No,Chemical,0
+"Fluoride, as F, mg/l<br>,1.5,ISO 10359,Yes,Chemical,750
+"Bromate, as BrO<sub>3, mg/l</sub><br>,0.01,ISO 15061,No,Chemical,0
+"Nitrite, mg/l<br>,0.9,ISO 6777,No,Chemical,750
+"Molybdenum<br>,0.07,ISO 11885,No,Chemical,0
+"Phosphate, PO<sub>4</sub><sup>3-</sup><br>,2.2,ISO 15681,No,Chemical,0
+"Residual free Chlorine, mg/l<br>,Absent,ISO 7393,No,Chemical,900
+"Benzene, Âµg/l<p class="MsoNormal"><o:p></o:p></p>,10,ISO 11423,No,Chemical,0
+"Toluene<br>,700,         -,No,Chemical,0
+"Xylene<br>,500,                  -,No,Chemical,0
+"Polynuclear aromatic hydrocarbon<br>,0.7,ISO 13877,No,Chemical,0
+"Carbon tetracloride<br>,2,                  -,No,Chemical,0
+"1,2-Dichloroethane<br>,30,                -,No,Chemical,0
+"1,1-Dichloroethylene<br>,0.3,               -,No,Chemical,0
+"1,1-Dichloroethene<br>,30,            -,No,Chemical,0
+"Tetrachloroethene<br>,40,                  -,No,Chemical,0
+"Phenols<br>,2,ISO 8165,No,Chemical,0
+"2,4,6-Trichlorophenol<br>,200,ISO 14402,No,Chemical,0
+"Chloroform<br>,30,                -,No,Chemical,0
+"Aldrin/Dieldrin<br>,0.03,ISO 15089,No,Chemical,0
+"Chlordane (total)<br>,0.3,ISO 15089,No,Chemical,0
+"2,4-Dichlorophenoxyacetic acid<br>,30,ISO 15089,No,Chemical,0
+"DDT (total)<br>,1,ISO 15089,No,Chemical,0
+"Heptachlor and Heptaclor Expoxide<br>,0.03,ISO 15089,No,Chemical,0
+"Hexachlorobenzene<br>,1,ISO 15089,No,Chemical,0
+"Lindane BHC<br>,2,ISO 15089,No,Chemical,0
+"Methoxychlor<br>,20,ISO 15089,No,Chemical,0
+"Surfactants (reacting with methylene Blue)<br>,200,ISO 16265,No,Chemical,0
+"Mineral oil<br>,0.01,           -,No,Chemical,0
+"Organic matter<br>,3,                 -,No,Chemical,0
+"Total viable counts at 22<sup>o</sup>C in mL,max.<br>,100,ISO 6222,No,Microbiological,0
+"Total viable counts at 37<sup>0</sup>C, in mL, max.<br>,50,ISO 6222,No,Microbiological,850
+"Total Coliforms&nbsp;in 100ml<br>,Absent,ISO 9308-1,No,Microbiological,800
+"E. coli&nbsp;in 100 mL<br>,Absent,ISO 9308-1,No,Microbiological,800
+"Staphylococcus aureus in 100mL<br>,Absent,ISO 6888-1,Yes,Microbiological,950
+"Sulphite reducing anaerobes in 100mL<br>,Absent,ISO 6461-2,No,Microbiological,0
+"Pseudomonas aeruginosa flourescence in 100ml<br>,Absent,ISO 16266,Yes,Microbiological,950
+"Streptococuss faecalis in 100mL<br>,Absent,ISO 7899-2,Yes,Microbiological,950
+"Shigella in 100mL<br>,Absent,ISO 21567,No,Microbiological,0
+"Salmonella in 100mL<br>,Absent,ISO 6785,Yes,Microbiological,950
+"Copper, as Cu, mg/l,1.000,ISO 8288,No,Chemical,0
+"Legionella,<br>,,No,Microbiological,0
+"Giardia,Absent,ISO 15553,No,Microbiological,0
+"Cryptosporidium, per 100ml,Absent,ISO 15553,No,Microbiological,0
+"Boiling point, C,99.98,,No,Chemical,0
+"Potassium as K, (mg/L),50,ISO 9964,No,Chemical,0
+"Calcium Carbonates in mg/l,X<sup>2</sup>(No Limits Defined),ISO 6059,No,Chemical,0
+"Calcium Bicarbonates in mg/L,X<sup>2</sup>(No Limits Defined),ISO 6059,No,Chemical,0
+"Trihalomethanes, mg/L,X<sup>2</sup>(No Limits Defined),EPA 501.3,No,Chemical,0
+"Gross alpha activity, Bq/L,0.5,ISO 9696,No,Chemical,0
+"Gross Beta activity, Bq/L,1,ISO 9697,No,Chemical,0
+"Silica, mg/l<br>,X<sup>2</sup><br>,ISO 2124-1972,No,Chemical,0
+
+Sample Type Name : Potable Water- Treated
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Colour(TCU max),15,ISO 7887,No,Chemical,300
+"Turbidity (NTU) max.,5,ISO 7027,Yes,Chemical,200
+"pH,6.5 - 8.5,LWTP 11,Yes,Chemical,300
+"Taste,Not Objectionable,ISO 13301:2002,No,Chemical,200
+"Odour,Odourless,ISO 13301:2002,No,Chemical,200
+"Conductivity(ÂµS/cm)max,1500,ISO 7888,No,Chemical,300
+"Suspended matter (TSS), mg/l,Not Detectable,ISO 11923,No,Chemical,800
+"Copper as Cu,mg/L,1.000,ISO 8288,No,Chemical,1300
+"Total alkalinity, mg/l,X<sub>2</sub>(No Limits Defined),LWTP 037,No,Chemical,0
+"Silica, mg/l,X<sub>2</sub>(No Limits Defined),ASTM D 859-05,No,Chemical,0
+"Legionella, cfu/mL,X<sup>2</sup>(No Limits Defined),ISO 11731:2017,No,Microbiological,6000
+"Casein, in ppm,X<sup>2</sup>(No Limits Defined),RP- HPLC,No,Chemical,0
+"Gluten, in ppm,X<sup>2</sup>(No Limits Defined),RP- HPLC,No,Chemical,0
+"Total Dissolved Solids (TDS), mg/L,700,ASTM  D 5907,No,Chemical,300
+"Total Hardness&nbsp;, mg/L,300,ISO 6059,No,Chemical,800
+"Aluminium, as AI<sup>3+,</sup>mg/L,0.2,ISO 12020,No,Chemical,1500
+"Chloride, as Cl<sup>-</sup>,mg/L,250,LWTP 08,Yes,Chemical,800
+"Total Iron as Fe,mg/L,0.3,ISO 6332,No,Chemical,1500
+"Sodium, as&nbsp; Na<sup>+</sup>,mg/L,200,ISO 9964 - 1,No,Chemical,1500
+"Sulphate as SO<sub>4</sub>,mg/L,400,LWTP 10,Yes,Chemical,1500
+"Zinc, as Zn<sup>++</sup>,mg/L,5,ISO 8288,No,Chemical,1300
+"Magnesium, as Mg<sup>++</sup>,mg/L,100,ISO 7980,No,Chemical,1500
+"Calcium, as Ca<sup>++</sup>,mg/L,150,ISO 7980,No,Chemical,1500
+"Arsenic, as As, mg/L,0.01,ISO 11969,No,Chemical,1800
+"Cadmium as Cd ,mg/L,0.003,ISO 5961,No,Chemical,1800
+"Lead, as Pb ,mg/L,0.01,ISO 8288,No,Chemical,1800
+"Mercury(total as Hg), mg/L,0.001,ISO 12846,No,Chemical,1800
+"Manganese, as Mn, mg/L,0.1,ISO 6333,No,Chemical,1500
+"Selenium, as Se, mg/L,0.01,ISO 9965,No,Chemical,0
+"Ammonia (NH<sub>3</sub>) ,mg/L,0.5,LWTP 12,Yes,Chemical,800
+"Chromium Total, as Cr ,mg/L,0.05,ISO 9174,No,Chemical,0
+"Nickel, as Ni ,mg/L,0.02,ISO 8288,No,Chemical,0
+"Cyanide, as CN ,mg/L,0.01,ISO 6703,No,Chemical,0
+"Barium, as Ba ,mg/L,0.7,ISO 14911,No,Chemical,0
+"Nitrates as NO<sub>3</sub>, mg/L,45,LWTP 13,Yes,Chemical,800
+"Boron, as Boric acid ,mg/L,2.4,ISO 9390,No,Chemical,0
+"Fluoride, as F ,mg/L,1.5,LWTP 03,Yes,Chemical,800
+"Bromate, as BrO<sub>3&nbsp;</sub>,mg/L,2.4,ISO 9340,No,Chemical,0
+"Nitrite ,mg/L,0.9,LWTP 02,Yes,Chemical,800
+"Molybdenum<br>,0.07,ISO 11885,No,Chemical,0
+"Phosphate, PO<sub>4</sub><sup>3-</sup><br>,2.2,ISO 15681,No,Chemical,800
+"Residual Free Chlorine, mg/l,0.2-0.5,ISO 7393,Yes,Chemical,800
+"Benzene<br>,10,ISO 11423,No,Chemical,0
+"Toluene<br>,700,-                   ,No,Chemical,0
+"Xylene<br>,500,             -,No,Chemical,0
+"Polynuclear aromatic hydrocarbon<br>,0.7,ISO 13877,No,Chemical,0
+"Carbon tetracloride<br>,2,              -,No,Chemical,0
+"1,2-Dichloroethane<br>,30,             -,No,Chemical,0
+"1,1-Dichloroethylene<br>,0.3,             -,No,Chemical,0
+"1,1-Dichloroethene<br>,30,             -,No,Chemical,0
+"Tetrachloroethene<br>,40,             -,No,Chemical,0
+"Phenols<br>,2,ISO 8165,No,Chemical,0
+"2,4,6-Trichlorophenol<br>,200,ISO 14402,No,Chemical,0
+"Chloroform<br>,30,             -,No,Chemical,0
+"Aldrin/Dieldrin<br>,0.03,ISO 15089,No,Chemical,0
+"Chlordane (total)<br>,0.3,ISO 15089,No,Chemical,0
+"2,4-Dichlorophenoxyacetic acid<br>,30,ISO 15089,No,Chemical,0
+"DDT (total)<br>,1,ISO 15089,No,Chemical,0
+"Heptachlor and Heptaclor Expoxide<br>,0.03,ISO 15089,No,Chemical,0
+"Hexachlorobenzene<br>,1,ISO 15089,No,Chemical,0
+"Lindane BHC<br>,2,ISO 15089,No,Chemical,0
+"Methoxychlor<br>,20,ISO 15089,No,Chemical,0
+"Surfactants (reacting with methylene Blue)<br>,200,ISO 16265,No,Chemical,0
+"Mineral oil<br>,0.01,             -,No,Chemical,0
+"Organic matter<br>,3,             -,No,Chemical,0
+"Total viable counts at 22<sup>o</sup>C in mL,max.<br>,100,LWTM 07,Yes,Microbiological,1000
+"Total viable counts at 37<sup>0</sup>C, in mL,max.<br>,50,LWTM 07,No,Microbiological,1000
+"Total Coliforms, cfu/100mL<br>,Absent,LWTM 08,Yes,Microbiological,1300
+"E. coli, cfu/100 mL<br>,Absent,LWTM 08,No,Microbiological,1500
+"Staphylococcus aureus cfu/100mL<br>,Absent,ISO 6888-1,No,Microbiological,1500
+"Sulphite reducing anaerobes cfu/100mL<br>,Absent,ISO 6461-2,No,Microbiological,1500
+"Pseudomonas aeruginosa flourescence cfu/100ml<br>,Absent,ISO 16266,No,Microbiological,1500
+"Streptococuss faecalis cfu/100mL<br>,Absent,ISO 7899-2,No,Microbiological,1500
+"Shigella cfu/100mL<br>,Absent,ISO 21567,No,Microbiological,1500
+"Salmonella cfu/100mL<br>,Absent,ISO 6785,No,Microbiological,1500
+"Vibrio cholerae cfu/100ml,Absent,ISO 21872-1,No,Microbiological,0
+"Trihalomethanes, mg/L,X<sup>2</sup>(No Limits Defined),EPA 501.3,No,Chemical,0
+"Potassium as K, mg/l,50,ISO 9964,Yes,Chemical,1500
+"Salinity in mg/L,X<sup>2</sup>(No Limits Defined),ISO 5814,No,Chemical,0
+"Phosphorus, mg/l,X<sup>2</sup>,ISO 6875,No,Chemical,0
+"Bicarbonate, mg/l,X<sup>2</sup>,ASTM D3875,No,Chemical,0
+
+Sample Type Name : Food Analysis
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,X<sup>2</sup>(No Limits Defined),LWTM 04,No,Microbiological,1200
+"Total Coliforms, cfu/ml,X<sup>2</sup>(No Limits Defined),ISO 4832,No,Microbiological,1200
+"Escherichia coli, cfu/g,X<sup>2</sup>,LWTM 02,No,Microbiological,1500
+"Yeast & Moulds, cfu/g,X<sup>2</sup>,LWTM 06,No,Microbiological,1200
+"Salmonella, cfu/25g,X<sup>2</sup>(No Limits Defined),LWTM 05,No,Microbiological,1500
+"Total Aflatoxin, ppb,10,LWTM-10,No,Chemical,2800
+"Moulds, cfu/g,1000,ISO 21527,No,Microbiological,1000
+"MRL,<br>(No Limits Defined),GCMS 002,No,Chemical,25
+"Caffeine, mg/100ml,32.0,HPLC 002,No,Chemical,5800
+"Vitamin A,X<sup>2</sup>(No Limits Defined),AOAC 974.29,No,Chemical,2500
+"Energy, Kcal/100g,<br>,,No,Chemical,3000
+"Protein, g/100g,<br>,LWTM 051,No,Chemical,1800
+"Carbohydrates, g/100g,<br>,LWTM 049,No,Chemical,1800
+"Fats, g/100g,<br>,LWTM 052,No,Chemical,1500
+"Copper,,<br>,,No,Chemical,1300
+"Zinc,<br>,,No,Chemical,1300
+"Acidity, % max,0.2,EAS 36- Annex F,No,Chemical,1500
+"Fructose & glucose content, % min,60,EAS 36- Annex D,No,Chemical,0
+"Fructose- glucose ratio,>1,EAS 36- Annex D,No,Chemical,0
+"Moisture content, % max,20,EAS 36- Annex B,No,Chemical,0
+"Sucrose content, % max,5,EAS 36- Annex D,No,Chemical,0
+"Total reducing sugars, % min,60,EAS 36- Annex C,No,Chemical,0
+"Finches test,Negative,EAS 36- Annex G,No,Chemical,0
+"Total Water insoluble solids content, % max,0.5,EAS 36- Annex K,No,Chemical,0
+"Salt as Nacl, % Max,2,EAS 60- Annex A,No,Chemical,1500
+"Total ash on mass, % max,0.5,EAS 36- Annex E,No,Chemical,1500
+"Fecal Coliforms, cfu/g,X<sup>2</sup>,ISO 4832,No,Microbiological,1500
+"Calcium, % by mass,X<sup>2</sup>,AOAC 927.02,No,Chemical,1500
+"Iron,<br>,,No,Chemical,1500
+"Potassium,<br>,,No,Chemical,1500
+"Cholesterol,<br>,,No,Chemical,1800
+"Sodium,,<br>,,No,Chemical,1500
+"Dietary Fibre,<br>,,No,Chemical,1500
+"Gluten,<br>,,No,Chemical,4800
+"ABV, %,<br>,,No,Chemical,0
+"Calories&nbsp;,<br>,,No,Chemical,1800
+"Calories from fat,<br>,,No,Chemical,0
+"Sugar, % by mass,X<sup>2</sup>,AOAC 2018.001,No,Chemical,0
+"Staphylococcus aureus, cfu/g,X<sup>2</sup>(No Limits Defined),LWTM 05,No,Microbiological,0
+"Listeria, cfu/ml,X<sup>2</sup>(No Limits Defined),ISO 11290-1,No,Microbiological,0
+"Phosphorous, % by mass,X<sup>2</sup>(No Limits Defined),AOAC 968.08,No,Chemical,0
+"Total volatile basic nitrogen,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Vitamin B12,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Non fecal coliforms, cfu/g,X<sup>2</sup>,ISO 4832,No,Chemical,0
+"Carbon dioxide, % min,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Lead as Pb, mg/kg,X<sup>2</sup>,ICUMSA,No,Chemical,0
+"Arsenic as As, mg/kg,X<sup>2</sup>,ICUMSA,No,Chemical,0
+"Free fatty acids, %m/m as oleic acid,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Crude fiber content on dry basis %,0.5,AOAC 962.09,No,Chemical,0
+"pH,5-6,,No,Chemical,0
+"Total solid content, % m/m,>6,,No,Chemical,0
+"Carbon, %,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Mercury as Hg, mg/kg,X<sup>2</sup>,ICUMSA,No,Chemical,0
+"Tin as Sn, mg/kg,(No Limits Defined),KS ISO 2447,Yes,Chemical,0
+"Cadmium as Cd, mg/kg,X<sup>2</sup>(No Limits Defined),KS ISO 6732,Yes,Chemical,0
+"*Shigella, cfu/25g,X2(No Limits Defined),KS IS0 4833,No,Microbiological,0
+"Mercury as Hg, mg/kg,(No Limits Defined),KS ISO 6637,Yes,Chemical,0
+"Acid insoluble ash %, max<br>,4<br>,ISO 5985,No,Chemical,0
+"Starch, %m/m<br>,X<sup>2</sup><br>,AOAC 996.11,No,Chemical,0
+
+Sample Type Name : Sources of Domestic Water
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"<span style="font-size: 10.5px;">pH</span>,6.5-8.5<br>,ISO 10523,Yes,Chemical,0
+"Total Suspended Solids, TSS  mg/L,30,APHA 2540,No,Chemical,0
+"Nitrate mg/L,10,ISO 7890,No,Chemical,0
+"Ammonia Nitrogen, mg/l,0.5,ISO 11732,Yes,Chemical,0
+"Nitrite- NO<sub>2 </sub>mg/L,3,ISO 6777,No,Chemical,0
+"Total Dissolved Solids; TDS mg/L,1200,APHA 2540 C,No,Chemical,0
+"Fluoride  mg/L,1.5,APHA 4500 F,No,Chemical,0
+"E. coli cfu per 100ml,Nil,ISO 9308-1,Yes,Microbiological,0
+"Phenols,Nil,APHA 5530,Yes,Chemical,0
+"Arsenic  mg/L,0.01,ISO 8288,No,Chemical,0
+"Cadmium mg/L,0.01,ISO 8288,No,Chemical,0
+"Lead mg/L,0.05,ISO 8288,No,Chemical,0
+"Selenium mg/l,0.01,ISO 17379,No,Chemical,0
+"Copper mg/L,0.05,ISO 8288,No,Chemical,0
+"Zinc mg/L,1.5,ISO 8288,No,Chemical,0
+"Permanganate Value (PV) mg/L,1.0,ISO 8467,No,Chemical,0
+"Alkyl benzyl sulphonates  mg/L,0.5,ASTM D4711,No,Chemical,0
+"Total coliform, cfu/100ML,X<sup>2</sup>(No Limits Defined),ISO 9308-1,No,Microbiological,0
+"Salmonella, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 6579,No,Microbiological,0
+"Biological oxygen demand, (BOD @20<sup>0</sup>C), mg/l,X<sup>2</sup>(No Limits Defined),APHA 5210B,No,Microbiological,0
+"Chemical Oxygen Demand (COD), mg/l,X<sup>2</sup>(No Limits Defined),APHA 5220 D,No,Chemical,0
+"Conductivity (ÂµS/cm),X<sup>2</sup>(No Limits Defined),ISO 7888,No,Chemical,0
+"Hardness (mg/l),X<sup>2</sup>(No Limits Defined),ISO 6059,No,Chemical,0
+"Total Nitrogen (N mg/l),X<sup>2</sup>(No Limits Defined),ISO 25663,No,Chemical,0
+"Dissolved Oxygen (mg/l),X<sup>2</sup>(No Limits Defined),ISO 17289,No,Chemical,0
+"Orthophosphate (P mg/l),X<sup>2</sup>(No Limits Defined),ISO 15681,No,Chemical,0
+"Total Phosphorous (P mg/l),X<sup>2</sup>(No Limits Defined),ISO 6878,No,Chemical,0
+"Chloride (Cl<sup>-</sup> mg/l),X<sup>2</sup>(No Limits Defined),ISO 9297,No,Chemical,0
+"Sulphate (SO<sub>4</sub><sup>-</sup> mg/l),X<sup>2</sup>(No Limits Defined),ISO 22743,No,Chemical,0
+"Chromium (Âµg/l),X<sup>2</sup>(No Limits Defined),ISO 9174,No,Chemical,0
+"Mercury (Âµg/l),X<sup>2</sup>(No Limits Defined),ISO 12846,No,Chemical,0
+"Nickel (Âµl/l),X<sup>2</sup>(No Limits Defined),ISO 8288,No,Chemical,0
+"Temperature (Â°C),X<sup>2</sup>(No Limits Defined),ASTM D 5464,No,Chemical,0
+"Legionella,X<sup>2</sup>(No Limits Defined),ISO 11731:2017,No,Microbiological,0
+"Aluminium, mg/l,X<sup>2</sup>(No Limits Defined),ISO 12020,No,Chemical,0
+"Total Iron, mg/l,X<sup>2</sup>(No Limits Defined),ISO 6332,No,Chemical,0
+"Sodium, mg/l,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Calcium, mg/l,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Magnesium,X<sup>2</sup>,,No,Chemical,0
+"Colour,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Free Residual Chlorine,X<sup>2</sup>(No Limits Defined),LWTP 012,No,Chemical,0
+"Chloroform,X<sup>2</sup>(No Limits Defined),LWTP 037,No,Chemical,0
+
+Sample Type Name : Fortified Fat & Oil
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Copper as Cu, mg/l,<br>,ISO 8288,No,Chemical,0
+"Lead as Pb, mg/l,<br>,ISO 8288,No,Chemical,0
+"Iron as Fe, mg/kg, Max.,2.5,ISO 8294,Yes,Chemical,1500
+"Arsenic as Ars, mg/l,<br>,,No,Chemical,0
+"Benzene, ppm,<br>,,No,Chemical,0
+"Toluene,ppm,<br>,,No,Chemical,0
+"Ethylene, ppm,<br>,,No,Chemical,0
+"Xylene, ppm,<br>,,No,Chemical,0
+"Heavy PAH,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Total PAH,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Staphylococcus aureus, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 16649-2,No,Microbiological,0
+"Soap Content, % by mass, max.,0.005,AOAC 920.160,No,Chemical,1500
+"Moisture and Matter Volatile at 105oC, % by m/m , Max,0.2,ISO 662,No,Chemical,800
+"Acid value, mg KOH/g max.,4,ISO 660,Yes,Chemical,1500
+"Peroxide Value, mEq peroxide Oxygen/kg , Max.,15,ISO 3960,No,Chemical,1500
+"Vitamin A, mg/kg,20 - 40,ISO 2001.13,Yes,Chemical,2500
+"Nickel,<br>(No Limits Defined),ISO 8294,Yes,Chemical,0
+"Refractive index&nbsp;,<br>(No Limits Defined),ISO 6320,No,Chemical,0
+"Relative density,<br>(No Limits Defined),density meter,No,Chemical,0
+"Iodine value,<br>(No Limits Defined),ISO 3961,No,Chemical,0
+
+Sample Type Name : Recreational Water
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH,6-9,ISO 10523,No,Chemical,0
+"Colour,100,ISO 7887,No,Chemical,0
+"Turbidity (NTU),50,ISO 7027,No,Chemical,0
+"Odour (TON),16,ISO 13301,No,Chemical,0
+"Magnesium, mg/l,X<sup>2</sup>(No Limits Defined),ISO 7980,No,Chemical,0
+"Arsenic, mg/l,0.05,ISO 8288,No,Chemical,0
+"Surfactant, mg/l,2,APHA 5540 C,No,Chemical,0
+"Iron, mg/l,X<sup>2</sup>(No Limits Defined),ISO 6332,No,Chemical,0
+"Fecal Coliforms,Nil,ISO 9308-1,No,Microbiological,0
+"Total Coliform&nbsp;,500,ISO 9308-1,No,Microbiological,0
+"Salmonella,X<sup>2</sup>(No Limits Defined),ISO 6785,No,Microbiological,0
+"Cadmium,0.01,ISO 8288,No,Chemical,0
+"Chromium,0.1,ISO 9174,No,Chemical,0
+"Oil & Grease, mg/l,5,EPA 1664 A,No,Chemical,0
+"Temperature&nbsp;,30,ASTM D 5464,No,Chemical,0
+"Total Chlorine,X<sup>2</sup>(No Limits Defined),ISO 9297,No,Chemical,0
+"E.coli in 100 ml,X<sup>2</sup>(No Limits Defined),ISO 9308 - 1,No,Microbiological,0
+
+Sample Type Name : Toilet Paper
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total viable counts, cfu/g,300,ISO 8784-1,Yes,Microbiological,0
+"pH,4.5-8.5,ISO 6588-1,No,Chemical,0
+"Wet Tensile strength, N/m of width, Min, MD, Single ply.&nbsp;,33,ISO 12625 - 5,No,Chemical,0
+"Wet Tensile strength, N/m of width, Min, MD, Single ply.&nbsp;,36,ISO 12625 - 5,No,Chemical,0
+"Water absorption, mm/min, Min.,20,ISO 12625 - 8,No,Chemical,0
+"Moisture content, m/m, %.,4.0-7.0,ISO 287,No,Chemical,0
+"Brightness of white paper, %, Min.,73,ISO 2470-1,No,Chemical,0
+"Perforation ratio, Min.,0.75,ANNEX A,No,Chemical,0
+"Pseudomonas aeruginosa, cfu/g,Not Detected,ISO 8784,No,Microbiological,0
+"Staphylococcus aureus, cfu/g&nbsp;,Not detected,ISO 8784-1,No,Microbiological,0
+"Candida albicans, cfu/g,Not Detected,ISO 8784-1,No,Microbiological,0
+"Escherichia coli, cfu/g,Not Detected,ISO 8784-1,No,Microbiological,0
+"Internal diameter of the core, mm,40-75,ISO 11093-4,No,Chemical,0
+"Length of each Sheet mm,123-127,KS EAS 355:2017,Yes,Chemical,0
+"Length of roll(700 sheets),87.3-87.7,KS EAS 355:2017,Yes,Chemical,0
+"Freedom from Holes,4-6,KS EAS 355:2017,No,Chemical,0
+"Number of sheets per roll,699-701,KS EAS 355:2017,No,Chemical,0
+"Ply,2,KS EAS 355:2017,Yes,Chemical,0
+"Water absorptiveness,<br>,KS EAS 355:2017,Yes,Chemical,0
+"Tensile strength N/m of width min(MD),165-170,KS EAS 355:2017,Yes,Chemical,0
+"Tensile strength N/m of width min(CD),85-100,KS EAS 355:2017,Yes,Chemical,0
+"Tensile strength N/m of width min( Average of CD&MD),125-135,KS EAS 355:2017,Yes,Chemical,0
+"Grammage per ply ,
+g/m<sup>2&nbsp;</sup>,15-24,ISO 12625 - 6,No,Chemical,0
+"The average number of holes less than 2mm in diameter in sheets.,<8 per sheet,KS EAS 355:2017,Yes,Chemical,0
+"The size of the facial paper sheets in mm.,200*200,KS EAS 355:2017,Yes,Chemical,0
+"Number of sheets per holder.,80,140,KS EAS 355:2017,Yes,Chemical,0
+"Number of sheets per holder min.,10,KS EAS 355:2017,Yes,Chemical,0
+"Softness Nm, max.,150,ISO 12625-7,No,Chemical,0
+"Number of malformed sheets at roll core end, min.,5,EAS 355,No,Chemical,0
+"Dry Tensile strength, N/m of width, Min, MD, Multi ply.&nbsp;,140,ISO 12625 - 4,No,Chemical,0
+"Dry Tensile strength, N/m of width, Min, MD, Single ply.&nbsp;,220,ISO 12625 - 4,No,Chemical,0
+"Dry Tensile strength, N/m of width, Min, CD, Multi ply.&nbsp;,40,ISO 12625 - 4,No,Chemical,0
+"Dry Tensile strength, N/m of width, Min, CD, Single ply.&nbsp;,107,ISO 12625 - 4,No,Chemical,0
+"Wet Tensile strength, N/m of width, Min, CD, Multi ply.&nbsp;,17,ISO 12625 - 5,No,Chemical,0
+"Wet Tensile strength, N/m of width, Min, CD, Single ply.&nbsp;,18,ISO 12625 - 5,No,Chemical,0
+
+Sample Type Name : Soil
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH,X<sup>2</sup>,ISO 10523,No,Chemical,0
+"Zinc, ppm,0.5-3.0,LWTM-028,Yes,Chemical,0
+"Copper, ppm,0.75,LWTM-025,No,Chemical,0
+"Ammonium, ppm,X<sup>2</sup>(No Limits Defined),LWTM-017,Yes,Chemical,0
+"Nitrate, ppm,X<sup>2</sup>,LWTM-014,No,Chemical,0
+"Phosphates, ppm,X<sup>2</sup>,LWTM-019,No,Chemical,0
+"Boron, mg/l,0.5-5.0,LWTM-015,No,Chemical,0
+"Molybdenum, ppm,0.2-3.5,LWTM-016,Yes,Chemical,0
+"Salmonella,&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Microbiological,0
+"Weeds,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Phosphorous, ppm,X<sup>2</sup>(No Limits Defined),LWTM-019,No,Chemical,0
+"Conductivity, Âµs/cm,X<sup>2</sup>,ISO 7888,No,Chemical,0
+"Cation Exchange Capacity, C.E.C,X<sup>2</sup>(No Limits Defined),EPA 9081,No,Chemical,0
+"Total Nitrogen,X<sup>2</sup>(No Limits Defined),LWTM-014,No,Chemical,0
+"Organic matter,X<sup>2</sup>(No Limits Defined),LWTM-029 (UV VIS),No,Chemical,0
+"C/N Ratio,X<sup>2</sup>(No Limits Defined),LWTM-031,No,Chemical,0
+"Temperature,<br>,,No,Chemical,0
+"Detergents,<br>,,No,Chemical,0
+"Alkyl mercury compounds, mg/l,<br>,,No,Chemical,0
+"Total Mercury, mg/l,<br>,,No,Chemical,0
+"Cadmium, mg/l,<br>,,No,Chemical,0
+"Selenium, mg/l,<br>,,No,Chemical,0
+"Potassium, %,X<sup>2</sup>,LWTM-04,No,Chemical,0
+"Total Nickel, mg/l,<br>,,No,Chemical,0
+"Total Chromium, mg/l,<br>,,No,Chemical,0
+"Chromium VI, mg/l,<br>,,No,Chemical,0
+"Arsenic, mg/l,<br>,,No,Chemical,0
+"Sulphides, mg/l,<br>,,No,Chemical,0
+"Phenols,<br>,,No,Chemical,0
+"Total Cyanogen,<br>,,No,Chemical,0
+"TPH,X<span style="font-size: 10.5px;"><sup>2</sup></span>(No Limits Defined),,No,Chemical,0
+"Calcium, ppm,X<sup>2</sup>,ISO 7980,No,Chemical,0
+"Magnesium, ppm,X<sup>2</sup>,ISO 9297,No,Chemical,0
+"Manganese, ppm,9.00,LWTM-005,No,Chemical,0
+"Total Iron, ppm,2.5-25.0,LWTM-020,Yes,Chemical,0
+"Sodium, %,X<sup>2</sup>,LWTM-023,No,Chemical,0
+"Sulphate, ppm,X<sup>2</sup>,LWTM- 022,No,Chemical,0
+"Bulk Density,X<sup>2</sup>(No Limits Defined),ISO 11272,No,Chemical,0
+
+Sample Type Name : EAS 828:2022 Dried and salted dried fish Specs
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Moisture, %m/m for dried fish Max,14,EAS 828-2022 ,No,Chemical,0
+"Moisture, %m/m for dried salted fish Max,30,EAS 828-2022 Annex 1,Yes,Chemical,0
+
+Sample Type Name : EAS 70 - Dairy Ices and Dairy Ice Creams
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Milk Fat, % by mass, min.,10,AOAC 989.05,No,Chemical,0
+"Coliforms, cfu/g,10,EAS 68,No,Chemical,0
+"Milk solids, non fat, % by mas, min.,13,AOAC 990.21,No,Chemical,0
+"Total solids, % by mass.,X<sup>2</sup>,AOAC 990.20,No,Chemical,0
+"Total plate count, cfu/g,40000,EAS 68,No,Chemical,0
+"Escherichia coli, cfu/g,Absent,ISO 11866,No,Chemical,0
+"Salmonella spp. per gram,Absent,ISO 6785,No,Chemical,0
+"Listeria monocytogenes, cfu/g,Absent,ISO 10560,No,Chemical,0
+"Yeast and moulds, cfu/g,10,EAS 68,No,Chemical,0
+"Staphylococcus aureus, cfu/g,Absent,ISO 6611,No,Chemical,0
+
+Sample Type Name : EAS 22 - Butter Specifications
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Fat content, % by mass, min.,80,AOAC 989.05,No,Chemical,0
+"Solids Non Fat, % by mass, max.,2,AOAC 990.21,No,Chemical,0
+
+Sample Type Name : Swabs
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total coliforms, cfu/cm<sup>2</sup>,X<sup>2</sup>(No Limits Defined),ISO 4832,Yes,Microbiological,0
+"Calcium, as Ca, mg/l,X<sup>2</sup>(No Limits Defined),ISO 7980,No,Chemical,0
+"Magnesium as Mg, mg/l,X<sup>2</sup>(No Limits Defined),ISO 7980,No,Chemical,0
+"Total viable counts @ 37<sup>o</sup>C, cfu/cm<sup>2</sup>,X<sup>2</sup>(No Limits Defined),ISO 4833,Yes,Microbiological,0
+"Salmonella, cfu/cm<sup>2</sup>,X<sup>2</sup>(No Limits Defined),ISO 6785,No,Microbiological,0
+"E. coli, cfu/cm<sup>2</sup>,X<sup>2</sup>(No Limits Defined),ISO 16649-2,Yes,Microbiological,0
+"Staphylococcus aureus, cfu/cm<sup>2</sup>,X<sup>2</sup>(No Limits Defined),ISO 6888-1,Yes,Microbiological,0
+"Listeria monocytogenes, cfu/cm<sup>2</sup>,X<sup>2</sup>(No Limits Defined),ISO 11290-1,No,Microbiological,0
+"Yeast & Moulds, cfu/cm<sup>2</sup>,X<sup>2</sup>(No Limits Defined),ISO 21527-2,Yes,Microbiological,0
+"Copper, mg/l,X<sup>2</sup>(No Limits Defined),ISO 8288,No,Chemical,0
+"Manganese, mg/l,X<sup>2</sup>(No Limits Defined),ISO 6333,No,Chemical,0
+"Iron as Fe, mg/l,X<sup>2</sup>(No Limits Defined),ISO 6332,No,Chemical,0
+"Lead as pb, mg/l,X<sup>2</sup>(No Limits Defined),ISO 8288,No,Chemical,0
+
+Sample Type Name : KS ISO 11047:1998 Soil quality
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Cadmium, mg/Kg,X<sup>2</sup>(No Limits Defined),ISO 11047,No,Chemical,0
+"Chromium, mg/Kg,X<sup>2</sup>(No Limits Defined),ISO 11047,No,Chemical,0
+"Cobalt, mg/Kg,X<sup>2</sup>(No Limits Defined),ISO 11047,No,Chemical,0
+"Lead, mg/Kg,X<sup>2</sup>(No Limits Defined),ISO 11047,No,Chemical,0
+"Copper. mg/Kg,X<sup>2</sup>(No Limits Defined),ISO 11047,No,Chemical,0
+"Manganese, mg/Kg,X<sup>2</sup>(No Limits Defined),ISO 11047,No,Chemical,0
+"Nickel, mg/Kg,X<sup>2</sup>(No Limits Defined),ISO 11047,No,Chemical,0
+"Zinc, mg/Kg,X<sup>2</sup>(No Limits Defined),ISO 11047,No,Chemical,0
+"pH,X<sup>2</sup>(No Limits Defined),ISO 10390,No,Chemical,0
+
+Sample Type Name : Sanitizer
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Alcohol content, V/V %,>60.0,EAS 104,No,Chemical,0
+"Efficacy (Bactericidal Activity), Log reduction,>5,BS EN 1276:2009,No,Chemical,0
+"pH,6-8,ISO 10523,No,Chemical,0
+"Ethanol,<br>,,No,Chemical,0
+"Methanol,<br>,,No,Chemical,0
+
+Sample Type Name : Beverages 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Caffeine, mg/100ml,32.0,HPLC 002,No,Chemical,0
+"Quinine, mg/100ml,10.0,HPLC 001,No,Chemical,0
+"Casein, ppm,X<sup>2</sup>(No Limits Defined),HPLC 003,No,Chemical,0
+"Gluten, ppm,X<sup>2</sup>(No Limits Defined),HPLC 003,No,Chemical,0
+"Volatile acetic acid,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Total volatile basic nitrogen,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Total Viable Counts, cfu/ml, X<sup>2</sup>(No Limits Defined),ISO 4833,No,Microbiological,0
+"Total Coliforms, cfu/ml,X<sup>2</sup>,ISO 4832,No,Microbiological,0
+"Escherichia coli, cfu/ml,X<sup>2</sup>,ISO 16649/ISO 7251,No,Microbiological,0
+"Staphylococcus aureus, cfu/ml,X<sup>2</sup>(No Limits Defined),ISO 6888,No,Microbiological,0
+"Salmonella, cfu/ 25ml,Absent(No Limits Defined),ISO 6579,No,Microbiological,0
+"Yeasts and moulds, cfu/ml,X<sup>2</sup>,ISO 21527,No,Microbiological,0
+
+Sample Type Name : Compressed air
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Moulds, cfu/m<sup>3</sup>,X<sup>2</sup>(No Limits Defined),ISO 21527,No,Microbiological,0
+"Total viable counts, cfu/m<sup>3</sup>,X<sup>2</sup>(No Limits Defined),ISO 8573-7,No,Microbiological,0
+"Dew point,-40,ISO 8573-3,No,Chemical,0
+"Total Oil, mg/Nm<sup>3</sup>,0.01,ISO 8573-5,No,Chemical,0
+"Solid particulates 0.1-0.5,400,000,ISO 8573-4,No,Chemical,0
+"Solid particulates 0.5-1.0,6,000,ISO 8573-4,No,Chemical,0
+"Solid particulates 1.0-5.0,100,ISO 8573-4,No,Chemical,0
+
+Sample Type Name : KS 1485:2020 Fruit (Water-based) flavoured drinks
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Arsenic, mg/kg, max,0.2,ISO 17239,Yes,Chemical,0
+"Total soluble solids, %, min,X<sup>2</sup>(No Limits Defined),LWP,No,Chemical,0
+"Total plate count, cfu/g max,1000,ISO 4833-2,Yes,Microbiological,0
+"Lead, mg/kg, max,0.3,KS ISO 9526,Yes,Chemical,0
+"Tin, mg/kg, max,250,KS ISO 17240,Yes,Chemical,0
+"Cadmium, mg/kg, max,0.05,AOAC 999.10,Yes,Chemical,0
+"Escherichia coli, per 25g (cfu/g), max,Not detected,KS ISO 7251,Yes,Microbiological,0
+"Yeast and molds,10,KS ISO 6881-1,Yes,Microbiological,0
+"Brix at 20 degrees,10,KS ISO 2173,Yes,Chemical,0
+"Ethanol Content, % max,0.3,ISO 2448,Yes,Chemical,0
+"Acid insoluble ash,0.02,ISO 763,Yes,Chemical,0
+
+Sample Type Name : 8th and 9th Schedule - Irrigation Water
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH,6.5-8.5,ISO 10523,Yes,Chemical,300
+"Boron, mg/L,0.1,ISO 9390,Yes,Chemical,1800
+"S.A.R,6,LWTM 050,Yes,Chemical,1500
+"Aluminium, mg/l,5,ISO 12020,Yes,Chemical,1800
+"Arsenic, mg/l,0.1,ASTM D2972,Yes,Chemical,1800
+"Cadmium, mg/l,0.5,ISO 5961,Yes,Chemical,1800
+"Chloride, mg/l,70.0,ISO 9297,Yes,Chemical,1500
+"Chromium, mg/l,1.5,AOAC 2.048,Yes,Chemical,1500
+"Cobalt, mg/l,0.1,ISO 6703,Yes,Chemical,1800
+"Copper, mg/l,0.05,ISO 8288,Yes,Chemical,1500
+"Fluoride, mg/l,1.00,ISO 10359,Yes,Chemical,800
+"Iron, mg/l,1.0,ISO 6332,Yes,Chemical,1300
+"Lead, mg/l,5,ISO 8288,Yes,Chemical,1500
+"Selenium, mg/l,0.19,ISO 17379-2,Yes,Chemical,1800
+"Total Disolved Solids, mg/l,1200,ASTM D5907,Yes,Chemical,200
+"Calcium, mg/l,40-100,LWTM 038,No,Chemical,0
+"Magnesium, mg/l,6-24,LWTM 033,No,Chemical,0
+"Zinc, mg/l,2,ISO 8288,Yes,Chemical,1000
+"Nitrates, mg/l,17-134,ISO 7890,No,Chemical,0
+"Phosphates, mg/l,0.005-5,LWTM 019,No,Chemical,0
+"Sulphates, mg/l,154.0,ISO 22743,No,Chemical,0
+"E. coli, cfu/100ml,Nil,ISO 9308-1,No,Microbiological,1500
+"Salmonella, cfu/25ml,X<sup>2</sup>(No Limits Defined),ISO 6785,No,Chemical,0
+"Staphylococcus aureus, cfu/100ml,X<sup>2</sup>(No Limits Defined),ISO 6888-1,Yes,Chemical,0
+"Coliforms, cfu/100ml,200,ISO 9308-1,No,Microbiological,1300
+"Intestinal Nematodes, MPN/L,Nil,LWTM 016,Yes,Microbiological,2500
+
+Sample Type Name : Maize Flour
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Moisture content, % by m/m,
+max.,13,EAS 82,No,Chemical,0
+"Total aerobic count per g,100,000,EAS 217,No,Chemical,0
+"E. Coli, cfu/g,Not detectable,EAS 217,No,Chemical,0
+"Salmonella, cfu/25 g&nbsp;,Not detectable,EAS 217,No,Chemical,0
+"Yeast and Moulds, cfu/g,10,000,EAS 217,No,Chemical,0
+"S.aureus, cfu/25g,Not detectable,EAS 217,No,Chemical,0
+"Zinc, mg/kg,X<sup>2</sup>,AOAC 985.35,No,Chemical,0
+"Vitamin A, ug/100g,X<sup>2</sup>,AOAC 992.04,No,Chemical,0
+"Arsenic&nbsp;,<0.1,AOAC 999.10,Yes,Chemical,0
+"Cadmium,<0.1,AOAC 999.10,Yes,Chemical,0
+"Lead,<0.2,AOAC 999.10,Yes,Chemical,0
+"Total ash, % by m/m, max.,1.0,EAS 82,No,Chemical,0
+"Copper,<2,AOAC 999.10,Yes,Chemical,0
+"Acid insoluble ash, % by m/m,
+max.,0.15,EAS 82,No,Chemical,0
+"Crude protein (N x 6.25) % min,7.0,EAS 82,No,Chemical,0
+"Iron mg/kg&nbsp;,X<sup>2</sup>,AOAC 999.11,No,Chemical,0
+"Fat acidity, mg KOH per 100g,50,EAS 82,No,Chemical,0
+"Total Aflatoxin, ppb max,10,ISO 16050,No,Chemical,0
+"Aflatoxin B1, ppb max&nbsp;,5,ISO 16050,No,Chemical,0
+"Fumonisin ppm, max&nbsp;,2,ISO 16050,No,Chemical,0
+
+Sample Type Name : Milk
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH Variation,0.3,EAS 27-Annex A,No,Chemical,0
+"pH,X<sup>2</sup>(No Limits Defined),EAS 27- Annex A,No,Chemical,0
+"Acidity, %,X<sup>2</sup>(No Limits Defined),EAS 27- Annex B,No,Chemical,0
+"Butterfat,<br>,,No,Chemical,0
+"Total non fat,<br>,,No,Chemical,0
+"Titratable acidity variation %,0.02,EAS 27-Annex B,No,Chemical,0
+"Density, g/ml,1.028- 1.036,EAS 27-Annex C,No,Chemical,0
+"Fat content,3.25,ISO 2446,Yes,Chemical,0
+"Total plate count, cfu/ml,10,ISO 4833-1,Yes,Microbiological,0
+"Coliforms, cfu/ml,Absent,ISO 4832,Yes,Microbiological,0
+"Staphylococcus aureus, cfu/ml,Absent,ISO 6888-3,Yes,Microbiological,0
+"Salmonella spp,Absent,ISO 6579-1,Yes,Microbiological,0
+"Aflatoxin M1, ppt,500,ISO 14501 (LCMS),No,Chemical,0
+
+Sample Type Name : Packaged Water
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Colour (TCU max),15,ISO 7887,Yes,Chemical,0
+"Turbidity (NTU),1,ISO 7027,Yes,Chemical,0
+"pH,6.5-8.5,ISO 10523,Yes,Chemical,0
+"Conductivity (Î¼S/cm)<br>,2500,ISO 7887,Yes,Chemical,0
+"Suspended matter, mg/l<br>,Not Detectable,ISO 11923,Yes,Chemical,0
+"Taste<br>,Not objectionable,ISO 13301:2002,Yes,Chemical,0
+"Odour,Odourless,ISO 13301:2002,Yes,Chemical,0
+"Total dissolved solids, mg/l<br>,1500,ASTM D 5907,Yes,Chemical,0
+"Total hardness, as CaCO3, mg/l<br>,300,ISO 6059,Yes,Chemical,0
+"Aluminium, as Al<sup>3+</sup>,mg/l<br>,0.2,ISO 12020,No,Chemical,0
+"Chloride, as Cl<sup>-</sup>, mg/l<br>,250,ISO 9297,Yes,Chemical,0
+"Iron Fe, mg/l<br>,0.3,ISO 6332,Yes,Chemical,0
+"Sodium, as Na<sup>+</sup>, mg/l<br>,200,ISO 9964-1,Yes,Chemical,0
+"Sulphate, mg/l<br>,400,ISO 22743,Yes,Chemical,0
+"Zinc, as Zn<sup>2+</sup>, mg/l<br>,5,ISO 8288,Yes,Chemical,0
+"Magnesium, as&nbsp;Mg<sup>2+</sup>, mg/l<br>,100,ISO 7980,Yes,Chemical,0
+"Calcium, as Ca<sup>2+</sup>, mg/l<br>,150,ISO 7980,Yes,Chemical,0
+"Residual free chlorine, mg/l<br>,Not detectable,ISO 7393,Yes,Chemical,0
+"Copper, as Cu, mg/l<br>,2.000,ISO 8288,Yes,Chemical,0
+"Lead, as Pb<br>,0.01,ISO 8288,Yes,Chemical,0
+"Ammonia (N)<br>,0.5,ISO 11732,Yes,Chemical,0
+"Nitrate, as NO3, mg/l<br>,45,ISO 7890,Yes,Chemical,0
+"Fluoride, as F, mg/l<br>,1.5,ISO 10359,Yes,Chemical,0
+"Nitrite, mg/l<br>,0.5,ISO 6777,Yes,Chemical,0
+"Total Viable counts, 22<sup>o</sup>C, cfu/ml&nbsp;,100,ISO 6266,No,Microbiological,0
+"Total Viable counts at 37<sup>o</sup>C, cfu/ml,50,ISO 6266,No,Microbiological,0
+"Total Coliforms in 100 mL<br>,Absent,ISO 4832,Yes,Microbiological,0
+"E. Coli in 100 mL<br>,Absent,ISO 9308-1,Yes,Microbiological,0
+"Staphylococcus aureus, cfu/100ml,Absent,ISO 6888-1,No,Microbiological,0
+"<div>Sulphite reducing anaerobes, cfu/100ml</div>,Absent,ISO 6461-2,No,Microbiological,0
+"<div>Pseudomomonas aureginosa, cfu/100ml</div>,Absent,ISO 16266,No,Microbiological,0
+"<div>Streptococcus faecalis, cfu/100ml</div>,Absent,ISO 7899-2,No,Microbiological,0
+"Shigella in 100 mL<br>,Absent,ISO 21567,Yes,Microbiological,0
+"Salmonella in 100 mL<br>,Absent,ISO 6785,Yes,Microbiological,0
+"Permanganate value, mg/l,X<sup>2</sup>(No Limits Defined),ISO 8467,No,Chemical,0
+"Manganese as Mn, mg/l,0.1,ISO 6333,No,Chemical,0
+"Potassium as K, Mg/l,X<sup>2</sup>(No Limits Defined),ASTM D4192,No,Chemical,0
+"Total alkalinity,X<sup>2</sup>(No Limits Defined),ISO 9963,No,Chemical,0
+"Total nitrogen, mg/l,X<sup>2</sup>(No Limits Defined),ISO 25663,No,Chemical,0
+"Cadmium, mg/l,0.003,ISO 5961,No,Chemical,0
+"Orthophosphates,X<sup>2</sup>(No Limits Defined),ISO 15681,No,Chemical,0
+"Free carbondioxide, g/l,X<sup>2</sup>(No Limits Defined),ISO 9439,No,Chemical,0
+"Dissolved oxygen,X<sup>2</sup>(No Limits Defined),ISO 17289,No,Chemical,0
+
+Sample Type Name : Wheat Flour
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Vitamin A, ug/100g,X<sup>2</sup>,AOAC 992.04,No,Chemical,0
+"Iron, mg/kg,X<sup>2</sup>,AOAC 999.11,No,Chemical,0
+"Zinc, mg/kg,X<sup>2</sup>,AOAC 999.11,No,Chemical,0
+"Total Ash, g/100g,X<sup>2</sup>,ISO 5984,No,Chemical,0
+
+Sample Type Name : Mineral Lick
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Calcium, % max.,26,	AOAC 927.02	,No,Chemical,0
+"Sodium Chloride (as NaCl), % by mass, min.,20 - 30,KS 63,Yes,Chemical,1500
+"Other non-harmful salt, % by mass, max.,6,KS 05-229,Yes,Chemical,1500
+"Water Insoluble Matter, % by mass, max.,1,KS 05-229,Yes,Chemical,1500
+"Moisture Content, % by mass, max.,5,KS 63,Yes,Chemical,300
+"Calcium, % max.,5,AOAC 927.02,Yes,Chemical,1500
+"Phosphorus, %,5 - 10,AOAC 965.17,Yes,Chemical,1500
+
+Sample Type Name : Calcium Phosphates Feed Grade (DCP) 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"PH , Max.,4.5,AOAC ,Yes,Chemical,300
+
+Sample Type Name : Milk Replacer
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Calcium as Ca, %mass, min,1.25,AOAC 927.02,Yes,Chemical,1500
+"Crude Fibre,%mass, max,0.3,KS 63,Yes,Chemical,1500
+
+Sample Type Name : EAS 2 - Maize Grains
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Foreign Matter, % m/m, Max.,1.5,ISO 605,Yes,Chemical,500
+"Lead as Pb, mg/kg,0.2,AOAC 2013.06,No,Chemical,0
+"Copper as Cu, mg/kg,2,AOAC 999.10,No,Chemical,0
+"Broken Kernels, % m/m, Max.,6.0,ISO 605,Yes,Chemical,500
+"<span style="font-size: 13.2px;">Discoloured grains, %m/m, max.</span>,1.5,ISO 605,Yes,Chemical,500
+"<span style="font-size: 13.2px;">Moisture, %m/m Max.</span>,13,EAS 285,Yes,Chemical,800
+"<span style="font-size: 13.2px;">Filth, %m/m, Max.</span>,0.1,EAS 605,Yes,Chemical,500
+"<span style="font-size: 13.2px;">Total Aflatoxins, ppb, Max.</span>,10,ISO 16050,Yes,Chemical,3000
+"<span style="font-size: 13.2px;">Total Defective Grains, %m/m, Max.</span>,7.0,ISO 605,Yes,Chemical,500
+"Arsenic as As, mg/kg,0.1,AOAC 2013.06,No,Chemical,0
+"Cadmium as Cd, mg/kg,0.1,AOAC 2013.06,No,Chemical,0
+
+Sample Type Name : EAS 46 - Dry Beans
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Foreign Matter, %, max.,1.0,ISO 605,No,Chemical,500
+"Cadmium,<0.1,ISO 605,Yes,Chemical,0
+"Lead,<0.2,ISO 605,Yes,Chemical,0
+"Copper,<2,ISO 605,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Other edible grains, % max.</span>,0.5,ISO 605,No,Chemical,500
+"<span style="font-size: 13.2px;">Pest damaged grains %, max.</span>,3.0,ISO 605,No,Chemical,500
+"<span style="font-size: 13.2px;">Broken or Split grains, % max.</span>,3.0,ISO 605,No,Chemical,500
+"<span style="font-size: 13.2px;">Total Defective Grains, % max.</span>,5.5,ISO 605,No,Chemical,500
+"<span style="font-size: 13.2px;">Filth, % max.</span>,0.1,ISO 605,No,Chemical,500
+"<span style="font-size: 13.2px;">Moisture, % max.</span>,13.0,ISO 24557,No,Chemical,800
+"<span style="font-size: 13.2px;">Total Aflatoxin, ppb, max.</span>,10,ISO 16050,No,Chemical,3000
+"Arsenic,<0.1,ISO 605,Yes,Chemical,0
+
+Sample Type Name : Cheese Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Salmonella spp. cfu/g,Nil,KS ISO 4833,Yes,Microbiological,1500
+"Listeria monocytogenes, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 11290,No,Microbiological,1800
+"Total viable counts, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 13559,No,Microbiological,1300
+"*Shigella, cfu/g,Nil,KS ISO 4833,No,Microbiological,1500
+"Clostridium botulinum, cfu/g,Nil,KS ISO 4833,Yes,Microbiological,1800
+"Staphylococcus aureus, cfu/g,Nil,KS ISO 4833,Yes,Microbiological,1500
+"E.coli, cfu/g,Nil,KS ISO 4833,Yes,Microbiological,1500
+"Faecal coliforms, cfu/g,Nil,KS ISO 4832,No,Microbiological,1500
+"Non-faecal coliforms, cfu/g,10,KS ISO 4832,Yes,Microbiological,1500
+"Yeasts, cfu/g,100,KS ISO 6611,Yes,Microbiological,1000
+"Moulds, cfu/g,100,KS ISO 6611,Yes,Microbiological,1000
+
+Sample Type Name : Air Quality Plates
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Yeast and Moulds, cfu/plate,X<sup>2</sup>(No Limits Defined),LWTM 12,No,Microbiological,1000
+"Total Coliforms, cfu/plate,X<sup>2</sup>(No Limits Defined),LWTM-01,No,Microbiological,1200
+"Total Plate Count, cfu/plate,X<sup>2</sup>(No Limits Defined),LWTM 04,No,Microbiological,1200
+"Ecoli, cfu/plate,X<sup>2</sup>,ISO 16649-2,No,Chemical,0
+
+Sample Type Name : KS EAS 383
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Solubility in water,Completely soluble(No Limits Defined),KS EAS 383,No,Chemical,500
+"Rinsing properties,Pass,KS EAS 383,Yes,Chemical,500
+"Active ingredient, % by mass, min.,5,KS EAS 383,Yes,Chemical,1500
+"pH at 27<sup>o</sup>C OF 1 % Soln, v/v,5.5 - 11.5,KS EAS 383,Yes,Chemical,500
+"Total non-detergent organic matter, % by mass, max,0.5,KS EAS 383,Yes,Chemical,1500
+
+Sample Type Name : KS 577
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Active detergent matter content, % by mass, min,10.0(No Limits Defined),KS 577,Yes,Chemical,1500
+"Matter Insoluble in alcohol, % by mass, max,2.0,KS 577,Yes,Chemical,1500
+"pH at 27<sup>o</sup>C 2EC,5.0 - 9.0,KS 577,Yes,Chemical,500
+"Lather volume for 1% soln, ml, min,100(No Limits Defined),KS 577,Yes,Chemical,1500
+"Antibacterial activity, min,0.2(No Limits Defined),KS 577,Yes,Microbiological,1500
+
+Sample Type Name : KS EAS 789
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Alcohol content, % by volume, min.,60.0,EAS 104,Yes,Chemical,2500
+"pH,6 - 8,EAS 789,Yes,Chemical,500
+"Bactericidal efficacy,Pass,EAS 789,Yes,Microbiological,1500
+
+Sample Type Name : KS 1797 - Household fabric softeners 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Cationic content, % by weight, min,2.5(No Limits Defined),KS 1791,Yes,Chemical,2000
+"pH,2 - 7,KS ISO 4316,Yes,Chemical,500
+"Total viable counts, cfu/g , max,200,KS EAS 217,Yes,Microbiological,1500
+"Specific organisms,Absent,KS EAS 794,Yes,Chemical,2000
+
+Sample Type Name : KS 1767-1 Bath Preparations - Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Active detergent matter content, % by mass, min,10,KS 1767,Yes,Chemical,1500
+"Candida albicans, cfu/0.5g,Not detectable,KS 1767,Yes,Microbiological,1500
+"Lather Volume for 1% Soln ml, min (5 mins),110,KS 1767,Yes,Chemical,1500
+"pH at 25<sup>o</sup>C,4.0 - 9.0,KS 1767,Yes,Chemical,500
+"Lead, ppm, max.,20,KS 1767,Yes,Chemical,1500
+"Arsenic, ppm, max.,2.0,KS 1767,Yes,Chemical,1500
+"Mercury, ppm, max.,2.0,KS 1767,Yes,Chemical,1800
+"Total Viable counts, cfu/g,100,KS 1767,Yes,Microbiological,1500
+"Pseudomonas aureginosa, cfu/0.5g,Not detectable,KS 1767,Yes,Microbiological,1500
+"Staphylococcus aureus, cfu/0.5g,Not detectable,KS 1767,Yes,Microbiological,1500
+
+Sample Type Name : KS EAS 812 - Liquid Hand Wash
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Active Content, % by mass, min,5,KS EAS 812,Yes,Chemical,1500
+"pH at 20<sup>o</sup>C,3.5 - 8,ISO 4316,No,Chemical,500
+"Specific gravity at 20<sup>o</sup>C,0.85 - 1.40,ASTM 1569-05,Yes,Chemical,1500
+"Lather volume, mL, min,110,EAS 812-1,Yes,Chemical,1500
+"Total bacterial count, cfu/g, max,100,EAS 217-1-1,Yes,Microbiological,1000
+"Yeast & moulds, cfu/g, max,100,EAS 217-1-1,Yes,Microbiological,1000
+
+Sample Type Name : EAS 793 - Toilet Cleansers
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Acidity, % by mass,,7-12,EAS 793,Yes,Chemical,1500
+"Total Surfactant, % by mass,0.4 - 5,EAS 793,Yes,Chemical,1500
+
+Sample Type Name : KS EAS 842-1 - Hair Shampoo
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Fatty matter, % by mass, min,15.0,EAS 847-27,Yes,Chemical,1500
+"Lather Volume for 2% Soln, mL,min,100(No Limits Defined),EAS 847-20,Yes,Chemical,1500
+"Free Caustic alkali, % by mass, max.,0.01,EAS 847-28,Yes,Chemical,1500
+"pH @ 27<sup>o</sup>C,5 - 9,EAS 847-17,Yes,Chemical,1500
+"Antimicrobial activity,Pass,EAS 794,Yes,Chemical,1500
+"Matter Insoluble in alcohol, % by mass, max,2.0,ISO 673,Yes,Chemical,1500
+"Lead, mg/kg, max,20,EAS 847-16,Yes,Chemical,1500
+"Arsenic, mg/kg, max,2,EAS 847-16,Yes,Chemical,1500
+"Mercury, mg/kg, max,2,EAS 847-16,Yes,Chemical,1500
+
+Sample Type Name : KS EAS 792 - Carpet and Upholstery
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH,5.0 - 10.0,KS EAS 792,Yes,Chemical,500
+"Anionic Surfactant, % by mass, min,4.0(No Limits Defined),ISO 2271,Yes,Chemical,1500
+"Foaming ability, ml, min&nbsp;,25(No Limits Defined),ISO 696,Yes,Chemical,1500
+"Solvent, % by mass, max,5.0,ASTM 1319,No,Chemical,1500
+
+Sample Type Name : KS EAS 835-1: Bath Preparations
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Active detergent Matter, % by mass, min,10(No Limits Defined),ISO 2870,Yes,Chemical,1500
+"Candida albicans,cfu/0.5g,Not detectable,ISO 81416,Yes,Microbiological,1500
+"Escherichia coli, cfu/0.5g,Not detectable,ISO 21150,Yes,Microbiological,1500
+"Lather volume for 1% Soln, mL , min, (5mins),110(No Limits Defined),EAS 847-20,Yes,Chemical,1500
+"pH @ 25<sup>o</sup>C,4.0 - 9.0,EAS 847-17,Yes,Chemical,1500
+"Lead, mg/kg, Max.,20,EAS 847-16,Yes,Chemical,1500
+"Arsenic, mg/kg, max,2,EAS 847-16,Yes,Chemical,1500
+"Mercury, mg/kg. max,2,EAS 847-16,Yes,Chemical,1500
+"Total Viable Counts, cfu/g, max,100,ISO 6887-1,Yes,Microbiological,1200
+"Pseudomonas aureginosa, cfu/0.5g,Not detectable,ISO 22717,Yes,Microbiological,1500
+"Staphylococcus aureus, cfu/0.5g,Not detectable,ISO 22718,Yes,Microbiological,1500
+
+Sample Type Name : KS 1695 - Solvent Emulsion Degreaser Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Flash Point. <sup>o</sup>C , min,43.0(No Limits Defined),ISO 1309,Yes,Chemical,1500
+"pH value, max.,11.5,KS 1695,Yes,Chemical,500
+"Aromatic Hydrocarbon Content,% by Vol.max,25,ASTM D 1319,Yes,Chemical,1500
+
+Sample Type Name : EAS 355 - Toilet Roll Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Grammage per ply, g/m<sup>2</sup>,15 - 24,ISO 12625-6,Yes,Chemical,1500
+"Internal diameter of the core, mm,40 - 75,ISO 11093-4,Yes,Chemical,500
+"Length of the core, mm, min,100,ISO 11093-4,Yes,Chemical,500
+"Width of each sheet, mm, min,100,ISO 11093-4,Yes,Chemical,500
+"Length of each sheet, mm, min,125,ISO 11093-4,Yes,Chemical,500
+"Length of roll, mm, min,86552,ISO 11093-4,Yes,Chemical,500
+"Number of sheets,min,&nbsp;,700,Visual,Yes,Chemical,500
+"Total Plate Count, cfu/g, max.,300,ISO 8784-1,Yes,Microbiological,1300
+"Pseudomonas aureginosa, cfu/g,Not detected,ISO 8784-1,Yes,Microbiological,1500
+"Staphylococcus aureus, cfu/g,Not detected,ISO 8784-1,Yes,Microbiological,1500
+"Candida albicans, cfu/g,Not detected,ISO 8784-1,Yes,Microbiological,1500
+"Dry Tensile Strength, N/m of width, MD, min,140,ISO 12625-4,No,Chemical,1500
+"Escherichia coli, cfu/g,Not detected,ISO 8784-1,Yes,Microbiological,1500
+"Freedom from holes,X<sup>2</sup>(No Limits Defined),EAS 355,No,Chemical,0
+"Tensile Strength (Both directions), N/m,X<sup>2</sup>(No Limits Defined),ISO 12625-4,No,Chemical,0
+"Ply Count,X<sup>2</sup>(No Limits Defined),Visual,No,Chemical,0
+"Dry Tensile Strength, N/m of width, CD, min,40,ISO 12625-4,No,Chemical,1500
+"Wet Tensile Strength, N/m of Width, MD, min,33,ISO 12625-5,No,Chemical,1500
+"Wet Tensile Strength, N/m of width, CD, min,17,ISO 12625-5,No,Chemical,1500
+"Water Absorption, mm/min, min,20,ISO 12625-8,Yes,Chemical,1500
+"pH value,4.4 - 10.0,ISO 29681,Yes,Chemical,500
+"Moisture, % by mass,4.0 - 7.0,ISO 287,Yes,Chemical,800
+"Brightness if the White Paper, % by mass, min,73,ISO 2470-1,Yes,Chemical,1500
+
+Sample Type Name : KS EAS 383:2021 Liquid Detergent For Household Use
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Active Ingredient, % by mass, min.<br>,12<br>,ISO 2271,No,Chemical,0
+
+Sample Type Name : EAS 740 - Cassava Flour Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Hydrogen Cyanide, mg/kg max<br>,10<br>,EAS 744,Yes,Chemical,0
+"Escherichia coli, cfu/g,Absent,ISO 4833,Yes,Microbiological,1500
+"Salmonella, cfu/25g,Absent,ISO 6579,Yes,Microbiological,1500
+"Yeast and Moulds, cfu/g, max,1000,ISO 21527-2,No,Chemical,1500
+"Total Viable Counts, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 4833-2,Yes,Microbiological,1500
+"Total Aflatoxins, ppb, max,10,AOAC 991.31,Yes,Chemical,3000
+
+Sample Type Name : KS EAS 77 - Fruit Drinks Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Plate Count, cfu/g, max.,1000,ISO 4833-2,Yes,Microbiological,1200
+"pH,X<sup>2</sup>(No Limits Defined),LWP,No,Chemical,0
+"Total soluble solids, %, min,X<sup>2</sup>(No Limits Defined),AOAC 985.26,No,Chemical,0
+"Total Coliforms, cfu/100ml,Absent,ISO 4832,Yes,Microbiological,1200
+"E.coli, cfu/100ml,Absent,ISO 7251,Yes,Microbiological,1500
+"Yeast & Moulds, cfu/ml,30,ISO 21527-1,No,Microbiological,1200
+"Arsenic as As, mg/kg,0.2,ISO 6634,Yes,Chemical,0
+"Lead as Pb, mg/kg,0.03,ISO 6633,Yes,Chemical,0
+"Cadmium,X<sup>2</sup>(No Limits Defined),AOAC  999.10,No,Chemical,0
+"Ethanol content, %max,0.3,ISO 2448,Yes,Chemical,0
+"Acid insoluble ash, %, max.,0.02,ISO 763,Yes,Chemical,0
+
+Sample Type Name : KS 2455:2023 General Food Safety Standards
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"PH , min,2.42,EAS 041,Yes,Chemical,300
+"Brix, <sup>o</sup> Min,8.9,EAS 041,Yes,Chemical,300
+"Carbon dioxide, % by Vol, Min,0.88,ISO 2447,Yes,Chemical,500
+"Vibrio cholerae, cfu/ml,Nil,KS ISO 6579-1,Yes,Microbiological,1500
+"Shigella, cfu/ml,Nil,KS ISO 4833-1,Yes,Microbiological,1500
+"Salmonella, cfu/ml,Nil,KS ISO 6579-1,Yes,Microbiological,1500
+"Yeast & Moulds, cfu/ml,Nil,ISO 21527-1,No,Microbiological,1500
+"E.coli, cfu/ml,Nil,ISO 7251,Yes,Microbiological,1500
+"Total coliforms, cfu/ml,Nil,KS ISO 4832,Yes,Microbiological,1500
+
+Sample Type Name : KS 618:2021 Cider and Perry Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"ABV, % by Vol.,3 - 9,EAS 104,Yes,Chemical,3000
+"Total Plate Count, cfu/ml,100,ISO 4833-1,No,Microbiological,0
+"E.coli,&nbsp; cfu/100ml,Absent,ISO 7251,No,Microbiological,0
+"Salmonella, cfu/25ml,Absent,ISO 6579,No,Microbiological,0
+"Staphylococcus aureus, cfu/ml,X<sup>2</sup>(No Limits Defined),LWTM - 03,No,Chemical,0
+"Listeria monocytogenes, cfu/ml,X<sup>2</sup>(No Limits Defined),LWTM - 14,No,Chemical,0
+"Yeast and Moulds, cfu/ml,X<sup>2</sup>(No Limits Defined),LWTM - 12,No,Chemical,0
+"Total acidity, expressed as Malic acid, g/l,7,EAS 104,Yes,Chemical,1500
+"Free Sulphur dioxide, % by Vol.,60,ISO 5379,Yes,Chemical,500
+"Total Sulphur dioxide, % Vol.,200,ISO 5379,Yes,Chemical,500
+"Fluoride, mg/L,2,ISO 5379,Yes,Chemical,800
+"Arsenic, mg/L,0.1,ISO 17239,Yes,Chemical,1800
+"Copper, mg/L,2,EAS 104,Yes,Chemical,1800
+"Lead, mg/L,0.1,ISO 2447,Yes,Chemical,1800
+"Coliforms, cfu/ml,Absent,ISO 4832,No,Microbiological,0
+
+Sample Type Name : KS EAS 331:2019 Green Grams Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Moisture % (max),14,ISO 605,No,Chemical,300
+"Filth % (max),0.1,ISO 605,No,Chemical,0
+"Total Aflatoxin, ppb,10,ISO 16050,No,Chemical,0
+"Aflatoxin B1, ppb,5,ISO 16050,No,Chemical,0
+"Fumonisin, ppm,2,BS EN 14352:2004,No,Chemical,0
+"Lead, ppm,0.2,AOAC 2015.01,No,Chemical,0
+"Cadmium, ppm,0.1,AOAC 2015.01,No,Chemical,0
+"Discolored grains , % (max),1,ISO 605,No,Chemical,0
+"Broken or Split % (max),2,ISO 605,No,Chemical,0
+"Pest damaged grains % (max),0.3,ISO 605,No,Chemical,0
+"Total Defective grains% (max),2,ISO 605,No,Chemical,0
+"Immature and Shriveled grains % (max),1,ISO 605,No,Chemical,0
+"Foreign matter % (max),0.5,ISO 605,No,Chemical,0
+"Inorganic matter % (max),0.3,ISO 605,No,Chemical,0
+"Rotten and diseased grains % (max),0.2,ISO 605,No,Chemical,0
+
+Sample Type Name : EAS 749 - Brown Sugar
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Lead, mg/kg,X<sup>2</sup>,ICUMSA,No,Chemical,1500
+"Mercury, mg/kg,X<sup>2</sup>,ICUMSA,No,Chemical,1500
+"Arsenic, mg/kg,X<sup>2</sup>,ICUMSA,No,Chemical,1500
+"Salmonella, per 30g,Absent,ISO 6579,No,Microbiological,0
+"E.coli, cfu/g,Absent,ISO 16649-2,No,Microbiological,0
+"Staphylococcus aureus, cfu/g,X<sup>2</sup>,ISO 6888-1,No,Microbiological,0
+"Listeria monocytogenes, cfu/g,X<sup>2</sup>,ISO 11290-1,No,Microbiological,0
+"Total Plate Count, cfu/10g,103,EAS 217-2,No,Microbiological,0
+"Yeasts and Moulds, cfu/10g,50,ISO 21527-1,No,Microbiological,0
+
+Sample Type Name : EAS  145 Gin Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Aldehydes as acetaldehydes (mg/l), max,250,EAS 104,Yes,Chemical,2500
+"ABV (%), min,37.5(No Limits Defined),EAS 104,Yes,Chemical,3000
+"Volatile acids as acetic acid (g/l), max,50,EAS 104,Yes,Chemical,2500
+"Esters as&nbsp; ethyl acetate (mg/l) max.,1000,EAS 104,Yes,Chemical,2500
+"Higher alcohols as aml alcohol (mg/l) max,50,EAS 104,Yes,Chemical,2500
+"Methanol (mg/l) max,50,EAS 104,Yes,Chemical,3000
+
+Sample Type Name : KS EAS 84-1:2020 Meat grades and meat cuts. 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Clostridium perfringens, cfu/g,Absent,ISO 7937,No,Microbiological,0
+"Arsenic max, ppm,0.1,AOAC 952.13 ,No,Chemical,0
+"Lead, ppm Max,0.1,AOAC 972.25,No,Chemical,0
+"Cadmium ppm, Max,0.05,AOAC 973.34,No,Chemical,0
+"Mercury,0.03,AOAC 971.21,No,Chemical,0
+"E.coli, cfu/g,Absent,ISO 16649-2,No,Microbiological,0
+"E.coli O157:H7, cfu/25g,Absent,ISO 16654,No,Microbiological,0
+"Listeria monocytogenes, cfu/25g,Absent,ISO 11290-1,No,Microbiological,0
+"Salmonella sp. cfu/25g,Absent,ISO 6579,No,Microbiological,0
+"Staphylococcus aureus, cfu/g,1000,ISO 6888-1,No,Microbiological,0
+"Clostridium pefringenes, cfu/25g,Absent,ISO 15213,No,Microbiological,0
+"Total Plate Count, cfu/g,1000000,ISO 4833-1,No,Microbiological,0
+"Total Coliforms,X<sup>2</sup>(No Limits Defined),KS ISO 4832,No,Microbiological,0
+
+Sample Type Name : KS EAS 861:2017 - Serviettes
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Freedom from holes, max,10,EAS 861,Yes,Chemical,0
+"Grammage, g/m<sup>2</sup>,18 - 24,ISO 12625-6,Yes,Chemical,0
+"Moisture content, %,4.5 - 7,ISO 287,Yes,Chemical,0
+"Number of sheets in multiples of 25,N/A,EAS 861,Yes,Chemical,0
+"pH,6 - 8,ISO 6588-1,Yes,Chemical,0
+"Tensile Strength CD, N/m, min,0.5,ISO 12625-4,Yes,Chemical,0
+"Tensile Strength, MD, min,1.1,ISO 12625-4,Yes,Chemical,0
+"Water Absorption Rate, mm/min, min,20,ISO 12625-8,Yes,Chemical,0
+"Brightness,% min,73,ISO 12625-7,Yes,Chemical,0
+
+Sample Type Name : Tomato Sauce
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable counts, cfu/g,10,ISO 4833,Yes,Microbiological,0
+"Yeast and Molds, cfu/g,Absent,ISO 21527-1,Yes,Microbiological,0
+"Salmonella, per 25g,Absent,ISO 6579,No,Microbiological,0
+"Yeast & Moulds, cfu/g,Absent,ISO 21527-1,Yes,Microbiological,0
+"Mould filaments, Max,40% POSITIVE FIELDS,AOAC 965.41,No,Microbiological,0
+
+Sample Type Name : KS EAS 46:2017 Beans
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Moisture %, max,14,EAS 46,Yes,Chemical,0
+"Cadmium, ppm,0.1,ISO 6561,Yes,Chemical,0
+"Lead, ppm,0.1,ISO 6633,No,Chemical,0
+"Shriveled, diseased and discolored grain, % min.,3,EAS 46,Yes,Chemical,0
+"Broken and Split, % max,1,EAS 46,Yes,Chemical,0
+"Pest damaged % max,,1,EAS 46,Yes,Chemical,0
+"Total defective % max,3.5,EAS 46,Yes,Chemical,0
+"Contrasting varieties % max,1.5,EAS 46,Yes,Chemical,0
+"Foreign matter % max,0.5,EAS 46,Yes,Chemical,0
+"Other edible grains % max,0.1,EAS 46,Yes,Chemical,0
+"Filth % max,0.1,EAS 46,Yes,Chemical,0
+
+Sample Type Name : EAS 33 - Yoghurt Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Milk Fat, % m/m, min.,3.5(No Limits Defined),ISO 7328,No,Chemical,0
+"Milk Solids non-fat, %, m/m, min,8.2(No Limits Defined),ISO 7328,No,Chemical,0
+"pH,4.2 - 4.6,EAS 33,No,Chemical,0
+"Titratable acidity, %&nbsp;,0.6 - 1.0,EAS 33,No,Chemical,0
+"E.coli, cfu/g,Absent,ISO 7251,No,Microbiological,0
+"Salmonella, cfu/25g,Absent,ISO 6579-1,No,Microbiological,0
+"Staphylococcus aureus, cfu/g,Absent,ISO 6888-3,No,Microbiological,0
+"Yeast & Moulds, cfu/g,100,ISO 6611,No,Microbiological,0
+"Bacillus cereus, cfu.g,X<sup>2</sup>,LWTM 16,No,Chemical,0
+
+Sample Type Name : KS EAS 84 - 3:2022 Meat grades and meat cuts 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total aflatoxins, max ppb,<span style="font-size: 13.2px;">10</span>,KS ISO 16050,No,Microbiological,0
+"Aflatoxin B1, max ppb&nbsp;,<span style="font-size: 13.2px;">5 </span>,KS ISO 16050,No,Microbiological,0
+"Yeast and molds,&nbsp;Max counts cfu/g,10<sup>5</sup>,KS ISO 7954 ,Yes,Microbiological,0
+
+Sample Type Name : Biscuits KS EAS 781:2023
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Moisture content, %by mass,max,6,KS EAS 781 annex A,Yes,Chemical,0
+"Acid insoluble ash on dry basis, % by mass,max,0.1,KS EAS 781 annex B,Yes,Chemical,0
+"Acidity of extracted fat (as oleic acid), % by
+mass, max.,1.0,KS EAS 781 annex D,No,Chemical,0
+"Escherichia coli, cfu/g,Absent,SO 16649-2,Yes,Microbiological,0
+"Salmonella spp, per 25g,,Absent,ISO 6579-1,Yes,Microbiological,0
+"Yeast and Molds, per g,
+max&nbsp;,10<sup>2</sup>-10<sup>3</sup>,ISO 21527-2,Yes,Microbiological,0
+"Staphylococcus aureus,<font size="1">X<sup>2</sup></font>,,Yes,Microbiological,0
+"Fat Content,%,30,ISO6492,No,Chemical,1500
+
+Sample Type Name : Baking powder 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 4833,Yes,Microbiological,0
+"Yeast & Molds, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 21527-1,Yes,Microbiological,0
+"Staphylococcus aureus, mm min,10,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 16649-2,No,Microbiological,0
+"Pseudomonas aeruginosa, mm min,10,ISO 16266,No,Microbiological,0
+"A. brasiliensis, mm min,10,ISO 21527-1,No,Microbiological,0
+"C. albicans, mm min,10,ISO 21527-1,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Available oxygen, cm<sup>3</sup>/10ml,<br>(No Limits Defined),LWTP 071,No,Chemical,0
+"Total aflatoxins, max ppb,<span style="font-size: 13.2px;">10</span>,KS ISO 16050,No,Microbiological,0
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Sodium hydroxide concentration,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Residue levels,<br>,,No,Chemical,0
+"GCMS Analysis,x<sup>2</sup>(No Limits Defined),GCMS 002,No,Chemical,0
+"Salmonella, per 25g,X<sup>2</sup>(No Limits Defined),ISO 6579,No,Microbiological,0
+"Crude fibre, %,X<sup>2</sup>,AOAC 978.10,No,Chemical,0
+"Total Ash, %,X<sup>2</sup>,AOAC 942.05,No,Chemical,0
+"Phosphorus, %,X<sup>2</sup>,AOAC 968.08,No,Chemical,0
+"Calcium, %,X<sup>2</sup>,AOAC 927.02,No,Chemical,0
+"Sodium, mg/kg,X<sup>2</sup>,AOAC 976.25,No,Chemical,1500
+"Aflatoxin B1, max ppb&nbsp;,<span style="font-size: 13.2px;">5 </span>,KS ISO 16050,No,Microbiological,0
+"Crude Fibre, %,X<sup>2</sup>,ISO 5498,No,Chemical,1500
+"Sugars, %,X<sup>2</sup>,AOAC 925.46,No,Chemical,1500
+"Titratable acidity as tartaric acid g/L,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Brix % m/v,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Acid insoluble ash %m/m,X<font size="1"><sup>2</sup></font>,ISO 5983,No,Chemical,0
+"Thermophilic anaerobes producing gas other than H<sub>2</sub>S, max,2(40%),ICUMSA GS 2/3-49,No,Microbiological,0
+"Total thermophilic spore count, max per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Thermophilic flat sour spores, max, per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Polarization <sup>o</sup>S, min.,99.7,ICUMSA GS 2/3-1,No,Chemical,0
+"Invert sugar, % m/m, max,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Yeast and molds,&nbsp;Max counts cfu/g,10<sup>5</sup>,KS ISO 7954 ,Yes,Microbiological,0
+"Sulphur dioxide, ppm, max,15,,No,Chemical,0
+"Moisture content, max,0.1,ICUMSA Method GS 2/1,No,Chemical,0
+"Conductivity%max,0.04,ICUMSA Method GS 2/3,No,Chemical,0
+"color ,NM max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"h20&nbsp; insoluble matter mg/kg max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"arsenic mg/kg ,max,1,ICUMSA Method GS 2/3,No,Chemical,0
+"lead mg/kg max,0.5,ICUMSA Method GS 2/3,No,Chemical,0
+"copper mg/kg max,2,ICUMSA Method GS 2/3,No,Chemical,0
+"Moisture, % (m/m), max.,2.0,ISO 760,No,Chemical,0
+"Available carbon dioxide, % (m/m), min,12.0,ANNEX B,No,Chemical,0
+"<span style="font-size: 13.2px;">ABV , % V/V</span>,X<sup>2</sup>,EAS 104,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l, Max</span>,1000,EAS 104,No,Chemical,0
+"Higher Alchocols as aml alchocol, mg/l, max,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Methanol, mg/l, MaX</span>,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,No,Chemical,0
+
+Sample Type Name : Allergen Testing
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Caffeine, mg/100ml,32.0,HPLC 002,No,Chemical,0
+"Quinine, mg/100ml,10.0,HPLC 001,No,Chemical,0
+"Casein, ppm,X<sup>2</sup>(No Limits Defined),HPLC 003,No,Chemical,0
+"Gluten, ppm,X<sup>2</sup>(No Limits Defined),HPLC 003,No,Chemical,0
+"Volatile acetic acid,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Total volatile basic nitrogen,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Total Plate Counts, cfu/ml,2.5(No Limits Defined),ISO 4833,No,Microbiological,0
+"Total Coliforms, cfu/ 100ml,Nil,ISO 4832,No,Microbiological,0
+"Escherichia coli, cfu/ml,X<sup>2</sup>,ISO 7251,No,Microbiological,0
+"Staphylococcus aureus, cfu/ml,X<sup>2</sup>,ISO 6888,No,Microbiological,0
+"Salmonella, cfu/ 25ml,X<sup>2</sup>,ISO 6579,No,Microbiological,0
+"Yeasts and moulds, cfu/ml,2,ISO 21527,No,Microbiological,0
+"pH,<br>,  LWTP  11,No,Chemical,0
+"Brix,,LWTP 13,No,Chemical,0
+"Whey Protein, ppm,X<sup>2</sup>(No Limits Defined),HPLC 003,No,Chemical,0
+
+Sample Type Name : KS 2166:2019 Icing sugar and sugar cubes Spe
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 4833,Yes,Microbiological,0
+"Yeast & Molds, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 21527-1,Yes,Microbiological,0
+"Staphylococcus aureus, mm min,10,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 16649-2,No,Microbiological,0
+"Pseudomonas aeruginosa, mm min,10,ISO 16266,No,Microbiological,0
+"A. brasiliensis, mm min,10,ISO 21527-1,No,Microbiological,0
+"C. albicans, mm min,10,ISO 21527-1,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Available oxygen, cm<sup>3</sup>/10ml,<br>(No Limits Defined),LWTP 071,No,Chemical,0
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Sodium hydroxide concentration,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Residue levels,<br>,,No,Chemical,0
+"GCMS Analysis,x<sup>2</sup>(No Limits Defined),GCMS 002,No,Chemical,0
+"Salmonella, per 25g,X<sup>2</sup>(No Limits Defined),ISO 6579,No,Microbiological,0
+"Crude fibre, %,X<sup>2</sup>,AOAC 978.10,No,Chemical,0
+"Total Ash, %,X<sup>2</sup>,AOAC 942.05,No,Chemical,0
+"Phosphorus, %,X<sup>2</sup>,AOAC 968.08,No,Chemical,0
+"Calcium, %,X<sup>2</sup>,AOAC 927.02,No,Chemical,0
+"Sodium, mg/kg,X<sup>2</sup>,AOAC 976.25,No,Chemical,1500
+"Crude Fibre, %,X<sup>2</sup>,ISO 5498,No,Chemical,1500
+"Sugars, %,X<sup>2</sup>,AOAC 925.46,No,Chemical,1500
+"Titratable acidity as tartaric acid g/L,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Brix % m/v,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Acid insoluble ash %m/m,X<font size="1"><sup>2</sup></font>,ISO 5983,No,Chemical,0
+"Thermophilic anaerobes producing gas other than H<sub>2</sub>S, max,2(40%),ICUMSA GS 2/3-49,No,Microbiological,0
+"Total thermophilic spore count, max per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Thermophilic flat sour spores, max, per 10g,NIL(No Limits Defined),ICUMSA GS 2/3-49,No,Microbiological,0
+"Polarization <sup>o</sup>S, min.,99.7,ICUMSA GS 2/3-1,No,Chemical,0
+"Invert sugar, % m/m, max,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Sulphur dioxide, ppm, max,15,,No,Chemical,0
+"Moisture content, max,0.1,ICUMSA GS 2/1,No,Chemical,0
+"Conductivity%max,0.04,ICUMSA GS 2/3,No,Chemical,0
+"color ,NM max,60,ICUMSA GS 2/3,No,Chemical,0
+"h20&nbsp; insoluble matter mg/kg max,60,ICUMSA GS 2/3,No,Chemical,0
+"arsenic mg/kg ,max,1,ICUMSA GS 2/3,No,Chemical,0
+"lead mg/kg max,0.5,ICUMSA GS 2/3,No,Chemical,0
+"copper mg/kg max,2,ICUMSA GS 2/3,No,Chemical,0
+"<span style="font-size: 13.2px;">ABV , % V/V</span>,X<sup>2</sup>,EAS 104,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l, Max</span>,1000,EAS 104,No,Chemical,0
+"Higher Alchocols as aml alchocol, mg/l, max,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Methanol, mg/l, MaX</span>,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,No,Chemical,0
+
+Sample Type Name : Chilli Powder  
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Moisture content, % (m/m), max.&nbsp;,11,ISO 939,No,Chemical,0
+"Total ash, % (m/m) on dry basis, max.&nbsp;,10,ISO 928,No,Chemical,0
+"Acid-insoluble ash, % (m/m) on dry basis, max.&nbsp;,1.6,ISO 930,No,Chemical,0
+
+Sample Type Name : Food Seasoning Mixtures KS 1095: 2023
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total aflatoxins, max ppb,10,KS ISO 16050,No,Microbiological,0
+"Iodine,30-60,,No,Chemical,0
+"Total Alkalinity,0.2,KSEA35:2021,No,Chemical,0
+"Total viable counts, cfu/g,1000000,ISO 4833-1,No,Chemical,0
+"Total coliforms, cfu/g,Absent,ISO 4832,No,Chemical,0
+"Escherichia coli, cfu/g,Absent,ISO 16642-2,No,Chemical,0
+"Staphylococcus aureus, cfu/g,Absent,ISO 6888-1,No,Chemical,0
+"Aflatoxin B1, max ppb&nbsp;,5,KS ISO 16050,No,Microbiological,0
+"Yeast and molds,&nbsp;Max counts cfu/g,100000,KS ISO 7954 ,No,Microbiological,0
+"Moisture Content,&nbsp;% m/m,8.0,KS ISO 928,No,Chemical,0
+"Total Ash&nbsp;% m/m Non-Compacted,27,KS ISO 939,No,Chemical,0
+"Acid insoluble Ash,&nbsp;% m/m,3.0,KS ISO 930,No,Chemical,0
+"Calcium,X<sup>2</sup>,,No,Chemical,0
+"Sulphate,X<sup>2</sup>,,No,Chemical,0
+"Matter insoluble in H<sub>2</sub>0,X<sup>2</sup>,,No,Chemical,0
+
+Sample Type Name : KS EAS 63:2019 Beer-Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"<span style="font-size: 13.2px;">Ethyl alcohol content, %, v/v:&nbsp;</span>,3-8,EAS 104,No,Chemical,0
+"Carbon dioxide, by vol, Max,2.5,EAS 104,No,Chemical,0
+
+Sample Type Name : Mineral supplements blocks for Sheep and Goat. 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Sodium Chloride (as NaCl), % by mass, min.,50 - 98,KS 63,No,Chemical,1500
+"Selenium, ppm,10 - 25,AOAC 2011.19,No,Chemical,0
+"Copper,ppm,Nil, ISO 6869,No,Chemical,1500
+"Manganese, ppm,1000 - 4000,ISO 6869,No,Chemical,1500
+"Moisture Content, % by mass, max.,5,KS 63,Yes,Chemical,300
+"Calcium, % max.,3,AOAC 927.02,No,Chemical,1500
+"Phosphorus, %,1.5,AOAC 965.17,No,Chemical,1500
+"Magnesium, % max.,1.5,ISO 6869,No,Chemical,0
+"Zinc, ppm,2000 -5000,ISO 6869,No,Chemical,0
+"Iodine,50 - 250,BS EN 17050:2017,No,Chemical,0
+
+Sample Type Name : Aflatoxin 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"B1 Aflatoxin, ppb max.,5,ISO 16050,No,Chemical,0
+"Total Aflatoxin, ppb max,10,ISO 16050,No,Chemical,0
+
+Sample Type Name : Cookies
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 4833,Yes,Microbiological,0
+"Yeast & Molds, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 21527-1,Yes,Microbiological,0
+"Staphylococcus aureus, mm min,10,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 16649-2,No,Microbiological,0
+"Pseudomonas aeruginosa, mm min,10,ISO 16266,No,Microbiological,0
+"A. brasiliensis, mm min,10,ISO 21527-1,No,Microbiological,0
+"C. albicans, mm min,10,ISO 21527-1,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Available oxygen, cm<sup>3</sup>/10ml,<br>(No Limits Defined),LWTP 071,No,Chemical,0
+"Moisture content, %by mass,max,6,KS EAS 781 annex A,Yes,Chemical,0
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Sodium hydroxide concentration,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Residue levels,<br>,,No,Chemical,0
+"GCMS Analysis,x<sup>2</sup>(No Limits Defined),GCMS 002,No,Chemical,0
+"Salmonella, per 25g,X<sup>2</sup>(No Limits Defined),ISO 6579,No,Microbiological,0
+"Crude fibre, %,X<sup>2</sup>,AOAC 978.10,No,Chemical,0
+"Total Ash, %,X<sup>2</sup>,AOAC 942.05,No,Chemical,0
+"Phosphorus, %,X<sup>2</sup>,AOAC 968.08,No,Chemical,0
+"Calcium, %,X<sup>2</sup>,AOAC 927.02,No,Chemical,0
+"Sodium, mg/kg,X<sup>2</sup>,AOAC 976.25,No,Chemical,1500
+"Acid insoluble ash on dry basis, % by mass,max,0.1,KS EAS 781 annex B,Yes,Chemical,0
+"Crude Fibre, %,X<sup>2</sup>,ISO 5498,No,Chemical,1500
+"Sugars, %,X<sup>2</sup>,AOAC 925.46,No,Chemical,1500
+"Titratable acidity as tartaric acid g/L,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Brix % m/v,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Acid insoluble ash %m/m,X<font size="1"><sup>2</sup></font>,ISO 5983,No,Chemical,0
+"Thermophilic anaerobes producing gas other than H<sub>2</sub>S, max,2(40%),ICUMSA GS 2/3-49,No,Microbiological,0
+"Total thermophilic spore count, max per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Thermophilic flat sour spores, max, per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Polarization <sup>o</sup>S, min.,99.7,ICUMSA GS 2/3-1,No,Chemical,0
+"Invert sugar, % m/m, max,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Acidity of extracted fat (as oleic acid), % by
+mass, max.,1.0,KS EAS 781 annex D,No,Chemical,0
+"Sulphur dioxide, ppm, max,15,,No,Chemical,0
+"Moisture content, max,0.1,ICUMSA Method GS 2/1,No,Chemical,0
+"Conductivity%max,0.04,ICUMSA Method GS 2/3,No,Chemical,0
+"color ,NM max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"h20&nbsp; insoluble matter mg/kg max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"arsenic mg/kg ,max,1,ICUMSA Method GS 2/3,No,Chemical,0
+"lead mg/kg max,0.5,ICUMSA Method GS 2/3,No,Chemical,0
+"copper mg/kg max,2,ICUMSA Method GS 2/3,No,Chemical,0
+"Escherichia coli, cfu/g,Absent,SO 16649-2,Yes,Microbiological,0
+"Salmonella spp, per 25g,,Absent,ISO 6579-1,Yes,Microbiological,0
+"Yeast and Molds, per g,
+max&nbsp;,10<sup>2</sup>-10<sup>3</sup>,ISO 21527-2,Yes,Microbiological,0
+"Staphylococcus aureus,<font size="1">X<sup>2</sup></font>,,Yes,Microbiological,0
+"Fat Content,%,30,ISO6492,No,Chemical,1500
+"<span style="font-size: 13.2px;">ABV , % V/V</span>,X<sup>2</sup>,EAS 104,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l, Max</span>,1000,EAS 104,No,Chemical,0
+"Higher Alchocols as aml alchocol, mg/l, max,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Methanol, mg/l, MaX</span>,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,No,Chemical,0
+
+Sample Type Name : Neutral Spirit - KS EAS 144:2018
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Methanol as mg/L, max.,50,EAS 104,Yes,Chemical,3000
+"Volatile acids as acetic acid, mg/L max.,20,EAS 104,Yes,Chemical,3000
+"Total Solids, mg/L max,,30,EAS 104,Yes,Chemical,1500
+"Amyl alcohol, mg/L max.,10,EAS 104,Yes,Chemical,3000
+"Furfural content, mg/L,Nil,EAS 104,Yes,Chemical,3000
+"Acetaldehydes, mg/L max,5,EAS 104,Yes,Chemical,3000
+"Esters as ethyl acetate, mg/L, max.,1,AOAC 968.09,Yes,Chemical,3000
+"Dry matter, mg/L max.,50,EAS 104,No,Chemical,1500
+
+Sample Type Name : EAS 1004:2019 - Raw Macadamia Kernel Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Aflatoxin, ppb,10,LWTP 29,No,Chemical,0
+
+Sample Type Name : EAS 1000:2019 Raw Cashew Nuts - Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Aflatoxin, ppb,10,LWTP 29,No,Chemical,0
+
+Sample Type Name : EAS 57-1:2000 Groundnuts (Peanuts) Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Aflatoxin, ppb,10,LWTP 29,No,Chemical,0
+
+Sample Type Name : KS EAS 84-2:2022 Meat grades and meat cuts. 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Clostridium perfringens, cfu/g,Absent,ISO 7937,No,Microbiological,0
+"Arsenic max, ppm,0.1,AOAC 952.13 ,No,Chemical,0
+"Lead, ppm Max,0.1,AOAC 972.25,No,Chemical,0
+"Cadmium ppm, Max,0.05,AOAC 973.34,No,Chemical,0
+"Mercury,0.03,AOAC 971.21,No,Chemical,0
+"E.coli, cfu/g,Absent,ISO 16649-2,No,Microbiological,0
+"E.coli O157:H7, cfu/25g,Absent,ISO 16654,No,Microbiological,0
+"Listeria monocytogenes, cfu/25g,Absent,ISO 11290-1,No,Microbiological,0
+"Salmonella sp. cfu/25g,Absent,ISO 6579,No,Microbiological,0
+"Staphylococcus aureus, cfu/g,1000,ISO 6888-1,No,Microbiological,0
+"Clostridium pefringenes, cfu/25g,Absent,ISO 15213,No,Microbiological,0
+"Total Plate Count, cfu/g,1000000,ISO 4833-1,No,Microbiological,0
+"Total Coliforms,X<sup>2</sup>(No Limits Defined),KS ISO 4832,No,Microbiological,0
+
+Sample Type Name : EAS 69 Pasteurized Milk Specifications
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Milk Fat, % min.,3.25,AOAC 990.21,No,Chemical,0
+"Tetracyclines, mg/l,X<sup>2</sup>,LWTP 16,No,Chemical,0
+"Sulphonamides, mg/l,X<sup>2</sup>,LWTP 19,No,Chemical,0
+"Aflatoxin M1, ppb,X<sup>2</sup>,ISO 14501,No,Chemical,0
+"Total Plate Count, cfu/ml,30000,EAS 68-1,No,Chemical,0
+"Coliforms cfu/ml,10,EAS 68-2,No,Chemical,0
+"Escherichia coli, cfu/ml,Absent,ISO 11866,No,Chemical,0
+"Milk Solids, non-fat, % min.,8.5,AOAC 990.21,No,Chemical,0
+"Density, mg/l,1.028 -  1.036,AOAC 925.22,No,Chemical,0
+"Iron, mg/l,X<sup>2</sup>,AOAC 990.10,No,Chemical,0
+"Melamine, mg/l,X<sup>2</sup>,ISO/TS 15495,No,Chemical,0
+"Cadmium (Cd), mg/l,X<sup>2</sup>,AOAC 2000b,No,Chemical,0
+"Lead, mg/l,X<sup>2</sup>,AOAC 2000b,No,Chemical,0
+"Arsenic, mg/l,X<sup>2</sup>,AOAC 2000b,No,Chemical,0
+"Beta-lactams, mg/l,X<sup>2</sup>,AOAC 982.16,No,Chemical,0
+
+Sample Type Name : KS ISO 1756 - Flavored Milk Specifications
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH,6.5 - 6.9,ISO 1756,No,Chemical,0
+"Salmonella, cfu/25ml,Not detectable,ISO 6785,No,Chemical,0
+"Staphylococcus aureus, cfu/ml,Not detectable,ISO 4833-1,No,Chemical,0
+"Milk Fat, % by mass,1.5 - 2.25,ISO 2446,No,Chemical,0
+"Solid non-fat, % mass, min.,7.9,ISO 8851-2,No,Chemical,0
+"Brix, %,14.9 - 15.6,HI96801,No,Chemical,0
+"Titratable Acidity, %,0.10 - 0.15,AOAC 947.05,No,Chemical,0
+"*Total Plate Count, cfu/ml,Not detectable,ISO 4833,No,Chemical,0
+"*Coliforms, cfu/ml,Not detectable,ISO 4833-1,No,Chemical,0
+"Escherichia coli, cfu/ml,Not detectable,ISO 11866,No,Chemical,0
+"Listeria monocytogenes, cfu/ml,Not detectable,ISO 10560,No,Chemical,0
+
+Sample Type Name : KS EAS 920:2019 Tea masala 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total aflatoxins, max ppb,10,KS ISO 16050,No,Microbiological,0
+"Aflatoxin B1, max ppb&nbsp;,5,KS ISO 16050,No,Microbiological,0
+"Yeast and molds,&nbsp;Max counts cfu/g,10<sup>3</sup>,KS ISO 7954 ,No,Microbiological,0
+"Moisture Content,&nbsp;% m/m,8.0,KS ISO 928,No,Chemical,0
+"Total Ash&nbsp;% m/m (dry weight basis)&nbsp; Compacted,27,KS ISO 939,No,Chemical,0
+"Acid insoluble Ash,&nbsp;% m/m,3.0,KS ISO 930,No,Chemical,0
+"<span style="font-size: 13.2px;">Salmonella spp. per 25 g, max.&nbsp;</span>,Absent,ISO 6579,No,Chemical,0
+"<span style="font-size: 13.2px;">Escherichia coli, cfu/g, Max</span>,Absent,ISO 16649,No,Chemical,0
+"<span style="font-size: 13.2px;">Total plate count, cfu/g, max.</span>,10<sup>5</sup>,ISO 4833,No,Chemical,0
+
+Sample Type Name : Cheese KS EAS 1012:2021
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 4833,Yes,Microbiological,0
+"Yeast & Molds, cfu/g,10<sup>2</sup>,ISO 21527-1,No,Microbiological,0
+"Staphylococcus aureus, cfu/g,10<sup>2</sup>,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,Absent,ISO 16649-2,No,Microbiological,0
+"Pseudomonas aeruginosa, mm min,10,ISO 16266,No,Microbiological,0
+"A. brasiliensis, mm min,10,ISO 21527-1,No,Microbiological,0
+"C. albicans, mm min,10,ISO 21527-1,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Available oxygen, cm<sup>3</sup>/10ml,<br>(No Limits Defined),LWTP 071,No,Chemical,0
+"Milk Fat in dry matte, %, Min,20(No Limits Defined),ISO 1735,No,Chemical,0
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Sodium hydroxide concentration,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Residue levels,<br>,,No,Chemical,0
+"GCMS Analysis,x<sup>2</sup>(No Limits Defined),GCMS 002,No,Chemical,0
+"Salmonella, per 25g,Absent,ISO 6579,No,Microbiological,0
+"Crude fibre, %,X<sup>2</sup>,AOAC 978.10,No,Chemical,0
+"Total Ash, %,X<sup>2</sup>,AOAC 942.05,No,Chemical,0
+"Phosphorus, %,X<sup>2</sup>,AOAC 968.08,No,Chemical,0
+"Calcium, %,X<sup>2</sup>,AOAC 927.02,No,Chemical,0
+"Sodium, mg/kg,X<sup>2</sup>,AOAC 976.25,No,Chemical,1500
+"Dry matter %, min, low moisture.,34(No Limits Defined),AOAC 926.08,No,Chemical,0
+"Dry matter %, min, High moisture.,24,AOAC 926.08,No,Chemical,1500
+"Sugars, %,X<sup>2</sup>,AOAC 925.46,No,Chemical,1500
+"Titratable acidity as tartaric acid g/L,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Brix % m/v,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Acid insoluble ash %m/m,X<font size="1"><sup>2</sup></font>,ISO 5983,No,Chemical,0
+"Thermophilic anaerobes producing gas other than H<sub>2</sub>S, max,2(40%),ICUMSA GS 2/3-49,No,Microbiological,0
+"Total thermophilic spore count, max per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Thermophilic flat sour spores, max, per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Polarization <sup>o</sup>S, min.,99.7,ICUMSA GS 2/3-1,No,Chemical,0
+"Invert sugar, % m/m, max,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Salmonella spp/25g,Absent,ISO 6579-1,No,Microbiological,0
+"Sulphur dioxide, ppm, max,15,,No,Chemical,0
+"Moisture content, max,0.1,ICUMSA Method GS 2/1,No,Chemical,0
+"Conductivity%max,0.04,ICUMSA Method GS 2/3,No,Chemical,0
+"color ,NM max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"h20&nbsp; insoluble matter mg/kg max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"Arsenic mg/kg ,max,1,AOAC 2013.06,No,Chemical,0
+"Lead mg/kg max,0.5,AOAC 2013.06,No,Chemical,0
+"copper mg/kg max,2,ICUMSA Method GS 2/3,No,Chemical,0
+"Staphylococcus aureus,<br>,,Yes,Microbiological,0
+"E.coli,<br>,,Yes,Microbiological,0
+"Listeria monocytogenes, 25g,Absent,ISO 11290-2,No,Microbiological,0
+"Coliforms, cfu/g,10,ISO 4832,No,Microbiological,0
+"Yeast and Moulds.,<br>,,Yes,Microbiological,0
+"<span style="font-size: 13.2px;">ABV , % V/V</span>,X<sup>2</sup>,EAS 104,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l, Max</span>,1000,EAS 104,No,Chemical,0
+"Higher Alchocols as aml alchocol, mg/l, max,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Methanol, mg/l, MaX</span>,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,No,Chemical,0
+
+Sample Type Name : KS EAS 35:2021 Fortified edible salt 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Chloride content as NaCl % by mass,97.0,Annex B ,No,Chemical,0
+"Iodine as I in mg/kg<br>,30-60<br>,AOAC 935.14,No,Chemical,1000
+"Matter insoluble in water, % by mass,0.2,ISO 2479,No,Chemical,0
+"Calcium as Ca water soluble % by mass,0.5,ISO 2482,No,Chemical,0
+"Copper as Cu, mg/kg,2.0,Annex C,No,Chemical,0
+"Magnesium % by mass,0.1,ISO 2482,No,Chemical,0
+"Sulphate as S0<sub>4</sub>% by Mass,0.5,ISO 2480,No,Chemical,0
+"Total Alkalinity % by mass,0.2,ANNEX D,No,Chemical,0
+"pH,7 - 8,ANNEX E,No,Chemical,0
+"Acid Insoluble Matter % by mass,0.2,ANNEX F,No,Chemical,0
+
+Sample Type Name : KS 2150 - Spirit-based Ready to Drink Alcoholic 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH,3 - 5,EAS 104,No,Chemical,0
+"Total acidity as citric acid, g/l,4 - 7,AOAC 940.15,No,Chemical,0
+"Ethyl alcohol content, %&nbsp;,3 - 8,AOAC 926.03,No,Chemical,0
+"Carbon dioxide, %, min.,1,AOAC 940.17,No,Chemical,0
+"Sugar, %, max.,20,AOAC 920.15,No,Chemical,0
+"Methyl alcohol, ppm, max.,30,AOAC 958.04,No,Chemical,0
+"Lead as Pb, ppm, max.,0.01,AOAC 2015.01,No,Chemical,0
+
+Sample Type Name : KS EAS 919:2019 Pilau masala Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total aflatoxins, max ppb,10,KS ISO 16050,No,Microbiological,0
+"Iodine,30-60,,No,Chemical,0
+"Aflatoxin B1, max ppb&nbsp;,5,KS ISO 16050,No,Microbiological,0
+"Yeast and molds,&nbsp;Max counts cfu/g,10<sup>5</sup>,KS ISO 7954 ,No,Microbiological,0
+"Moisture Content,&nbsp;% m/m,10.0,KS ISO 928,No,Chemical,0
+"Total Ash&nbsp;% m/m (dry weight basis)&nbsp; Compacted,8,KS ISO 939,No,Chemical,0
+"Acid insoluble Ash,&nbsp;% m/m,3.0,KS ISO 930,No,Chemical,0
+"Calcium,X<sup>2</sup>,,No,Chemical,0
+"Sulphate,X<sup>2</sup>,,No,Chemical,0
+"Matter insoluble in H<sub>2</sub>0,X<sup>2</sup>,,No,Chemical,0
+
+Sample Type Name : KS 2786:2018 Dried fruits - Specification.
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,20000,ISO 4833,No,Microbiological,0
+"Yeast & Molds, cfu/g,100,ISO 21527-1,No,Microbiological,0
+"Staphylococcus aureus, cfu per g,Absent ,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,Absent,ISO 16649-2,No,Microbiological,0
+"Shigella, cfu per 25g,Absent ,ISO 16266,No,Microbiological,0
+"Coliforms cfu/g,100,ISO 4832,No,Microbiological,0
+"Vibrio cholera cfu/g,Absent ,ISO 21872,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Mercury, mg/Kg,0.01,ISO 6637,No,Chemical,0
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Cadmium, mg/Kg,0.05,ISO 6732,No,Chemical,0
+"Water Activity, A<sub>w</sub>,0.7 %,,No,Chemical,0
+"GCMS Analysis,x<sup>2</sup>(No Limits Defined),GCMS 002,No,Chemical,0
+"Salmonella, cfu per 25g,Absent ,ISO 6579,No,Microbiological,0
+"Crude fibre, %,X<sup>2</sup>,AOAC 978.10,No,Chemical,0
+"Total Ash, %,X<sup>2</sup>,AOAC 942.05,No,Chemical,0
+"Phosphorus, %,X<sup>2</sup>,AOAC 968.08,No,Chemical,0
+"Calcium, %,X<sup>2</sup>,AOAC 927.02,No,Chemical,0
+"Sodium, mg/kg,X<sup>2</sup>,AOAC 976.25,No,Chemical,1500
+"Crude Fibre, %,X<sup>2</sup>,ISO 5498,No,Chemical,1500
+"Sugars, %,X<sup>2</sup>,AOAC 925.46,No,Chemical,1500
+"Titratable acidity as tartaric acid g/L,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Brix % m/v,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Acid insoluble ash %m/m,0.1,ISO 763,No,Chemical,0
+"Thermophilic anaerobes producing gas other than H<sub>2</sub>S, max,2(40%),ICUMSA GS 2/3-49,No,Microbiological,0
+"Total thermophilic spore count, max per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Thermophilic flat sour spores, max, per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Polarization <sup>o</sup>S, min.,99.7,ICUMSA GS 2/3-1,No,Chemical,0
+"Invert sugar, % m/m, max,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Sulphur dioxide, ppm, max,15,,No,Chemical,0
+"Moisture content, max,0.1,ICUMSA Method GS 2/1,No,Chemical,0
+"Conductivity%max,0.04,ICUMSA Method GS 2/3,No,Chemical,0
+"color ,NM max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"h20&nbsp; insoluble matter mg/kg max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"Arsenic mg/kg ,max,0.2,AOAC 2013.06,No,Chemical,0
+"Lead mg/kg max,1.0,AOAC 2013.06,No,Chemical,0
+"copper mg/kg max,2,ICUMSA Method GS 2/3,No,Chemical,0
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l, Max</span>,1000,EAS 104,No,Chemical,0
+"Higher Alchocols as aml alchocol, mg/l, max,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Methanol, mg/l, MaX</span>,50,EAS 104,No,Chemical,0
+"Tin, Mg/Kg,250,ISO 2447,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,No,Chemical,0
+
+Sample Type Name : KS 838: 2013 Meat and bone meal for animal feed.
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+
+Sample Type Name : KS 838: 2013 Meat and bone meal for animal feed.
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Clostridium perfringens, cfu/g,Absent,ISO 7937,No,Microbiological,0
+"Arsenic max, ppm,0.1,AOAC 952.13 ,No,Chemical,0
+"Lead, ppm Max,0.1,AOAC 972.25,No,Chemical,0
+"Cadmium ppm, Max,0.05,AOAC 973.34,No,Chemical,0
+"Mercury,0.03,AOAC 971.21,No,Chemical,0
+"E.coli, cfu/g,Absent,ISO 16649-2,No,Microbiological,0
+"E.coli O157:H7, cfu/25g,Absent,ISO 16654,No,Microbiological,0
+"Listeria monocytogenes, cfu/25g,Absent,ISO 11290-1,No,Microbiological,0
+"Salmonella sp. cfu/25g,Absent,ISO 6579,No,Microbiological,0
+"Staphylococcus aureus, cfu/g,1000,ISO 6888-1,No,Microbiological,0
+"Clostridium pefringenes, cfu/25g,Absent,ISO 15213,No,Microbiological,0
+"Total Plate Count, cfu/g,1000000,ISO 4833-1,No,Microbiological,0
+"Total Coliforms,X<sup>2</sup>(No Limits Defined),KS ISO 4832,No,Microbiological,0
+
+Sample Type Name : KS 2839-3:2023 Blended flour-Specifications
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Yeast and moulds, Cfu/g,10<sup>4</sup>,KS ISO 21527-2,Yes,Microbiological,0
+
+Sample Type Name : KS EAS 782:2019 Composite flour-specifications
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Yeasts and moulds, Cfu/g,10<sup>4</sup>,KS ISO 21527-2,Yes,Microbiological,0
+
+Sample Type Name : EAS 816 -1:2013 Synthetic liquid laundry detergent
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Active Content, % by mass, min.,10(No Limits Defined),KS EAS 2870,No,Chemical,1500
+"pH at 20<sup>o</sup>C,5-11,ISO 4316,No,Chemical,500
+"Specific gravity at 20<sup>o</sup>C,0.85 - 1.40,ASTM 1569-05,Yes,Chemical,1500
+"Foam test, 1% solution ml, max. height after 5mins.&nbsp;,30,Annex A,No,Chemical,1500
+"Total bacterial count, cfu/g, max,2<span style="font-size: 0.825rem;">00</span>,EAS 217-1-1,No,Microbiological,1000
+"Foam test, 1% solution ml, max. Initial height.&nbsp;,100,Annex A,No,Chemical,1000
+"Rinsing properties,Pass,Annex B ,No,Chemical,0
+
+Sample Type Name : Dairy-Based Desserts - KS 1517:2022
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Milk Fat, % by mass, min.,3,ISO 7328,No,Chemical,0
+"Enterobacteriaceae, cfu/g,Absent,ISO 21528,No,Chemical,0
+"Bacillus spp. cfu/g,Absent,ISO 21871,No,Chemical,0
+"Milk solids, non fat, % by mas, min.,10,ISO 3728,No,Chemical,0
+"Total Solids, % by mass, min.,25,ISO 3728,No,Chemical,0
+"Total Viable counts, cfu/g,30000,ISO 4833-1,No,Chemical,0
+"Total coliforms, cfu/g,10,ISO 4832,No,Chemical,0
+"Escherichia coli, cfu/g,Absent,ISO 11866-1,No,Chemical,0
+"Staphylococcus aureus, cfu/g,Absent,ISO 6888-3,No,Chemical,0
+"Listeria monocytogenes, cfu/25g,Absent,ISO 11290-1,No,Chemical,0
+"Salmonella spp. cfu/25g,Absent,ISO 6579-1,No,Chemical,0
+
+Sample Type Name : KS 319 2008 Sugar confectionery specification 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,500000,ISO 4833,No,Microbiological,0
+"Yeast & Molds, cfu/g,100,ISO 21527-1,No,Microbiological,0
+"Staphylococcus aureus, mm min,Absent,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,Absent,ISO 16649-2,No,Microbiological,0
+"Coliforms, per g,10,ISO 4832,No,Microbiological,0
+"A. brasiliensis, mm min,10,ISO 21527-1,No,Microbiological,0
+"C. albicans, mm min,10,ISO 21527-1,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Available oxygen, cm<sup>3</sup>/10ml,<br>(No Limits Defined),LWTP 071,No,Chemical,0
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Sodium hydroxide concentration,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Residue levels,<br>,,No,Chemical,0
+"GCMS Analysis,x<sup>2</sup>(No Limits Defined),GCMS 002,No,Chemical,0
+"Salmonella, per 30g,Absent ,ISO 6579,No,Microbiological,0
+"Acid Insoluble Ash, % Max,0.8,KS 2084,No,Chemical,0
+"Sulphated Ash, % Max,1.5,KS 2084,No,Chemical,0
+"Phosphorus, %,X<sup>2</sup>,AOAC 968.08,No,Chemical,0
+"Calcium, %,X<sup>2</sup>,AOAC 927.02,No,Chemical,0
+"Sodium, mg/kg,X<sup>2</sup>,AOAC 976.25,No,Chemical,1500
+"Crude Fibre, %,X<sup>2</sup>,ISO 5498,No,Chemical,1500
+"Sugars, %,X<sup>2</sup>,AOAC 925.46,No,Chemical,1500
+"Tin, ppm, Max,5.0,KS 140,No,Chemical,0
+"Brix % m/v,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Acid insoluble ash %m/m,X<font size="1"><sup>2</sup></font>,ISO 5983,No,Chemical,0
+"Thermophilic anaerobes producing gas other than H<sub>2</sub>S, max,2(40%),ICUMSA GS 2/3-49,No,Microbiological,0
+"Total thermophilic spore count, max per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Thermophilic flat sour spores, max, per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Polarization <sup>o</sup>S, min.,99.7,ICUMSA GS 2/3-1,No,Chemical,0
+"Invert sugar, % m/m, max,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Sulphur dioxide, ppm, max,15,,No,Chemical,0
+"Moisture content,&nbsp; % max,10.0,KS 2084,No,Chemical,0
+"Conductivity%max,0.04,ICUMSA Method GS 2/3,No,Chemical,0
+"color ,NM max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"Water insoluble matter, mg/kg, max.,60,ICUMSA Method GS 2/3,No,Chemical,0
+"Arsenic mg/kg ,max,1,AOAC 2013.06,No,Chemical,0
+"Lead mg/kg max,2.0,AOAC 2013.06,No,Chemical,0
+"Copper mg/kg max,30.0,KS 140,No,Chemical,0
+"Potassium permanganate Assay, %&nbsp;<br>,X<sup>2</sup><br>(No Limits Defined),USP 29-NF24,No,Chemical,0
+"Moisture, % m/m<br>,X<sup>2</sup><br>(No Limits Defined),ASTM C471M-01,No,Chemical,0
+"Aluminium Oxide as Al2O3, % by mass,X<sup>2</sup>,ASTM D857-02,No,Chemical,0
+"Sodium Oxide as Na2O, % by mass,X<sup>2</sup>,ASTM C471M-01,No,Chemical,0
+"Zinc ppm, max.&nbsp;,10,KS 140 ,No,Chemical,0
+"Listeria spp.,X<sup>2</sup>,ISO 11290-1,No,Microbiological,0
+"<span style="font-size: 13.2px;">ABV , % V/V</span>,X<sup>2</sup>,EAS 104,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l, Max</span>,1000,EAS 104,No,Chemical,0
+"Higher Alchocols as aml alchocol, mg/l, max,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,No,Chemical,0
+
+Sample Type Name : KS EAS 862:2017 Facial Tissues
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Grammage, g/m<sup>2</sup>, min.,16,ISO 12625-6,No,Chemical,0
+"Size of Sheet, mm,200 * 200,ISO 11093-4,No,Chemical,0
+"Number of sheets per holder, min.,10,Visual,No,Chemical,0
+"Ply type,2,Visual,No,Chemical,0
+"Tensile strength, CD, N/mm, min.,1.7,ISO 12625-4,No,Chemical,0
+"Tensile Strength, MD, N/mm, min.,1,ISO 12625-4,No,Chemical,0
+"Wet Tensile strength, MD, N/mm, min.,1.4,ISO 12625-5,No,Chemical,0
+"Brightness, % , min.,82,ISO 12625-7,No,Chemical,0
+"pH,7,ISO 6588-1,No,Chemical,0
+"Moisture content, %,5.5,ISO 287,No,Chemical,0
+"Water absorptiveness, g/m<sup>2</sup>, min.,23,ISO 12625-8,No,Chemical,0
+"Holes less than 2mm in diameter, per sheet, min.,8,ISO 11093,No,Chemical,0
+
+Sample Type Name : Facial Tissues - KS EAS 862
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+
+Sample Type Name : Skim milk powder
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Tvc,<br>,,No,Microbiological,0
+"Coliforms,cfu/g,<br>,,No,Microbiological,0
+"E.coli,<br>,,No,Microbiological,0
+"S.aureus,<br>,,No,Microbiological,0
+"L.monocytogenes,<br>,,No,Microbiological,0
+"Listeria spp,<br>,,No,Microbiological,0
+"Salmonella spp,<br>,,No,Microbiological,0
+
+Sample Type Name : KS EAS 1050:2022 Kitchen Paper Towel Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Internal diameter of core, mm, min.,51,ISO 11093-4,No,Chemical,0
+"GSM,21,ISO 12625-6,No,Chemical,0
+"Water absorptiveness,22,ISO 12625-8,No,Chemical,0
+"Ply count,2,KS EAS 1050:2022,No,Chemical,0
+"Average Tensile strength,>85,KS EAS 1050:2022,No,Chemical,0
+"Tensile strength MD,>130,ISO 12625-4,No,Chemical,0
+"Tensile Strength CD,>40,ISO 12625-5,No,Chemical,0
+"Brightness %, min,>82,ISO 2470-1,No,Chemical,0
+"Cadmium, mg/kg, max.,0.5,EAS 880,No,Chemical,0
+"Chromium, mg/kg, max.,0.05,EAS 880,No,Chemical,0
+"Mercury, mg/kg, max.,0.3,EAS 880,No,Chemical,0
+"Length of the core, mm,220,ISO 11093-4,No,Chemical,0
+"Lead, mg/kg, max.,3,EAS 880,No,Chemical,0
+"Length of roll in mm,60000,KS EAS 1050:2022,No,Chemical,0
+"Length of each sheet, mm,250,ISO 11093-4,No,Chemical,0
+"Width of each sheet, mm,220,ISO 11093-4,No,Chemical,0
+"Freedom from holes,Complies,KS EAS 335:2017,No,Chemical,0
+"Moisture content, % by mass,5.5,ISO 287,No,Chemical,0
+"Number of sheets per roll,240,ISO 11093-4,No,Chemical,0
+"Perforation ratio, min,0.82,KS EAS 1050:2022,No,Chemical,0
+"pH,7.5,ISO 6588-1,No,Chemical,0
+
+Sample Type Name : Biomass
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Nitrogen&nbsp;,X<sup>2</sup>,ISO 21663,Yes,Chemical,0
+"Sulphur,X<sup>2</sup>,ISO 21663,Yes,Chemical,0
+"Moisture,X<sup>2</sup>,ISO 18134,Yes,Chemical,0
+"Dry Matter,X<sup>2</sup>,ISO 18134,No,Chemical,0
+"Chemical Oxygen Demand&nbsp;,X<sup>2</sup>(No Limits Defined),ISO 6060,No,Chemical,0
+
+Sample Type Name : CBL Effluent Water
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"pH,6.5 - 8.5,ISO 10523,Yes,Chemical,0
+"Copper as Cu, mg/l,1.0,ISO 8288,Yes,Chemical,0
+"Iron as Fe, mg/l,10,ISO 6332,Yes,Chemical,0
+"Manganese as Mn, mg/l,10,ISO 6333,Yes,Chemical,0
+"Detergents, mg/l,Nil,LWTP 041,Yes,Chemical,0
+"Boron as B, mg/l,1.0,LWTP 112070,Yes,Chemical,0
+"Alkyl mercury compounds as Hg, mg/l,Not Detected,AOAC 32.278,Yes,Chemical,0
+"Total Mercury, mg/l,0.005,LWTP 028,Yes,Chemical,0
+"Cadmium as Cd, mg/l,0.01,ISO 5961,Yes,Chemical,0
+"Selenium as Se, mg/l,0.01,ISO 17379-2,Yes,Chemical,0
+"Total&nbsp; Nickel as Ni, mg/l,0.3,ASTM D1886,Yes,Chemical,0
+"Colour in Hazen units,15,APHA 2120B,Yes,Chemical,0
+"Total Chromium, mg/l,2,AOAC 2.048,Yes,Chemical,0
+"Chromium VI, mg/l,0.05,AOAC 2.048,Yes,Chemical,0
+"Arsenic as As, mg/l,0.02,ASTM D2972 - 15,Yes,Chemical,0
+"Sulphides, mg/l,0.10,AOAC 34.019,Yes,Chemical,0
+"Phenols, mg/l,0.001,APHA 5530C,Yes,Chemical,0
+"Free Residual Chlorine, mg/l,0.10,LWTP 012,Yes,Chemical,0
+"Total Nitrogen as N, mg/l,5,LWTP 037,Yes,Chemical,0
+"Coliforms, cfu per 100ml,30,ISO 9308-01,Yes,Chemical,0
+"E.coli, cfu per 100ml,Nil,ISO 9308-1,Yes,Chemical,0
+"Temperature, <sup>o</sup>C,20 - 35,ASTM D 5464,Yes,Chemical,0
+"Biological Oxygen Demand - (BOD<sub>5</sub> at 20<sup>o</sup>C), mg/l,30,APHA 5210 B,Yes,Chemical,0
+"Fecal Coliforms, cfu per 100ml,200,ISO 9308-01,Yes,Chemical,0
+"Dissolved Oxygen, mg/l,>4(No Limits Defined),ISO 17289,Yes,Chemical,0
+"Ammonium Nitrogen, mg/l,100,AOAC 2.066,Yes,Chemical,0
+"Total Phosphorus, mg/l,2,ISO 15681,Yes,Chemical,0
+"Total Ammonia, mg/l,2,APHA 4500,Yes,Chemical,0
+"Chemical Oxygen Demand (COD), mg/l,50,APHA 5220D,Yes,Chemical,0
+"Total Dissolved Solids(TDS), mg/l,1200,ASTM D 5907,Yes,Chemical,0
+"Total Suspended Solids (TSS), mg/l,50,APHA 2540,No,Chemical,0
+"Oil and grease, mg/l,Nil,EPA 1664 A,Yes,Chemical,0
+"Zinc as Zn, mg/l,0.5,ISO 8288,Yes,Chemical,0
+"Lead as Pb, mg/l,0.01,ISO 8288,Yes,Chemical,0
+
+Sample Type Name : TPH and PAH
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Benzene, mg/kg,<br>,GCMS -MS,No,Chemical,0
+
+Sample Type Name : EAS 142 - Vodka Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Ethyl alcohol, % by volume, min.,37.5,EAS 104,Yes,Chemical,0
+"Total Solids, g/100ml, max.,0.005,EAS 104,Yes,Chemical,0
+"Volatile acids as acetic acid, g/100L of absolute alcohol, max.,2,EAS 104,No,Chemical,0
+"Esters as ethyl acetate, g/100L of absolute alcohol, max.,10,EAS 104,No,Chemical,0
+"Methyl alcohol, mg/L, max.,50,EAS 104,Yes,Chemical,0
+"Higher alcohol as amyl alcohol, % by volume, max.,0.03,EAS 104,Yes,Chemical,0
+"Aldehydes as acetaldehydes, g/100L, max.,2,EAS 104,Yes,Chemical,0
+"Furfural, g/100 L of absolute alcohol, max.,Nil,EAS 104,Yes,Chemical,0
+
+Sample Type Name : KS EAS 948:2019 Fruit juices and nectars
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Arsenic (As), mg/kg, max,0.2,ISO 6634,Yes,Chemical,0
+"Brix at 20<sup> o</sup>C,X<sup>2</sup>(No Limits Defined),KS ISO 2173,No,Chemical,0
+"Salmonella, cfu/25g,X<sup>2</sup>,LWTM - 05,No,Chemical,0
+"Listeria monocytogenes, cfu/g,X<sup>2</sup>,LWTM - 14,No,Chemical,0
+"Staphylococcus aureus, cfu/g,X<sup>2</sup>,LWTM - 03,No,Chemical,0
+"Lead (Pb), mg/kg, max,0.03,ISO 6633,Yes,Chemical,0
+"Cadmium (As), mg/kg, max,0.05,AOAC 999.10,Yes,Chemical,0
+"Total plate count, cfu/g, max,1000,ISO 4833-2,Yes,Microbiological,0
+"Escherichia coli, cfu/g, max,Absent,ISO 16649-2,Yes,Microbiological,0
+"Yeasts and molds, cfu/g, max,30,ISO 21872-2,Yes,Microbiological,0
+"Ethanol content, % max,0.3,ISO 2448,Yes,Chemical,0
+"Acid insoluble ash, % max,0.02,ISO 763,Yes,Chemical,0
+"Carbon dioxide content, volume.,1(No Limits Defined),EAS 948:19 Annex A,No,Chemical,0
+
+Sample Type Name : KS 2150: 2021 Spirit-based Read to Drink Alcoholic
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"PH,3.00 - 5.00,AOAC 960.19,No,Chemical,0
+"Total acidity as citric acid, g/l,4.00 - 7.00,AOAC 983.12,No,Chemical,0
+"Ethyl alcohol, % vol.&nbsp;,3.00 - 8.00,EAS 104,No,Chemical,0
+"Carbon dioxide, % vol. min.,1,AOAC 970.17,No,Chemical,0
+"Sugar, % max.,20,AOAC 935.22,No,Chemical,0
+"Methyl alcohol, ppm max.,30,EAS 104,No,Chemical,0
+"Lead as Pb, ppm, max.,0.01,AOAC 999.10,No,Chemical,0
+
+Sample Type Name : KS ISO 20377: 2018 Dried Parsley Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Ash, % by mass, max.,14,AOAC 942.05,No,Chemical,0
+
+Sample Type Name : EAS 953 - Dressed Poultry
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Escherichia coli, cfu/g, max.,100,ISO 7251,No,Chemical,0
+"Staphylococcus aureus, cfu/g, max.,100,ISO 6888-1,No,Chemical,0
+"Campylobacter sp. cfu/25g, max.,Absent,ISO 10272-1,No,Chemical,0
+"Salmonella sp. cfu/g,Absent,ISO 6579,No,Chemical,0
+"Listeria monocytogenes, cfu/g,Absent,ISO 11290-1,No,Chemical,0
+"Clostridium perfrigens, cfu/g,Absent,ISO 7937,No,Chemical,0
+"Total coliforms, cfu/g,X<sup>2</sup>,ISO 4832,No,Chemical,0
+
+Sample Type Name : KS 1054-1 Energy Drinks - Specification
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Degree brix (<sup>o</sup>B) at 20<sup>o</sup>C, min,10.0,ISO 2173,No,Chemical,0
+"Salmonella, cfu/25ml,Absent,ISO 6579-1,No,Chemical,0
+"Staphylococcus aureus, cfu/ml,Not detected,ISO 6888-1,No,Chemical,0
+"Yeast and moulds, cfu/ml, max.,10,ISO 21527-1,No,Chemical,0
+"Lead, ppm, max.,0.1,ISO 6633,No,Chemical,0
+"Tin, ppm, max.,150,ISO 2447,No,Chemical,0
+"Arsenic, ppm, max.,0.1,ISO 6634,No,Chemical,0
+"pH,2.6 - 4.0,BS EN 1132,No,Chemical,0
+"Carbon dioxide, g/l, min.,1,KS 1054-1,No,Chemical,0
+"Sulphur dioxide, mg/kg, max.,100,ISO 5379,No,Chemical,0
+"Dextrose equivalent, % by mass, min.,20,KS 1054-1,No,Chemical,0
+"Benzoic acid, mg/kg, max.,250,AOAC 994.11,No,Chemical,0
+"Caffeine, mg/100ml,14.5 - 32.0,AOAC 979.08,No,Chemical,0
+"Total viable counts, cfu/ml, max.,100,ISO 4833-1,No,Chemical,0
+"Escherichia coli, cfu/ml,Not detected,ISO 7251,No,Chemical,0
+
+Sample Type Name : EAS 5: Refined White Sugar
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Polarisation, Z<sup>o</sup>, Min.,99.8,ICUMSA GS 2/3-1,No,Chemical,0
+"Lead (Pb), mg/kg, max.,0.5,ICUMSA GS 2/3-23,No,Chemical,0
+"Total Plate Count, cfu/10g, max.,1000,EAS 217-2,No,Chemical,0
+"Yeast and moulds, cfu/10g, max.,50,EAS 217-8,No,Chemical,0
+"E.coli, cfu/g,Absent,ISO 7251,No,Chemical,0
+"Salmonella, per 25g,Absent,EAS 217-6,No,Chemical,0
+"Invert Sugar, % mass, max.,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Conductivity ash, % mass, max.,0.04,ICUMSA GS 2/3-17,No,Chemical,0
+"Moisture content, % mass, max.,0.1,IS 15279,No,Chemical,0
+"Colour in ICUMSA units, max.,60,ICUMSA GS 2/3-10,No,Chemical,0
+"Sulphur dioxide, mg/kg, max.,10,ICUMSA GS 2/3-35,No,Chemical,0
+"Water Insoluble Matter, mg/kg, max.,60,ICUMSA GS 2/3-19,No,Chemical,0
+"Mercury (Hg), mg/kg, max.,X<sup>2</sup>,ISO 11212-2,No,Chemical,0
+"Copper (Cu), mg/kg, max.,2,ICUMSA GS 2/3-29,No,Chemical,0
+
+Sample Type Name : Total Aflatoxin Analysis
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+
+Sample Type Name : Trihalomethanes 
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Chloroform, ug/L,X<sup>2</sup>,US EPA 501,No,Chemical,0
+"Chloroform, ug/Kg,X<sup>2</sup>,US EPA 501,No,Chemical,0
+"Bromodichloromethane, ug/Kg,X<sup>2</sup>,US EPA 501,No,Chemical,0
+"Dibromochloromethane, ug/Kg,X<sup>2</sup>,US EPA 501,No,Chemical,0
+"Bromoform, ug/Kg,X<sup>2</sup>,US EPA 501,No,Chemical,0
+"Iodine,X<sup>2</sup>,ASTM D4607,No,Chemical,0
+
+Sample Type Name : Cassava maize composite flour â€” Specification  
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+
+Sample Type Name : Drinking Chocolate
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Arsenic (As), mg/kg&nbsp;,1.0,AOAC 2015.01,No,Chemical,0
+"Copper (Cu), mg/kg,50,AOAC 2015.01,No,Chemical,0
+"Lead (Pb), mg/kg&nbsp;,1,AOAC 2015.01,No,Chemical,0
+"Crude Fibre, % Max.,7.0,AOAC 970.21,No,Chemical,0
+
+Sample Type Name : Carbonated (Beverages) Soft Drinks
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Caffeine, mg/100ml,32.0,HPLC 002,No,Chemical,0
+"Quinine, mg/100ml,10.0,HPLC 001,Yes,Chemical,0
+"Casein, ppm,X<sup>2</sup>(No Limits Defined),HPLC 003,No,Chemical,0
+"Gluten, ppm,X<sup>2</sup>(No Limits Defined),HPLC 003,No,Chemical,0
+"Volatile acetic acid,X<sup>2</sup>(No Limits Defined),EN 12632; IFUMA 66,No,Chemical,0
+"Total volatile basic nitrogen,X<sup>2</sup>(No Limits Defined),EN 12135 IFUMA 28,No,Chemical,0
+"Total Plate Counts, cfu/ml,2.5(No Limits Defined),ISO 4833,No,Microbiological,0
+"Total Coliforms, cfu/ 100ml,Not Detectable,ISO 4832,No,Microbiological,0
+"Escherichia coli, cfu/ml,X<sup>2</sup>(No Limits Defined),ISO 7251,No,Microbiological,0
+"Staphylococcus aureus, cfu/ml,X<sup>2</sup>(No Limits Defined),ISO 6888,No,Microbiological,0
+"Salmonella, cfu/ 25ml,X<sup>2</sup>(No Limits Defined),ISO 6579,No,Microbiological,0
+"Yeasts and moulds, cfu/ml,2,ISO 21527,Yes,Microbiological,0
+"pH,2.42,EAS 041,No,Chemical,0
+"Brix,8.9,EAS 041,No,Chemical,0
+"Whey Protein,X<sup>2</sup>,HPLC 003,No,Chemical,0
+"Arsenic as As, mg/kg,0.2,ISO 17239,Yes,Chemical,0
+"Lead as Pb, mg/kg,0.3,KS ISO 9526,Yes,Chemical,0
+"Tin as Sn, mg/kg,200,KS ISO 2447,Yes,Chemical,0
+"Shigella per 25g,Not Detectable,KS ISO 4833-1,Yes,Chemical,0
+
+Sample Type Name : EAS 65:2017 Specification of Coconut Oil Cosmetic
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Acid Value, mgKOH/g oil, Max<br>,0.5<br>,ISO 660,No,Chemical,0
+
+Sample Type Name : Fats
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Saturated Fat, g/100g,X<sup>2</sup>(No Limits Defined),AOAC 996.06,Yes,Chemical,1500
+"Mono-unsaturated fat, g/100g,X<sup>2</sup>(No Limits Defined),AOAC 996.06,Yes,Chemical,1500
+"Poly-unsaturated fat, g/100g,X<sup>2</sup>(No Limits Defined),AOAC 996.06,Yes,Chemical,1500
+"Cholestrol, mg/100g,X<sup>2</sup>(No Limits Defined),AOAC 996.06,Yes,Chemical,1500
+
+Sample Type Name : Gin
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 4833,No,Microbiological,0
+"Yeast & Molds, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 21527-1,No,Microbiological,0
+"Staphylococcus aureus, mm min,10,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 16649-2,No,Microbiological,0
+"Pseudomonas aeruginosa, mm min,10,ISO 16266,No,Microbiological,0
+"A. brasiliensis, mm min,10,ISO 21527-1,No,Microbiological,0
+"C. albicans, mm min,10,ISO 21527-1,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Available oxygen, cm<sup>3</sup>/10ml,<br>(No Limits Defined),LWTP 071,No,Chemical,0
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Sodium hydroxide concentration,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Residue levels,<br>,,No,Chemical,0
+"Aldehydes as acetaldehydes, mg/L, max.,250,EAS 104,Yes,Chemical,2500
+"Salmonella, per 25g,X<sup>2</sup>(No Limits Defined),ISO 6579,No,Microbiological,0
+"<span style="font-size: 13.2px;">ABV, % (min)</span>,37.5,EAS 104,No,Chemical,3000
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l (max)</span>,1000,EAS 104,No,Chemical,0
+"Higher Alcohols as aml alcohol, mg/l, max,50,EAS 104,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Methanol, mg/l (max)</span>,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,Yes,Chemical,0
+
+Sample Type Name : KS EAS 36:2020 Honey Specifications
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Coliforms count, MPN/g, max,Absent,ISO 4381,No,Microbiological,0
+"Yeast and Mould count, cfu/g, max,10,ISO 21527-2,No,Microbiological,0
+"Hydroxymethylfurfural, mg/kg, max.,40,AOAC 980.23,No,Chemical,0
+"Acidity, MEQ/kg, Max,40,AOAC 962:19,No,Chemical,0
+"Fructose-Glucose Ratio, Min,1,Annex A,No,Chemical,0
+"Moisture Content, % by mass, Max,20,AOAC 969.19,No,Chemical,0
+"Reducing Sugar Content, % by mass, min,45(No Limits Defined),AOAC 920.184,No,Chemical,0
+"Total Ash, Max,0.6,AOAC 920.181,No,Chemical,0
+"Water Insoluble Solids, % m/m,0.5,Annex A,No,Chemical,0
+"Sucrose, % by mass, max.,5,AOAC 920.184,No,Chemical,0
+
+Sample Type Name : Heavy Metals
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Total Viable Count, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 4833,Yes,Microbiological,0
+"Yeast & Molds, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 21527-1,Yes,Microbiological,0
+"Staphylococcus aureus, mm min,10,ISO 6888-1,No,Microbiological,0
+"E. coli, cfu/g,X<sup>2</sup>(No Limits Defined),ISO 16649-2,No,Microbiological,0
+"Pseudomonas aeruginosa, mm min,10,ISO 16266,No,Microbiological,0
+"A. brasiliensis, mm min,10,ISO 21527-1,No,Microbiological,0
+"C. albicans, mm min,10,ISO 21527-1,No,Microbiological,0
+"Lather Volume ml, min,150,,No,Chemical,0
+"Available oxygen, cm<sup>3</sup>/10ml,<br>(No Limits Defined),LWTP 071,No,Chemical,0
+"Arsenic, mg/kg,X<sup>2</sup>,AOAC 2013.06,Yes,Chemical,1500
+"pH&nbsp;,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Sodium hydroxide concentration,X<sup>2</sup>(No Limits Defined),,No,Chemical,0
+"Residue levels,<br>,,No,Chemical,0
+"GCMS Analysis,x<sup>2</sup>(No Limits Defined),GCMS 002,No,Chemical,0
+"Salmonella, per 25g,X<sup>2</sup>(No Limits Defined),ISO 6579,No,Microbiological,0
+"Crude fibre, %,X<sup>2</sup>,AOAC 978.10,No,Chemical,0
+"Total Ash, %,X<sup>2</sup>,AOAC 942.05,No,Chemical,0
+"Phosphorus, %,X<sup>2</sup>,AOAC 968.08,No,Chemical,0
+"Calcium, %,X<sup>2</sup>,AOAC 927.02,No,Chemical,0
+"Sodium, mg/kg,X<sup>2</sup>,AOAC 976.25,No,Chemical,1500
+"Lead, mg/kg,X<sup>2</sup>,AOAC 999.10,Yes,Chemical,1500
+"Crude Fibre, %,X<sup>2</sup>,ISO 5498,No,Chemical,1500
+"Sugars, %,X<sup>2</sup>,AOAC 925.46,No,Chemical,1500
+"Titratable acidity as tartaric acid g/L,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Brix % m/v,X<sup>2</sup>,EAS 104,No,Chemical,0
+"Acid insoluble ash %m/m,X<font size="1"><sup>2</sup></font>,ISO 5983,No,Chemical,0
+"Thermophilic anaerobes producing gas other than H<sub>2</sub>S, max,2(40%),ICUMSA GS 2/3-49,No,Microbiological,0
+"Total thermophilic spore count, max per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Thermophilic flat sour spores, max, per 10g,NIL,ICUMSA GS 2/3-49,No,Microbiological,0
+"Polarization <sup>o</sup>S, min.,99.7,ICUMSA GS 2/3-1,No,Chemical,0
+"Invert sugar, % m/m, max,0.04,ICUMSA GS 2/3/9-5,No,Chemical,0
+"Tin, mg/kg,X<sup>2</sup>,AOACV 999.10,Yes,Chemical,1500
+"Sulphur dioxide, ppm, max,15,,No,Chemical,0
+"Moisture content, max,0.1,ICUMSA Method GS 2/1,No,Chemical,0
+"Conductivity%max,0.04,ICUMSA Method GS 2/3,No,Chemical,0
+"color ,NM max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"h20&nbsp; insoluble matter mg/kg max,60,ICUMSA Method GS 2/3,No,Chemical,0
+"Arsenic mg/kg ,max,1,AOAC 2013.06,No,Chemical,0
+"Lead mg/kg max,0.5,AOAC 2013.06,No,Chemical,0
+"copper mg/kg max,2,ICUMSA Method GS 2/3,No,Chemical,0
+"Potassium permanganate Assay, %&nbsp;<br>,X<sup>2</sup><br>(No Limits Defined),USP 29-NF24,No,Chemical,0
+"Moisture, % m/m<br>,X<sup>2</sup><br>(No Limits Defined),ASTM C471M-01,No,Chemical,0
+"Mercury, mg/kg,X<sup>2</sup>,AOAC 2013.06,Yes,Chemical,1800
+"Aluminium Oxide as Al2O3, % by mass,X<sup>2</sup>,ASTM D857-02,No,Chemical,0
+"Sodium Oxide as Na2O, % by mass,X<sup>2</sup>,ASTM C471M-01,No,Chemical,0
+"Disintergration,<br>(No Limits Defined),US pharmacopia,No,Chemical,0
+"Assay,<br>(No Limits Defined),US Pharmacopia,No,Chemical,0
+"S.aureus,<br>,,No,Microbiological,0
+"Coliforms,<br>,,No,Microbiological,0
+"Dissolved Oxygen, mg/L,X<sup>2</sup>,ISO 17289,No,Chemical,0
+"Cadmium, mg/kg,X<sup>2</sup>,AOAC 2013.06,Yes,Chemical,1500
+"<span style="font-size: 13.2px;">ABV , % V/V</span>,X<sup>2</sup>,EAS 104,Yes,Chemical,0
+"<span style="font-size: 13.2px;">Esters as ethyl acetate, mg/l, Max</span>,1000,EAS 104,No,Chemical,0
+"Higher Alchocols as aml alchocol, mg/l, max,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Methanol, mg/l, MaX</span>,50,EAS 104,No,Chemical,0
+"<span style="font-size: 13.2px;">Volatile acids as acetic aid, g/l, Max</span>,50,EAS 104,No,Chemical,0
+
+Sample Type Name : Mineral supplements blocks for General Livestock
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Magnesium, % max.,1,ISO 6869,No,Chemical,0
+"Sodium Chloride (as NaCl), % by mass, min.,61 - 98,KS 63,No,Chemical,1500
+"Selenium, ppm,10 - 25,AOAC 2011.19,No,Chemical,0
+"Copper,ppm,2000, ISO 6869,No,Chemical,1500
+"Manganese, ppm,1000 - 4000,ISO 6869,No,Chemical,1500
+"Moisture Content, % by mass, max.,5,KS 63,Yes,Chemical,300
+"Calcium, % max.,7,AOAC 927.02,No,Chemical,1500
+"Phosphorus, %,6,AOAC 965.17,No,Chemical,1500
+"Zinc, ppm,2000 -5000,ISO 6869,No,Chemical,0
+"Iodine,50 - 250,BS EN 17050:2017,No,Chemical,0
+
+Sample Type Name : Polycyclic Aromatic Hydrocarbons (PAH ), mg/L
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+
+Sample Type Name : Pesticides
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Aldrin, mg/L,0.03,ISO 15089,No,Chemical,0
+"Chlordane, mg/L,0.3,ISO 15089,No,Chemical,0
+"2,4- Dichlorophenoxyacetic acid, mg/L&nbsp;,30,ISO 15089,No,Chemical,0
+"DDT, mg/L,1,ISO 15089 ,No,Chemical,0
+"Heptachlor and Heptachlor Epoxide, mg/L&nbsp;,0.03,ISO 15089 ,No,Chemical,0
+"Hexachlorobenzene. mg/L,1,ISO 15089,No,Chemical,0
+"Lindane BHC, mg/L&nbsp;,2,ISO 15089 ,No,Chemical,0
+"Methoxychlor, mg/L&nbsp;,20,ISO 15089,No,Chemical,0
+"Polycyclic Aromatic Hydrocarbons, mg/L,X<sup>2</sup>,LWTP 053,No,Chemical,0
+
+Sample Type Name : UHT Milk
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Milk solids non-fat, m/m%, max.,8.5,ISO 6731,Yes,Chemical,0
+"Titratable acidity, %, max.,0.02,AOAC 947.05,No,Chemical,0
+"pH Variation, Max.,0.3,ISO 26323,No,Chemical,0
+"Density at 20<sup>o</sup>C, g/ml,1.028 - 1.036,AOAC 925.22,No,Chemical,0
+"Total Plate Count per ml, max.,10,EAS 68,No,Chemical,0
+"Coliforms, cfu/g, max.,Absent,ISO 11866-1,No,Chemical,0
+"Staphylococcus aureus, cfu/g.,Absent,ISO 6888-1,No,Chemical,0
+
+Sample Type Name : Sediments
+Parameter,Standard Limits,Method,Included for Package,Category,Fee
+"Ammonium as NH<span style="font-size: 7.425px;">4</span>, mg/L,X<sup>2</sup>,ISO 11732,No,Chemical,1800
+"Arsenic as As, mg/L,X<sup>2</sup>,ASTM D2972-15,No,Chemical,1500
+"Biological Oxygen Demand as BOD, mg/L,X<sup>2</sup>,APHA 521OB,No,Chemical,1500
+"Cadmium as Cd, mg/L,X<sup>2</sup>,ISO 8288,No,Chemical,1500
+"Cobalt as Co, mg/L,X<sup>2</sup>,ISO 8288,No,Chemical,1500
+"Chemical Oxygen Demand as COD in mg/L,X<sup>2</sup>,APHA 5220D,No,Chemical,1800
+"Chromium as Cr, mg/L,X<sup>2</sup>,AOAC 2.048,No,Chemical,1800
+"Nickel as Ni, mg/L,X<sup>2</sup>,ISO 8288,No,Chemical,1500
+"Nitrates as NO<sub>3</sub><sup>-</sup> , mg/L,X<sup>2</sup>,LWTP 037,No,Chemical,1800
+"Phosphates as PO<sub>4</sub><sup>3-</sup>, mg/L,X<sup>2</sup>,LWTP 024,No,Chemical,1800
+"Lead as Pb, mg/L,X<sup>2</sup>,ISO 8288,No,Chemical,1500
+"Silicates as SiO<sub>4</sub>, mg/L,X<sup>2</sup>,ISO 1690,No,Chemical,1800
+"Total Suspended Matter as TSS, mg/L,X<sup>2</sup>,APHA 2540,No,Chemical,1500
+

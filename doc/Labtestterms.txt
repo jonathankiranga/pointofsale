@@ -1,0 +1,57 @@
+Chemical Testing Terms:
+ND (Not Detected)
+LOD (Limit of Detection)
+LOQ (Limit of Quantification)
+Concentration
+Trace
+
+Microbiology Testing Terms:
+Positive
+Negative
+CFU (Colony Forming Units)
+MPN (Most Probable Number)
+Absence
+Presence-Absence Test
+Enumeration
+Sterility
+
+Chemical Testing Terms:
+ND (Not Detected): Indicates that the substance being tested for is below the detection limit of the method used. It does not necessarily mean the substance is absent, just that it's below the threshold that can be reliably detected.
+
+LOD (Limit of Detection): The lowest concentration of a substance that can be reliably detected but not necessarily quantified accurately.
+
+LOQ (Limit of Quantification): The lowest concentration of a substance that can be reliably measured and quantified with acceptable accuracy and precision.
+
+Concentration: The amount of a substance present in a given volume or weight of the sample, often reported in units such as parts per million (ppm) or milligrams per liter (mg/L).
+
+Trace: Indicates a very small amount of a substance, often below a certain threshold but still detectable.
+
+High/Low: Qualitative descriptors indicating the relative amount of a substance compared to reference levels or regulatory limits.
+
+Microbiology Testing Terms:
+Positive: Indicates the presence of a target organism or substance being tested for.
+
+Negative: Indicates the absence of a target organism or substance being tested for.
+
+CFU (Colony Forming Units): A unit used to estimate the number of viable bacteria or fungal cells in a sample.
+
+MPN (Most Probable Number): A statistical method used to estimate the concentration of viable microorganisms in a sample.
+
+Absence: Indicates that no viable microorganisms of a specified type were found in the sample tested.
+
+Presence-Absence Test: A test used to determine if a specific microorganism is present or absent in a sample.
+
+Enumeration: Counting and reporting the number of microorganisms present in a sample.
+
+Sterility: A condition indicating the absence of viable microorganisms in a sample.
+
+General Terms (Applicable to Both):
+Reportable Range: The range of concentrations or quantities within which the test method is validated to provide accurate and reliable results.
+
+Interference: Factors or substances that can affect the accuracy or reliability of test results.
+
+Reference Range: Normal or expected values for a substance or parameter in a given population, used for comparison.
+
+Uncertainty: A measure of the lack of precision or certainty in a measurement or result.
+
+Validity: The extent to which a test or measurement accurately reflects the quantity or property being measured.

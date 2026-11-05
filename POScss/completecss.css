@@ -1,0 +1,517 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body and global styles */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background: repeating-linear-gradient(180deg, 
+    white 0px, white 1px,  
+    black 1px, black 2px
+    );
+    color: black; /* Light text */
+    min-height: 100vh;
+    position: relative; /* For fixed elements relative to body */
+    display: flex;
+}
+
+/*background-color: #333;  /* Dark grey */
+#menu-tree {
+    position: fixed;
+    top: 95px;
+    left: 0;
+    bottom: 0;
+    width: 15vw;  /* 15% of the viewport width */
+    background: repeating-linear-gradient(0deg, 
+        white 0px, white 1px,  
+        brown 1px, brown 2px,  
+        yellow 2px, yellow 3px,  
+        cadetblue 3px, cadetblue 4px  
+    );
+    padding: 5px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    overflow-y: auto;  /* Scroll when content overflows vertically */
+}
+
+#menuitems {
+    max-height: 100%;  /* Allow #menuitems to occupy the full height of #menu-tree */
+    font-size: 1em;
+    width: 14vw;  /* Slightly smaller than #menu-tree to provide padding */
+    padding: 20px;
+    background: ghostwhite;
+    z-index: 2;
+    overflow-y: auto;  /* Add scroll for overflowing menu items */
+}
+
+#menuitems h3 {
+    color: #76ff03;  /* Bright green heading */
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+#menuitems ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#menuitems ul li {
+    margin: 10px 0;
+    cursor: pointer;
+    color: #333; /* Darker color for readability */
+    padding: 12px 20px; /* Better padding for click areas */
+    border-radius: 5px; /* Smooth rounded corners */
+    background-color: #f8f9fa; /* Subtle background for visibility */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px; /* Readable font size */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover transitions */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+#menuitems ul li:hover {
+    background-color: #007BFF; /* Change background on hover */
+    color: white; /* Invert text color for contrast */
+    transform: translateY(-2px); /* Slight upward motion on hover */
+}
+
+#menuitems ul li:active {
+    background-color: #0056b3; /* Darker shade for click effect */
+    transform: translateY(0); /* Reset transform on click */
+}
+
+#menuitems ul li:focus {
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 0 2px #007BFF; /* Highlight focus with a border */
+}
+
+
+#menuitems li img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    vertical-align: middle;  /* Align icon with text */
+}
+
+  
+/* Container */
+.container {
+    position: absolute;
+    top: 70px;
+    left: 15vw; /* Adjusted to match menu width */
+    right: 0;
+    bottom: 0;
+    background-color: #121212;
+    padding: 20px;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+/* Styling the table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 5px;
+    text-align: right;
+}
+
+th {
+    background-color: #212121;
+    color: #f1f1f1;
+    border-bottom: 2px solid #76ff03; /* Green underline for headers */
+}
+
+td {
+    border-bottom: 1px solid #282828;
+}
+
+/* Row Hover Effect */
+tr:hover {
+    background-color: greenyellow; /* Lighter hover color */
+}
+
+tr.selected {
+    background-color: #f0f0f0; /* Light grey */
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Fixed barcode input on the right */
+.barcode .quantity{
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+.barcode .quantity input {
+    width: 100%;
+    padding: 5px;
+    font-size: 1em;
+    border: none;
+    color: red;
+    outline: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+}
+
+/* Modal Styling */
+
+.modal {
+    display: none ; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 9999; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2); /* Semi-transparent black background */
+    align-items: center; /* Center the modal vertically */
+    justify-content: center; /* Center the modal horizontally */
+    display: flex; /* Use flexbox to center content */
+}
+
+
+/* Receipt Modal Styles */
+
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 101; /* Ensure it's behind the modal */
+    display: none; /* Initially hidden */
+}
+
+
+
+/* Modal content box */
+.modal-content {
+    display: none ; /* Hidden by default */
+    background: whitesmoke;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+    max-width: 800px;
+    height: 400px;
+    overflow-y: auto;
+    position: relative;
+    z-index: 1009;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    display: flex; /* Use flexbox */
+    flex-direction: column; /* Stack content vertically */
+    justify-content: space-between; /* Distribute space to anchor input at bottom */
+}
+
+
+
+.dialog-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#dialog-message {
+    margin-bottom: 20px;
+}
+
+#dialog-ok-btn {
+    padding: 10px 20px;
+    background-color: #ffca2c;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#dialog-ok-btn:hover {
+    background-color: #ffae00;
+}
+/* Close button (X) */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 10000;
+    font-size: 5em;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+}
+
+/* Search results container */
+
+#search-results {
+    display: flex;
+    flex-direction: column; /* Each product result displayed in a vertical column */
+    gap: 1px; /* Add some space between product rows */
+    max-width: 800px;
+    height: 250px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    display: flex;
+    justify-content: space-between; /* Items inside the row will be spaced out */
+    gap: 1px; /* Optional: Space between the fields within each product row */
+    background: white;
+}
+
+.search-result-header {
+    display: flex;
+    justify-content: space-between; /* Items inside the row will be spaced out */
+    gap: 1px; /* Optional: Space between the fields within each product row */
+    background: blue;
+    color: white;
+    font-size: 2em;
+}
+
+.feild {
+    flex: 1; /* Each field will take equal width in the row */
+    padding: 5px;
+}
+
+.feild strong {
+    font-weight: bold;
+}
+
+
+.search-result-item:hover {
+    background-color: yellow;
+}
+
+/* Stylish Search Input */
+#search-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+    margin-bottom: 10px;
+}
+
+#search-input:focus {
+    outline: none;
+    border-color: #007bff; /* Change border color on focus */
+    box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.5); /* Focus shadow */
+}
+
+/* Pop-up Window (Receipt Modal) */
+#receipt-modal, #checkout-modal  #recall-modal{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centering the modal */
+    background-color: rgba(255, 255, 255, 0.8); /* White with transparency */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    display: flex; /* Use flexbox */
+    flex-direction: column; /* Stack content vertically */
+    justify-content: space-between; /* Distribute space to anchor input at bottom */
+    z-index: 102; /* Higher than the menu and container */
+    font-size: 1.5;
+}
+
+
+#receipt-modal h3, #checkout-modal h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#receipt-modal h4, #checkout-modal h4 {
+    margin: 15px 0;
+}
+
+#receipt-modal button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #76ff03;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#receipt-modal button:hover {
+    background-color: #66cc02; /* Lighter green on hover */
+}
+
+
+#homePageNav {
+    position: absolute;
+    top: 95px;
+    left: 15vw; /* Adjusted to match menu width */
+    right: 0;
+    height: 60vh; /* Set fixed height to 80% of viewport */
+    background-color: whitesmoke;
+    padding: 20px;
+    z-index: 100;
+    overflow-y: auto;
+    color: black;
+}
+
+#total-amount-container {
+    position: absolute;
+    top: calc(95px + 60vh + 20px); /* Position it below #homePageNav */
+    left: 15.5vw; /* Align with the left side of the #homePageNav */
+    right: 0;
+    background-color: Black;
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center; /* Align total to the right */
+    color: white;
+    font-size: 1.2em;
+}
+
+
+/* POS Ribbon Menu */
+.pos-ribbon {
+    width: 100%;
+    background: black;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    height: 90px;
+    font-size: 1.5em;
+    color: white; /* Ensure text color is visible on background */
+}
+
+.pos-ribbon svg {
+    fill: white; /* Make sure the SVG icons have a visible fill color */
+    position: relative;
+    z-index: 10;
+}
+
+.pos-ribbon ul {
+    list-style: none;           /* Remove bullet points */
+    padding: 0;
+    margin: 0;
+    display: flex;              /* Apply flexbox layout */
+    justify-content: flex-start; /* Align items to the left */
+    gap: 20px;                  /* Space between items */
+}
+
+.pos-ribbon ul li {
+    display: inline-block;       /* Make each list item behave like inline elements */
+}
+
+.pos-ribbon ul li a {
+    text-decoration: none;       /* Remove underline from the links */
+    color: white;                /* Set link color */
+    display: flex;
+    flex-direction: column;      /* Align icon and text vertically */
+    align-items: center;         /* Center the icon and text */
+    font-size: 16px;             /* Adjust the text size */
+    font-weight: bold;
+    transition: color 0.3s ease, background-color 0.3s ease; /* Add smooth transition */
+}
+
+/* Hover effect */
+.pos-ribbon ul li a:hover {
+    background-color: #ffca2c;   /* Background color on hover */
+    color: black;                /* Change text color on hover */
+    border-radius: 5px;          /* Optional: Add rounded corners for better UI */
+}
+
+.pos-ribbon ul li svg {
+    margin-bottom: 10px;          /* Add some space below the icon */
+    transition: fill 0.3s ease;   /* Smooth transition for icon color */
+}
+
+/* Change the SVG icon color on hover */
+.pos-ribbon ul li a:hover svg {
+    fill: black;                  /* Icon color changes on hover */
+}
+
+ #total-amount-container svg {
+    fill: green; /* Make sure the SVG icons have a visible fill color */
+    position: relative;
+    z-index: 10;
+}
+
+.modal-content-small{
+    display: none ; /* Hidden by default */
+    background: repeating-linear-gradient(90deg, 
+    white 0px, white 1px, /* Black */
+    green 1px, green 2px
+    );
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+    max-width: 200px;
+    height: 200px;
+    overflow-y: auto;
+    position: relative;
+    z-index: 102;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    display: flex; /* Use flexbox */
+    flex-direction: column; /* Stack content vertically */
+    justify-content: space-between; /* Distribute space to anchor input at bottom */
+}
+
+#customer-cash{
+    position: relative;
+    left:20vw;
+    padding: 10px;
+    max-width: 250px;
+}
+
+
+#denomination-list-container{
+    display: flex;
+    flex-direction: column;      /* Align icon and text vertically */
+    align-items: center;         /* Center the icon and text */
+}
+
+/* Media query for responsiveness */
+@media (max-width: 768px) {
+    #menu-tree {
+        width: 14vw; /* Expand menu tree for smaller screens */
+    }
+
+    #homePageNav {
+        left: 15vw; /* Adjust container position accordingly */
+        width: 85vw;
+    }
+    
+    #total-amount-container{
+        left: 15vw; /* Adjust container position accordingly */
+        width: 85vw;
+    }
+
+   
+    #receipt-modal {
+        width: 80%; /* Responsive width for modal */
+    }
+}
+

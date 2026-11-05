@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tabulator Example</title>
+  <link href="https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css" rel="stylesheet">
+</head>
+<body>
+  <div id="Tabulator-table"></div>
+
+  <button id="capture-button">Capture and Send Data</button>
+
+  <script src="https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js"></script>
+  <script>
+    var tableTabulator = new Tabulator("#Tabulator-table", {
+      height: "100%",
+      ajaxURL: "Ajax/labpostingAjax.php",
+      layout: "fitColumns",
+      columnDefaults: {
+        resizable: true,
+      },
+      placeholder: "No Data Set",
+      groupBy: "SampleID",
+      pagination: "remote",
+      paginationSize: 20,
+      paginationSizeSelector: [20, 30, 60, 120, 240, 480, 960],
+      paginationCounter: "rows",
+      columns: [
+        { title: "Sample ID", field: "SampleID" },
+        { title: "Date Received", field: "DateRecieved" },
+        { title: "External Sample ID", field: "ExternalSampleId" },
+        { title: "PARAMETER ID", field: "ParameterID", visible: false },
+        { title: "PARAMETER", field: "Parameter" },
+        { title: "METHOD", field: "Method" },
+        { title: "TEST RESULTS", field: "Results", editor: "input" },
+        { title: "STANDARD LIMIT", columns: [
+            { title: "Minimum", field: "MinimumLimit" },
+            { title: "Maximum", field: "MaximumLimit" },
+          ],
+        },
+        { title: "Units", field: "Units" },
+        {
+          title: "Select All",
+          field: "select_all",
+          formatter: "tickCross",
+          headerSort: false,
+          cellClick: function (e, cell) {
+            var groupRows = cell.getRow().getGroup().getRows();
+            var selected = !cell.getValue();
+            groupRows.forEach(function (row) {
+              row.select(selected);
+            });
+          },
+        },
+      ],
+
+      dataFiltered: function (filters, rows) {
+        var captureButton = document.getElementById("changestatus");
+        captureButton.addEventListener("click", function () {
+          var selectedRows = tableTabulator.getSelectedRows();
+          var selectedData = selectedRows.map(function (row) {
+            return row.getData();
+          });
+
+          // Make the AJAX request here with the selectedData
+          fetch("Ajax/update_labentry.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(selectedData),
+          })
+            .then(function (response) {
+              // Handle the response
+            })
+            .catch(function (error) {
+              // Handle any errors
+            });
+        });
+      },
+    });
+  </script>
+</body>
+</html>

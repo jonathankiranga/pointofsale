@@ -1,0 +1,82 @@
+
+To upload a file and process the upload using Server-Sent Events (SSE), you can follow these steps:
+
+1. Create an HTML form: Create an HTML form with an input field of type "file" to allow the user to select a file for upload.
+
+```html
+<form id="uploadForm">
+  <input type="file" id="fileInput" name="file">
+  <button type="submit">Upload</button>
+</form>
+```
+
+2. Handle the form submission: Use JavaScript to handle the form submission event and prevent the default form submission behavior. Instead, initiate the file upload using SSE.
+
+```javascript
+document.getElementById('uploadForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  
+  var fileInput = document.getElementById('fileInput');
+  var file = fileInput.files[0];
+  
+  if (file) {
+    uploadFile(file);
+  }
+});
+```
+
+3. Upload the file using SSE: Implement a function (`uploadFile`) that creates an SSE connection and sends the file data to the server for processing.
+
+```javascript
+function uploadFile(file) {
+  var eventSource = new EventSource('upload_script.php');
+  
+  eventSource.onopen = function() {
+    // Send the file data to the server
+    eventSource.send(file);
+  };
+  
+  eventSource.onmessage = function(event) {
+    var message = event.data;
+    console.log(message); // Output the received message
+    // Call a function to handle the received message
+    handleUploadMessage(message);
+    
+    // Close the SSE connection after receiving the message
+    eventSource.close();
+  };
+  
+  eventSource.onerror = function(event) {
+    console.error('SSE error:', event);
+    // Handle the error
+  };
+}
+```
+
+4. Process the file on the server: Implement the `upload_script.php` server script to receive the file data, process it, and send a response message back to the client using SSE.
+
+```php
+<?php
+header('Content-Type: text/event-stream');
+header('Cache-Control: no-cache');
+header('Connection: keep-alive');
+
+// Receive the file data from the client
+$fileData = file_get_contents('php://input');
+
+// Process the file data and save the document
+// ...
+
+// Send a response message to the client
+echo "data: Document saved successfully\n\n";
+flush();
+?>
+```
+
+In this example, when the user submits the form, the JavaScript code prevents the default form submission behavior and initiates the file upload using SSE. The file data is sent to the server script (`upload_script.php`) for processing. After processing and saving the document, the server script sends a response message back to the client using SSE.
+
+The client-side JavaScript code listens for the response message and handles it by logging it to the console and calling a function (`handleUploadMessage`) to handle the message.
+
+Remember to handle any necessary error scenarios and implement appropriate security measures when processing file uploads.
+
+Let me know if you have any further questions or need additional assistance!

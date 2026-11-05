@@ -1,0 +1,123 @@
+// Debounce function to limit the rate at which a function can fire
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+// Lock to prevent concurrent operations
+let selectionLock = false;
+
+function toggleRowSelection(row) {
+  if (!selectionLock) {
+    selectionLock = true;
+    const data = row.getData();
+    data.select = !data.select;
+    row.update(data);
+    selectionLock = false;
+  }
+}
+
+var tableTabulator = new Tabulator("#Tabulator-table", {
+  height: "100%",
+  ajaxURL: "Ajax/labpostingAjax.php",
+  layout: "fitColumns",
+  columnDefaults: {
+    resizable: true,
+  },
+  placeholder: "No Data Set",
+  groupBy: "SampleID",
+  pagination: "remote",
+  paginationSize: 20,
+  paginationSizeSelector: [20, 30, 60, 120, 240, 480, 960],
+  paginationCounter: "rows",
+  columns: [
+    { title: "Sample ID", field: "SampleID" },
+    { title: "Date Received", field: "DateRecieved" },
+    { title: "External Sample ID", field: "ExternalSampleId" },
+    { title: "PARAMETER ID", field: "ParameterID", visible: false },
+    { title: "PARAMETER", field: "Parameter" },
+    { title: "METHOD", field: "Method" },
+    { title: "TEST RESULTS", field: "Results", editor: "input" },
+    {
+      title: "STANDARD LIMIT", columns: [
+        { title: "Minimum", field: "MinimumLimit" },
+        { title: "Maximum", field: "MaximumLimit" },
+      ]
+    },
+    { title: "Units", field: "Units" },
+    {
+      title: "Select", field: "select", formatter: "tickCross", headerSort: false, cellClick: debounce(function (e, cell) {
+        toggleRowSelection(cell.getRow());
+      }, 100)
+    }
+  ],
+  dataFiltered: function (filters, rows) {
+    var captureButton = document.getElementById("capture-button");
+    if (!captureButton.hasListener) {
+      captureButton.addEventListener("click", function () {
+        var selectedRows = tableTabulator.getSelectedRows();
+        var selectedData = selectedRows.map(function (row) {
+          return row.getData();
+        });
+
+        fetch("Ajax/forewardlabresults.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(selectedData),
+        })
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          // Handle the successful response data
+        })
+        .catch(function (error) {
+          console.error('There has been a problem with your fetch operation:', error);
+        });
+      });
+      captureButton.hasListener = true;
+    }
+  },
+  groupHeader: function (value, count, data, group) {
+    var groupRows = group.getRows();
+    var selectedRowsCount = groupRows.filter(function (row) {
+      return row.getData().select;
+    }).length;
+    var selectAllChecked = selectedRowsCount === groupRows.length;
+
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = selectAllChecked;
+
+    checkbox.addEventListener("change", debounce(function () {
+      if (!selectionLock) {
+        selectionLock = true;
+        var selected = checkbox.checked;
+        groupRows.forEach(function (row) {
+          var data = row.getData();
+          data.select = selected;
+          row.update(data);
+        });
+        selectionLock = false;
+      }
+    }, 100));
+
+    var label = document.createElement("label");
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(value));
+
+    checkbox.addEventListener("click", function (e) {
+      e.stopPropagation(); // Prevent event propagation to the group header cell
+    });
+
+    return label;
+  },
+});

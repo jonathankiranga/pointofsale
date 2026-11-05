@@ -1,0 +1,84 @@
+
+    /* Basic styling */
+    h2 {
+        font-family: 'Roboto', sans-serif; /* A modern, clean font */
+        font-size: 28px; /* Adjust size for visibility */
+        font-weight: 700; /* Bold for emphasis */
+        color: #333; /* Dark color for professionalism */
+        text-align: center; /* Center alignment */
+        margin-bottom: 20px; /* Add space below for clarity */
+        letter-spacing: 1.5px; /* Slightly spaced out letters for readability */
+    }
+
+    /* Add a subtle border or underline */
+    h2::after {
+        content: '';
+        display: block;
+        height: 3px;
+        background-color: #007BFF; /* Brand color for the underline */
+        margin: 10px auto; /* Centers the line below the text */
+        border-radius: 3px; /* Smooth corners */
+    }
+
+    /* Optional shadow effect for depth */
+    h2 {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle shadow for text depth */
+    }
+
+
+    /* Table container styling */
+    #sales-table {
+        border-collapse: collapse;
+        width: 100%;
+        font-family: monospace;
+        font-size: 14px;
+    }
+
+    /* Header styling similar to Tabulator */
+    #sales-table thead {
+        background-color: #f2f2f2;
+        text-align: left;
+    }
+
+    #sales-table th {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+        background-color: #f8f9fa;
+        font-weight: bold;
+        font-size: 14px;
+        color: #333;
+    }
+
+    /* Table body row styling */
+    #sales-table tbody tr {
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Hover effect for rows */
+    #sales-table tbody tr:hover {
+        background-color: #e2e6ea;
+    }
+
+    /* Cell styling */
+    #sales-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    /* Padding and cell alignment */
+    #sales-table tbody td {
+        padding: 8px 12px;
+    }
+
+    /* Striping effect for alternate rows */
+    #sales-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    /* Vertical alignment for the table */
+    #sales-table tbody td {
+        vertical-align: middle;
+    }
+

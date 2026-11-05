@@ -1,0 +1,57 @@
+<h1><a id="Requirements">Requirements</a></h1>
+
+<h2>Hardware Requirements</h2>
+
+<p>There are many possible configurations that could run this application. The scale of the enterprise obviously will have a significant bearing on the final configuration.</p>
+
+<p>Each client connection to the web server and database engine will also consume RAM so the more connections the larger the RAM requirement. Similarly disk space required is a function of the volume of customers, suppliers and transactions. Suffice it to say that due to the efficiency of the components of the system the demands on the hardware are exceptionally light by client server application standards.</p>
+
+<p>As a guide, an installation for up to 50 simultaneous users could consist of the following: a Linux operating system, an Apache web server, an entry level server with 2Gig RAM and a 100 Megabit network card. This would provide more than adequate performance. A small NAS or SAN with disk redundancy would be preferred in larger installations. With multiple servers with with SMP, load balancing, a separate database server, and large amounts of RAM the limit on database size and the number can be scaled to the most demanding businesses.</p>
+
+<p>In practise most businesses will elect to outsource the hardware to a web-hosting company where dedicated servers can be rented for minimal cost. When using the hosting facilities of a 3rd party it is important to consider the infrastructure that the host has in place:</p>
+
+<ul>
+    <li>Backups - the business should always configure its own backup in any event</li>
+
+    <li>Hardware redundancy - ie failover spare servers, disks etc</li>
+
+    <li>The safety and protection of the hosts hardware</li>
+
+    <li>Backup power generation</li>
+
+    <li>Backup connectivity options of the host ie more than one connection to the internet is preferable</li>
+</ul>
+
+<div class="floatright">
+    <a class="minitext" href="#top">⬆ Top</a>
+</div>
+
+<h2>Software Requirements</h2>
+
+<p>If the business elects to have their own on-site web-server there are many software bundles that will provide the necessary infrastructure of:</p>
+
+<ul>
+    <li><a href="http://www.php.net">PHP</a> a versions later than 5.1</li>
+
+    <li>Ms SQL: Microsoft SQL </li>
+</ul>
+
+<p>The latest binaries can be downloaded separately for both by following the above links but in a windows environment the <a href="http://apache2triad.net/">apache2triad bundle</a> provides all the software required and comes with a convenient installer.</p>
+
+<p>In a windows/linux/unix environment the <a href="http://www.apachefriends.org/en/xampp.html">XAMPP</a> also provides all the software required and is easy to install.</p>
+
+<p>Installing either of the above two server software bundles will provide all you need to get going. To get the latest and greatest revisions of the individual components you need:</p>
+
+<ul>
+    <li><a href="http://www.php.net/">PHP</a> Any version greater than 5.1 will work. PHP works on all operating systems so Fleet is therefore operating system independent. If transfer of EDI orders is required the ftp extensions for PHP will be needed. If using translations the gettext extension for PHP is also required. The graphing functions also require the GD extension.</li>
+
+    <li>A web server. <a href="http://www.apache.org/">Apache</a> makes the most sense &#8211; but most web servers are supported by PHP in various forms.</li>
+
+    <li>If the web server is accessible over the Internet and not just over a LAN then encrypted communications are required. The openssl and mod-ssl modules for apache can be easily used to ensure all data is transmitted in encrypted form.</li>
+</ul>
+
+
+<div class="floatright">
+    <a class="minitext" href="#top">⬆ Top</a>
+</div>
+
