@@ -32,7 +32,7 @@ $from = isset($_GET['from']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['from'
 $to = isset($_GET['to']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['to']) ? $_GET['to'] : date('Y-m-d');
 $cashier = isset($_GET['cashier']) ? trim((string)$_GET['cashier']) : '';
 
-$where = "h.documenttype=1 AND COALESCE(h.status,1)=1 AND h.docdate >= ? AND h.docdate < DATE_ADD(?, INTERVAL 1 DAY)";
+$where = "h.documenttype=1 AND h.pos_shift_id IS NOT NULL AND COALESCE(h.status,1)=1 AND h.docdate >= ? AND h.docdate < DATE_ADD(?, INTERVAL 1 DAY)";
 $params = array($from, $to);
 $types = 'ss';
 if ($cashier !== '') {
@@ -92,6 +92,19 @@ $stmt->execute();
 $taxBreakdown = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+$shiftSql = "SELECT id,z_report_number,cashier_id,cashier_name,opened_at,closed_at,opening_float,
+                         expected_cash,cash_counted,cash_variance,total_sales,total_vat,cash_sales,mpesa_sales,status
+                  FROM pos_shifts WHERE opened_at >= ? AND opened_at < DATE_ADD(?, INTERVAL 1 DAY)";
+$shiftParams = array($from, $to);
+$shiftTypes = 'ss';
+if ($cashier !== '') { $shiftSql .= ' AND cashier_id=?'; $shiftParams[] = $cashier; $shiftTypes .= 's'; }
+$shiftSql .= ' ORDER BY opened_at DESC';
+$stmt = $mysqli->prepare($shiftSql);
+posReportBind($stmt, $shiftTypes, $shiftParams);
+$stmt->execute();
+$shifts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 $transactionSql = "SELECT h.documentno,h.docdate,h.userid,h.payment_method,h.total,h.total_vat
                    FROM SalesHeader h WHERE " . $where . " ORDER BY h.docdate DESC,h.documentno DESC LIMIT 500";
 $stmt = $mysqli->prepare($transactionSql);
@@ -124,6 +137,13 @@ include('includes/header.inc');
         <div class="col-sm-3"><div class="panel panel-default"><div class="panel-body"><small>VAT RECORDED (KES)</small><h3><?php echo posReportMoney($summary['vat']); ?></h3></div></div></div>
         <div class="col-sm-3"><div class="panel panel-default"><div class="panel-body"><small>CASH / M-PESA (KES)</small><h3><?php echo posReportMoney($summary['cash_sales']); ?> / <?php echo posReportMoney($summary['mpesa_sales']); ?></h3></div></div></div>
     </div>
+
+    <h3>Cashier shifts and Z reports</h3>
+    <div class="table-responsive"><table class="table table-bordered table-striped">
+        <thead><tr><th>Z report</th><th>Cashier</th><th>Opened</th><th>Closed</th><th>Status</th><th class="text-right">Opening float</th><th class="text-right">Expected cash</th><th class="text-right">Counted cash</th><th class="text-right">Variance</th><th class="text-right">Gross sales</th></tr></thead><tbody>
+        <?php foreach ($shifts as $shift) { ?><tr><td><?php echo posReportEscape($shift['z_report_number'] ? $shift['z_report_number'] : '—'); ?></td><td><?php echo posReportEscape($shift['cashier_name']); ?></td><td><?php echo posReportEscape($shift['opened_at']); ?></td><td><?php echo posReportEscape($shift['closed_at'] ? $shift['closed_at'] : '—'); ?></td><td><?php echo posReportEscape($shift['status']); ?></td><td class="text-right"><?php echo posReportMoney($shift['opening_float']); ?></td><td class="text-right"><?php echo $shift['expected_cash'] === null ? '—' : posReportMoney($shift['expected_cash']); ?></td><td class="text-right"><?php echo $shift['cash_counted'] === null ? '—' : posReportMoney($shift['cash_counted']); ?></td><td class="text-right"><?php echo $shift['cash_variance'] === null ? '—' : posReportMoney($shift['cash_variance']); ?></td><td class="text-right"><?php echo $shift['total_sales'] === null ? '—' : posReportMoney($shift['total_sales']); ?></td></tr><?php } ?>
+        <?php if (!$shifts) { ?><tr><td colspan="10">No cashier shifts found for this period.</td></tr><?php } ?>
+    </tbody></table></div>
 
     <h3>Payment reconciliation</h3>
     <div class="table-responsive"><table class="table table-bordered table-striped">
