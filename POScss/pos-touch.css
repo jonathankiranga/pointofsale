@@ -396,3 +396,33 @@ kbd { padding: 3px 6px; border: 1px solid #d8dee8; border-radius: 5px; backgroun
  .psr-table { min-width: 590px; }
  #dialog-message:has(.pos-shift-report) { overflow-x: auto; }
 }
+
+/* Company-letterhead X/Z reports with accounting-style ruled columns. */
+#custom-dialog .pos-message-dialog { width: min(1100px, 98vw); max-width: 1100px; }
+#dialog-message:has(.pos-shift-report) { width: 100%; margin: 0; }
+.pos-shift-report { width: 100%; padding: 22px; background: #fff; color: #172033; border: 1px solid #d0d7e2; border-radius: 4px; font: 12px/1.4 Arial,sans-serif; }
+.psr-company-head { text-align: center; border-bottom: 2px solid #172b4d; padding-bottom: 12px; }
+.psr-company-name { font-size: 21px; font-weight: 800; text-transform: uppercase; }
+.psr-company-address { margin-top: 3px; color: #475467; font-size: 11px; }
+.psr-report-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 16px 0 10px; }
+.psr-report-heading h2 { margin: 0; color: #172033; font-size: 17px; }
+.psr-report-heading span { color: #667085; font-size: 10px; }
+.psr-report-heading strong { padding: 7px 12px; border: 1px solid #9aa8ba; white-space: nowrap; }
+.psr-parties,.psr-table,.psr-summary { width: 100%; border-collapse: collapse; margin: 10px 0 16px; }
+.psr-parties th,.psr-parties td,.psr-table th,.psr-table td,.psr-summary th,.psr-summary td { padding: 7px 8px; border: 1px solid #aeb8c5; }
+.psr-parties th { width: 13%; background: #f0f2f5; text-align: left; font-size: 10px; text-transform: uppercase; }
+.psr-parties td { width: 37%; }
+.psr-table th { background: #e9edf2; text-align: left; font-size: 10px; text-transform: uppercase; }
+.psr-table-title { background: #dfe5ed !important; text-align: center !important; font-size: 11px !important; letter-spacing: .8px; }
+.psr-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.psr-table tfoot th { background: #f0f2f5; font-weight: 800; }
+.psr-empty { padding: 18px !important; color: #667085; text-align: center; }
+.psr-summary { width: 55%; margin-left: auto; }
+.psr-summary th { background: #dfe5ed; text-align: left; }
+.psr-summary td:first-child { background: #f5f6f8; }
+.psr-summary td:last-child { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.psr-footer { margin-top: 24px; padding-top: 8px; border-top: 1px solid #aeb8c5; color: #667085; text-align: center; font-size: 9px; }
+@media(max-width:680px) {
+ .pos-shift-report { min-width: 740px; padding: 12px; }
+ #dialog-message:has(.pos-shift-report) { overflow-x: auto; }
+}
