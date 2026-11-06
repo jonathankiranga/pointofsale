@@ -121,6 +121,7 @@ function SaveReceipt(receiptData, onSaved) {
         type: 'POST',
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
+        headers: { 'X-POS-FormID': window.POS_FORM_ID || '' },
         data: JSON.stringify(receiptData),
         timeout: 20000
     }).done(function(response) {
