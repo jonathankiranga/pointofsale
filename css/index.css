@@ -1548,3 +1548,205 @@ main#view-panel .pagination > .active > span {
         border: 0;
     }
 }
+
+
+/* -------------------------------------------------------------------------
+   Legacy back-office forms: align the table-based screens with the modern
+   POS visual standard without changing their PHP field names or behaviour.
+   ------------------------------------------------------------------------- */
+main#view-panel {
+    width: 100%;
+    max-width: 100%;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+main#view-panel > .responsive,
+main#view-panel > .responsive > .container-fluid,
+main#view-panel > .container-fluid {
+    width: 100%;
+    max-width: 1540px;
+    margin-right: auto;
+    margin-left: auto;
+}
+main#view-panel form {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 20px;
+    color: var(--bo-ink);
+}
+main#view-panel form > .card,
+main#view-panel form > .container,
+main#view-panel form > .well,
+main#view-panel form > .panel {
+    width: 100%;
+    max-width: 1380px;
+    margin: 0 auto 20px;
+    padding: 18px;
+    background: #fff !important;
+    border: 1px solid var(--bo-border);
+    border-radius: 7px;
+    box-shadow: var(--bo-shadow);
+}
+main#view-panel form > table,
+main#view-panel form > .card > table,
+main#view-panel form > .container > table {
+    width: 100%;
+    max-width: 1380px;
+    margin: 0 auto 18px;
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 12px 8px;
+    background: transparent;
+}
+main#view-panel form table.table-bordered {
+    width: 100%;
+    margin: 0 auto 14px;
+    table-layout: fixed;
+    border: 1px solid var(--bo-border);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+main#view-panel form table.table-bordered caption {
+    padding: 11px 14px;
+    color: #31465f;
+    background: #f2f5f8;
+    border-bottom: 1px solid var(--bo-border);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+    caption-side: top;
+}
+main#view-panel form table.table-bordered > tbody > tr > td,
+main#view-panel form table.table-bordered > tr > td {
+    padding: 9px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--bo-border-soft);
+    background: #fff;
+    vertical-align: middle;
+}
+main#view-panel form table.table-bordered > tbody > tr:last-child > td,
+main#view-panel form table.table-bordered > tr:last-child > td {
+    border-bottom: 0;
+}
+main#view-panel form table.table-bordered > tbody > tr > td:first-child:not([colspan]),
+main#view-panel form table.table-bordered > tr > td:first-child:not([colspan]) {
+    width: 36%;
+    color: #4b5d73;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: right;
+}
+main#view-panel form table.table-bordered > tbody > tr > td:nth-child(2),
+main#view-panel form table.table-bordered > tr > td:nth-child(2) {
+    width: 64%;
+}
+main#view-panel form table.table-bordered input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]),
+main#view-panel form table.table-bordered select,
+main#view-panel form table.table-bordered textarea {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+main#view-panel form table.table-bordered input[type="checkbox"],
+main#view-panel form table.table-bordered input[type="radio"] {
+    display: inline-block;
+    width: auto;
+    min-height: 0;
+}
+main#view-panel form table.table-bordered td[colspan] {
+    text-align: left;
+}
+main#view-panel form table.table-bordered table {
+    margin: 8px 0;
+}
+main#view-panel form table:not(.table-bordered):not(.dataTable) > tbody > tr > td,
+main#view-panel form table:not(.table-bordered):not(.dataTable) > tr > td {
+    vertical-align: top;
+}
+main#view-panel form table.table-bordered + table.table-bordered {
+    margin-top: 12px;
+}
+main#view-panel form .btn,
+main#view-panel form button,
+main#view-panel form input[type="submit"],
+main#view-panel form input[type="button"] {
+    min-height: 34px;
+    padding: 7px 14px;
+    border-radius: 5px;
+    font-weight: 650;
+}
+main#view-panel form input[type="file"] {
+    width: 100%;
+    max-width: 420px;
+    min-height: 36px;
+    padding: 5px;
+    border: 1px solid var(--bo-border);
+    border-radius: 5px;
+    background: #fff;
+}
+main#view-panel form fieldset {
+    min-width: 0;
+    margin: 0 0 18px;
+    padding: 16px;
+    border: 1px solid var(--bo-border);
+    border-radius: 6px;
+    background: #fff;
+}
+main#view-panel form legend {
+    float: none;
+    width: auto;
+    margin: 0;
+    padding: 0 8px;
+    color: #31465f;
+    font-size: 13px;
+    font-weight: 700;
+}
+main#view-panel form .form-actions,
+main#view-panel form .button-container,
+main#view-panel form .submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    margin: 18px auto 4px;
+}
+main#view-panel form .table-responsive {
+    margin-right: auto;
+    margin-left: auto;
+}
+@media (min-width: 992px) {
+    main#view-panel form > .card,
+    main#view-panel form > .container {
+        padding: 22px 26px;
+    }
+}
+@media (max-width: 767px) {
+    main#view-panel form > .card,
+    main#view-panel form > .container,
+    main#view-panel form > .well,
+    main#view-panel form > .panel {
+        padding: 10px;
+    }
+    main#view-panel form > table,
+    main#view-panel form > .card > table,
+    main#view-panel form > .container > table {
+        display: block;
+        overflow-x: auto;
+        border-spacing: 5px;
+    }
+    main#view-panel form table.table-bordered > tbody > tr > td:first-child:not([colspan]),
+    main#view-panel form table.table-bordered > tr > td:first-child:not([colspan]) {
+        width: 38%;
+        text-align: left;
+    }
+    main#view-panel form table.table-bordered > tbody > tr > td:nth-child(2),
+    main#view-panel form table.table-bordered > tr > td:nth-child(2) {
+        width: 62%;
+    }
+}
