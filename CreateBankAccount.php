@@ -147,10 +147,7 @@ echo '<table class="bank-account-form table-bordered table-compact">'
 . '<tr><td>Bank</td><td><input type="text" name="bankName" value="'.$_POST['bankName'].'" maxlength="50"  required="required"  onmouseleave="CopyFieldValue(this.value,\'AcctName\')"/></td><td>AC NAME</td><td><input id="AcctName" type="text" name="AcctName" value="'.$_POST['AcctName'].'" maxlength="50" required="required"/></td></tr>'
 . '<tr><td>Bank Account No</td><td><input type="text" name="AccountNo" value="'.$_POST['AccountNo'].'" maxlength="20" /></td><td>Bank Code</td><td><input type="text" name="bankCode" value="'.$_POST['bankCode'].'" maxlength="50"/></td></tr>'
 . '<tr><td>Bank Branch Code</td><td><input type="text" name="BranchCode" value="'.$_POST['BranchCode'].'" maxlength="10" /></td><td>Swift Code</td><td><input type="text" name="swiftcode" value="'.$_POST['swiftcode'].'" maxlength="50"/></td></tr>'
-. '<tr><td>Bank Branch Name</td><td><input type="text" name="BranchName" value="'.$_POST['BranchName'].'" maxlength="50" /></td><td>Make Inactive</td><td><select name="Makeinactive" >'
-. '<option '.(($_POST['Makeinactive']==0)?'selected="selected"':'').' value="0">No</option>'
-. '<option '.(($_POST['Makeinactive']==1)?'selected="selected"':'').' value="1">Yes</option>'
-. '</select></td></tr>';
+. '<tr><td>Bank Branch Name</td><td><input type="text" name="BranchName" value="'.$_POST['BranchName'].'" maxlength="50" /></td><td></td><td></td></tr>';
 echo '<tr><td>Last Cheque No</td><td><input type="text" name="lastChequeno" value="'.htmlspecialchars(isset($_POST['lastChequeno']) ? $_POST['lastChequeno'] : '', ENT_QUOTES, 'UTF-8').'" maxlength="10" pattern="[0-9]*" /></td><td>Active</td><td><select name="Makeinactive">'
 . '<option '.(((isset($_POST['Makeinactive']) ? $_POST['Makeinactive'] : 0)==0)?'selected="selected"':'').' value="0">Active</option>'
 . '<option '.(((isset($_POST['Makeinactive']) ? $_POST['Makeinactive'] : 0)==1)?'selected="selected"':'').' value="1">Inactive</option>'
