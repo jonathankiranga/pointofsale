@@ -39,9 +39,11 @@ $SQL="select
       ,[SalesHeader].[BatchNO] ";
     $Result=DB_query($SQL,$db);
        
-    Echo '<div class="table-responsive sales-invoice-list-wrap">\n    <table class="table table-bordered table-hover sales-invoice-list">\n    <thead><tr>'
-       . '<th>Generate & Invoice <br />Lab Test<br /> By Sample ID</th>' 
-      . '<th>Generate & Invoice <br />Lab Test<br /> By Batch No</th>' 
+    Echo '<div class="table-responsive sales-invoice-list-wrap">'
+       . '<table class="table table-bordered table-hover sales-invoice-list">'
+       . '<thead><tr>'
+       . '<th>Generate & Invoice <br />Lab Test<br /> By Sample ID</th>'
+       . '<th>Generate & Invoice <br />Lab Test<br /> By Batch No</th>'
        . '<th>Sales <br /> Order <br /> Document<br /> date</th>'
        . '<th>Sales <br /> Order <br />Due <br />Date</th>'
        . '<th>Customer <br />ID</th>'
@@ -51,8 +53,8 @@ $SQL="select
        . '<th>Sales<br /> Person</th>'
        . '<th>Authorisation<br /> Status</th>'
        . '<th>Created<br /> By</th>'
-       . '</tr>';
-    
+       . '</tr></thead><tbody>';
+
     $pge = htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
   while($row=DB_fetch_array($Result)){
       echo '<tr>';
