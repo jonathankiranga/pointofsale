@@ -1846,23 +1846,23 @@ main#view-panel table.bo-compact-form-table input[type="radio"] {
 /* Cashbook form layout: equal-width columns and full-width editable controls.
    The older 36%/64% table rule assumes two columns and collapses later columns
    on four-column Cashbook forms. Keep this scoped to Cashbook pages. */
-main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th, > tr > th)) {
+main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th + th, > tr > th + th)) {
     width: 100% !important;
     max-width: 100% !important;
     table-layout: fixed !important;
 }
 
-main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th, > tr > th)) > tbody > tr > td,
-main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th, > tr > th)) > tr > td {
+main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th + th, > tr > th + th)) > tbody > tr > td,
+main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th + th, > tr > th + th)) > tr > td {
     width: auto !important;
     min-width: 0;
     box-sizing: border-box;
     white-space: normal;
 }
 
-main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th, > tr > th)) input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="file"]),
-main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th, > tr > th)) select,
-main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th, > tr > th)) textarea {
+main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th + th, > tr > th + th)) input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="file"]),
+main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th + th, > tr > th + th)) select,
+main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th + th, > tr > th + th)) textarea {
     display: block;
     width: 100% !important;
     min-width: 0 !important;
@@ -1886,12 +1886,12 @@ main#view-panel.cashbook-window form table.bo-compact-form-table > tr > td {
 }
 
 @media (max-width: 767px) {
-    main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th, > tr > th)) {
+    main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th + th, > tr > th + th)) {
         display: block;
         overflow-x: auto;
     }
 
-    main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th, > tr > th)) > tbody {
+    main#view-panel.cashbook-window form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(:has(> thead, > tbody > tr > th + th, > tr > th + th)) > tbody {
         display: table;
         width: 100%;
         table-layout: fixed;
