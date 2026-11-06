@@ -1,10 +1,10 @@
 <?php
 /*
- * SmartERPlims POS and Back-office User Manual
+ * POS and Back-office User Manual
  * This page intentionally contains the application help content so that the
  * manual is available from one entry point without relying on legacy webERP topics.
  */
-$manualTitle = 'SmartERPlims POS & Back-office User Manual';
+$manualTitle = 'POS & Back-office User Manual';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -83,7 +83,7 @@ $manualTitle = 'SmartERPlims POS & Back-office User Manual';
 
     <main class="manual-content">
         <h1 id="overview">1. System overview</h1>
-        <p>SmartERPlims is an ERP application with an integrated touch-friendly point-of-sale terminal. The POS is used by cashiers to identify products, build a sale, collect payment and issue a receipt. The back office maintains the product catalogue, customers, suppliers, inventory, financial setup and management reports.</p>
+        <p>The application is an ERP system with an integrated touch-friendly point-of-sale terminal. The POS is used by cashiers to identify products, build a sale, collect payment and issue a receipt. The back office maintains the product catalogue, customers, suppliers, inventory, financial setup and management reports.</p>
         <p>The POS uses the ERP company and cashier session. Product descriptions, barcodes, prices, VAT information and posting configuration are sourced from the ERP database; the terminal is not a separate product database.</p>
         <div class="note"><strong>Currency:</strong> The POS payment summary and receipts are presented in KES. VAT treatment follows the VAT-inclusive setting of the configured default ERP sales posting group.</div>
 
