@@ -122,14 +122,20 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
         tables.forEach(function (table) {
             if (!table.closest("form") ||
                 table.classList.contains("dataTable") ||
-                table.closest(".dataTables_wrapper, .table-responsive") ||
+                table.closest(".dataTables_wrapper") ||
+                table.getAttribute("role") === "grid" ||
                 table.querySelector(":scope > thead") ||
-                table.parentElement.closest("table")) {
+                (table.parentElement && table.parentElement.closest("table"))) {
                 return;
             }
 
+            /*
+             * A legacy form-layout table has controls but no table header.
+             * Do not exclude .table-responsive: older pages often wrap their
+             * label/control tables in that container as well.
+             */
             if (table.querySelector(
-                "input:not([type=hidden]):not([type=submit]):not([type=button]), select, textarea"
+                "input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=reset]), select, textarea"
             )) {
                 table.classList.add("bo-compact-form-table");
             }
