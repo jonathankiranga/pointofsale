@@ -62,81 +62,139 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes = $spreadsheet->createSheet();
         $codes->setTitle('Code Reference');
         $codes->setShowGridlines(false);
-        $codes->mergeCells('A1:D1');
+        $codes->setShowGridlines(false);
+        $codes->mergeCells('A1:K1');
         $codes->setCellValue('A1','LIVE ERP CODE REFERENCE');
-        $codes->getStyle('A1:D1')->applyFromArray(array(
+        $codes->getStyle('A1:K1')->applyFromArray(array(
             'font'=>array('bold'=>true,'size'=>16,'color'=>array('rgb'=>'FFFFFF')),
             'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'1F4E78')),
             'alignment'=>array('horizontal'=>'center','vertical'=>'center')
         ));
         $codes->getRowDimension(1)->setRowHeight(30);
-        $codes->mergeCells('A2:D2');
-        $codes->setCellValue('A2','Generated from live ERP records at download time. Enter the exact code in the matching column on the Inventory List sheet.');
-        $codes->getStyle('A2:D2')->getAlignment()->setWrapText(true);
+        $codes->mergeCells('A2:K2');
+        $codes->setCellValue('A2','Choose codes from the dropdowns in Inventory List. These are the exact codes currently configured in the ERP. The description columns on Inventory List fill automatically to help you confirm each selection.');
+        $codes->getStyle('A2:K2')->getAlignment()->setWrapText(true);
         $codes->getRowDimension(2)->setRowHeight(32);
-
-        $codes->mergeCells('A3:D3');
-        $codes->setCellValue('A3','GROUP CODE identifies the inventory posting and accounting setup. CATEGORY ID classifies the item for inventory reporting. They are different values and must not be interchanged.');
-        $codes->getStyle('A3:D3')->getFont()->setBold(true);
-        $codes->getStyle('A3:F3')->getAlignment()->setWrapText(true);
-        $codes->getRowDimension(3)->setRowHeight(34);
+        $codes->mergeCells('A3:K3');
+        $codes->setCellValue('A3','IMPORTANT: GroupCode is the inventory posting/accounting setup. CategoryID is the inventory reporting classification. They are different codes and must not be interchanged.');
+        $codes->getStyle('A3:K3')->getFont()->setBold(true);
+        $codes->getStyle('A3:K3')->getAlignment()->setWrapText(true);
+        $codes->getRowDimension(3)->setRowHeight(32);
 
         $tableHeaderStyle=array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'4472C4')),'alignment'=>array('horizontal'=>'center','vertical'=>'center','wrapText'=>true));
-
         $codes->fromArray(array(
-            array('FIELD','EXACT CODE','DESCRIPTION','HOW TO USE')
+            array('GROUP CODE','DESCRIPTION','','UNIT CODE','DESCRIPTION','','CATEGORY ID','DESCRIPTION','','CONTAINER ITEM CODE','DESCRIPTION')
         ),NULL,'A4');
-        $codes->getStyle('A4:D4')->applyFromArray($tableHeaderStyle);
+        foreach(array('A4:B4','D4:E4','G4:H4','J4:K4') as $headerRange){
+            $codes->getStyle($headerRange)->applyFromArray($tableHeaderStyle);
+        }
 
-        $referenceRows = array();
+        $groupRows = array();
         $referenceResult = DB_query("SELECT code FROM inventorypostinggroup ORDER BY code",$db);
         while($referenceRow = DB_fetch_array($referenceResult)){
-            $referenceRows[] = array('GroupCode',$referenceRow['code'],'','Inventory posting group; controls inventory, sales, purchase and VAT account mappings.');
+            $groupRows[] = array($referenceRow['code'],'');
         }
+        if(count($groupRows)>0){ $codes->fromArray($groupRows,NULL,'A5'); }
 
-        $referenceResult = DB_query("SELECT categoryid,categorydescription FROM stockcategory ORDER BY categoryid",$db);
-        while($referenceRow = DB_fetch_array($referenceResult)){
-            $referenceRows[] = array('CategoryID',$referenceRow['categoryid'],$referenceRow['categorydescription'],'Stock classification for inventory reporting; not an accounting posting group.');
-        }
-
+        $unitRows = array();
         $referenceResult = DB_query("SELECT code,descrip FROM unit ORDER BY code",$db);
         while($referenceRow = DB_fetch_array($referenceResult)){
-            $referenceRows[] = array('FullUnitCode / LooseUnitCode',$referenceRow['code'],$referenceRow['descrip'],'Use the appropriate unit code for the full unit or loose/base unit.');
+            $unitRows[] = array($referenceRow['code'],$referenceRow['descrip']);
         }
+        if(count($unitRows)>0){ $codes->fromArray($unitRows,NULL,'D5'); }
 
+        $categoryRows = array();
+        $referenceResult = DB_query("SELECT categoryid,categorydescription FROM stockcategory ORDER BY categoryid",$db);
+        while($referenceRow = DB_fetch_array($referenceResult)){
+            $categoryRows[] = array($referenceRow['categoryid'],$referenceRow['categorydescription']);
+        }
+        if(count($categoryRows)>0){ $codes->fromArray($categoryRows,NULL,'G5'); }
+
+        $containerRows = array();
         $referenceResult = DB_query("SELECT itemcode,descrip FROM stockmaster WHERE isstock='6' ORDER BY itemcode",$db);
         while($referenceRow = DB_fetch_array($referenceResult)){
-            $referenceRows[] = array('ContainerItemCode',$referenceRow['itemcode'],$referenceRow['descrip'],'Use only when this item is configured as the stock container.');
+            $containerRows[] = array($referenceRow['itemcode'],$referenceRow['descrip']);
+        }
+        if(count($containerRows)>0){ $codes->fromArray($containerRows,NULL,'J5'); }
+
+        $groupLast = max(5,4+count($groupRows));
+        $unitLast = max(5,4+count($unitRows));
+        $categoryLast = max(5,4+count($categoryRows));
+        $containerLast = max(5,4+count($containerRows));
+        foreach(array('A'=>24,'B'=>38,'D'=>20,'E'=>34,'G'=>20,'H'=>34,'J'=>26,'K'=>38) as $column=>$width){
+            $codes->getColumnDimension($column)->setWidth($width);
+        }
+        foreach(array('C','F','I') as $column){ $codes->getColumnDimension($column)->setWidth(3); }
+        $codes->getStyle('A5:K'.max($groupLast,$unitLast,$categoryLast,$containerLast))->getAlignment()->setVertical('top')->setWrapText(true);
+        foreach(array('A5:B'.$groupLast,'D5:E'.$unitLast,'G5:H'.$categoryLast,'J5:K'.$containerLast) as $dataRange){
+            $codes->getStyle($dataRange)->getBorders()->getBottom()->setBorderStyle(\\PhpOffice\\PhpSpreadsheet\\Style\\Border::BORDER_HAIR)->getColor()->setRGB('D9E2F3');
         }
 
-        if(count($referenceRows)>0){
-            $codes->fromArray($referenceRows,NULL,'A5');
-        }else{
-            $codes->mergeCells('A5:D5');
-            $codes->setCellValue('A5','No matching reference records are currently configured in the ERP.');
-        }
-
-        $guidanceRow = max(6,$codes->getHighestRow()+2);
-        $codes->mergeCells('A'.$guidanceRow.':D'.$guidanceRow);
-        $codes->setCellValue('A'.$guidanceRow,'PartsPerUnit: enter the number of loose/base units in one full unit. Leave blank for a single-unit item; the importer defaults it to 1. For multi-pack items, enter both FullUnitCode and LooseUnitCode.');
-        $codes->getStyle('A'.$guidanceRow.':D'.$guidanceRow)->getAlignment()->setWrapText(true)->setVertical('top');
-        $codes->getStyle('A'.$guidanceRow.':D'.$guidanceRow)->getFont()->setBold(true);
+        $guidanceRow = max($groupLast,$unitLast,$categoryLast,$containerLast)+2;
+        $codes->mergeCells('A'.$guidanceRow.':K'.$guidanceRow);
+        $codes->setCellValue('A'.$guidanceRow,'PartsPerUnit: enter the number of loose/base units in one full unit. Leave blank for a single-unit item; the importer defaults it to 1. For multi-pack items, select both FullUnitCode and LooseUnitCode. ContainerItemCode must be an existing item configured as a container.');
+        $codes->getStyle('A'.$guidanceRow.':K'.$guidanceRow)->getAlignment()->setWrapText(true)->setVertical('top');
+        $codes->getStyle('A'.$guidanceRow.':K'.$guidanceRow)->getFont()->setBold(true);
         $codes->getRowDimension($guidanceRow)->setRowHeight(42);
-
-        $codes->getStyle('A5:D'.max(5,$codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
-        $codes->getColumnDimension('A')->setWidth(28);
-        $codes->getColumnDimension('B')->setWidth(22);
-        $codes->getColumnDimension('C')->setWidth(34);
-        $codes->getColumnDimension('D')->setWidth(58);
         $codes->freezePane('A5');
-        $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
-        $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
+        $codes->getPageSetup()->setOrientation(\\PhpOffice\\PhpSpreadsheet\\Worksheet\\PageSetup::ORIENTATION_LANDSCAPE);
+        $codes->getPageSetup()->setPaperSize(\\PhpOffice\\PhpSpreadsheet\\Worksheet\\PageSetup::PAPERSIZE_A3);
         $codes->getPageSetup()->setFitToWidth(1)->setFitToHeight(0);
         $codes->getPageSetup()->setFitToPage(true);
         $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
-        $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.35)->setRight(0.35);
+        $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.25)->setRight(0.25);
         $codes->getHeaderFooter()->setOddFooter('&CLive ERP Code Reference - Page &P of &N');
-        $codes->getPageSetup()->setPrintArea('A1:D'.max(4,$codes->getHighestRow()));
+        $codes->getPageSetup()->setPrintArea('A1:K'.$guidanceRow);
+
+        // Use the live reference lists for dropdowns; keep the import contract in A:I unchanged.
+        $validationLists = array(
+            'D'=>array('A',$groupLast),
+            'F'=>array('D',$unitLast),
+            'G'=>array('D',$unitLast),
+            'H'=>array('G',$categoryLast),
+            'I'=>array('J',$containerLast)
+        );
+        foreach($validationLists as $targetColumn=>$list){
+            $listColumn = $list[0];
+            $lastRow = $list[1];
+            for($row=2;$row<=101;$row++){
+                $validation = $inventory->getCell($targetColumn.$row)->getDataValidation();
+                $validation->setType(\\PhpOffice\\PhpSpreadsheet\\Cell\\DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(\\PhpOffice\\PhpSpreadsheet\\Cell\\DataValidation::STYLE_STOP);
+                $validation->setAllowBlank(true);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setErrorTitle('Invalid ERP code');
+                $validation->setError('Select a code from the dropdown. Do not type a description or an unlisted code.');
+                $validation->setPromptTitle('Select the exact ERP code');
+                $validation->setPrompt('Choose a code from the live Code Reference list.');
+                $validation->setFormula1('=INDIRECT("\'Code Reference\'!$'.$listColumn.'$5:$'.$listColumn.'$'.$lastRow.'")');
+            }
+        }
+
+        $inventory->setCellValue('J1','Group Description');
+        $inventory->setCellValue('K1','Full Unit Description');
+        $inventory->setCellValue('L1','Loose Unit Description');
+        $inventory->setCellValue('M1','Category Description');
+        $inventory->setCellValue('N1','Container Description');
+        $inventory->getStyle('J1:N1')->applyFromArray(array(
+            'font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),
+            'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'548235')),
+            'alignment'=>array('horizontal'=>'center','vertical'=>'center','wrapText'=>true)
+        ));
+        foreach(array('J'=>30,'K'=>28,'L'=>28,'M'=>30,'N'=>30) as $column=>$width){
+            $inventory->getColumnDimension($column)->setWidth($width);
+        }
+        for($row=2;$row<=101;$row++){
+            $inventory->setCellValue('J'.$row,'=IFERROR(VLOOKUP(D'.$row.',\'Code Reference\'!$A$5:$B$'.$groupLast.',2,FALSE),"")');
+            $inventory->setCellValue('K'.$row,'=IFERROR(VLOOKUP(F'.$row.',\'Code Reference\'!$D$5:$E$'.$unitLast.',2,FALSE),"")');
+            $inventory->setCellValue('L'.$row,'=IFERROR(VLOOKUP(G'.$row.',\'Code Reference\'!$D$5:$E$'.$unitLast.',2,FALSE),"")');
+            $inventory->setCellValue('M'.$row,'=IFERROR(VLOOKUP(H'.$row.',\'Code Reference\'!$G$5:$H$'.$categoryLast.',2,FALSE),"")');
+            $inventory->setCellValue('N'.$row,'=IFERROR(VLOOKUP(I'.$row.',\'Code Reference\'!$J$5:$K$'.$containerLast.',2,FALSE),"")');
+        }
+        $inventory->getStyle('J2:N101')->getFont()->setColor(new \\PhpOffice\\PhpSpreadsheet\\Style\\Color('FF666666'));
+        $inventory->getStyle('J2:N101')->getAlignment()->setWrapText(true)->setVertical('center');
+        $inventory->getPageSetup()->setPrintArea('A1:N101');
         $spreadsheet->setActiveSheetIndex(0);
         if(ob_get_length()){ ob_end_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
