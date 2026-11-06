@@ -136,7 +136,44 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
         });
     };
 
+    /*
+     * Bootstrap's form-control/form-select classes impose large default
+     * padding, height and full-width sizing on legacy ERP controls. Keep the
+     * Bootstrap grid, navigation and button classes, but remove those two
+     * sizing classes from back-office form fields only.
+     */
+    var removeOversizedBootstrapControlClasses = function (root) {
+        var panel = document.getElementById("view-panel");
+        if (!panel) {
+            return;
+        }
+
+        var scope = root && root.querySelectorAll ? root : panel;
+        var controls = [];
+
+        if (scope.matches && scope.matches(
+            "main#view-panel input, main#view-panel select, main#view-panel textarea"
+        )) {
+            controls.push(scope);
+        }
+
+        Array.prototype.forEach.call(
+            scope.querySelectorAll(
+                "main#view-panel input, main#view-panel select, main#view-panel textarea, " +
+                "#view-panel input, #view-panel select, #view-panel textarea"
+            ),
+            function (control) {
+                controls.push(control);
+            }
+        );
+
+        controls.forEach(function (control) {
+            control.classList.remove("form-control", "form-select");
+        });
+    };
+
     markCompactFormTables(document);
+    removeOversizedBootstrapControlClasses(document);
 
     if (document.body && typeof MutationObserver !== "undefined") {
         var formTableObserver = new MutationObserver(function (mutations) {
@@ -144,6 +181,7 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
                 Array.prototype.forEach.call(mutation.addedNodes, function (node) {
                     if (node.nodeType === 1) {
                         markCompactFormTables(node);
+                        removeOversizedBootstrapControlClasses(node);
                     }
                 });
             });
