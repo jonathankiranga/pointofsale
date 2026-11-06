@@ -84,8 +84,8 @@ if(!isset($_POST['datedue'])){
 }
 
 echo '</div><div class="card-body">'
- . '<table class="table-bordered"><caption>Purchase Order Header Details</caption>';
-echo '<tr><td>Date</td><td><input tabindex="1" type="text" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" name="date" size="11" maxlength="10" autofocus="autofocus" required="required" value="' .$_POST['date']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td>';
+ . '<div class="table-responsive"><table class="table table-bordered purchase-order-header"><caption>Purchase Order Header Details</caption><tbody>';
+echo '<tr><td>Date</td><td><input tabindex="1" type="text" class="date form-control" alt="'.$_SESSION['DefaultDateFormat'].'" name="date" size="11" maxlength="10" autofocus="autofocus" required="required" value="' .$_POST['date']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td>';
 echo '<td>Date of order</td><td><input tabindex="2" type="text" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" name="Purchaseoderdate" size="11" maxlength="10"   value="' .$_POST['Purchaseoderdate']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td>';
 echo '<td>Date Due</td><td><input tabindex="3" type="text" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" name="datedue" size="11" maxlength="10"   value="' .$_POST['datedue']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td></tr>';
 
@@ -96,7 +96,7 @@ echo '<tr><td>Document No</td>'
 
 echo '<tr><td>Supplier ID</td>'
         . '<td><input tabindex="4" type="text" name="VendorID" id="VendorID" value="'.$_POST['VendorID'].'"  size="5" readonly="readonly"  required="required" />'
-        . '<input type="button" id="searchvendor" value="Search for Vendor"/></td>'
+        . '<input type="button" id="searchvendor" class="btn btn-outline-secondary" value="Search for Vendor"/></td>'
         . '<td>Supplier Name</td>'
         . '<td colspan="3"><input tabindex="5" type="text" name="VendorName" id="VendorName" value="'.$_POST['VendorName'].'"  size="50"  required="required" /></td></tr>';
 
@@ -108,11 +108,11 @@ echo $_SESSION['SelectObject']['dimensiontwo'].'<td colspan="2"></td></tr>';
 
 echo '<tr><td>Find Stock</td>'
     . '<td colspan="5"><input type="hidden" id="stockitemcode" size="5" name="stockitemcode" value="'.$_POST['stockitemcode'].'" />'
-    . '<input type="text" id="stockname" size="30" name="stockname" value="'.$_POST['stockname'].'" />'
-    . '<input type="button" id="searchstock" value="Search stock"/></td></tr>';
+    . '<input type="text" class="form-control" id="stockname" size="30" name="stockname" value="'.$_POST['stockname'].'" />'
+    . '<input type="button" id="searchstock" class="btn btn-outline-secondary" value="Search stock"/></td></tr></tbody></table></div>';
  
 
-echo '<table class="table-bordered"><thead><tr>'
+echo '<div class="table-responsive"><table class="table table-bordered table-hover purchase-order-lines"><thead><tr>'
         . '<th>Stock Code</th>'
         . '<th>Stock Description</th>'
         . '<th>Unit Of Measure (UOM)</th>'
@@ -121,20 +121,19 @@ echo '<table class="table-bordered"><thead><tr>'
         . '<th class="number">Price for the selected UOM</th>'
         . '<th class="number">Net Amount</th>'
         . '<th class="number">VAT Amount</th>'
-        . '<th class="number">Gross Amount</th></tr></thead>';
+        . '<th class="number">Gross Amount</th></tr></thead><tbody>';
 
 $itemcode = $_POST['stockitemcode'];
 $POSclass->Getitems($_POST['stockitemcode'],$_POST['quantity'][$itemcode],$_POST['salesprice'][$itemcode]);
 
-echo '</table>';
-echo '<div class="rightside">
-	<input type="submit" name="submit" value="' . _('Re-Calculate') . '" />
-        <input type="submit" name="submit" value="' . _('Add New Line') . '" />
-	<input type="submit" name="submit" value="' . _('Enter Delivery Details and Confirm Order') . '"  />
+echo '</tbody></table></div>';
+echo '<div class="rightside purchase-order-actions">
+	<input type="submit" name="submit" class="btn btn-outline-secondary" value="' . _('Re-Calculate') . '" />
+        <input type="submit" name="submit" class="btn btn-outline-primary" value="' . _('Add New Line') . '" />
+	<input type="submit" name="submit" class="btn btn-primary" value="' . _('Enter Delivery Details and Confirm Order') . '"  />
 </div>';
 
-echo '</td></tr>'
-. '</table>';
+// The header and line tables are closed independently above.
 
 }
 
