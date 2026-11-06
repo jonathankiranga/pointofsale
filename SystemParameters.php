@@ -92,7 +92,7 @@ if($InputError !=1){
     );
     foreach ($POSConfigKeys as $POSKey => $POSDefinition) {
         $POSValue = isset($_POST[$POSKey]) ? trim($_POST[$POSKey]) : '';
-        $POSValue = DB_escape_string($POSValue);
+        // includes/session.inc has already escaped scalar POST values.
         if ($POSValue !== '') {
             $POSWhere = $POSDefinition['field'] . "='" . $POSValue . "'";
             if ($POSDefinition['table'] == 'bankaccounts') {
