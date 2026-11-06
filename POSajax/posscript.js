@@ -167,8 +167,10 @@ $('.checkout-modal-close').on('click', function(event) {
 });
 
 function showCustomDialog(message) {
-    $('#dialog-message').text(message);    // Set the message
-    $('#custom-dialog').fadeIn();          // Show the dialog
+    window.POS_LAST_SHIFT_REPORT = '';
+    $('#dialog-print-btn').hide();
+    $('#dialog-message').text(message);
+    $('#custom-dialog').fadeIn();
 }
 
 function hideCustomDialog() {
@@ -606,6 +608,19 @@ function posRefreshShift() {
 }
 
 $(document).ready(function() {
+    $('#dialog-print-btn').on('click', function() {
+        if (!window.POS_LAST_SHIFT_REPORT) { return; }
+        var reportWindow = window.open('', '_blank');
+        if (!reportWindow) {
+            showCustomDialog('Allow pop-ups to print the shift report.');
+            return;
+        }
+        var safeReport = $('<div>').text(window.POS_LAST_SHIFT_REPORT).html();
+        reportWindow.document.write('<!doctype html><html><head><title>POS Shift Report</title><style>body{font:14px Arial,sans-serif;margin:24px;color:#111}h2{margin-bottom:18px}pre{white-space:pre-wrap;font:13px/1.55 Consolas,monospace}</style></head><body><h2>SmartERPlims POS Shift Report</h2><pre>' + safeReport + '</pre></body></html>');
+        reportWindow.document.close();
+        reportWindow.focus();
+        reportWindow.print();
+    });
     posRefreshShift();
 
     $('#pos-shift-open').on('click', function() {
@@ -642,6 +657,8 @@ $(document).ready(function() {
                     ' · KES ' + Number(item.sales_value).toFixed(2);
             });
             showCustomDialog(message);
+            window.POS_LAST_SHIFT_REPORT = message;
+            $('#dialog-print-btn').show();
         });
     });
 
@@ -667,6 +684,14 @@ $(document).ready(function() {
                 '\\nExpected cash: KES ' + Number(response.expected_cash).toFixed(2) +
                 '\\nActual cash counted: KES ' + Number(response.cash_counted).toFixed(2) +
                 '\\nCash ' + (variance < 0 ? 'shortage' : 'overage') + ': KES ' + Math.abs(variance).toFixed(2));
+            (response.items || []).forEach(function(item) {
+                message += '\\n' + item.itemcode + ' · ' + item.description +
+                    ' · Qty ' + Number(item.quantity).toFixed(2) +
+                    ' · KES ' + Number(item.sales_value).toFixed(2);
+            });
+            showCustomDialog(message);
+            window.POS_LAST_SHIFT_REPORT = message;
+            $('#dialog-print-btn').show();
             posRefreshShift();
         });
     });
