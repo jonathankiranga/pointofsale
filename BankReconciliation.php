@@ -352,26 +352,39 @@ function UpdateCashbook($SQLREC=array()){
     
 Function GetClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
-    
-     $ResultIndex = DB_query("Select sum(`amount`) from `BankTransactions`"
-     . "  where (`bankcode`='".$_POST['Bank_Code']."' or `bankcode`='".$PostingGroup."') and `cleared`=1 "
-     . "  and `DocDate` <= '".$statementstartdate."'",$db);
-   
-    $cashbookbalance=DB_fetch_row($ResultIndex);
+
+    $SQL = "Select sum(`amount`) from `BankTransactions`"
+         . " where (`bankcode`='" . $_POST['Bank_Code'] . "' or `bankcode`='" . $PostingGroup . "')"
+         . " and `cleared`=1";
+
+    // A bank account may not have been reconciled before. In that case
+    // lastreconcileddate is NULL and there is no cutoff date to apply.
+    $ReconciliationStartDate = trim((string)$statementstartdate);
+    if ($ReconciliationStartDate !== '' && $ReconciliationStartDate !== '0000-00-00') {
+        $SQL .= " and `DocDate` <= '" . $ReconciliationStartDate . "'";
+    }
+
+    $ResultIndex = DB_query($SQL, $db);
+    $cashbookbalance = DB_fetch_row($ResultIndex);
     return $cashbookbalance[0];
-}  
+}
 
 Function GetUnClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
-    
-     $ResultIndex = DB_query("Select sum(`amount`) from `BankTransactions`"
-     . "  where (`bankcode`='".$_POST['Bank_Code']."' or `bankcode`='".$PostingGroup."') "
-     . "  and (`cleared`=0 or `cleared` is null)  "
-     . "  and `DocDate` <= '".$statementstartdate."'",$db);
-   
-    $cashbookbalance=DB_fetch_row($ResultIndex);
-    return $cashbookbalance[0];
-}  
 
-   
+    $SQL = "Select sum(`amount`) from `BankTransactions`"
+         . " where (`bankcode`='" . $_POST['Bank_Code'] . "' or `bankcode`='" . $PostingGroup . "')"
+         . " and (`cleared`=0 or `cleared` is null)";
+
+    // Apply the same cutoff rule as GetClearedDB().
+    $ReconciliationStartDate = trim((string)$statementstartdate);
+    if ($ReconciliationStartDate !== '' && $ReconciliationStartDate !== '0000-00-00') {
+        $SQL .= " and `DocDate` <= '" . $ReconciliationStartDate . "'";
+    }
+
+    $ResultIndex = DB_query($SQL, $db);
+    $cashbookbalance = DB_fetch_row($ResultIndex);
+    return $cashbookbalance[0];
+}
+
 ?>
