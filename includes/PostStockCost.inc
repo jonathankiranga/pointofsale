@@ -557,46 +557,52 @@ from stockmaster where isstock not in (3)");
 
 Function StockRange($itemcode,$startdate,$enddate,$STORECODE='AllStores',$Doctypes=''){
     global $db;
-    
-    if($STORECODE=='AllStores'){
-          $SQL=sprintf("select sum(fulqty * partperunit),sum(loosqty)  
-                   from stockledger where stockledger.itemcode='%s' and stockledger.date between '%s' and '%s'  
-                   and stockledger.doctyp='%s'",$itemcode,$startdate,$enddate,$Doctypes); 
-       }else{
-          $SQL=sprintf("select sum(fulqty * partperunit),sum(loosqty)  
-                   from stockledger  where stockledger.itemcode='%s' and stockledger.date between '%s' and '%s'  
-                   and stockledger.store='%s' and stockledger.doctyp='%s'",$itemcode,$startdate,$enddate,$STORECODE,$Doctypes); 
-        }
-        
-        $ResultIndex=DB_query($SQL,$db);
-        $row=DB_fetch_row($ResultIndex);
-        $fulqty = (int) $row[0]; 
-        $loosqty=(int) $row[1]; 
-        $total  = $fulqty+$loosqty;
-       
-     return array("loosqty"=>$total);   
+
+    $itemcode = str_replace("'", "''", $itemcode);
+    $startdate = str_replace("'", "''", $startdate);
+    $enddate = str_replace("'", "''", $enddate);
+    $doctype = str_replace("'", "''", $Doctypes);
+
+    $SQL = "SELECT
+                COALESCE(SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,0)),0)
+                + COALESCE(SUM(COALESCE(stockledger.loosqty,0)),0) AS totalunits
+            FROM stockledger
+            JOIN stockmaster ON stockmaster.itemcode = stockledger.itemcode
+            WHERE stockledger.itemcode='".$itemcode."'
+              AND stockledger.date BETWEEN '".$startdate."' AND '".$enddate."'
+              AND stockledger.doctyp='".$doctype."'";
+
+    if($STORECODE !== 'AllStores'){
+        $store = str_replace("'", "''", $STORECODE);
+        $SQL .= " AND stockledger.store='".$store."'";
+    }
+
+    $ResultIndex = DB_query($SQL,$db);
+    $row = DB_fetch_row($ResultIndex);
+    return array("loosqty" => (float)$row[0]);
 }
 
 Function StockBalance($itemcode,$startdate,$STORECODE='AllStores'){
     global $db;
-    
-       if($STORECODE=='AllStores'){
-          $SQL=sprintf("select sum(fulqty * partperunit),sum(loosqty) from stockledger  
-                   where stockledger.itemcode='%s' and stockledger.date <'%s'",$itemcode,$startdate); 
-       }else{
-          $SQL=sprintf("select sum(fulqty * partperunit),sum(loosqty) from stockledger  
-                  where  stockledger.itemcode='%s' and stockledger.date < '%s' and stockledger.store='%s'",$itemcode,$startdate,$STORECODE); 
-        }
-         
-        
-        $ResultIndex=DB_query($SQL,$db);
-        $row=DB_fetch_row($ResultIndex);
-        $fulqty = (int) $row[0]; 
-        $loosqty= (int) $row[1]; 
-        $total  = $fulqty+$loosqty;
-         
-        
-     return array("loosqty"=>$total);   
-}
 
+    $itemcode = str_replace("'", "''", $itemcode);
+    $startdate = str_replace("'", "''", $startdate);
+
+    $SQL = "SELECT
+                COALESCE(SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,0)),0)
+                + COALESCE(SUM(COALESCE(stockledger.loosqty,0)),0) AS totalunits
+            FROM stockledger
+            JOIN stockmaster ON stockmaster.itemcode = stockledger.itemcode
+            WHERE stockledger.itemcode='".$itemcode."'
+              AND stockledger.date < '".$startdate."'";
+
+    if($STORECODE !== 'AllStores'){
+        $store = str_replace("'", "''", $STORECODE);
+        $SQL .= " AND stockledger.store='".$store."'";
+    }
+
+    $ResultIndex = DB_query($SQL,$db);
+    $row = DB_fetch_row($ResultIndex);
+    return array("loosqty" => (float)$row[0]);
+}
 ?>
