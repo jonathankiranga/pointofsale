@@ -20,28 +20,33 @@
     
    function getbalance($stcode,$location,$UOM=''){
         global $db;
-        
-       $sql="SELECT  
-            sum(fulqty) as funits , 
-            sum(loosqty) as lunits ,
-            stockmaster.partperunit 
-            from stockledger join stockmaster on stockledger.itemcode=stockmaster.itemcode 
-            where stockledger.itemcode='".$stcode."' "
-                . "and stockledger.store='".$location."' "
-                . "group by partperunit";
-       
-        
-        
-       $ResultIndex=DB_query($sql,$db);
-       $rows = DB_fetch_row($ResultIndex);
-       if($UOM=='fulqty'){
-            $ans = $rows[0];
-       }else{
-            $ans = ($rows[0]*$rows[2])+$rows[1];
-       }
-       
-        return number_format($ans,0);
-        
+
+        $itemcode = str_replace("'", "''", $stcode);
+        $store = str_replace("'", "''", $location);
+        $sql = "SELECT
+                    COALESCE(SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,0)),0)
+                    + COALESCE(SUM(COALESCE(stockledger.loosqty,0)),0) AS baseunits,
+                    COALESCE(stockmaster.partperunit,0) AS partperunit
+                FROM stockmaster
+                LEFT JOIN stockledger
+                    ON stockledger.itemcode = stockmaster.itemcode
+                    AND stockledger.store = '".$store."'
+                WHERE stockmaster.itemcode = '".$itemcode."'
+                GROUP BY stockmaster.partperunit";
+
+        $result = DB_query($sql,$db);
+        if(DB_num_rows($result) < 1){
+            return 0.0;
+        }
+
+        $row = DB_fetch_row($result);
+        $baseUnits = (float)$row[0];
+        $partPerUnit = (float)$row[1];
+
+        if($UOM === 'fulqty'){
+            return ($partPerUnit > 0) ? (float)((int)($baseUnits / $partPerUnit)) : 0.0;
+        }
+        return $baseUnits;
     }
     
    function CreateUnits($stockcode,$pkey){
