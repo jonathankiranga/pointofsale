@@ -11,7 +11,15 @@ $thispage = htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
 if(isset($_POST['transfer'])){
   $SQL=array();
     
-  if(getbalance($_POST['itemcode'],$_POST['location'],$_POST['UOM']) >= $_POST['qty']){
+  $transferQty = isset($_POST['qty']) ? (float)str_replace(',', '', $_POST['qty']) : 0;
+  $transferUOM = isset($_POST['UOM']) ? $_POST['UOM'] : '';
+  $partPerUnit = getpartperunit($_POST['itemcode']);
+  $availableBaseUnits = getbalance($_POST['itemcode'],$_POST['location']);
+  $requestedBaseUnits = ($transferUOM === 'fulqty') ? $transferQty * $partPerUnit : $transferQty;
+
+  if($transferQty > 0 && $partPerUnit > 0
+      && ($transferUOM === 'fulqty' || $transferUOM === 'loosqty')
+      && $availableBaseUnits + 0.0000001 >= $requestedBaseUnits){
         $journalno = GetNextTransNo(16, $db);
         $Periodno  = GetPeriod($_POST['date'], $db);
    
@@ -60,7 +68,7 @@ if(isset($_POST['transfer'])){
       }
       
   }else{
-      prnMsg('You do not have enough units to transfer','warn');
+      prnMsg('You do not have enough stock available in the selected unit of measure. Check the full and loose unit balance.','warn');
   }
     
     
@@ -124,28 +132,36 @@ echo '</div></form>' ;
    
 include('includes/footer.inc');
 
- function getbalance($stcode,$location,$UOM=''){
+ function getpartperunit($stcode){
         global $db;
-        
-       $sql="SELECT  
-            sum(fulqty) as funits , 
-            sum(loosqty) as lunits ,
-            stockmaster.partperunit 
-            from stockledger
-            join stockmaster on stockledger.itemcode=stockmaster.itemcode 
-            where stockledger.itemcode='".$stcode."' "
-                . "and stockledger.store='".$location."' "
-                . "group by partperunit";        
-        
-       $ResultIndex=DB_query($sql,$db);
-       $rows = DB_fetch_row($ResultIndex);
-       if($UOM=='fulqty'){
-            $ans = $rows[0];
-       }else{
-            $ans = ($rows[0] * $rows[2]) + $rows[1];
-       }
-      
-       return number_format($ans,0);
+        $sql = "SELECT partperunit FROM stockmaster WHERE itemcode='".str_replace("'", "''", $stcode)."'";
+        $result = DB_query($sql,$db);
+        if(DB_num_rows($result) < 1){
+            return 0;
+        }
+        $row = DB_fetch_row($result);
+        return (float)$row[0];
+    }
+
+    function getbalance($stcode,$location,$UOM=''){
+        global $db;
+        $itemcode = str_replace("'", "''", $stcode);
+        $store = str_replace("'", "''", $location);
+        $sql = "SELECT
+                    COALESCE(SUM(COALESCE(stockledger.fulqty,0) * stockmaster.partperunit),0)
+                    + COALESCE(SUM(COALESCE(stockledger.loosqty,0)),0) AS baseunits
+                FROM stockmaster
+                LEFT JOIN stockledger
+                    ON stockledger.itemcode = stockmaster.itemcode
+                    AND stockledger.store = '".$store."'
+                WHERE stockmaster.itemcode = '".$itemcode."'
+                GROUP BY stockmaster.partperunit";
+        $result = DB_query($sql,$db);
+        if(DB_num_rows($result) < 1){
+            return 0.0;
+        }
+        $row = DB_fetch_row($result);
+        return (float)$row[0];
     }
   
 ?>
