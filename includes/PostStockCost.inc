@@ -270,91 +270,123 @@ function PostStockRegister($Quantity,$key,$journal,$PeriodNo){
 }
 
 Function GetStockRegister($itemcode){
-global $db;
-              
-$SQL=Sprintf("Update [stockmaster] set 
-[averagestock]=(select   cost from [stockregister] where [itemcode]='%s' and ([StockBalance]>0 limit 1) 
-order by rowid asc) where itemcode='%s'",$itemcode,$itemcode);
- $RESULTS  = DB_System($SQL,$db);
-        
+    global $db;
+
+    $itemcode = str_replace("'", "''", $itemcode);
+    $SQL = "UPDATE stockmaster
+            SET averagestock = (
+                SELECT cost
+                FROM stockregister
+                WHERE itemcode='".$itemcode."'
+                  AND StockBalance > 0
+                ORDER BY rowid ASC
+                LIMIT 1
+            )
+            WHERE itemcode='".$itemcode."'";
+    return DB_System($SQL,$db);
 }
 
 Function GetFIFO($journal,$PeriodNo,$salesoderno,$stcode,$qty,$key){
     global $db;
-    
-    
- $SQL ="select  
-        [salesline].[unitofmeasure],
-        [salesline].PartPerUnit,
-        [salesheader].[documentno] 
-     from salesheader
-     join salesline on [salesline].[documentno] = [salesheader].[documentno] 
-     where [salesline].[entryno]=".$key;
-    
-    $RESULTS = DB_query($SQL,$db);
-    $rows = DB_fetch_row($RESULTS);
-    $unitofmeasure = trim($rows[0]);
-    $PartPerUnit = trim($rows[1]);
-    DB_free_result($RESULTS);
-    
-    
-    $SQL ="select 
-        stockregister.[cost],
-        stockregister.[StockBalance],
-        stockregister.[rowid] 
-        from [stockregister] 
-        where [stockregister].[itemcode]='".$stcode."' and [StockBalance]>0 
-         order by stockregister.rowid asc";
-    $RESULTS = DB_query($SQL,$db);
-    while($rows = DB_fetch_array($RESULTS)){
-        $stockregister[]=$rows;
-    }
-     DB_free_result($RESULTS);
-    
-     if(is_array($stockregister)){
-         foreach ($stockregister as $key => $Register) {
-              $quantity = (($PartPerUnit>1)?($PartPerUnit * $qty):$qty);
-              if($quantity>$Register['stockbalance']) {
-               
-                   DB_System(sprintf("Update [stockregister] set [StockOut]=([StockOut] + %f) where rowid='%s'",
-                   $Register['stockbalance'], $Register['rowid']),$db);
-                   $usequantity = $Register['stockbalance'];
-                   $quantity    = ($quantity-$usequantity);
-            
-                } else{
-                     DB_System(sprintf("Update [stockregister] set [StockOut]=([StockOut] + %f) where rowid='%s'",
-                     $quantity, $Register['rowid']),$db);
-                     $usequantity = $quantity;
-                     $quantity    = 0;
-                }
-            
-            $usequantity = (($PartPerUnit>1)?($usequantity / $PartPerUnit):$usequantity);
-            $usecost = (($PartPerUnit>1)?($Register['cost'] * $PartPerUnit):$Register['cost']);
-            if($usequantity>0){ 
 
-               $SQL= "Insert into [generalledger] ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode]
-                 ,[VATaccountcode] ,[amount],[VATamount],[currencycode],[ExchangeRate] ,[cutomercode],[narration])
-                  (select '".$journal."',
-                    salesheader.[docdate],'".$PeriodNo."' ,
-                    salesheader.documentno,salesheader.documenttype,
-                    [inventorypostinggroup].[stockvariance],
-                    [inventorypostinggroup].[balancesheet],''
-                 ,(".$usecost * $usequantity."), 0 ,'".$_SESSION['CompanyRecord']['currencydefault']."', 1 ,
-                 salesheader.[customercode] ,
-                 concat(salesline.[description],'@".$usecost."X".$usequantity." ".$unitofmeasure."')  as narration
-               from salesheader 
-               join salesline on [salesline].[documentno] = [salesheader].[documentno] 
-               join [stockmaster] on [salesline].[code]=[stockmaster].itemcode
-               join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-               join [currencies] on [salesheader].[currencycode]=[currencies].[currabrev]
-               where salesheader.documentno='".$salesoderno."' and [salesline].[code]='".$stcode."' and [salesline].[entryno]='".$key."')";
-               $RESULTS = DB_System($SQL,$db);
-            }
-      
-         }
-     }
-     
-      GetStockRegister($stcode);
+    $itemcode = str_replace("'", "''", $stcode);
+    $documentNo = str_replace("'", "''", $salesoderno);
+    $lineKey = (int)$key;
+    $requestedQty = (float)$qty;
+    if($requestedQty <= 0){
+        return false;
+    }
+
+    $SQL = "SELECT salesline.unitofmeasure, salesline.UOM, salesline.PartPerUnit
+            FROM salesline
+            WHERE salesline.entryno=".$lineKey."
+              AND salesline.documentno='".$documentNo."'
+              AND salesline.code='".$itemcode."'
+            LIMIT 1";
+    $RESULTS = DB_query($SQL,$db);
+    if(DB_num_rows($RESULTS) < 1){
+        return false;
+    }
+    $line = DB_fetch_array($RESULTS);
+    DB_free_result($RESULTS);
+
+    $unitofmeasure = isset($line['unitofmeasure']) ? $line['unitofmeasure'] : '';
+    $uom = isset($line['UOM']) ? $line['UOM'] : 'loosqty';
+    $partPerUnit = isset($line['PartPerUnit']) ? (float)$line['PartPerUnit'] : 0;
+    if($uom === 'fulqty' && $partPerUnit <= 0){
+        return false;
+    }
+
+    $remainingQty = ($uom === 'fulqty') ? ($requestedQty * $partPerUnit) : $requestedQty;
+    $SQL = "SELECT cost, StockBalance, rowid
+            FROM stockregister
+            WHERE itemcode='".$itemcode."' AND StockBalance > 0
+            ORDER BY rowid ASC";
+    $RESULTS = DB_query($SQL,$db);
+    $stockregister = array();
+    $availableQty = 0.0;
+    while($row = DB_fetch_array($RESULTS)){
+        $stockregister[] = $row;
+        $availableQty += max(0,(float)$row['StockBalance']);
+    }
+    DB_free_result($RESULTS);
+
+    if($availableQty + 0.0000001 < $remainingQty){
+        return false;
+    }
+
+    foreach($stockregister as $Register){
+        if($remainingQty <= 0.0000001){
+            break;
+        }
+
+        $layerBalance = max(0,(float)$Register['StockBalance']);
+        $useBaseQty = min($remainingQty,$layerBalance);
+        if($useBaseQty <= 0){
+            continue;
+        }
+
+        $rowid = str_replace("'", "''", $Register['rowid']);
+        $updateSQL = sprintf(
+            "UPDATE stockregister
+             SET StockOut=COALESCE(StockOut,0)+%.6F
+             WHERE rowid='%s'",
+            $useBaseQty,
+            $rowid
+        );
+        DB_System($updateSQL,$db);
+
+        $layerCost = (float)$Register['cost'];
+        $displayQty = ($uom === 'fulqty') ? ($useBaseQty / $partPerUnit) : $useBaseQty;
+        $displayCost = ($uom === 'fulqty') ? ($layerCost * $partPerUnit) : $layerCost;
+        $amount = $layerCost * $useBaseQty;
+
+        $GLSQL = "INSERT INTO generalledger
+            (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,
+             VATaccountcode,amount,VATamount,currencycode,ExchangeRate,cutomercode,narration)
+            SELECT
+                '".$journal."',salesheader.docdate,'".$PeriodNo."',
+                salesheader.documentno,salesheader.documenttype,
+                inventorypostinggroup.stockvariance,inventorypostinggroup.balancesheet,'',
+                ".sprintf('%.6F',$amount).",0,
+                '".$_SESSION['CompanyRecord']['currencydefault']."',1,
+                salesheader.customercode,
+                CONCAT(salesline.description,'@',".sprintf('%.6F',$displayCost),
+                ' X ', ".sprintf('%.6F',$displayQty), ",' ',salesline.unitofmeasure)
+            FROM salesheader
+            JOIN salesline ON salesline.documentno=salesheader.documentno
+            JOIN stockmaster ON salesline.code=stockmaster.itemcode
+            JOIN inventorypostinggroup ON inventorypostinggroup.code=stockmaster.postinggroup
+            WHERE salesheader.documentno='".$documentNo."'
+              AND salesline.code='".$itemcode."'
+              AND salesline.entryno=".$lineKey;
+        DB_System($GLSQL,$db);
+
+        $remainingQty -= $useBaseQty;
+    }
+
+    GetStockRegister($itemcode);
+    return ($remainingQty <= 0.0000001);
 }
 
 Function GetEmptiesFIFO($journal,$PeriodNo,$salesoderno,$stcode,$qty,$key){
@@ -438,63 +470,90 @@ Function GetEmptiesFIFO($journal,$PeriodNo,$salesoderno,$stcode,$qty,$key){
 }
 
 Function GetFIFOissues($journal,$PeriodNo,$salesoderno,$stcode,$qty,$key=Array(),$DocumentType='40'){
- global $db;
- 
- $SQL ="select 
-        stockregister.[cost],
-        stockregister.[StockBalance],
-        stockregister.[rowid] ,
-        stockregister.PartPerUnit
-        from [stockregister] 
-        where [stockregister].[itemcode]='".$stcode."' and [StockBalance]>0 
-        order by stockregister.rowid asc";
-    $RESULTS = DB_query($SQL,$db);
-    while($rows = DB_fetch_row($RESULTS)){
-        $stockregister[]=$rows;
+    global $db;
+
+    $itemcode = str_replace("'", "''", $stcode);
+    $requestedQty = (float)$qty;
+    if($requestedQty <= 0){
+        return false;
     }
-    
-    
-    if(is_array($stockregister)){
-         foreach ($stockregister as $key => $Register) {
-             
-              $PartPerUnit = $key['PartPerUnit'];
-              $quantity = (($PartPerUnit>1)?($PartPerUnit* $qty):$qty);
-              
-              if($quantity>$Register['stockbalance']) {
-                   DB_System(sprintf("Update [stockregister] set [StockOut]=([StockOut] + %f) where rowid='%s'",$Register['stockbalance'], $Register['rowid']),$db);
-                   $usequantity =(int) $Register['stockbalance'];
-                   $quantity    =(int) ($quantity-$usequantity);
-            
-                } else{
-                     DB_System(sprintf("Update [stockregister] set [StockOut]=([StockOut] + %f) where rowid='%s'",$quantity, $Register['rowid']),$db);
-                     $usequantity = $quantity;
-                     $quantity    = 0;
-                }
-         
-            
-            $usecost = (($PartPerUnit>1)?($Register['cost'] * $PartPerUnit):$Register['cost']);
-            if($usequantity>0){ 
 
-            $SQL="Insert into [generalledger] ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode]
-            ,[VATaccountcode] ,[amount],[VATamount],[currencycode],[ExchangeRate] ,[cutomercode],[narration],[dimension]
-            ,[dimension2]) (select '".$journal."','".$key['docdate']."','".$PeriodNo."' ,'".$salesoderno."','".$DocumentType."',
-             [inventorypostinggroup].[productionexpense],[inventorypostinggroup].[balancesheet],'',
-            ".($usecost * $usequantity).", 0 ,'".$_SESSION['CompanyRecord']['currencydefault']."', 1 ,
-            '".$_POST['CustomerID']."','".$key['description']."@".$usecost."X".$usequantity.$key['unitofmeasure']."' as narration,
-            '".trim($_POST['DimensionOne'])."', '".trim($_POST['DimensionTwo'])."'    
-            from  [stockmaster]  join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-            where [stockmaster].[itemcode]='".$stcode."')";
-                        
-            $RESULTS = DB_System($SQL,$db);
-            }
-      
-         }
-     }
-     
-    
-     DB_free_result($RESULTS);
-       
+    $partResult = DB_query("SELECT partperunit FROM stockmaster WHERE itemcode='".$itemcode."'",$db);
+    if(DB_num_rows($partResult) < 1){
+        return false;
+    }
+    $partRow = DB_fetch_row($partResult);
+    $partPerUnit = (float)$partRow[0];
+    if($partPerUnit <= 0){
+        return false;
+    }
 
+    $remainingQty = $partPerUnit * $requestedQty;
+    $SQL = "SELECT cost,StockBalance,rowid
+            FROM stockregister
+            WHERE itemcode='".$itemcode."' AND StockBalance > 0
+            ORDER BY rowid ASC";
+    $RESULTS = DB_query($SQL,$db);
+    $stockregister = array();
+    $availableQty = 0.0;
+    while($Register = DB_fetch_array($RESULTS)){
+        $stockregister[] = $Register;
+        $availableQty += max(0,(float)$Register['StockBalance']);
+    }
+    DB_free_result($RESULTS);
+
+    if($availableQty + 0.0000001 < $remainingQty){
+        return false;
+    }
+
+    $docDate = isset($key['docdate']) ? str_replace("'","''",$key['docdate']) : '';
+    $description = isset($key['description']) ? str_replace("'","''",$key['description']) : $itemcode;
+    $unit = isset($key['unitofmeasure']) ? str_replace("'","''",$key['unitofmeasure']) : '';
+    $customer = isset($_POST['CustomerID']) ? str_replace("'","''",$_POST['CustomerID']) : '';
+    $dimensionOne = isset($_POST['DimensionOne']) ? str_replace("'","''",$_POST['DimensionOne']) : '';
+    $dimensionTwo = isset($_POST['DimensionTwo']) ? str_replace("'","''",$_POST['DimensionTwo']) : '';
+
+    foreach($stockregister as $Register){
+        if($remainingQty <= 0.0000001){
+            break;
+        }
+
+        $layerBalance = max(0,(float)$Register['StockBalance']);
+        $useBaseQty = min($remainingQty,$layerBalance);
+        if($useBaseQty <= 0){
+            continue;
+        }
+
+        $rowid = str_replace("'","''",$Register['rowid']);
+        DB_System(sprintf(
+            "UPDATE stockregister
+             SET StockOut=COALESCE(StockOut,0)+%.6F
+             WHERE rowid='%s'",
+            $useBaseQty,
+            $rowid
+        ),$db);
+
+        $amount = (float)$Register['cost'] * $useBaseQty;
+        $narration = $description." @ ".((float)$Register['cost'] * $partPerUnit)." X ".($useBaseQty / $partPerUnit)." ".$unit;
+        $narration = str_replace("'","''",$narration);
+        $GLSQL = "INSERT INTO generalledger
+            (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,
+             VATaccountcode,amount,VATamount,currencycode,ExchangeRate,cutomercode,narration,dimension,dimension2)
+            SELECT '".$journal."','".$docDate."','".$PeriodNo."','".$salesoderno."','".$DocumentType."',
+                inventorypostinggroup.productionexpense,inventorypostinggroup.balancesheet,'',
+                ".sprintf('%.6F',$amount).",0,
+                '".$_SESSION['CompanyRecord']['currencydefault']."',1,
+                '".$customer."','".$narration."','".$dimensionOne."','".$dimensionTwo."'
+            FROM stockmaster
+            JOIN inventorypostinggroup ON inventorypostinggroup.code=stockmaster.postinggroup
+            WHERE stockmaster.itemcode='".$itemcode."'";
+        DB_System($GLSQL,$db);
+
+        $remainingQty -= $useBaseQty;
+    }
+
+    GetStockRegister($itemcode);
+    return ($remainingQty <= 0.0000001);
 }
 
 Function InventoryReport($Fromdate,$Todate,$StoreCode='AllStores'){
