@@ -85,29 +85,51 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $tableHeaderStyle=array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'4472C4')),'alignment'=>array('horizontal'=>'center','vertical'=>'center','wrapText'=>true));
 
         $codes->fromArray(array(
-            array('FIELD','WHAT TO ENTER'),
-            array('GroupCode','Use an existing inventory posting group code configured in the back office. This controls the inventory, sales, purchase and VAT account mappings.'),
-            array('CategoryID','Use the existing stock category ID. This classifies the item for inventory reporting; it is not an accounting posting group.'),
-            array('FullUnitCode','Use an existing unit-of-measure code for the full selling or purchasing unit.'),
-            array('LooseUnitCode','Use an existing unit-of-measure code for the base or loose unit.'),
-            array('PartsPerUnit','Enter how many loose/base units make up one full unit. Leave blank for a single-unit item; the importer defaults it to 1.'),
-            array('ContainerItemCode','For container items, enter the item code of an existing stock item configured as a container. Otherwise leave blank.'),
-            array('Important','This template is generated without querying reference tables. Use the codes already configured in the application. The import preview validates the entered codes before anything is imported.')
+            array('FIELD','EXACT CODE','DESCRIPTION','HOW TO USE')
         ),NULL,'A4');
-        $codes->getStyle('A4:B4')->applyFromArray($tableHeaderStyle);
-        $codes->getStyle('A5:B'.($codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
-        $codes->getStyle('A11:B11')->getFont()->setBold(true);
-        $codes->getRowDimension(5)->setRowHeight(42);
-        $codes->getRowDimension(6)->setRowHeight(42);
-        $codes->getRowDimension(7)->setRowHeight(32);
-        $codes->getRowDimension(8)->setRowHeight(32);
-        $codes->getRowDimension(9)->setRowHeight(42);
-        $codes->getRowDimension(10)->setRowHeight(42);
-        $codes->getRowDimension(11)->setRowHeight(50);
+        $codes->getStyle('A4:D4')->applyFromArray($tableHeaderStyle);
 
-        $codeWidths=array('A'=>24,'B'=>34,'C'=>34,'D'=>34,'E'=>34,'F'=>16);
-        foreach($codeWidths as $column=>$width){ $codes->getColumnDimension($column)->setWidth($width); }
-        $codes->getStyle('A4:B'.max(4,$codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
+        $referenceRows = array();
+        $referenceResult = DB_query("SELECT code FROM inventorypostinggroup ORDER BY code",$db);
+        while($referenceRow = DB_fetch_array($referenceResult)){
+            $referenceRows[] = array('GroupCode',$referenceRow['code'],'','Inventory posting group; controls inventory, sales, purchase and VAT account mappings.');
+        }
+
+        $referenceResult = DB_query("SELECT categoryid,categorydescription FROM stockcategory ORDER BY categoryid",$db);
+        while($referenceRow = DB_fetch_array($referenceResult)){
+            $referenceRows[] = array('CategoryID',$referenceRow['categoryid'],$referenceRow['categorydescription'],'Stock classification for inventory reporting; not an accounting posting group.');
+        }
+
+        $referenceResult = DB_query("SELECT code,descrip FROM unit ORDER BY code",$db);
+        while($referenceRow = DB_fetch_array($referenceResult)){
+            $referenceRows[] = array('FullUnitCode / LooseUnitCode',$referenceRow['code'],$referenceRow['descrip'],'Use the appropriate unit code for the full unit or loose/base unit.');
+        }
+
+        $referenceResult = DB_query("SELECT itemcode,descrip FROM stockmaster WHERE isstock='6' ORDER BY itemcode",$db);
+        while($referenceRow = DB_fetch_array($referenceResult)){
+            $referenceRows[] = array('ContainerItemCode',$referenceRow['itemcode'],$referenceRow['descrip'],'Use only when this item is configured as the stock container.');
+        }
+
+        if(count($referenceRows)>0){
+            $codes->fromArray($referenceRows,NULL,'A5');
+        }else{
+            $codes->mergeCells('A5:D5');
+            $codes->setCellValue('A5','No matching reference records are currently configured in the ERP.');
+        }
+
+        $guidanceRow = max(6,$codes->getHighestRow()+2);
+        $codes->mergeCells('A'.$guidanceRow.':D'.$guidanceRow);
+        $codes->setCellValue('A'.$guidanceRow,'PartsPerUnit: enter the number of loose/base units in one full unit. Leave blank for a single-unit item; the importer defaults it to 1. For multi-pack items, enter both FullUnitCode and LooseUnitCode.');
+        $codes->getStyle('A'.$guidanceRow.':D'.$guidanceRow)->getAlignment()->setWrapText(true)->setVertical('top');
+        $codes->getStyle('A'.$guidanceRow.':D'.$guidanceRow)->getFont()->setBold(true);
+        $codes->getRowDimension($guidanceRow)->setRowHeight(42);
+
+        $codes->getStyle('A5:D'.max(5,$codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
+        $codes->getColumnDimension('A')->setWidth(28);
+        $codes->getColumnDimension('B')->setWidth(22);
+        $codes->getColumnDimension('C')->setWidth(34);
+        $codes->getColumnDimension('D')->setWidth(58);
+        $codes->freezePane('A5');
         $codes->freezePane('A5');
         $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
         $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
@@ -116,7 +138,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
         $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.35)->setRight(0.35);
         $codes->getHeaderFooter()->setOddFooter('&CLive ERP Code Reference - Page &P of &N');
-        $codes->getPageSetup()->setPrintArea('A1:B'.max(4,$codes->getHighestRow()));
+        $codes->getPageSetup()->setPrintArea('A1:D'.max(4,$codes->getHighestRow()));
         $spreadsheet->setActiveSheetIndex(0);
         if(ob_get_length()){ ob_end_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
