@@ -60,7 +60,7 @@ $paymentSql = "SELECT COALESCE(payment_method,'UNCLASSIFIED') AS payment_method,
                       COUNT(*) AS receipts, COALESCE(SUM(total),0) AS amount
                FROM SalesHeader h WHERE " . $where . " GROUP BY payment_method ORDER BY payment_method";
 $stmt = $mysqli->prepare($paymentSql);
-$stmt->bind_param($types, ...$params);
+posReportBind($stmt, $types, $params);
 $stmt->execute();
 $payments = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
