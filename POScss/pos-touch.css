@@ -714,3 +714,115 @@ kbd { padding: 3px 6px; border: 1px solid #d8dee8; border-radius: 5px; backgroun
         scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important;
     }
 }
+
+/* Expanded touch product catalogue: keep category navigation visible while products scroll. */
+.pos-touch-mode #search-modal {
+    padding: 1.5vh 1.5vw;
+}
+.pos-touch-mode #search-modal .modal-content.pos-dialog {
+    width: min(1440px, 97vw);
+    max-width: 1440px;
+    height: min(94dvh, 1000px);
+    max-height: 94dvh;
+    min-height: 0;
+    overflow: hidden;
+    padding: 24px;
+}
+.pos-touch-mode #search-modal .pos-dialog-header {
+    flex: 0 0 auto;
+}
+.pos-touch-mode #search-modal #search-input {
+    flex: 0 0 auto;
+    min-height: 62px;
+    font-size: 19px;
+}
+.pos-touch-mode #search-modal #search-results {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.pos-touch-mode #search-modal .pos-category-bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    flex: 0 0 auto;
+    padding: 9px 2px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--pos-line);
+}
+.pos-touch-mode #search-modal .pos-category-chip {
+    min-height: 52px;
+    padding: 10px 19px;
+    font-size: 14px;
+}
+.pos-touch-mode #search-modal .pos-product-grid {
+    flex: 1 0 auto;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 13px;
+    padding-top: 12px;
+}
+.pos-touch-mode #search-modal .pos-product-tile {
+    min-height: 158px;
+    padding: 17px;
+    gap: 9px;
+}
+.pos-touch-mode #search-modal .pos-product-name {
+    font-size: 16px;
+}
+.pos-touch-mode #search-modal .pos-product-price {
+    font-size: 18px;
+}
+@media (max-width: 900px) {
+    .pos-touch-mode #search-modal {
+        padding: 8px;
+    }
+    .pos-touch-mode #search-modal .modal-content.pos-dialog {
+        width: 100%;
+        max-width: none;
+        height: 96dvh;
+        max-height: 96dvh;
+        padding: 18px;
+    }
+    .pos-touch-mode #search-modal .pos-product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+@media (max-width: 680px) {
+    .pos-touch-mode #search-modal {
+        padding: 0;
+        align-items: stretch;
+    }
+    .pos-touch-mode #search-modal .modal-content.pos-dialog {
+        width: 100vw;
+        max-width: none;
+        height: 100dvh;
+        max-height: 100dvh;
+        border: 0;
+        border-radius: 0;
+        padding: calc(14px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+    }
+    .pos-touch-mode #search-modal .pos-dialog-header h2 {
+        font-size: 22px;
+    }
+    .pos-touch-mode #search-modal #search-input {
+        min-height: 58px;
+        font-size: 17px;
+    }
+    .pos-touch-mode #search-modal .pos-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+    .pos-touch-mode #search-modal .pos-product-tile {
+        min-height: 142px;
+        padding: 12px;
+    }
+    .pos-touch-mode #search-modal .pos-category-chip {
+        min-height: 50px;
+        padding: 9px 15px;
+    }
+}
+
