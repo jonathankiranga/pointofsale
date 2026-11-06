@@ -75,7 +75,7 @@ echo '<input type="hidden" name="newreconciliation" value="'.$_SESSION['newrecon
 echo '<table class="table-bordered">';
 echo  constructBanks(); 
 
-if(isset($_POST['Bank_Code'])){
+if(isset($_POST['Bank_Code']) && trim($_POST['Bank_Code']) !== ''){
     $TRBanks = new ShowBankAccounts();
     $ArrayBanks = $TRBanks->GetBankDetails($_POST['Bank_Code']);
 
@@ -151,10 +151,13 @@ Function UpdateStatus(){
  
 function constructBanks() {
    Global $db,$banklist;
-    
-      $banknames=$banklist[trim($_POST['Bank_Code'])];
-      
-    if(isset($_POST['Bank_Code'])){
+
+    $BankCodeSelected = isset($_POST['Bank_Code']) && trim($_POST['Bank_Code']) !== '';
+    $banknames = $BankCodeSelected && isset($banklist[trim($_POST['Bank_Code'])])
+        ? $banklist[trim($_POST['Bank_Code'])]
+        : '';
+
+    if($BankCodeSelected){
         
         $BankObject='<tr><td><input type="hidden" name="GetBankData" value="Accept Selection"/>Select Bank:</td>'
                       . '<td><input type="text" id="bankselected" name="Bank_Code" readonly="readonly" value="'.$_POST['Bank_Code'].'" /></td>'
@@ -179,7 +182,7 @@ function constructBanks() {
        }
         
         $BankObject .='</select>';
-        $BankObject .= (isset($_POST['Bank_Code'])?'':'<input type="submit" name="GetBankData" value="Accept Selection"/>');
+        $BankObject .= '<input type="submit" name="GetBankData" value="Accept Selection"/>';
         $BankObject .= '<br/><em>Click and Please wait for the transactions to load</em></td></tr>';
         
         echo $BankObject;
