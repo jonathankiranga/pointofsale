@@ -80,6 +80,9 @@ function printReceipt(paymentMethod, mpesaPhone) {
     // Saving the sale is the transaction. Printing is an optional follow-up
     // and must never prevent the sale from being committed.
     SaveReceipt(receiptData, function(saveResponse) {
+        receiptData.total = Number(saveResponse.total);
+        receiptData.totalVAT = Number(saveResponse.total_vat);
+        if (Array.isArray(saveResponse.items)) { receiptData.items = saveResponse.items; }
         completeSaleSave(receiptData);
         window.POS_PRINT_IN_PROGRESS = false;
 
