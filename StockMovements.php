@@ -65,7 +65,7 @@ if(isset($StockID)){
    
   
       if(IsTankOrStore(trim($StockID))=="S"){
-            $sql="Select sum(fulqty * [stockledger].[partperunit])+IFNULL(sum(loosqty),0) as Total,
+            $sql="Select sum(fulqty * [stockmaster].[partperunit])+IFNULL(sum(loosqty),0) as Total,
                     [lunit].[descrip] 
                     from [stockledger] 
                     join [stockmaster] on [stockledger].itemcode=[stockmaster].itemcode 
@@ -106,7 +106,7 @@ if(isset($StockID)){
             fulqty,
             [lunit].[descrip] as LOUM,
             loosqty,
-            (fulqty * [stockledger].[partperunit])+IFNULL(loosqty,0) as Total
+            (fulqty * [stockmaster].[partperunit])+IFNULL(loosqty,0) as Total
              from [stockledger] 
              join [systypes_1] on [systypes_1].[typeid]=[stockledger].[doctyp] 
              join [stockmaster] on [stockledger].itemcode=[stockmaster].itemcode 
