@@ -80,7 +80,37 @@ if($InputError !=1){
           }
       }          
         
-    $ErrMsg =  _('The system configuration could not be updated because');
+    
+    // POS defaults are maintained here with the other company system parameters.
+    $POSConfigKeys = array(
+        'POS_DefaultCustomer' => array('label' => 'Default POS customer', 'table' => 'debtors', 'field' => 'itemcode'),
+        'POS_DefaultStore' => array('label' => 'Default POS store', 'table' => 'stores', 'field' => 'code'),
+        'POS_DefaultCurrency' => array('label' => 'Default POS currency', 'table' => 'currencies', 'field' => 'currabrev'),
+        'POS_DefaultPostingGroup' => array('label' => 'Sales posting group', 'table' => 'postinggroups', 'field' => 'code'),
+        'POS_CashBankAccount' => array('label' => 'Cash bank account', 'table' => 'bankaccounts', 'field' => 'accountcode'),
+        'POS_MPesaBankAccount' => array('label' => 'M-Pesa bank account', 'table' => 'bankaccounts', 'field' => 'accountcode')
+    );
+    foreach ($POSConfigKeys as $POSKey => $POSDefinition) {
+        $POSValue = isset($_POST[$POSKey]) ? trim($_POST[$POSKey]) : '';
+        $POSValue = DB_escape_string($POSValue);
+        if ($POSValue !== '') {
+            $POSWhere = $POSDefinition['field'] . "='" . $POSValue . "'";
+            if ($POSDefinition['table'] == 'bankaccounts') {
+                $POSWhere .= " AND COALESCE(Makeinactive,0)=0";
+            }
+            $POSCheck = DB_query("SELECT " . $POSDefinition['field'] . " FROM " . $POSDefinition['table'] . " WHERE " . $POSWhere . " LIMIT 1", $db);
+            if (DB_num_rows($POSCheck) != 1) {
+                prnMsg(_('Invalid selection for') . ' ' . $POSDefinition['label'] . '. ' . _('No system parameters were saved.'), 'error');
+                include('includes/footer.inc');
+                exit;
+            }
+        }
+        if (!isset($_SESSION[$POSKey]) || (string)$_SESSION[$POSKey] !== $POSValue) {
+            $sql[] = "INSERT INTO config (confname, confvalue) VALUES ('" . $POSKey . "', '" . $POSValue . "') ON DUPLICATE KEY UPDATE confvalue=VALUES(confvalue)";
+        }
+    }
+
+$ErrMsg =  _('The system configuration could not be updated because');
 		if (sizeof($sql) > 1 ) {
 			$result = DB_Txn_Begin($db);
 			foreach ($sql as $line) {
@@ -345,6 +375,57 @@ echo '<tr style="outline: 1px solid">
 		<td colspan="2"><textarea id="ParameterName" rows="2" cols="100"  required="required" title="'._('This is the invoice footer').'" name="X_RomalpaClause">' . $_SESSION['RomalpaClause'] . '</textarea></td>
 	</tr>';
 
+
+
+echo '<tr><th colspan="3">' . _('Point of Sale Settings') . '</th></tr>';
+echo $TableHeader;
+
+$POSCustomerResult = DB_query("SELECT itemcode, customer FROM debtors WHERE itemcode IS NOT NULL AND itemcode <> '' ORDER BY customer, itemcode", $db);
+echo '<tr><td>' . _('Default POS customer') . ':</td><td><select name="POS_DefaultCustomer"><option value="">-- ' . _('Not configured') . ' --</option>';
+while ($POSRow = DB_fetch_array($POSCustomerResult)) {
+    $POSSelected = (isset($_SESSION['POS_DefaultCustomer']) && $_SESSION['POS_DefaultCustomer'] == $POSRow['itemcode']) ? ' selected="selected"' : '';
+    echo '<option value="' . htmlspecialchars($POSRow['itemcode'], ENT_QUOTES, 'UTF-8') . '"' . $POSSelected . '>' . htmlspecialchars($POSRow['customer'] . ' (' . $POSRow['itemcode'] . ')', ENT_QUOTES, 'UTF-8') . '</option>';
+}
+echo '</select></td><td>' . _('Customer used by the POS terminal when starting a sale.') . '</td></tr>';
+
+$POSStoreResult = DB_query("SELECT code, Storename FROM stores ORDER BY Storename, code", $db);
+echo '<tr><td>' . _('Default POS store') . ':</td><td><select name="POS_DefaultStore"><option value="">-- ' . _('Not configured') . ' --</option>';
+while ($POSRow = DB_fetch_array($POSStoreResult)) {
+    $POSSelected = (isset($_SESSION['POS_DefaultStore']) && $_SESSION['POS_DefaultStore'] == $POSRow['code']) ? ' selected="selected"' : '';
+    echo '<option value="' . htmlspecialchars($POSRow['code'], ENT_QUOTES, 'UTF-8') . '"' . $POSSelected . '>' . htmlspecialchars($POSRow['Storename'] . ' (' . $POSRow['code'] . ')', ENT_QUOTES, 'UTF-8') . '</option>';
+}
+echo '</select></td><td>' . _('Default inventory store for POS transactions.') . '</td></tr>';
+
+$POSCurrencyResult = DB_query("SELECT currabrev, currency FROM currencies ORDER BY currency", $db);
+echo '<tr><td>' . _('Default POS currency') . ':</td><td><select name="POS_DefaultCurrency"><option value="">-- ' . _('Not configured') . ' --</option>';
+while ($POSRow = DB_fetch_array($POSCurrencyResult)) {
+    $POSSelected = (isset($_SESSION['POS_DefaultCurrency']) && $_SESSION['POS_DefaultCurrency'] == $POSRow['currabrev']) ? ' selected="selected"' : '';
+    echo '<option value="' . htmlspecialchars($POSRow['currabrev'], ENT_QUOTES, 'UTF-8') . '"' . $POSSelected . '>' . htmlspecialchars($POSRow['currency'] . ' (' . $POSRow['currabrev'] . ')', ENT_QUOTES, 'UTF-8') . '</option>';
+}
+echo '</select></td><td>' . _('Currency used for POS sales.') . '</td></tr>';
+
+$POSPostingResult = DB_query("SELECT code FROM postinggroups ORDER BY code", $db);
+echo '<tr><td>' . _('POS sales posting group') . ':</td><td><select name="POS_DefaultPostingGroup"><option value="">-- ' . _('Not configured') . ' --</option>';
+while ($POSRow = DB_fetch_array($POSPostingResult)) {
+    $POSSelected = (isset($_SESSION['POS_DefaultPostingGroup']) && $_SESSION['POS_DefaultPostingGroup'] == $POSRow['code']) ? ' selected="selected"' : '';
+    echo '<option value="' . htmlspecialchars($POSRow['code'], ENT_QUOTES, 'UTF-8') . '"' . $POSSelected . '>' . htmlspecialchars($POSRow['code'], ENT_QUOTES, 'UTF-8') . '</option>';
+}
+echo '</select></td><td>' . _('Posting group applied to POS sales.') . '</td></tr>';
+
+$POSBankResult = DB_query("SELECT accountcode, bankName, AcctName, currency FROM bankaccounts WHERE accountcode IS NOT NULL AND accountcode <> '' AND COALESCE(Makeinactive,0)=0 ORDER BY bankName, accountcode", $db);
+$POSBanks = array();
+while ($POSRow = DB_fetch_array($POSBankResult)) {
+    $POSBanks[] = $POSRow;
+}
+foreach (array('POS_CashBankAccount' => _('POS cash bank account'), 'POS_MPesaBankAccount' => _('POS M-Pesa bank account')) as $POSBankKey => $POSBankLabel) {
+    echo '<tr><td>' . $POSBankLabel . ':</td><td><select name="' . $POSBankKey . '"><option value="">-- ' . _('Not configured') . ' --</option>';
+    foreach ($POSBanks as $POSRow) {
+        $POSSelected = (isset($_SESSION[$POSBankKey]) && $_SESSION[$POSBankKey] == $POSRow['accountcode']) ? ' selected="selected"' : '';
+        $POSBankText = ($POSRow['AcctName'] ? $POSRow['AcctName'] . ' - ' : '') . $POSRow['bankName'] . ' (' . $POSRow['accountcode'] . ', ' . $POSRow['currency'] . ')';
+        echo '<option value="' . htmlspecialchars($POSRow['accountcode'], ENT_QUOTES, 'UTF-8') . '"' . $POSSelected . '>' . htmlspecialchars($POSBankText, ENT_QUOTES, 'UTF-8') . '</option>';
+    }
+    echo '</select></td><td>' . _('Bank account used to record POS payments of this type.') . '</td></tr>';
+}
 
 echo '</table>
 	<br /><div class="centre"><input type="submit" name="submit" value="' . _('Update') . '" /></div>
