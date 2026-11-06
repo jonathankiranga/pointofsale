@@ -27,10 +27,12 @@ CREATE TABLE `stockregister` (
   `StockIn` double DEFAULT NULL,
   `cost` double DEFAULT NULL,
   `StockOut` double DEFAULT NULL,
-  `StockBalance` double DEFAULT NULL,
-  `rowid` bigint NOT NULL,
+  `StockBalance` double GENERATED ALWAYS AS (coalesce(`StockIn`,0) - coalesce(`StockOut`,0)) STORED,
+  `rowid` bigint NOT NULL AUTO_INCREMENT,
   `journal` char(20) DEFAULT NULL,
-  `GRN` char(20) DEFAULT NULL
+  `GRN` char(20) DEFAULT NULL,
+  PRIMARY KEY (`rowid`),
+  KEY `idx_stockregister_item_fifo` (`itemcode`,`rowid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
