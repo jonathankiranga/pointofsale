@@ -62,26 +62,25 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes = $spreadsheet->createSheet();
         $codes->setTitle('Code Reference');
         $codes->setShowGridlines(false);
-        $codes->mergeCells('A1:F1');
+        $codes->mergeCells('A1:D1');
         $codes->setCellValue('A1','LIVE ERP CODE REFERENCE');
-        $codes->getStyle('A1:F1')->applyFromArray(array(
+        $codes->getStyle('A1:D1')->applyFromArray(array(
             'font'=>array('bold'=>true,'size'=>16,'color'=>array('rgb'=>'FFFFFF')),
             'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'1F4E78')),
             'alignment'=>array('horizontal'=>'center','vertical'=>'center')
         ));
         $codes->getRowDimension(1)->setRowHeight(30);
-        $codes->mergeCells('A2:F2');
+        $codes->mergeCells('A2:D2');
         $codes->setCellValue('A2','Generated from live ERP records at download time. Enter the exact code in the matching column on the Inventory List sheet.');
-        $codes->getStyle('A2:F2')->getAlignment()->setWrapText(true);
+        $codes->getStyle('A2:D2')->getAlignment()->setWrapText(true);
         $codes->getRowDimension(2)->setRowHeight(32);
 
-        $codes->mergeCells('A3:F3');
+        $codes->mergeCells('A3:D3');
         $codes->setCellValue('A3','GROUP CODE identifies the inventory posting and accounting setup. CATEGORY ID classifies the item for inventory reporting. They are different values and must not be interchanged.');
-        $codes->getStyle('A3:F3')->getFont()->setBold(true);
+        $codes->getStyle('A3:D3')->getFont()->setBold(true);
         $codes->getStyle('A3:F3')->getAlignment()->setWrapText(true);
         $codes->getRowDimension(3)->setRowHeight(34);
 
-        $sectionStyle=array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'1F4E78')),'alignment'=>array('horizontal'=>'left','vertical'=>'center'));
         $tableHeaderStyle=array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'4472C4')),'alignment'=>array('horizontal'=>'center','vertical'=>'center','wrapText'=>true));
 
         $codes->fromArray(array(
@@ -129,7 +128,6 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes->getColumnDimension('B')->setWidth(22);
         $codes->getColumnDimension('C')->setWidth(34);
         $codes->getColumnDimension('D')->setWidth(58);
-        $codes->freezePane('A5');
         $codes->freezePane('A5');
         $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
         $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
