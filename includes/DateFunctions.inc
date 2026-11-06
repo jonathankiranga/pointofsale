@@ -276,6 +276,8 @@ function ConvertSQLDate($DateEntry) {
 
 function ConvertSQLDateTime($DateEntry) {
 
+	$Time = '';
+
 //for MySQL dates are in the format YYYY-mm-dd H:i:s
 
 
@@ -308,13 +310,13 @@ function ConvertSQLDateTime($DateEntry) {
 	}
 
 	if ($_SESSION['DefaultDateFormat']=='d/m/Y'){
-		return $Date_Array[2].'/'.$Date_Array[1].'/'.$Date_Array[0] . ' ' . $Time;
+		return $Date_Array[2].'/'.$Date_Array[1].'/'.$Date_Array[0] . ($Time !== '' ? ' ' . $Time : '');
 	} elseif ($_SESSION['DefaultDateFormat']=='d.m.Y'){
-		return $Date_Array[2].'.'.$Date_Array[1].'.'.$Date_Array[0] . ' ' . $Time;
+		return $Date_Array[2].'.'.$Date_Array[1].'.'.$Date_Array[0] . ($Time !== '' ? ' ' . $Time : '');
 	} elseif ($_SESSION['DefaultDateFormat']=='m/d/Y'){
-		return $Date_Array[1].'/'.$Date_Array[2].'/'.$Date_Array[0] . ' ' . $Time;
+		return $Date_Array[1].'/'.$Date_Array[2].'/'.$Date_Array[0] . ($Time !== '' ? ' ' . $Time : '');
 	} elseif ($_SESSION['DefaultDateFormat']=='Y/m/d'){
-		return $Date_Array[0].'/'.$Date_Array[1].'/'.$Date_Array[2] . ' ' . $Time;
+		return $Date_Array[0].'/'.$Date_Array[1].'/'.$Date_Array[2] . ($Time !== '' ? ' ' . $Time : '');
 	}
 
 } // end function ConvertSQLDate
