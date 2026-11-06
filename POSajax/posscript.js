@@ -284,6 +284,7 @@ function saveSalesDataWithReference() {
 
     $('#sales-table tbody tr').each(function() {
         const barcode = $(this).find('td').eq(0).text().trim();
+        const itemcode = String($(this).attr('data-itemcode') || '').trim();
         const description = $(this).find('td').eq(1).text().trim();
         const quantity = $(this).find('.quantity').text().trim();
         const unitPrice = $(this).find('.unit-price').text().trim();
@@ -295,6 +296,7 @@ function saveSalesDataWithReference() {
         if (barcode !== '' && description !== '') {
             items.push({
                 barcode: barcode,
+                itemcode: itemcode,
                 description: description,
                 quantity: quantity,
                 unitPrice: unitPrice,
