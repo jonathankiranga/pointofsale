@@ -117,14 +117,14 @@ echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8'
 echo '<div class="card">';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 echo '<input type="hidden" name="editcode" value="' . $_GET['Modify'] . '" />';
-echo '<table class="table" cellspacing="4">'
-. '<tr><td valign="top"><table class="table table-bordered"><caption>Corporate Details</caption>';
+echo '<div class="row g-3 customer-maintenance-layout"><div class="col-lg-6">'
+. '<table class="table table-bordered customer-details-table"><caption>Corporate Details</caption>';
 
-echo '<tr><td>' . _('Name').'</td><td><input type="text" name="customer" maxlength="50" required="required" value="'.$_POST['customer'].'"/></td></tr>';
-echo '<tr><td>' . _('Address').'</td><td><input type="text" name="company" maxlength="50"  value="'.$_POST['company'].'"/></td></tr>';
-echo '<tr><td>' . _('Address 2').'</td><td><input type="text" name="postcode" maxlength="100"  value="'.$_POST['postcode'].'"/></td></tr>';
-echo '<tr><td>' . _('city').'</td><td><input type="text" name="city" maxlength="50" value="'.$_POST['city'].'"  /></td></tr>';
-echo '<tr><td>' . _('Country').'</td><td><select name="country">';
+echo '<tr><td>' . _('Name').'</td><td><input type="text" class="form-control" name="customer" maxlength="50" required="required" value="'.$_POST['customer'].'"/></td></tr>';
+echo '<tr><td>' . _('Address').'</td><td><input type="text" class="form-control" name="company" maxlength="50"  value="'.$_POST['company'].'"/></td></tr>';
+echo '<tr><td>' . _('Address 2').'</td><td><input type="text" class="form-control" name="postcode" maxlength="100"  value="'.$_POST['postcode'].'"/></td></tr>';
+echo '<tr><td>' . _('city').'</td><td><input type="text" class="form-control" name="city" maxlength="50" value="'.$_POST['city'].'"  /></td></tr>';
+echo '<tr><td>' . _('Country').'</td><td><select class="form-select" name="country">';
 foreach ($CountriesArray as $CountryEntry => $CountryName){
         if (isset($_POST['country']) AND (strtoupper($_POST['country']) == strtoupper($CountryName))){
                 echo '<option selected="selected" value="' . $CountryName . '">' . $CountryName  . '</option>';
@@ -135,13 +135,13 @@ foreach ($CountriesArray as $CountryEntry => $CountryName){
         }
 }
 echo '</select></td></tr>';
-echo '<tr><td>' . _('Telephone No').'</td><td><input type="text" name="phone" maxlength="15"  value="'.$_POST['phone'].'"/></td></tr>';
-echo '<tr><td>' . _('Fax No').'</td><td><input type="text" name="fax" maxlength="50"  value="'.$_POST['fax'].'"/></td></tr>';
-echo '<tr><td>' . _('Alt Contact').'</td><td><input type="text" name="altcontact" maxlength="100"  value="'.$_POST['altcontact'].'"/></td></tr>';
-echo '<tr><td>' . _('email').'</td><td><input type="text" name="email" maxlength="100"  value="'.$_POST['email'].'"' ;
+echo '<tr><td>' . _('Telephone No').'</td><td><input type="text" class="form-control" name="phone" maxlength="15"  value="'.$_POST['phone'].'"/></td></tr>';
+echo '<tr><td>' . _('Fax No').'</td><td><input type="text" class="form-control" name="fax" maxlength="50"  value="'.$_POST['fax'].'"/></td></tr>';
+echo '<tr><td>' . _('Alt Contact').'</td><td><input type="text" class="form-control" name="altcontact" maxlength="100"  value="'.$_POST['altcontact'].'"/></td></tr>';
+echo '<tr><td>' . _('email').'</td><td><input type="text" class="form-control" name="email" maxlength="100"  value="'.$_POST['email'].'"' ;
         ?> pattern="[a-z0-9!#$%&'*+/=?^_{|}~.-]+@[a-z0-9-]+(\.[a-z0-9-]+)*"  <?php echo '/></td></tr>';
-echo '</table></td><td  valign="top"><table class="table table-bordered">';
-echo '<tr><td>' . _('Discount Rate').'</td><td><input type="text" class="integer" name="creditlimit" maxlength="2" required="required"  value="'.$_POST['creditlimit'].'"/></td></tr>';
+echo '</table></div><div class="col-lg-6"><table class="table table-bordered customer-details-table">';
+echo '<tr><td>' . _('Discount Rate').'</td><td><input type="text" class="form-control integer" name="creditlimit" maxlength="2" required="required"  value="'.$_POST['creditlimit'].'"/></td></tr>';
 
         $result=DB_query("SELECT currency, currabrev FROM currencies",$db);
 	if (DB_num_rows($result)==0){
@@ -154,7 +154,7 @@ echo '<tr><td>' . _('Discount Rate').'</td><td><input type="text" class="integer
 			$_POST['curr_cod'] = $myrow[0];
 		}
 		echo '<tr><td>' . _('Customer Currency') . ':</td>
-	<td><select name="curr_cod" required="required">';
+	<td><select class="form-select" name="curr_cod" required="required">';
 		while ($myrow = DB_fetch_array($result)) {
                     if(isset($_POST['curr_cod'])){
                         
@@ -178,7 +178,7 @@ echo '<tr><td>' . _('Discount Rate').'</td><td><input type="text" class="integer
 	}
         
         echo '<tr><td>' . _('Block Account').'</td><td>';
-        echo '<select name="inactive">'
+        echo '<select class="form-select" name="inactive">'
                 . '<option  '.($_POST['inactive']==0?'selected="selected"':'').' value="0">No</option>'
                 . '<option  '.($_POST['inactive']==1?'selected="selected"':'').' value="1">Yes</option>'
                 . '</select>';
@@ -192,7 +192,7 @@ echo '<tr><td>' . _('Discount Rate').'</td><td><input type="text" class="integer
 			</tr>';
 	} else {
         echo '<tr><td>'._('Customer Posting Group').'</td><td>';
-        echo '<select name="customerposting">';
+        echo '<select class="form-select" name="customerposting">';
         while ($myrow = DB_fetch_array($result)) {
 		echo '<option '. ($myrow['code']==$_POST['customerposting']?'selected="selected"':''). '>' . $myrow['code'] . '</option>';
 		} //end while loop
@@ -202,40 +202,40 @@ echo '<tr><td>' . _('Discount Rate').'</td><td><input type="text" class="integer
      
         echo '<tr><td>'._('Sales Person').'</td><td>';
         $result=DB_query("select code,salesman from salesrepsinfo",$db);    
-        echo '<select name="salesman"><option value="">not selected</option>';
+        echo '<select class="form-select" name="salesman"><option value="">not selected</option>';
         while ($myrow = DB_fetch_array($result)) {
 		echo '<option  value="'.$myrow['code'].'"'. ($myrow['code']==$_POST['salesman']?' selected="selected"':''). '>' . $myrow['salesman'] . '</option>';
 		} //end while loop
         echo '</select>' ;
          echo  '</td></tr>';
-          echo '<tr><td>' . _('PIN').'</td><td><input type="text" name="middlen" maxlength="15" value="'.$_POST['middlen'].'"/>' ;
+          echo '<tr><td>' . _('PIN').'</td><td><input type="text" class="form-control" name="middlen" maxlength="15" value="'.$_POST['middlen'].'"/>' ;
         
          
-echo '</table></td></tr></table>';
+echo '</table></div></div>';
     
 } else {
 
 echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '" method="post">';
 echo '<div class="card">';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
-echo '<table class="table table-bordered" cellspacing="4"><tr><td valign="top">'
-. '<table class="table table-bordered"><caption>Corporate Details</caption>';
+echo '<div class="row g-3 customer-maintenance-layout"><div class="col-lg-6">'
+. '<table class="table table-bordered customer-details-table"><caption>Corporate Details</caption>';
 
-echo '<tr><td>' . _('Name').'</td><td><input type="text" name="customer" maxlength="50" required="required" /></td></tr>';
-echo '<tr><td>' . _('Address').'</td><td><input type="text" name="company" maxlength="50"  /></td></tr>';
-echo '<tr><td>' . _('Address 2').'</td><td><input type="text" name="postcode" maxlength="100"  /></td></tr>';
-echo '<tr><td>' . _('city').'</td><td><input type="text" name="city" maxlength="50" /></td></tr>';
-echo '<tr><td>' . _('Country').'</td><td><select name="country">';
+echo '<tr><td>' . _('Name').'</td><td><input type="text" class="form-control" name="customer" maxlength="50" required="required" /></td></tr>';
+echo '<tr><td>' . _('Address').'</td><td><input type="text" class="form-control" name="company" maxlength="50"  /></td></tr>';
+echo '<tr><td>' . _('Address 2').'</td><td><input type="text" class="form-control" name="postcode" maxlength="100"  /></td></tr>';
+echo '<tr><td>' . _('city').'</td><td><input type="text" class="form-control" name="city" maxlength="50" /></td></tr>';
+echo '<tr><td>' . _('Country').'</td><td><select class="form-select" name="country">';
         
 foreach ($CountriesArray as $CountryEntry => $CountryName){
     echo '<option value="' . $CountryName . '">' . $CountryName  . '</option>';
 }
 
 echo '</select></td></tr>';
-echo '<tr><td>' . _('Telephone No').'</td><td><input type="text" name="phone" maxlength="15"  /></td></tr>';
-echo '<tr><td>' . _('Fax No').'</td><td><input type="text" name="fax" maxlength="50"  /></td></tr>';
-echo '<tr><td>' . _('Alt Contact').'</td><td><input type="text" name="altcontact" maxlength="100"  /></td></tr>';
-echo '<tr><td>' . _('email').'</td><td><input type="text" name="email" maxlength="100" ' ;
+echo '<tr><td>' . _('Telephone No').'</td><td><input type="text" class="form-control" name="phone" maxlength="15"  /></td></tr>';
+echo '<tr><td>' . _('Fax No').'</td><td><input type="text" class="form-control" name="fax" maxlength="50"  /></td></tr>';
+echo '<tr><td>' . _('Alt Contact').'</td><td><input type="text" class="form-control" name="altcontact" maxlength="100"  /></td></tr>';
+echo '<tr><td>' . _('email').'</td><td><input type="text" class="form-control" name="email" maxlength="100" ' ;
         ?>   pattern="[a-z0-9!#$%&'*+/=?^_{|}~.-]+@[a-z0-9-]+(\.[a-z0-9-]+)*"   <?php echo '/></td></tr>';
 
 echo '</table></td><td  valign="top"><table class="table table-bordered">';
@@ -251,7 +251,7 @@ $result=DB_query("SELECT currency, currabrev FROM currencies",$db);
                 </tr>';
 	} else {
             
-		echo '<tr><td>' . _('Customer Currency') . ':</td><td><select name="curr_cod" required="required">';
+		echo '<tr><td>' . _('Customer Currency') . ':</td><td><select class="form-select" name="curr_cod" required="required">';
 		while ($myrow = DB_fetch_array($result)) {
                     if(isset($_POST['curr_cod'])){
                         
@@ -275,7 +275,7 @@ $result=DB_query("SELECT currency, currabrev FROM currencies",$db);
 	}
         
         echo '<tr><td>' . _('Block Account').'</td><td>';
-        echo '<select name="inactive">'
+        echo '<select class="form-select" name="inactive">'
                 . '<option  value="0">No</option>'
                 . '<option   value="1">Yes</option>'
                 . '</select>';
@@ -290,7 +290,7 @@ $result=DB_query("SELECT currency, currabrev FROM currencies",$db);
 			</tr>';
 	} else {
         echo '<tr><td>'._('Customer Posting Group').'</td><td>';
-        echo '<select name="customerposting">';
+        echo '<select class="form-select" name="customerposting">';
         while ($myrow = DB_fetch_array($result)) {
 		echo '<option >' . $myrow['code'] . '</option>';
 		} //end while loop
@@ -300,14 +300,14 @@ $result=DB_query("SELECT currency, currabrev FROM currencies",$db);
      
         echo '<tr><td>'._('Sales Person').'</td><td>';
         $result=DB_query("select code,salesman from salesrepsinfo",$db);    
-        echo '<select name="salesman"><option value="">not selected</option>';
+        echo '<select class="form-select" name="salesman"><option value="">not selected</option>';
         while ($myrow = DB_fetch_array($result)) {
 		echo '<option value="'.$myrow['code'].'">' . $myrow['salesman'] . '</option>';
 		} //end while loop
         echo '</select>' ;
         echo  '</td></tr>';
         
-        echo '<tr><td>' . _('PIN').'</td><td><input type="text" name="middlen" maxlength="15" />' ;
+        echo '<tr><td>' . _('PIN').'</td><td><input type="text" class="form-control" name="middlen" maxlength="15" />' ;
 
         echo '</table></td></tr></table>';
 
