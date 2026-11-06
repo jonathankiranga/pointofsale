@@ -195,7 +195,7 @@ try {
         (entryno,documenttype,docdate,documentno,locationcode,code,description,unitofmeasure,
          Quantity,Quantity_toinvoice,Qunatity_delivered,UnitPrice,vatamount,invoiceamount,
          completed,printed,vatrate,inclusive)
-        VALUES (?,1,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?)");
+        VALUES (?,1,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?)");
     if (!$lineStmt) { throw new Exception('Could not prepare sales lines: ' . $mysqli->error); }
     foreach ($items as $saleLine) {
         $lineEntry = $entryNo;
