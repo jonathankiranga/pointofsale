@@ -66,7 +66,7 @@ if(isset($_POST['savecount'])){
                             CASE WHEN ".$differenceSql." > 0 THEN [inventorypostinggroup].[stockvariance] ELSE [inventorypostinggroup].[balancesheet] END,
                             '',
                             ".$amountSql.",0,'".$currency."',1,
-                            CONCAT(RTRIM([stockmaster].[descrip]),' - Stock take variance: ".$differenceSql."')
+                            CONCAT(RTRIM([stockmaster].[descrip]),' - Counted ".$fullCountInput." full + ".$looseCountInput." loose; system ".$systemUnits."; variance ".$differenceSql."')
                         FROM [stockledger]
                         JOIN [stockmaster] ON [stockledger].[itemcode]=[stockmaster].[itemcode]
                         JOIN [inventorypostinggroup] ON [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
