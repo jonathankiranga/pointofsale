@@ -1,60 +1,72 @@
 <?php
-/* $Id: PDFQuotationPageHeader.inc 6540 2014-01-15 02:18:07Z rchacon $*/
-/* pdf-php by R&OS code to set up a new sales order page */
-
-// The $PageNumber variable is initialised in 0 by PDFStarter.php
-// This page header increments variable $PageNumber before printing it.
+/*
+ * Inventory report page header styled consistently with POS X/Z reports.
+ * This include is reused for every page of the inventory PDF.
+ */
 $PageNumber++;
-// Inserts a page break if it is not the first page
-if ($PageNumber>1) {
+if ($PageNumber > 1) {
     $pdf->newPage();
 }
-// Print 'Quotation' title
-// $XPos = 361; 
-$XPos=46;
-$pdf->addTextWrap($Page_Width-$Right_Margin-220, $Page_Height-$Top_Margin-$FontSize * 1, 200, $FontSize, _('Page').': '.$PageNumber, 'right');
 
-// Print company info
-$XPos = 60;
-$YPos = ($Page_Height-$Top_Margin-$FontSize*2)-30;
-$FontSize=12;
-$pdf->addText($XPos, $YPos, $FontSize, $_SESSION['CompanyRecord']['coyname']);
-$FontSize =10;
-$pdf->addText($XPos, $YPos-12, $FontSize, $_SESSION['CompanyRecord']['regoffice1']);
-$pdf->addText($XPos, $YPos-21, $FontSize, $_SESSION['CompanyRecord']['regoffice2']);
-$pdf->addText($XPos, $YPos-30, $FontSize, $_SESSION['CompanyRecord']['regoffice3'] . ' ' . $_SESSION['CompanyRecord']['regoffice4'] . ' ' . $_SESSION['CompanyRecord']['regoffice5']);
-$pdf->addText($XPos, $YPos-39, $FontSize, _('Ph') . ': ' . $_SESSION['CompanyRecord']['telephone'] . ' ' . _('Fax'). ': ' . $_SESSION['CompanyRecord']['fax']);
-$pdf->addText($XPos, $YPos-48, $FontSize, $_SESSION['CompanyRecord']['email']);
-$pdf->addText($XPos, $YPos-57, $FontSize, _('VAT') . ': ' .$_SESSION['CompanyRecord']['vat']);
+$company = isset($_SESSION['CompanyRecord']) ? $_SESSION['CompanyRecord'] : array();
+$companyName = isset($company['coyname']) ? $company['coyname'] : '';
+$companyAddress = trim(
+    (isset($company['regoffice1']) ? $company['regoffice1'] . ' ' : '') .
+    (isset($company['regoffice2']) ? $company['regoffice2'] . ' ' : '') .
+    (isset($company['regoffice3']) ? $company['regoffice3'] . ' ' : '') .
+    (isset($company['regoffice4']) ? $company['regoffice4'] . ' ' : '') .
+    (isset($company['regoffice5']) ? $company['regoffice5'] : '')
+);
+$companyContact = trim(
+    (isset($company['telephone']) ? $company['telephone'] : '') .
+    (isset($company['email']) ? '  |  ' . $company['email'] : '')
+);
 
-$pdf->addText(($Page_Width/2)- $Right_Margin ,$YPos-70,12,_('Stock Balance Report').'  '. $store_name );
+$pdf->SetFont('helvetica', 'B', 15);
+$pdf->SetTextColor(23, 43, 77);
+$pdf->addText(46, 552, 15, $companyName);
+$pdf->SetFont('helvetica', '', 8);
+$pdf->SetTextColor(82, 97, 118);
+if ($companyAddress !== '') {
+    $pdf->addText(46, 539, 8, $companyAddress);
+}
+if ($companyContact !== '') {
+    $pdf->addText(46, 527, 8, $companyContact);
+}
 
-$pdf->addText(($Page_Width/2)- $Right_Margin ,$YPos-90,8,_('From :'). $_POST['fromdate']._(' To :'). $_POST['todate'] );
-$pdf->line($Page_Width-$Right_Margin,$YPos-100,$Left_Margin,$YPos-100);
+$pdf->SetFillColor(23, 43, 77);
+$pdf->Rect(46, 493, 744, 25, 'F');
+$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetTextColor(255, 255, 255);
+$pdf->addText(56, 501, 12, _('INVENTORY REPORT'));
+$pdf->SetFont('helvetica', '', 8);
+$pdf->addTextWrap(520, 501, 260, 8, _('Page') . ' ' . $PageNumber, 'right');
 
-// Print 'Delivery To' info
-$XPos = 46;
-$YPos -= 120;
-$FontSize=12;
-// Draw a rectangle with rounded corners around 'Delivery To' info
-$FontSize=10;
+$pdf->SetTextColor(36, 50, 71);
+$pdf->addText(46, 480, 8, _('Store') . ': ' . $store_name);
+$pdf->addText(300, 480, 8, _('Period') . ': ' . $_POST['fromdate'] . '  -  ' . $_POST['todate']);
+$pdf->line(46, 471, 790, 471);
 
-$LeftOvers = $pdf->addTextWrap(50, $YPos,100, $FontSize,_('Stock Name'),'left');
-$LeftOvers = $pdf->addTextWrap(150, $YPos,80, $FontSize,_('UOM/SUB UOM'),'left');
-$LeftOvers = $pdf->addTextWrap(230, $YPos,80, $FontSize,_('Opn Stock'),'center');
-$LeftOvers = $pdf->addTextWrap(310, $YPos,80, $FontSize,_('Purchases'),'center');
-$LeftOvers = $pdf->addTextWrap(390, $YPos,80, $FontSize,_('Production'),'center');
-$LeftOvers = $pdf->addTextWrap(470, $YPos,80, $FontSize,_('Available'),'center');
-$LeftOvers = $pdf->addTextWrap(550, $YPos,80, $FontSize,_('WO Requests'),'center');
-$LeftOvers = $pdf->addTextWrap(630, $YPos,80, $FontSize,_('Sales Ord'),'center');
-$LeftOvers = $pdf->addTextWrap(710, $YPos,80, $FontSize,_('Closing Stock'),'center');
+/* Column group headings */
+$YPos = 451;
+$pdf->SetFillColor(226, 235, 245);
+$pdf->Rect(46, $YPos - 5, 744, 24, 'F');
+$pdf->SetFont('helvetica', 'B', 8);
+$pdf->SetTextColor(23, 43, 77);
+$pdf->addTextWrap(50, $YPos, 100, 8, _('Stock Name'), 'left');
+$pdf->addTextWrap(150, $YPos, 80, 8, _('UOM / SUB UOM'), 'left');
+$pdf->addTextWrap(230, $YPos, 80, 8, _('Opening Stock'), 'center');
+$pdf->addTextWrap(310, $YPos, 80, 8, _('Purchases'), 'center');
+$pdf->addTextWrap(390, $YPos, 80, 8, _('Production'), 'center');
+$pdf->addTextWrap(470, $YPos, 80, 8, _('Available'), 'center');
+$pdf->addTextWrap(550, $YPos, 80, 8, _('WO Requests'), 'center');
+$pdf->addTextWrap(630, $YPos, 80, 8, _('Sales Orders'), 'center');
+$pdf->addTextWrap(710, $YPos, 80, 8, _('Closing Stock'), 'center');
+$pdf->SetTextColor(0, 0, 0);
+$pdf->line(46, $YPos - 9, 790, $YPos - 9);
 
-$pdf->line($Page_Width-$Right_Margin,($YPos - $line_height),$Left_Margin,($YPos - $line_height) );
-
-$firstrowpos = ($YPos - $line_height) -20 ;
+$firstrowpos = $YPos - 27;
 $lastrow = $Bottom_Margin + ($line_height * 2);
-
-$YPos -= (2 * $line_height);
-
-
+$YPos = $firstrowpos;
+$FontSize = 8;
 ?>
