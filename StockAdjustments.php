@@ -6,9 +6,69 @@ include('includes/SQL_CommonFunctions.inc');
 
 $thispage = htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
 
+function AdjustStockRegisterForCount($itemcode,$baseDifference,$averageCost,$journalno,$documentNo){
+    global $db;
+
+    $itemcode = str_replace("'","''",$itemcode);
+    $journalno = str_replace("'","''",$journalno);
+    $documentNo = str_replace("'","''",$documentNo);
+    $difference = (float)$baseDifference;
+
+    if(abs($difference) < 0.0000001){
+        return 0.0;
+    }
+
+    if($difference > 0){
+        DB_System("INSERT INTO stockregister
+            (itemcode,StockIn,cost,StockOut,journal,GRN)
+            VALUES ('".$itemcode."',".sprintf('%.6F',$difference).",
+                ".sprintf('%.6F',(float)$averageCost).",0,'".$journalno."','".$documentNo."')",$db);
+        return $difference * (float)$averageCost;
+    }
+
+    $remaining = abs($difference);
+    $layers = array();
+    $available = 0.0;
+    $result = DB_query("SELECT rowid,cost,StockBalance
+        FROM stockregister
+        WHERE itemcode='".$itemcode."' AND StockBalance > 0
+        ORDER BY rowid ASC",$db);
+    while($row = DB_fetch_array($result)){
+        $layers[] = $row;
+        $available += max(0,(float)$row['StockBalance']);
+    }
+    DB_free_result($result);
+
+    if($available + 0.0000001 < $remaining){
+        return false;
+    }
+
+    $totalCost = 0.0;
+    foreach($layers as $layer){
+        if($remaining <= 0.0000001){
+            break;
+        }
+        $take = min($remaining,max(0,(float)$layer['StockBalance']));
+        if($take <= 0){
+            continue;
+        }
+        DB_System(sprintf(
+            "UPDATE stockregister
+             SET StockOut=COALESCE(StockOut,0)+%.6F
+             WHERE rowid='%s'",
+            $take,
+            str_replace("'","''",$layer['rowid'])
+        ),$db);
+        $totalCost += $take * (float)$layer['cost'];
+        $remaining -= $take;
+    }
+
+    return ($remaining <= 0.0000001) ? $totalCost : false;
+}
+
 if(isset($_POST['savecount'])){
-    $itemcode = isset($_POST['StockID']) ? str_replace("'", "''", $_POST['StockID']) : '';
-    $store = isset($_POST['location']) ? str_replace("'", "''", $_POST['location']) : '';
+    $itemcode = isset($_POST['StockID']) ? str_replace("'", "''", trim($_POST['StockID'])) : '';
+    $store = isset($_POST['location']) ? str_replace("'", "''", trim($_POST['location'])) : '';
     $fullCountInput = isset($_POST['count_full']) ? trim($_POST['count_full']) : '';
     $looseCountInput = isset($_POST['count_loose']) ? trim($_POST['count_loose']) : '';
 
@@ -46,44 +106,50 @@ if(isset($_POST['savecount'])){
                 }else{
                     $differenceSql = sprintf('%.4F',$difference);
                     $averageCost = (float)$countData['averagecost'];
-                    $amountSql = sprintf('%.4F',abs($difference * $averageCost));
                     $journalno = GetNextTransNo(0,$db);
                     $documentNo = isset($_POST['DocNo']) ? str_replace("'", "''", $_POST['DocNo']) : GetNextTransNo(17,$db);
                     $periodNo = GetPeriod(Today(),$db);
-                    $currency = $_SESSION['CompanyRecord']['currencydefault'];
-
-                    $SQL = array();
-                    $SQL[] = "INSERT INTO [stockledger]
-                        ([date],[stname],[doctyp],[itemcode],[invref],[fulqty],[loosqty],[price],[store],[journal],[period])
-                        VALUES (sysdate(),'Stock Take Adjustment','17','".$itemcode."','".$documentNo."',0,'".$differenceSql."','".$averageCost."','".$store."','".$journalno."','".$periodNo."')";
-
-                    $SQL[] = "INSERT INTO [Generalledger]
-                        ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode],[VATaccountcode],
-                         [amount],[VATamount],[currencycode],[ExchangeRate],[narration])
-                        SELECT
-                            '".$journalno."',[stockledger].[date],'".$periodNo."','".$documentNo."',17,
-                            CASE WHEN ".$differenceSql." > 0 THEN [inventorypostinggroup].[balancesheet] ELSE [inventorypostinggroup].[stockvariance] END,
-                            CASE WHEN ".$differenceSql." > 0 THEN [inventorypostinggroup].[stockvariance] ELSE [inventorypostinggroup].[balancesheet] END,
-                            '',
-                            ".$amountSql.",0,'".$currency."',1,
-                            CONCAT(RTRIM([stockmaster].[descrip]),' - Counted ".$fullCountInput." full + ".$looseCountInput." loose; system ".$systemUnits."; variance ".$differenceSql."')
-                        FROM [stockledger]
-                        JOIN [stockmaster] ON [stockledger].[itemcode]=[stockmaster].[itemcode]
-                        JOIN [inventorypostinggroup] ON [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-                        WHERE [stockledger].[journal]='".$journalno."'";
+                    $currency = str_replace("'", "''", $_SESSION['CompanyRecord']['currencydefault']);
+                    $narration = str_replace("'","''","Counted ".$fullCountInput." full + ".$looseCountInput." loose; system ".$systemUnits."; variance ".$differenceSql);
 
                     DB_Txn_Begin($db);
-                    foreach($SQL as $statement){
-                        DB_query($statement,$db);
-                    }
-                    if(DB_error_no($db)>0){
+                    DB_query("INSERT INTO stockledger
+                        (date,stname,doctyp,itemcode,invref,fulqty,loosqty,price,store,journal,period)
+                        VALUES (SYSDATE(),'Stock Take Adjustment','17','".$itemcode."','".$documentNo."',
+                            0,'".$differenceSql."','".$averageCost."','".$store."','".$journalno."','".$periodNo."')",$db);
+
+                    $fifoValue = AdjustStockRegisterForCount($itemcode,$difference,$averageCost,$journalno,$documentNo);
+                    if($fifoValue === false){
                         DB_Txn_Rollback($db);
-                        prnMsg('The stock take adjustment could not be posted. No stock change was saved.','warn');
+                        prnMsg('The FIFO register does not contain enough costed stock to post this shortage. Reconcile the FIFO layers before posting the stock take.','warn');
                     }else{
-                        DB_Txn_Commit($db);
-                        prnMsg('Stock take posted. System stock has been adjusted to the physical count.');
-                        unset($_POST['count_full'],$_POST['count_loose']);
-                        $_POST['DocNo'] = GetNextTransNo(17,$db);
+                        $amountSql = sprintf('%.6F',abs($fifoValue));
+                        DB_query("INSERT INTO Generalledger
+                            (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,
+                             VATaccountcode,amount,VATamount,currencycode,ExchangeRate,narration)
+                            SELECT '".$journalno."',SYSDATE(),'".$periodNo."','".$documentNo."',17,
+                                CASE WHEN ".$differenceSql." > 0
+                                     THEN inventorypostinggroup.balancesheet
+                                     ELSE inventorypostinggroup.stockvariance END,
+                                CASE WHEN ".$differenceSql." > 0
+                                     THEN inventorypostinggroup.stockvariance
+                                     ELSE inventorypostinggroup.balancesheet END,
+                                '',".$amountSql.",0,'".$currency."',1,
+                                CONCAT(RTRIM(stockmaster.descrip),' - ".$narration."')
+                            FROM stockmaster
+                            JOIN inventorypostinggroup ON inventorypostinggroup.code=stockmaster.postinggroup
+                            WHERE stockmaster.itemcode='".$itemcode."'",$db);
+
+                        if(DB_error_no($db)>0){
+                            DB_Txn_Rollback($db);
+                            prnMsg('The stock take adjustment could not be posted. No stock change was saved.','warn');
+                        }else{
+                            DB_Txn_Commit($db);
+                            GetStockRegister($itemcode);
+                            prnMsg('Stock take posted. System stock has been adjusted to the physical count.');
+                            unset($_POST['count_full'],$_POST['count_loose']);
+                            $_POST['DocNo'] = GetNextTransNo(17,$db);
+                        }
                     }
                 }
             }
