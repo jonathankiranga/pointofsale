@@ -6,6 +6,91 @@ include('includes/SQL_CommonFunctions.inc');
 
 $thispage = htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
 
+if(isset($_POST['savecount'])){
+    $itemcode = isset($_POST['StockID']) ? str_replace("'", "''", $_POST['StockID']) : '';
+    $store = isset($_POST['location']) ? str_replace("'", "''", $_POST['location']) : '';
+    $fullCountInput = isset($_POST['count_full']) ? trim($_POST['count_full']) : '';
+    $looseCountInput = isset($_POST['count_loose']) ? trim($_POST['count_loose']) : '';
+
+    if($itemcode === '' || $store === '' || $fullCountInput === '' || $looseCountInput === ''
+        || !is_numeric($fullCountInput) || !is_numeric($looseCountInput)
+        || (float)$fullCountInput < 0 || (float)$looseCountInput < 0){
+        prnMsg('Enter valid non-negative full-unit and loose-unit physical counts, and select a store.','warn');
+    }else{
+        $countResult = DB_query("SELECT
+                COALESCE(SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,0)),0)
+                + COALESCE(SUM(COALESCE(stockledger.loosqty,0)),0) AS systemunits,
+                COALESCE(stockmaster.partperunit,0) AS partperunit,
+                COALESCE(stockmaster.averagestock,0) AS averagecost
+            FROM stockmaster
+            LEFT JOIN stockledger
+                ON stockledger.itemcode=stockmaster.itemcode
+                AND stockledger.store='".$store."'
+            WHERE stockmaster.itemcode='".$itemcode."'
+            GROUP BY stockmaster.partperunit,stockmaster.averagestock",$db);
+
+        if(DB_num_rows($countResult) < 1){
+            prnMsg('The selected inventory item could not be found.','warn');
+        }else{
+            $countData = DB_fetch_array($countResult);
+            $partPerUnit = (float)$countData['partperunit'];
+            if($partPerUnit <= 0){
+                prnMsg('This item has an invalid pack size. Set a valid Parts In a Unit value before taking stock.','warn');
+            }else{
+                $systemUnits = (float)$countData['systemunits'];
+                $physicalUnits = ((float)$fullCountInput * $partPerUnit) + (float)$looseCountInput;
+                $difference = $physicalUnits - $systemUnits;
+
+                if(abs($difference) < 0.00005){
+                    prnMsg('Physical count matches the system balance. No adjustment was posted.');
+                }else{
+                    $differenceSql = sprintf('%.4F',$difference);
+                    $averageCost = (float)$countData['averagecost'];
+                    $amountSql = sprintf('%.4F',abs($difference * $averageCost));
+                    $journalno = GetNextTransNo(0,$db);
+                    $documentNo = isset($_POST['DocNo']) ? str_replace("'", "''", $_POST['DocNo']) : GetNextTransNo(17,$db);
+                    $periodNo = GetPeriod(Today(),$db);
+                    $currency = $_SESSION['CompanyRecord']['currencydefault'];
+
+                    $SQL = array();
+                    $SQL[] = "INSERT INTO [stockledger]
+                        ([date],[stname],[doctyp],[itemcode],[invref],[fulqty],[loosqty],[price],[store],[journal],[period])
+                        VALUES (sysdate(),'Stock Take Adjustment','17','".$itemcode."','".$documentNo."',0,'".$differenceSql."','".$averageCost."','".$store."','".$journalno."','".$periodNo."')";
+
+                    $SQL[] = "INSERT INTO [Generalledger]
+                        ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode],[VATaccountcode],
+                         [amount],[VATamount],[currencycode],[ExchangeRate],[narration])
+                        SELECT
+                            '".$journalno."',[stockledger].[date],'".$periodNo."','".$documentNo."',17,
+                            CASE WHEN ".$differenceSql." > 0 THEN [inventorypostinggroup].[balancesheet] ELSE [inventorypostinggroup].[stockvariance] END,
+                            CASE WHEN ".$differenceSql." > 0 THEN [inventorypostinggroup].[stockvariance] ELSE [inventorypostinggroup].[balancesheet] END,
+                            '',
+                            ".$amountSql.",0,'".$currency."',1,
+                            CONCAT(RTRIM([stockmaster].[descrip]),' - Stock take variance: ".$differenceSql."')
+                        FROM [stockledger]
+                        JOIN [stockmaster] ON [stockledger].[itemcode]=[stockmaster].[itemcode]
+                        JOIN [inventorypostinggroup] ON [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
+                        WHERE [stockledger].[journal]='".$journalno."'";
+
+                    DB_Txn_Begin($db);
+                    foreach($SQL as $statement){
+                        DB_query($statement,$db);
+                    }
+                    if(DB_error_no($db)>0){
+                        DB_Txn_Rollback($db);
+                        prnMsg('The stock take adjustment could not be posted. No stock change was saved.','warn');
+                    }else{
+                        DB_Txn_Commit($db);
+                        prnMsg('Stock take posted. System stock has been adjusted to the physical count.');
+                        unset($_POST['count_full'],$_POST['count_loose']);
+                        $_POST['DocNo'] = GetNextTransNo(17,$db);
+                    }
+                }
+            }
+        }
+    }
+}
+
 if(isset($_POST['saveadjustment'])){
     
    $SQL=array();
@@ -104,42 +189,71 @@ echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8'
 echo '<div class="container">';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 
-if(isset($_GET['StockID'])){
+if(isset($selectedStockID) || isset($_POST['StockID'])){
+    $selectedStockID = isset($selectedStockID) ? $selectedStockID : $_POST['StockID'];
     
-        $results=DB_query("Select [itemcode],[descrip],[inactive],[partperunit],[averagestock],[postinggroup]  FROM [stockmaster] where itemcode='".$_GET['StockID']."'", $db);
+        $results=DB_query("Select [itemcode],[descrip],[inactive],[partperunit],[averagestock],[postinggroup]  FROM [stockmaster] where itemcode='".$selectedStockID."'", $db);
         $rowsstock=DB_fetch_row($results);
         $DESCRIPTION=$rowsstock[1];
         $AVERAGESTOCK=$rowsstock[4];        
        
-       $REsults=DB_query("SELECT f.descrip as fulqty, l.descrip as loosqty  FROM [stockmaster] left join [unit] f on [stockmaster].[units]=f.code   left join [unit] l on [stockmaster].[subunits]=l.code  where itemcode= '".$_GET['StockID']."'", $db);
+       $REsults=DB_query("SELECT f.descrip as fulqty, l.descrip as loosqty  FROM [stockmaster] left join [unit] f on [stockmaster].[units]=f.code   left join [unit] l on [stockmaster].[subunits]=l.code  where itemcode= '".$selectedStockID."'", $db);
        $UOMline ='<select name="UOM" required="required">';
        $rows=  DB_fetch_row($REsults);
+        $fullUnitName = isset($rows[0]) && $rows[0] !== '' ? $rows[0] : 'Full units';
+        $looseUnitName = isset($rows[1]) && $rows[1] !== '' ? $rows[1] : 'Loose units';
         $UOMline .=sprintf('<option value="fulqty" %s >'.$rows[0].'</option>'
                    . '<option value="loosqty" %s >'.$rows[1].'</option>'
-                   ,$_POST['UOM'][$pkey]=='fulqty'?'selected="selected"':'',
-                   $_POST['UOM'][$pkey]=='loosqty'?'selected="selected"':'');
+                   ,$_POST['UOM']=='fulqty'?'selected="selected"':'',
+                   $_POST['UOM']=='loosqty'?'selected="selected"':'');
        $UOMline .= '</select>';
   
        
-       $REsults=DB_query('SELECT [code],[Storename] FROM [Stores]', $db);
-       $STOREline ='<select name="location">';
-       while($rows=  DB_fetch_array($REsults)){
-         $STOREline .= sprintf('<option value="%s" %s >%s</option>',
-                   $rows['code'],$_POST['location']==$rows['code']?'selected="selected"':'',$rows['Storename']);
+       $selectedStore = isset($_POST['location']) ? $_POST['location'] : '';
+       if($selectedStore === ''){
+           $firstStore = DB_query('SELECT [code] FROM [Stores] ORDER BY [code] LIMIT 1',$db);
+           $firstStoreRow = DB_fetch_row($firstStore);
+           $selectedStore = isset($firstStoreRow[0]) ? $firstStoreRow[0] : '';
        }
-        $STOREline .= '</select>';
+       $REsults=DB_query('SELECT [code],[Storename] FROM [Stores]', $db);
+       $STOREline ='<select name="location" required="required">';
+       while($rows=DB_fetch_array($REsults)){
+           $STOREline .= sprintf('<option value="%s" %s >%s</option>',
+                   $rows['code'],$selectedStore==$rows['code']?'selected="selected"':'',$rows['Storename']);
+       }
+       $STOREline .= '</select>';
        
     echo '<p class="page_title_text">'. $DESCRIPTION. '</p>';
-    echo '<input type="hidden" name="StockID" value="' .$_GET['StockID'] .'"/>';
+    echo '<input type="hidden" name="StockID" value="' .$selectedStockID .'"/>';
    
-    $_POST['DocNo'] = GetNextTransNo(17, $db);
+    if(!isset($_POST['DocNo']) || $_POST['DocNo']===''){ $_POST['DocNo'] = GetNextTransNo(17, $db); }
     
+    $balanceResult = DB_query("SELECT
+            COALESCE(SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,0)),0)
+            + COALESCE(SUM(COALESCE(stockledger.loosqty,0)),0) AS systemunits,
+            COALESCE(stockmaster.partperunit,0) AS partperunit
+        FROM stockmaster
+        LEFT JOIN stockledger ON stockledger.itemcode=stockmaster.itemcode AND stockledger.store='".str_replace("'", "''", $selectedStore)."'
+        WHERE stockmaster.itemcode='".str_replace("'", "''", $selectedStockID)."'
+        GROUP BY stockmaster.partperunit",$db);
+    $balanceData = DB_fetch_array($balanceResult);
+    $systemUnits = isset($balanceData['systemunits']) ? (float)$balanceData['systemunits'] : 0;
+    $partPerUnit = isset($balanceData['partperunit']) ? (float)$balanceData['partperunit'] : 0;
+    $systemFull = ($partPerUnit > 0) ? (int)($systemUnits / $partPerUnit) : 0;
+    $systemLoose = $systemUnits - ($systemFull * $partPerUnit);
+
     echo '<table class="table table-bordered">'
     . '<tr><td>Document No</td><td><input type="text" name="DocNo" value="'.$_POST['DocNo'].'" size="10" readonly="readonly"/></td></tr>'
             . '<tr><td>Average Cost</td><td><input type="text" name="averagecost" class="number" maxlength="10" size="10" value="'.$AVERAGESTOCK.'"/></td></tr>';
     echo '<tr><td>Store</td><td>';
     echo  $STOREline;
     echo '</td></tr>';
+    echo '<tr><td colspan="2"><strong>Physical Stock Take</strong></td></tr>';
+    echo '<tr><td>Current system balance</td><td>'.number_format($systemFull,0).' '.$fullUnitName.' + '.number_format($systemLoose,2).' '.$looseUnitName.' ('.number_format($systemUnits,2).' '.$looseUnitName.' equivalent)</td></tr>';
+    echo '<tr><td>Physical full units counted</td><td><input type="number" min="0" step="any" name="count_full" value="'.(isset($_POST['count_full'])?htmlspecialchars($_POST['count_full'],ENT_QUOTES,'UTF-8'):'').'" required="required"/> '.$fullUnitName.'</td></tr>';
+    echo '<tr><td>Physical loose units counted</td><td><input type="number" min="0" step="any" name="count_loose" value="'.(isset($_POST['count_loose'])?htmlspecialchars($_POST['count_loose'],ENT_QUOTES,'UTF-8'):'').'" required="required"/> '.$looseUnitName.'</td></tr>';
+    echo '<tr><td colspan="2"><input type="submit" name="savecount" value="Post Stock Take" onclick="return confirm(\'Post the physical count and adjust stock to match?\');"/></td></tr>';
+    echo '<tr><td colspan="2"><strong>Manual Adjustment</strong></td></tr>';
     echo '<tr><td>Adjust by QTY</td><td>';
     echo  $UOMline ;
     echo  '<input type="text" name="stockbalance" class="number" maxlength="10" size="10"/></td></tr>';
