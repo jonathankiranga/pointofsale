@@ -27,11 +27,7 @@ if(isset($_POST['importexcel']) && !(isset($_GET['downloadtemplate']) && $_GET['
 
 if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
     try{
-        require_once 'vendor/phpoffice/phpspreadsheet/src/Bootstrap.php';
-        require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Spreadsheet.php';
-        require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xlsx.php';
-        require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xls.php';
-        require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/Xlsx.php';
+        require_once 'vendor/autoload.php';
         $spreadsheet = new Spreadsheet();
         $inventory = $spreadsheet->getActiveSheet();
         $inventory->setTitle('Inventory List');
@@ -133,15 +129,11 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         error_log('Inventory XLSX template generation failed: '.$e->getMessage());
         if(!headers_sent()){
             while(ob_get_level() > 0){ ob_end_clean(); }
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename="stock_catalogue_import.csv"');
-            header('Cache-Control: no-cache, must-revalidate');
-            $output = fopen('php://output','w');
-            fputcsv($output,array('Barcode','StockName','RetailPrice','GroupCode','PartsPerUnit','FullUnitCode','LooseUnitCode','CategoryID','ContainerItemCode'));
-            fclose($output);
-            exit;
+            http_response_code(500);
+            header('Content-Type: text/plain; charset=utf-8');
         }
-        die('Unable to generate the inventory template. Please check the PHP error log.');
+        die('The Excel workbook could not be generated. Check the PHP error log for the underlying error.');
+
     }
 }
 
