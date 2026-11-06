@@ -38,8 +38,9 @@ $thispage=htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
     if (!preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $date)) {
         prnMsg(_('Please enter a valid movement date.'), 'error');
         $date = date('Y-m-d');
-        $_POST['date'] = ConvertSQLDate($date);
     }
+
+    $_POST['date'] = ConvertSQLDate($date);
 }
 
 if(isset($_GET['StockID'])){
