@@ -126,7 +126,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         foreach(array('C','F','I') as $column){ $codes->getColumnDimension($column)->setWidth(3); }
         $codes->getStyle('A5:K'.max($groupLast,$unitLast,$categoryLast,$containerLast))->getAlignment()->setVertical('top')->setWrapText(true);
         foreach(array('A5:B'.$groupLast,'D5:E'.$unitLast,'G5:H'.$categoryLast,'J5:K'.$containerLast) as $dataRange){
-            $codes->getStyle($dataRange)->getBorders()->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\\Border::BORDER_HAIR)->getColor()->setRGB('D9E2F3');
+            $codes->getStyle($dataRange)->getBorders()->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_HAIR)->getColor()->setRGB('D9E2F3');
         }
 
         $guidanceRow = max($groupLast,$unitLast,$categoryLast,$containerLast)+2;
@@ -158,8 +158,8 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
             $lastRow = $list[1];
             for($row=2;$row<=101;$row++){
                 $validation = $inventory->getCell($targetColumn.$row)->getDataValidation();
-                $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\\DataValidation::TYPE_LIST);
-                $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\\DataValidation::STYLE_STOP);
+                $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_STOP);
                 $validation->setAllowBlank(true);
                 $validation->setShowInputMessage(true);
                 $validation->setShowErrorMessage(true);
