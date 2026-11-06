@@ -116,7 +116,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
         $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.35)->setRight(0.35);
         $codes->getHeaderFooter()->setOddFooter('&CLive ERP Code Reference - Page &P of &N');
-        $codes->setPrintArea('A1:B'.max(4,$codes->getHighestRow()));
+        $codes->getPageSetup()->setPrintArea('A1:B'.max(4,$codes->getHighestRow()));
         $spreadsheet->setActiveSheetIndex(0);
         if(ob_get_length()){ ob_end_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
