@@ -683,7 +683,7 @@ $(document).ready(function() {
                 '\\nOpening float: KES ' + Number(response.opening_float).toFixed(2) +
                 '\\nExpected cash: KES ' + Number(response.expected_cash).toFixed(2) +
                 '\\nActual cash counted: KES ' + Number(response.cash_counted).toFixed(2) +
-                '\\nCash ' + (variance < 0 ? 'shortage' : 'overage') + ': KES ' + Math.abs(variance).toFixed(2));
+                '\\nCash ' + (variance < 0 ? 'shortage' : 'overage') + ': KES ' + Math.abs(variance).toFixed(2);
             (response.items || []).forEach(function(item) {
                 message += '\\n' + item.itemcode + ' · ' + item.description +
                     ' · Qty ' + Number(item.quantity).toFixed(2) +
