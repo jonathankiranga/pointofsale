@@ -23,6 +23,7 @@ $configKeys = array(
     'POS_DefaultCustomer' => 'Default POS customer',
     'POS_DefaultStore' => 'Default POS store',
     'POS_DefaultCurrency' => 'Default POS currency',
+    'POS_DefaultPostingGroup' => 'Sales posting group',
     'POS_CashBankAccount' => 'Cash bank account',
     'POS_MPesaBankAccount' => 'M-Pesa bank account'
 );
@@ -42,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'POS_DefaultCustomer' => array('SELECT itemcode FROM debtors WHERE itemcode = ? LIMIT 1', 's'),
         'POS_DefaultStore' => array('SELECT code FROM stores WHERE code = ? LIMIT 1', 's'),
         'POS_DefaultCurrency' => array('SELECT currabrev FROM currencies WHERE currabrev = ? LIMIT 1', 's'),
+        'POS_DefaultPostingGroup' => array('SELECT code FROM postinggroups WHERE code = ? LIMIT 1', 's'),
         'POS_CashBankAccount' => array('SELECT accountcode FROM bankaccounts WHERE accountcode = ? AND COALESCE(Makeinactive,0)=0 LIMIT 1', 's'),
         'POS_MPesaBankAccount' => array('SELECT accountcode FROM bankaccounts WHERE accountcode = ? AND COALESCE(Makeinactive,0)=0 LIMIT 1', 's')
     );
@@ -101,6 +103,8 @@ $result = $mysqli->query('SELECT code, Storename FROM stores ORDER BY Storename,
 $stores = $result ? $result->fetch_all(MYSQLI_ASSOC) : array();
 $result = $mysqli->query('SELECT currabrev, currency FROM currencies ORDER BY currency');
 $currencies = $result ? $result->fetch_all(MYSQLI_ASSOC) : array();
+$result = $mysqli->query('SELECT code FROM postinggroups ORDER BY code');
+$postingGroups = $result ? $result->fetch_all(MYSQLI_ASSOC) : array();
 $result = $mysqli->query("SELECT accountcode, bankName, AcctName, currency FROM bankaccounts WHERE accountcode IS NOT NULL AND accountcode <> '' AND COALESCE(Makeinactive,0)=0 ORDER BY bankName, accountcode");
 $banks = $result ? $result->fetch_all(MYSQLI_ASSOC) : array();
 
@@ -129,6 +133,7 @@ echo '<table class="table table-bordered table-striped">';
 posConfigSelect('POS_DefaultCustomer', 'Default POS customer', $customers, 'itemcode', function($r) { return $r['customer'] . ' (' . $r['itemcode'] . ')'; }, $current['POS_DefaultCustomer']);
 posConfigSelect('POS_DefaultStore', 'Default POS store', $stores, 'code', function($r) { return $r['Storename'] . ' (' . $r['code'] . ')'; }, $current['POS_DefaultStore']);
 posConfigSelect('POS_DefaultCurrency', 'Default POS currency', $currencies, 'currabrev', function($r) { return $r['currency'] . ' (' . $r['currabrev'] . ')'; }, $current['POS_DefaultCurrency']);
+posConfigSelect('POS_DefaultPostingGroup', 'Sales posting group', $postingGroups, 'code', function($r) { return $r['code']; }, $current['POS_DefaultPostingGroup']);
 $bankLabel = function($r) { return ($r['AcctName'] ? $r['AcctName'] . ' - ' : '') . $r['bankName'] . ' (' . $r['accountcode'] . ', ' . $r['currency'] . ')'; };
 posConfigSelect('POS_CashBankAccount', 'Cash bank account', $banks, 'accountcode', $bankLabel, $current['POS_CashBankAccount']);
 posConfigSelect('POS_MPesaBankAccount', 'M-Pesa bank account', $banks, 'accountcode', $bankLabel, $current['POS_MPesaBankAccount']);
