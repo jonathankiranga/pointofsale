@@ -110,8 +110,7 @@ if(isset($StockID)){
              from [stockledger] 
              join [systypes_1] on [systypes_1].[typeid]=[stockledger].[doctyp] 
              join [stockmaster] on [stockledger].itemcode=[stockmaster].itemcode 
-             and (stockmaster.isstock_1=1 or stockmaster.isstock_2 =1 or stockmaster.isstock_4 =1 
-             or stockmaster.isstock_5 =1 or stockmaster.isstock_6 =1)
+             and stockmaster.isstock IN ('1', '2', '4', '5', '6')
              left join [unit] funit on stockmaster.[units]=funit.[code] 
              left join [unit] lunit on stockmaster.[subunits]=lunit.[code] 
              where ([stockledger].itemcode='".$StockID."' 
@@ -130,8 +129,7 @@ if(isset($StockID)){
              from [tanktrans] 
              join [systypes_1] on [systypes_1].[typeid]=[tanktrans].[doctype] 
              join [stockmaster] on [tanktrans].itemcode=[stockmaster].itemcode 
-             and (stockmaster.isstock_1=1 or stockmaster.isstock_2 =1 or stockmaster.isstock_4 =1 
-             or stockmaster.isstock_5 =1 or stockmaster.isstock_6 =1)
+             and stockmaster.isstock IN ('1', '2', '4', '5', '6')
             left join [unit] funit on stockmaster.[units]=funit.[code] 
             left join [unit] lunit on stockmaster.[subunits]=lunit.[code] 
              where ([tanktrans].itemcode='".$StockID."' 
@@ -205,8 +203,7 @@ echo '<table class="register display" style="width:100%">'
         . '</tr></thead><tbody>';
       
        $results=DB_query("Select [itemcode],[descrip],[inactive],[partperunit],[averagestock],[postinggroup],[isstock] 
-              FROM [stockmaster] where (stockmaster.isstock_1=1 or stockmaster.isstock_2 =1 or stockmaster.isstock_4 =1 
-             or stockmaster.isstock_5 =1 or stockmaster.isstock_6 =1) order by [descrip] asc", $db);
+              FROM [stockmaster] where stockmaster.isstock IN ('1', '2', '4', '5', '6') order by [descrip] asc", $db);
        
        $k=0;
        while($rows=DB_fetch_array($results)){
