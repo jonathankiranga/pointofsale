@@ -72,7 +72,7 @@ $itemSql = "SELECT l.code AS itemcode, l.description, SUM(l.Quantity) AS quantit
             WHERE " . $where . "
             GROUP BY l.code,l.description ORDER BY sales_value DESC";
 $stmt = $mysqli->prepare($itemSql);
-$stmt->bind_param($types, ...$params);
+posReportBind($stmt, $types, $params);
 $stmt->execute();
 $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
@@ -95,7 +95,7 @@ $stmt->close();
 $transactionSql = "SELECT h.documentno,h.docdate,h.userid,h.payment_method,h.total,h.total_vat
                    FROM SalesHeader h WHERE " . $where . " ORDER BY h.docdate DESC,h.documentno DESC LIMIT 500";
 $stmt = $mysqli->prepare($transactionSql);
-$stmt->bind_param($types, ...$params);
+posReportBind($stmt, $types, $params);
 $stmt->execute();
 $transactions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
