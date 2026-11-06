@@ -360,3 +360,39 @@ kbd { padding: 3px 6px; border: 1px solid #d8dee8; border-radius: 5px; backgroun
     font-size: 14px !important;
     box-shadow: var(--pos-shadow);
 }
+
+/* Professional X/Z shift report presentation and print layout. */
+#custom-dialog .pos-message-dialog { width: min(980px, 96vw); max-width: 980px; }
+#dialog-message:has(.pos-shift-report) { margin: 0; width: 100%; }
+.pos-shift-report { width: 100%; padding: 26px; background: #fff; color: #172033; border: 1px solid #dfe5ee; border-radius: 12px; font: 13px/1.45 Arial, sans-serif; }
+.psr-head { display: flex; justify-content: space-between; gap: 18px; border-bottom: 3px solid #172b4d; padding-bottom: 16px; }
+.psr-brand { color: #52627a; font-size: 11px; font-weight: 800; letter-spacing: 1.8px; }
+.psr-title { margin: 5px 0; font-size: 25px; font-weight: 800; }
+.psr-sub { color: #667085; }
+.psr-stamp { align-self: flex-start; padding: 9px 13px; background: #eaf2ff; color: #145cc5; font-weight: 800; letter-spacing: 1px; }
+.psr-meta { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin: 16px 0; }
+.psr-meta div,.psr-metric { min-width: 0; padding: 11px; background: #f5f7fa; border: 1px solid #e6ebf2; }
+.psr-label { display: block; color: #667085; font-size: 9px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
+.psr-value { display: block; margin-top: 4px; font-weight: 700; overflow-wrap: anywhere; }
+.psr-total { margin: 13px 0; padding: 16px; background: #10233f; color: #fff; }
+.psr-total .psr-label { color: #c7d4e7; }
+.psr-total strong { display: block; margin-top: 3px; font-size: 27px; }
+.psr-section { margin-top: 19px; }
+.psr-section h3 { margin: 0 0 9px; padding-bottom: 7px; border-bottom: 1px solid #dfe5ee; font-size: 11px; letter-spacing: .8px; text-transform: uppercase; }
+.psr-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.psr-metric strong { display: block; margin-top: 5px; font-size: 14px; }
+.psr-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11px; }
+.psr-table th { background: #f1f4f8; color: #52627a; text-align: left; font-size: 9px; text-transform: uppercase; }
+.psr-table th,.psr-table td { padding: 8px; border-bottom: 1px solid #e7ebf1; }
+.psr-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.psr-empty { padding: 18px !important; text-align: center; color: #667085; }
+.psr-footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 22px; padding-top: 10px; border-top: 1px solid #dfe5ee; color: #667085; font-size: 9px; }
+#dialog-print-btn { order: 2; }
+@media(max-width:680px) {
+ .pos-shift-report { padding: 14px; }
+ .psr-meta { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .psr-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .psr-title { font-size: 20px; }
+ .psr-table { min-width: 590px; }
+ #dialog-message:has(.pos-shift-report) { overflow-x: auto; }
+}
