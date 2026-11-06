@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS pos_shifts (
     mpesa_sales DECIMAL(15,2) DEFAULT NULL,
     z_report_number VARCHAR(30) DEFAULT NULL,
     status ENUM('OPEN','CLOSED') NOT NULL DEFAULT 'OPEN',
+    active_cashier_id VARCHAR(20) GENERATED ALWAYS AS (CASE WHEN status='OPEN' THEN cashier_id ELSE NULL END) STORED,
     PRIMARY KEY (id),
+    UNIQUE KEY uq_pos_shifts_one_open_per_cashier (active_cashier_id),
     KEY idx_pos_shifts_cashier_status (cashier_id, status),
     KEY idx_pos_shifts_opened (opened_at),
     KEY idx_pos_shifts_closed (closed_at)
