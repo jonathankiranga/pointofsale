@@ -39,7 +39,7 @@ $SQL="select
       ,[SalesHeader].[BatchNO] ";
     $Result=DB_query($SQL,$db);
        
-    Echo '<Table class="table"><tr>'
+    Echo '<div class="table-responsive sales-invoice-list-wrap">\n    <table class="table table-bordered table-hover sales-invoice-list">\n    <thead><tr>'
        . '<th>Generate & Invoice <br />Lab Test<br /> By Sample ID</th>' 
       . '<th>Generate & Invoice <br />Lab Test<br /> By Batch No</th>' 
        . '<th>Sales <br /> Order <br /> Document<br /> date</th>'
@@ -73,7 +73,7 @@ $SQL="select
         echo '</tr>';
   }
         
-    echo '</table><br />';
+    echo '</tbody></table></div><br />';
     
      
 include('includes/footer.inc');
