@@ -602,51 +602,63 @@ function posShiftReportPrintCss() {
 function showPosShiftReport(type, shift, items) {
     var isZ = type === 'Z';
     var reportNo = isZ ? (shift.z_report_number || 'Z REPORT') : ('SHIFT #' + shift.id);
-    var cashier = shift.cashier_name || '—';
-    var opened = shift.opened_at || '—';
-    var closed = shift.closed_at || (isZ ? '—' : 'Shift still open');
+    var company = window.POS_COMPANY_DETAILS || {};
+    var companyName = company.name || 'Company name not configured';
+    var companyAddress = (company.address || []).filter(function(value) { return value; }).join(', ');
+    var companyContacts = [company.telephone, company.email].filter(function(value) { return value; }).join(' · ');
+    var generated = new Date();
+    var reportDate = generated.toLocaleDateString('en-GB');
+    var reportTime = generated.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
     var rows = '';
-    var totalQty = 0;
+    var totalQty = 0, totalVat = 0, totalSales = 0;
     (items || []).forEach(function(item, index) {
         var qty = Number(item.quantity) || 0;
-        totalQty += qty;
-        rows += '<tr><td>' + (index + 1) + '</td><td>' + posReportEscape(item.itemcode || '') +
+        var vat = Number(item.vat_value) || 0;
+        var sales = Number(item.sales_value) || 0;
+        totalQty += qty; totalVat += vat; totalSales += sales;
+        rows += '<tr><td class="num">' + (index + 1) + '</td><td>' + posReportEscape(item.itemcode || '') +
             '</td><td>' + posReportEscape(item.description || '') + '</td><td class="num">' +
-            qty.toLocaleString('en-KE', {maximumFractionDigits: 2}) + '</td><td class="num">' +
-            posReportMoney(item.sales_value) + '</td></tr>';
+            qty.toLocaleString('en-KE', {minimumFractionDigits:2, maximumFractionDigits:2}) +
+            '</td><td class="num">' + posReportMoney(sales - vat) + '</td><td class="num">' +
+            posReportMoney(vat) + '</td><td class="num">' + posReportMoney(sales) + '</td></tr>';
     });
     if (!rows) {
-        rows = '<tr><td colspan="5" class="psr-empty">No sales have been recorded for this shift.</td></tr>';
+        rows = '<tr><td colspan="7" class="psr-empty">No sales have been recorded for this shift.</td></tr>';
     }
     var html = '<article class="pos-shift-report">' +
-        '<header class="psr-head"><div><div class="psr-brand">SMARTERPLIMS · POINT OF SALE</div><div class="psr-title">' +
-        (isZ ? 'Shift Closing Report' : 'Shift Trading Report') + '</div><div class="psr-sub">Cashier shift reconciliation</div></div>' +
-        '<div class="psr-stamp">' + (isZ ? 'Z REPORT' : 'X REPORT') + '</div></header>' +
-        '<section class="psr-meta"><div><span class="psr-label">Report reference</span><span class="psr-value">' + posReportEscape(reportNo) +
-        '</span></div><div><span class="psr-label">Cashier</span><span class="psr-value">' + posReportEscape(cashier) +
-        '</span></div><div><span class="psr-label">Shift number</span><span class="psr-value">#' + posReportEscape(shift.id || '—') +
-        '</span></div><div><span class="psr-label">Opened</span><span class="psr-value">' + posReportEscape(opened) +
-        '</span></div><div><span class="psr-label">Closed</span><span class="psr-value">' + posReportEscape(closed) +
-        '</span></div><div><span class="psr-label">Receipts</span><span class="psr-value">' + posReportEscape(shift.receipt_count || 0) +
-        '</span></div></section>' +
-        '<div class="psr-total"><span class="psr-label">Gross sales</span><strong>' + posReportMoney(shift.total_sales) + '</strong></div>' +
-        '<section class="psr-section"><h3>Sales and payment summary</h3><div class="psr-metrics">' +
-        '<div class="psr-metric"><span class="psr-label">VAT</span><strong>' + posReportMoney(shift.total_vat) + '</strong></div>' +
-        '<div class="psr-metric"><span class="psr-label">Cash sales</span><strong>' + posReportMoney(shift.cash_sales) + '</strong></div>' +
-        '<div class="psr-metric"><span class="psr-label">M-Pesa sales</span><strong>' + posReportMoney(shift.mpesa_sales) + '</strong></div>' +
-        '</div></section>' +
-        '<section class="psr-section"><h3>Cash drawer reconciliation</h3><div class="psr-metrics">' +
-        '<div class="psr-metric"><span class="psr-label">Opening float</span><strong>' + posReportMoney(shift.opening_float) + '</strong></div>' +
-        '<div class="psr-metric"><span class="psr-label">Expected cash</span><strong>' + posReportMoney(shift.expected_cash) + '</strong></div>' +
-        (isZ ? '<div class="psr-metric"><span class="psr-label">Actual cash counted</span><strong>' + posReportMoney(shift.cash_counted) +
-        '</strong></div><div class="psr-metric"><span class="psr-label">Cash variance</span><strong>' + posReportMoney(shift.cash_variance) +
-        '</strong></div>' : '') + '</div></section>' +
-        '<section class="psr-section"><h3>Products sold</h3><table class="psr-table"><thead><tr><th>#</th><th>Item code</th><th>Description</th>' +
-        '<th class="num">Quantity</th><th class="num">Sales value</th></tr></thead><tbody>' + rows +
-        '</tbody><tfoot><tr><th colspan="3">Total quantity</th><th class="num">' +
-        totalQty.toLocaleString('en-KE', {maximumFractionDigits: 2}) + '</th><th></th></tr></tfoot></table></section>' +
-        '<footer class="psr-footer"><span>SmartERPlims POS · ' + (isZ ? 'End of shift' : 'Interim snapshot') +
-        '</span><span>Generated ' + posReportEscape(new Date().toLocaleString()) + '</span></footer></article>';
+        '<header class="psr-company-head"><div class="psr-company-name">' + posReportEscape(companyName) +
+        '</div><div class="psr-company-address">' + posReportEscape(companyAddress) + '</div>' +
+        '<div class="psr-company-address">' + posReportEscape(companyContacts) + '</div></header>' +
+        '<div class="psr-report-heading"><div><h2>' + (isZ ? 'Z REPORT — SHIFT CLOSING' : 'X REPORT — SHIFT SUMMARY') +
+        '</h2><span>Point of Sale Shift Report</span></div><strong>' + posReportEscape(reportNo) + '</strong></div>' +
+        '<table class="psr-parties"><tbody><tr><th>Report date</th><td>' + reportDate +
+        '</td><th>Report time</th><td>' + reportTime + '</td></tr><tr><th>Cashier</th><td>' +
+        posReportEscape(shift.cashier_name || '—') + '</td><th>Shift number</th><td>#' +
+        posReportEscape(shift.id || '—') + '</td></tr><tr><th>Shift opened</th><td>' +
+        posReportEscape(shift.opened_at || '—') + '</td><th>Shift closed</th><td>' +
+        posReportEscape(shift.closed_at || (isZ ? '—' : 'OPEN')) + '</td></tr><tr><th>Receipts</th><td>' +
+        posReportEscape(shift.receipt_count || 0) + '</td><th>Report type</th><td>' +
+        (isZ ? 'Final / Z' : 'Interim / X') + '</td></tr></tbody></table>' +
+        '<table class="psr-table"><thead><tr><th colspan="7" class="psr-table-title">PRODUCT SALES ANALYSIS</th></tr><tr>' +
+        '<th class="num">#</th><th>Item code</th><th>Description</th><th class="num">Quantity</th>' +
+        '<th class="num">Net amount</th><th class="num">VAT</th><th class="num">Gross amount</th></tr></thead><tbody>' + rows +
+        '</tbody><tfoot><tr><th colspan="3">TOTAL</th><th class="num">' +
+        totalQty.toLocaleString('en-KE', {minimumFractionDigits:2, maximumFractionDigits:2}) +
+        '</th><th class="num">' + posReportMoney(totalSales-totalVat) + '</th><th class="num">' +
+        posReportMoney(totalVat) + '</th><th class="num">' + posReportMoney(totalSales) +
+        '</th></tr></tfoot></table>' +
+        '<table class="psr-summary"><tbody><tr><th colspan="2">SHIFT FINANCIAL SUMMARY</th></tr>' +
+        '<tr><td>Gross sales</td><td>' + posReportMoney(shift.total_sales) + '</td></tr>' +
+        '<tr><td>VAT</td><td>' + posReportMoney(shift.total_vat) + '</td></tr>' +
+        '<tr><td>Cash sales</td><td>' + posReportMoney(shift.cash_sales) + '</td></tr>' +
+        '<tr><td>M-Pesa sales</td><td>' + posReportMoney(shift.mpesa_sales) + '</td></tr>' +
+        '<tr><td>Opening float</td><td>' + posReportMoney(shift.opening_float) + '</td></tr>' +
+        '<tr><td>Expected drawer cash</td><td>' + posReportMoney(shift.expected_cash) + '</td></tr>' +
+        (isZ ? '<tr><td>Actual cash counted</td><td>' + posReportMoney(shift.cash_counted) +
+        '</td></tr><tr><td>Cash variance</td><td>' + posReportMoney(shift.cash_variance) + '</td></tr>' : '') +
+        '</tbody></table><footer class="psr-footer">SmartERPlims POS · ' +
+        (isZ ? 'End of shift report' : 'Interim shift report') + ' · Generated ' +
+        reportDate + ' ' + reportTime + '</footer></article>';
     window.POS_LAST_SHIFT_REPORT = html;
     $('#dialog-message').html(html);
     $('#dialog-print-btn').show();
