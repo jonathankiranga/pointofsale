@@ -569,6 +569,90 @@ setInterval(saveSalesData,5000);  // Save every 5 seconds
 clearTable(); // Call this to clear the existing table and create editable row
 restoreSalesData();
 fillAnySavedDataOnLoading();
+
+function posReportEscape(value) {
+    return String(value === null || typeof value === 'undefined' ? '' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function posReportMoney(value) {
+    var amount = Number(value);
+    if (!Number.isFinite(amount)) { amount = 0; }
+    return 'KES ' + amount.toLocaleString('en-KE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function posShiftReportPrintCss() {
+    return 'body{margin:0;padding:28px;background:#eef2f7;color:#172033;font:14px/1.45 Arial,sans-serif}' +
+        '.pos-shift-report{max-width:900px;margin:0 auto;padding:34px;background:#fff;border:1px solid #dfe5ee}' +
+        '.psr-head{display:flex;justify-content:space-between;gap:20px;border-bottom:3px solid #172b4d;padding-bottom:20px}' +
+        '.psr-brand{font-size:12px;font-weight:800;letter-spacing:2px;color:#52627a}.psr-title{font-size:28px;font-weight:800;margin:5px 0}' +
+        '.psr-sub{color:#667085}.psr-stamp{align-self:flex-start;padding:9px 14px;background:#eaf2ff;color:#145cc5;font-weight:800;letter-spacing:1px}' +
+        '.psr-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.psr-meta div,.psr-metric{padding:13px;background:#f5f7fa;border:1px solid #e6ebf2}' +
+        '.psr-label{display:block;color:#667085;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}.psr-value{display:block;margin-top:5px;font-weight:700}' +
+        '.psr-total{background:#10233f;color:#fff;padding:20px;margin:16px 0}.psr-total .psr-label{color:#c7d4e7}.psr-total strong{display:block;font-size:30px;margin-top:4px}' +
+        '.psr-section{margin-top:24px}.psr-section h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid #dfe5ee;padding-bottom:9px}' +
+        '.psr-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.psr-metric strong{display:block;margin-top:6px;font-size:16px}' +
+        '.psr-table{width:100%;border-collapse:collapse;margin-top:10px}.psr-table th{background:#f1f4f8;text-align:left;font-size:10px;text-transform:uppercase;color:#52627a}' +
+        '.psr-table th,.psr-table td{padding:10px;border-bottom:1px solid #e7ebf1}.psr-table .num{text-align:right;font-variant-numeric:tabular-nums}' +
+        '.psr-empty{text-align:center;color:#667085;padding:22px!important}.psr-footer{margin-top:28px;padding-top:12px;border-top:1px solid #dfe5ee;color:#667085;font-size:10px;display:flex;justify-content:space-between}' +
+        '@page{size:A4;margin:12mm}@media print{body{padding:0;background:#fff}.pos-shift-report{border:0;padding:0;max-width:none}.psr-total,.psr-stamp{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+}
+
+function showPosShiftReport(type, shift, items) {
+    var isZ = type === 'Z';
+    var reportNo = isZ ? (shift.z_report_number || 'Z REPORT') : ('SHIFT #' + shift.id);
+    var cashier = shift.cashier_name || '—';
+    var opened = shift.opened_at || '—';
+    var closed = shift.closed_at || (isZ ? '—' : 'Shift still open');
+    var rows = '';
+    var totalQty = 0;
+    (items || []).forEach(function(item, index) {
+        var qty = Number(item.quantity) || 0;
+        totalQty += qty;
+        rows += '<tr><td>' + (index + 1) + '</td><td>' + posReportEscape(item.itemcode || '') +
+            '</td><td>' + posReportEscape(item.description || '') + '</td><td class="num">' +
+            qty.toLocaleString('en-KE', {maximumFractionDigits: 2}) + '</td><td class="num">' +
+            posReportMoney(item.sales_value) + '</td></tr>';
+    });
+    if (!rows) {
+        rows = '<tr><td colspan="5" class="psr-empty">No sales have been recorded for this shift.</td></tr>';
+    }
+    var html = '<article class="pos-shift-report">' +
+        '<header class="psr-head"><div><div class="psr-brand">SMARTERPLIMS · POINT OF SALE</div><div class="psr-title">' +
+        (isZ ? 'Shift Closing Report' : 'Shift Trading Report') + '</div><div class="psr-sub">Cashier shift reconciliation</div></div>' +
+        '<div class="psr-stamp">' + (isZ ? 'Z REPORT' : 'X REPORT') + '</div></header>' +
+        '<section class="psr-meta"><div><span class="psr-label">Report reference</span><span class="psr-value">' + posReportEscape(reportNo) +
+        '</span></div><div><span class="psr-label">Cashier</span><span class="psr-value">' + posReportEscape(cashier) +
+        '</span></div><div><span class="psr-label">Shift number</span><span class="psr-value">#' + posReportEscape(shift.id || '—') +
+        '</span></div><div><span class="psr-label">Opened</span><span class="psr-value">' + posReportEscape(opened) +
+        '</span></div><div><span class="psr-label">Closed</span><span class="psr-value">' + posReportEscape(closed) +
+        '</span></div><div><span class="psr-label">Receipts</span><span class="psr-value">' + posReportEscape(shift.receipt_count || 0) +
+        '</span></div></section>' +
+        '<div class="psr-total"><span class="psr-label">Gross sales</span><strong>' + posReportMoney(shift.total_sales) + '</strong></div>' +
+        '<section class="psr-section"><h3>Sales and payment summary</h3><div class="psr-metrics">' +
+        '<div class="psr-metric"><span class="psr-label">VAT</span><strong>' + posReportMoney(shift.total_vat) + '</strong></div>' +
+        '<div class="psr-metric"><span class="psr-label">Cash sales</span><strong>' + posReportMoney(shift.cash_sales) + '</strong></div>' +
+        '<div class="psr-metric"><span class="psr-label">M-Pesa sales</span><strong>' + posReportMoney(shift.mpesa_sales) + '</strong></div>' +
+        '</div></section>' +
+        '<section class="psr-section"><h3>Cash drawer reconciliation</h3><div class="psr-metrics">' +
+        '<div class="psr-metric"><span class="psr-label">Opening float</span><strong>' + posReportMoney(shift.opening_float) + '</strong></div>' +
+        '<div class="psr-metric"><span class="psr-label">Expected cash</span><strong>' + posReportMoney(shift.expected_cash) + '</strong></div>' +
+        (isZ ? '<div class="psr-metric"><span class="psr-label">Actual cash counted</span><strong>' + posReportMoney(shift.cash_counted) +
+        '</strong></div><div class="psr-metric"><span class="psr-label">Cash variance</span><strong>' + posReportMoney(shift.cash_variance) +
+        '</strong></div>' : '') + '</div></section>' +
+        '<section class="psr-section"><h3>Products sold</h3><table class="psr-table"><thead><tr><th>#</th><th>Item code</th><th>Description</th>' +
+        '<th class="num">Quantity</th><th class="num">Sales value</th></tr></thead><tbody>' + rows +
+        '</tbody><tfoot><tr><th colspan="3">Total quantity</th><th class="num">' +
+        totalQty.toLocaleString('en-KE', {maximumFractionDigits: 2}) + '</th><th></th></tr></tfoot></table></section>' +
+        '<footer class="psr-footer"><span>SmartERPlims POS · ' + (isZ ? 'End of shift' : 'Interim snapshot') +
+        '</span><span>Generated ' + posReportEscape(new Date().toLocaleString()) + '</span></footer></article>';
+    window.POS_LAST_SHIFT_REPORT = html;
+    $('#dialog-message').html(html);
+    $('#dialog-print-btn').show();
+    $('#custom-dialog').fadeIn();
+}
+
 function posShiftRequest(action, data, onSuccess) {
     $.ajax({
         url: 'POSajax/shift.php' + (data ? '' : '?action=' + encodeURIComponent(action)),
@@ -615,11 +699,8 @@ $(document).ready(function() {
             showCustomDialog('Allow pop-ups to print the shift report.');
             return;
         }
-        var safeReport = $('<div>').text(window.POS_LAST_SHIFT_REPORT).html();
-        reportWindow.document.write('<!doctype html><html><head><title>POS Shift Report</title><style>body{font:14px Arial,sans-serif;margin:24px;color:#111}h2{margin-bottom:18px}pre{white-space:pre-wrap;font:13px/1.55 Consolas,monospace}</style></head><body><h2>SmartERPlims POS Shift Report</h2><pre>' + safeReport + '</pre></body></html>');
+        reportWindow.document.write('<!doctype html><html><head><meta charset="utf-8"><title>SmartERPlims POS Shift Report</title><style>' + posShiftReportPrintCss() + '</style></head><body>' + window.POS_LAST_SHIFT_REPORT + '<script>window.onload=function(){window.print();};<\/script></body></html>');
         reportWindow.document.close();
-        reportWindow.focus();
-        reportWindow.print();
     });
     posRefreshShift();
 
@@ -639,26 +720,7 @@ $(document).ready(function() {
 
     $('#pos-x-report').on('click', function() {
         posShiftRequest('x-report', null, function(response) {
-            var shift = response.shift;
-            var message = 'X REPORT · SHIFT #' + shift.id +
-                '\\nCashier: ' + shift.cashier_name +
-                '\\nOpened: ' + shift.opened_at +
-                '\\nReceipts: ' + shift.receipt_count +
-                '\\nGross sales: KES ' + Number(shift.total_sales).toFixed(2) +
-                '\\nVAT: KES ' + Number(shift.total_vat).toFixed(2) +
-                '\\nCash sales: KES ' + Number(shift.cash_sales).toFixed(2) +
-                '\\nM-Pesa sales: KES ' + Number(shift.mpesa_sales).toFixed(2) +
-                '\\nOpening float: KES ' + Number(shift.opening_float).toFixed(2) +
-                '\\nExpected drawer cash: KES ' + Number(shift.expected_cash).toFixed(2) +
-                '\\n\\nPRODUCTS SOLD';
-            (response.items || []).forEach(function(item) {
-                message += '\\n' + item.itemcode + ' · ' + item.description +
-                    ' · Qty ' + Number(item.quantity).toFixed(2) +
-                    ' · KES ' + Number(item.sales_value).toFixed(2);
-            });
-            showCustomDialog(message);
-            window.POS_LAST_SHIFT_REPORT = message;
-            $('#dialog-print-btn').show();
+            showPosShiftReport('X', response.shift, response.items || []);
         });
     });
 
@@ -674,26 +736,9 @@ $(document).ready(function() {
             return;
         }
         posShiftRequest('close', { cash_counted: counted }, function(response) {
-            var variance = Number(response.cash_variance);
-            var varianceLabel = variance < 0 ? 'shortage' : (variance > 0 ? 'overage' : 'balanced');
-            var message = 'Z REPORT ' + response.z_report_number +
-                '\\nGross sales: KES ' + Number(response.total_sales).toFixed(2) +
-                '\\nVAT: KES ' + Number(response.total_vat).toFixed(2) +
-                '\\nCash sales: KES ' + Number(response.cash_sales).toFixed(2) +
-                '\\nM-Pesa sales: KES ' + Number(response.mpesa_sales).toFixed(2) +
-                '\\nOpening float: KES ' + Number(response.opening_float).toFixed(2) +
-                '\\nExpected cash: KES ' + Number(response.expected_cash).toFixed(2) +
-                '\\nActual cash counted: KES ' + Number(response.cash_counted).toFixed(2) +
-                '\\nCash ' + varianceLabel + ': KES ' + Math.abs(variance).toFixed(2);
-            (response.items || []).forEach(function(item) {
-                message += '\\n' + item.itemcode + ' · ' + item.description +
-                    ' · Qty ' + Number(item.quantity).toFixed(2) +
-                    ' · KES ' + Number(item.sales_value).toFixed(2);
-            });
-            showCustomDialog(message);
-            window.POS_LAST_SHIFT_REPORT = message;
-            $('#dialog-print-btn').show();
+            showPosShiftReport('Z', response, response.items || []);
             posRefreshShift();
         });
     });
+});
 });
