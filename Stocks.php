@@ -20,6 +20,7 @@ $thispage = htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
 
 
 
@@ -40,7 +41,7 @@ if(isset($_POST['importexcel'])){
                 $reader->setReadDataOnly(true);
                 $spreadsheet = $reader->load($fileTmp);
                 $worksheet = $spreadsheet->getActiveSheet();
-                $highestColumnIndex = \\PhpOffice\\PhpSpreadsheet\\Cell\\Coordinate::columnIndexFromString($worksheet->getHighestDataColumn());
+                $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($worksheet->getHighestDataColumn());
                 if($highestColumnIndex < 4){
                     $importError = 'The Excel file must contain at least columns A-D: Barcode, StockName, RetailPrice and GroupCode.';
                 }else{
@@ -166,7 +167,7 @@ if(isset($_POST['importexcel'])){
                         $_SESSION['stock_import_preview'] = $preview;
                     }
                 }
-            }catch(\\Exception $e){
+            }catch(\Exception $e){
                 $importError = 'The Excel file could not be read: '.$e->getMessage();
             }
         }
