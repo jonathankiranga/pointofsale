@@ -152,6 +152,18 @@ if ($paymentMethod === 'MPESA') { $cash = $calculatedTotal; }
 try {
     $mysqli->begin_transaction();
 
+    // Lock the cashier shift while posting this receipt so it cannot be
+    // closed between validation and insertion.
+    $lockedShift = $mysqli->prepare("SELECT id FROM pos_shifts WHERE id=? AND cashier_id=? AND status='OPEN' FOR UPDATE");
+    $lockedShift->bind_param('is', $shiftId, $userId);
+    $lockedShift->execute();
+    $stillOpen = $lockedShift->get_result()->fetch_assoc();
+    $lockedShift->close();
+    if (!$stillOpen) {
+        $mysqli->rollback();
+        posSaveResponse(false, 'This cashier shift has been closed. Open a new shift before completing the sale.', 409);
+    }
+
     $check = $mysqli->prepare("SELECT documentno FROM SalesHeader WHERE documentno=? LIMIT 1 FOR UPDATE");
     $check->bind_param('s', $docno);
     $check->execute();
