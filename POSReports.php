@@ -22,6 +22,12 @@ function posReportEscape($value) {
 function posReportMoney($value) {
     return number_format((float)$value, 2);
 }
+function posReportBind($stmt, $types, $params) {
+    $values = array_merge(array($types), $params);
+    $refs = array();
+    foreach ($values as $key => $value) { $refs[$key] = &$values[$key]; }
+    call_user_func_array(array($stmt, 'bind_param'), $refs);
+}
 $from = isset($_GET['from']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['from']) ? $_GET['from'] : date('Y-m-01');
 $to = isset($_GET['to']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['to']) ? $_GET['to'] : date('Y-m-d');
 $cashier = isset($_GET['cashier']) ? trim((string)$_GET['cashier']) : '';
@@ -41,7 +47,7 @@ $sql = "SELECT COUNT(*) AS receipts, COALESCE(SUM(h.total),0) AS sales,
         COALESCE(SUM(CASE WHEN h.payment_method='MPESA' THEN h.total ELSE 0 END),0) AS mpesa_sales
         FROM SalesHeader h WHERE " . $where;
 $stmt = $mysqli->prepare($sql);
-$stmt->bind_param($types, ...$params);
+posReportBind($stmt, $types, $params);
 $stmt->execute();
 $summary = $stmt->get_result()->fetch_assoc();
 $stmt->close();
