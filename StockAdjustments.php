@@ -189,8 +189,8 @@ echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8'
 echo '<div class="container">';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 
-if(isset($selectedStockID) || isset($_POST['StockID'])){
-    $selectedStockID = isset($selectedStockID) ? $selectedStockID : $_POST['StockID'];
+if(isset($_GET['StockID']) || isset($_POST['StockID'])){
+    $selectedStockID = isset($_GET['StockID']) ? $_GET['StockID'] : $_POST['StockID'];
     
         $results=DB_query("Select [itemcode],[descrip],[inactive],[partperunit],[averagestock],[postinggroup]  FROM [stockmaster] where itemcode='".$selectedStockID."'", $db);
         $rowsstock=DB_fetch_row($results);
@@ -250,8 +250,8 @@ if(isset($selectedStockID) || isset($_POST['StockID'])){
     echo '</td></tr>';
     echo '<tr><td colspan="2"><strong>Physical Stock Take</strong></td></tr>';
     echo '<tr><td>Current system balance</td><td>'.number_format($systemFull,0).' '.$fullUnitName.' + '.number_format($systemLoose,2).' '.$looseUnitName.' ('.number_format($systemUnits,2).' '.$looseUnitName.' equivalent)</td></tr>';
-    echo '<tr><td>Physical full units counted</td><td><input type="number" min="0" step="any" name="count_full" value="'.(isset($_POST['count_full'])?htmlspecialchars($_POST['count_full'],ENT_QUOTES,'UTF-8'):'').'" required="required"/> '.$fullUnitName.'</td></tr>';
-    echo '<tr><td>Physical loose units counted</td><td><input type="number" min="0" step="any" name="count_loose" value="'.(isset($_POST['count_loose'])?htmlspecialchars($_POST['count_loose'],ENT_QUOTES,'UTF-8'):'').'" required="required"/> '.$looseUnitName.'</td></tr>';
+    echo '<tr><td>Physical full units counted</td><td><input type="number" min="0" step="any" name="count_full" value="'.(isset($_POST['count_full'])?htmlspecialchars($_POST['count_full'],ENT_QUOTES,'UTF-8'):'').'"/> '.$fullUnitName.'</td></tr>';
+    echo '<tr><td>Physical loose units counted</td><td><input type="number" min="0" step="any" name="count_loose" value="'.(isset($_POST['count_loose'])?htmlspecialchars($_POST['count_loose'],ENT_QUOTES,'UTF-8'):'').'"/> '.$looseUnitName.'</td></tr>';
     echo '<tr><td colspan="2"><input type="submit" name="savecount" value="Post Stock Take" onclick="return confirm(\'Post the physical count and adjust stock to match?\');"/></td></tr>';
     echo '<tr><td colspan="2"><strong>Manual Adjustment</strong></td></tr>';
     echo '<tr><td>Adjust by QTY</td><td>';
