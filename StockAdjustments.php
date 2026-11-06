@@ -3,6 +3,7 @@ include('includes/session.inc');
 $Title = _('Stock Adjustments');
 include('includes/header.inc');
 include('includes/SQL_CommonFunctions.inc');
+include('includes/PostStockCost.inc');
 
 $thispage = htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
 
@@ -185,7 +186,6 @@ if(isset($_POST['saveadjustment'])){
                 $documentNo = isset($_POST['DocNo']) ? str_replace("'", "''", $_POST['DocNo']) : GetNextTransNo(17,$db);
                 $periodNo = GetPeriod(Today(),$db);
                 $currency = str_replace("'", "''", $_SESSION['CompanyRecord']['currencydefault']);
-                $amount = abs($baseAdjustment * $averageCost);
 
                 DB_Txn_Begin($db);
 
@@ -200,32 +200,39 @@ if(isset($_POST['saveadjustment'])){
                     ".sprintf('%.6F',($uom === 'loosqty' ? $quantity : 0)).",
                     ".sprintf('%.6F',$averageCost).",'".$store."','".$journalno."','".$periodNo."')",$db);
 
-                DB_query("INSERT INTO Generalledger
-                    (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,VATaccountcode,
-                     amount,VATamount,currencycode,ExchangeRate,narration)
-                    SELECT '".$journalno."',SYSDATE(),'".$periodNo."','".$documentNo."',17,
-                        CASE WHEN ".sprintf('%.6F',$baseAdjustment)." > 0
-                             THEN inventorypostinggroup.balancesheet
-                             ELSE inventorypostinggroup.stockvariance END,
-                        CASE WHEN ".sprintf('%.6F',$baseAdjustment)." > 0
-                             THEN inventorypostinggroup.stockvariance
-                             ELSE inventorypostinggroup.balancesheet END,
-                        '',
-                        ".sprintf('%.6F',$amount).",0,'".$currency."',1,
-                        CONCAT(RTRIM(stockmaster.descrip),' - Manual adjustment ',
-                            '".str_replace("'","''",$qtyInput)."',' ',
-                            '".($uom === 'fulqty' ? 'full units' : 'loose units')."')
-                    FROM stockmaster
-                    JOIN inventorypostinggroup ON inventorypostinggroup.code=stockmaster.postinggroup
-                    WHERE stockmaster.itemcode='".$itemcode."'",$db);
-
-                if(DB_error_no($db)>0){
+                $fifoValue = AdjustStockRegisterForCount($itemcode,$baseAdjustment,$averageCost,$journalno,$documentNo);
+                if($fifoValue === false){
                     DB_Txn_Rollback($db);
-                    prnMsg('The stock adjustment could not be posted. No stock change was saved.','warn');
+                    prnMsg('The FIFO register does not contain enough costed stock to post this shortage. Reconcile the FIFO layers before posting the adjustment.','warn');
                 }else{
-                    DB_Txn_Commit($db);
-                    prnMsg('The stock adjustment has been posted.');
-                    $_POST['DocNo'] = GetNextTransNo(17,$db);
+                    $amountSql = sprintf('%.6F',abs($fifoValue));
+                    DB_query("INSERT INTO Generalledger
+                        (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,VATaccountcode,
+                         amount,VATamount,currencycode,ExchangeRate,narration)
+                        SELECT '".$journalno."',SYSDATE(),'".$periodNo."','".$documentNo."',17,
+                            CASE WHEN ".sprintf('%.6F',$baseAdjustment)." > 0
+                                 THEN inventorypostinggroup.balancesheet
+                                 ELSE inventorypostinggroup.stockvariance END,
+                            CASE WHEN ".sprintf('%.6F',$baseAdjustment)." > 0
+                                 THEN inventorypostinggroup.stockvariance
+                                 ELSE inventorypostinggroup.balancesheet END,
+                            '',".$amountSql.",0,'".$currency."',1,
+                            CONCAT(RTRIM(stockmaster.descrip),' - Manual adjustment ',
+                                '".str_replace("'","''",$qtyInput)."',' ',
+                                '".($uom === 'fulqty' ? 'full units' : 'loose units')."')
+                        FROM stockmaster
+                        JOIN inventorypostinggroup ON inventorypostinggroup.code=stockmaster.postinggroup
+                        WHERE stockmaster.itemcode='".$itemcode."'",$db);
+
+                    if(DB_error_no($db)>0){
+                        DB_Txn_Rollback($db);
+                        prnMsg('The stock adjustment could not be posted. No stock change was saved.','warn');
+                    }else{
+                        DB_Txn_Commit($db);
+                        GetStockRegister($itemcode);
+                        prnMsg('The stock adjustment has been posted.');
+                        $_POST['DocNo'] = GetNextTransNo(17,$db);
+                    }
                 }
             }
         }
