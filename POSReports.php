@@ -1,19 +1,14 @@
 <?php
+/*
+ * Use the ERP session and standard page-security bootstrap.
+ * POS administration reports require the same permission as Company Preferences.
+ */
 session_name('smartlimserp');
-if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
-$adminToken = isset($_SESSION['PageSecurityArray']['CompanyPreferences.php'])
-    ? $_SESSION['PageSecurityArray']['CompanyPreferences.php'] : null;
-if (empty($_SESSION['DatabaseName'])) {
-    http_response_code(401);
-    echo 'Your session has expired. Sign in again.';
-    exit;
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
 }
-if ($adminToken === null || !in_array($adminToken, $_SESSION['AllowedPageSecurityTokens'])) {
-    http_response_code(403);
-    echo 'You do not have permission to view POS administration reports.';
-    exit;
-}
-$PageSecurity = $adminToken;
+$PageSecurity = isset($_SESSION['PageSecurityArray']['CompanyPreferences.php'])
+    ? $_SESSION['PageSecurityArray']['CompanyPreferences.php'] : -1;
 $PathPrefix = '';
 include('includes/globalsession.inc');
 global $mysqli;
@@ -159,20 +154,228 @@ $Title = 'POS Administration Reports';
 include('includes/header.inc');
 ?>
 <style>
+.pos-reports-page {
+    padding: 24px 28px 40px;
+    color: #243247;
+    background: #f4f7fb;
+    min-height: calc(100vh - 72px);
+}
+.pos-reports-page .pos-report-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 0 0 22px;
+    padding: 22px 26px;
+    color: #fff;
+    background: linear-gradient(120deg, #172b4d, #245b86);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(23,43,77,.12);
+}
+.pos-reports-page .pos-report-heading h2 {
+    margin: 0 0 6px;
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -.35px;
+}
+.pos-reports-page .pos-report-heading p {
+    margin: 0;
+    color: rgba(255,255,255,.78);
+    font-size: 13px;
+}
+.pos-reports-page .pos-report-heading .btn {
+    padding: 10px 16px;
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 8px;
+    color: #fff;
+    background: rgba(255,255,255,.10);
+    font-weight: 600;
+}
+.pos-reports-page .pos-report-filters {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0 0 22px !important;
+    padding: 17px 20px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(15,23,42,.035);
+}
+.pos-reports-page .pos-report-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0 !important;
+    color: #526176;
+    font-size: 12px;
+    font-weight: 700;
+}
+.pos-reports-page .pos-report-filters .form-control {
+    min-width: 165px;
+    height: 40px;
+    border: 1px solid #d5deea;
+    border-radius: 7px;
+    box-shadow: none;
+}
+.pos-reports-page .pos-report-filters .btn {
+    min-height: 40px;
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-weight: 600;
+}
+.pos-reports-page .pos-admin-summary {
+    margin: 0 -8px 16px;
+}
+.pos-reports-page .pos-admin-summary > [class*="col-"] {
+    padding: 0 8px;
+    margin-bottom: 14px;
+}
+.pos-reports-page .pos-admin-summary .panel {
+    min-height: 118px;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid #e3eaf2;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(15,23,42,.045);
+}
+.pos-reports-page .pos-admin-summary .panel-body {
+    padding: 19px 21px;
+}
+.pos-reports-page .pos-admin-summary small {
+    color: #718096;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .8px;
+}
+.pos-reports-page .pos-admin-summary h3 {
+    margin: 9px 0 0;
+    color: #172b4d;
+    font-size: 25px;
+    font-weight: 750;
+    line-height: 1.2;
+}
+.pos-reports-page h3.pos-shift-history,
+.pos-reports-page h3.pos-other-reports {
+    margin: 27px 0 12px;
+    color: #243b53;
+    font-size: 17px;
+    font-weight: 750;
+}
+.pos-reports-page .table-responsive {
+    margin-bottom: 22px;
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(15,23,42,.035);
+}
+.pos-reports-page .table {
+    margin: 0;
+    color: #344256;
+    font-size: 12px;
+}
+.pos-reports-page .table > thead > tr > th {
+    padding: 12px 13px;
+    color: #526176;
+    background: #f1f5f9;
+    border-bottom: 1px solid #dce5ef;
+    border-top: 0;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .45px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.pos-reports-page .table > tbody > tr > td {
+    padding: 11px 13px;
+    vertical-align: middle;
+    border-top-color: #edf1f6;
+}
+.pos-reports-page .table-striped > tbody > tr:nth-of-type(odd) {
+    background: #fafbfd;
+}
+.pos-reports-page .table tbody tr:hover {
+    background: #f1f7fd;
+}
+.pos-reports-page .table a {
+    color: #1769aa;
+    font-weight: 700;
+}
+.pos-reports-page .pos-z-detail {
+    margin: 0 0 25px;
+    overflow: hidden;
+    border: 1px solid #d8e3ef;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(15,23,42,.06);
+}
+.pos-reports-page .pos-z-detail .panel-heading {
+    padding: 15px 19px;
+    color: #fff;
+    background: #203f63;
+    border: 0;
+    font-size: 15px;
+}
+.pos-reports-page .pos-z-detail .panel-heading .btn {
+    margin-top: -5px;
+    border-radius: 7px;
+    font-weight: 600;
+}
+.pos-reports-page .pos-z-detail .panel-body {
+    padding: 22px;
+    background: #fff;
+}
+.pos-reports-page .pos-z-detail .panel-body h4 {
+    margin: 22px 0 10px;
+    color: #243b53;
+    font-size: 14px;
+    font-weight: 750;
+}
+.pos-reports-page .pos-z-detail .panel-body hr {
+    border-color: #e8edf3;
+}
+.pos-reports-page > p.text-muted {
+    margin: 12px 0 0;
+    padding: 12px 15px;
+    color: #718096;
+    background: #edf2f7;
+    border-radius: 8px;
+    font-size: 11px;
+}
+@media (max-width: 767px) {
+    .pos-reports-page { padding: 12px 10px 28px; }
+    .pos-reports-page .pos-report-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 18px;
+    }
+    .pos-reports-page .pos-report-heading h2 { font-size: 21px; }
+    .pos-reports-page .pos-report-filters { align-items: stretch; }
+    .pos-reports-page .pos-report-filters label,
+    .pos-reports-page .pos-report-filters .form-control,
+    .pos-reports-page .pos-report-filters .btn { width: 100%; }
+    .pos-reports-page .pos-admin-summary h3 { font-size: 21px; }
+    .pos-reports-page .pos-z-detail .panel-body { padding: 14px; }
+}
 @media print {
-  .pos-report-filters, .pos-admin-summary, .pos-shift-history, .pos-other-reports,
-  .pos-shift-history + .table-responsive, .pos-other-reports + .table-responsive,
-  .container-fluid > .row:first-child, .pos-z-detail .panel-heading button { display:none !important; }
-  .pos-z-detail { display:block !important; border:0 !important; }
-  .pos-z-detail .panel-heading { background:#fff !important; color:#000 !important; border:0 !important; font-size:18px; }
-  .pos-z-detail .panel-body { padding:0 !important; }
+    body { background: #fff !important; }
+    .pos-report-filters, .pos-admin-summary, .pos-shift-history, .pos-other-reports,
+    .pos-shift-history + .table-responsive, .pos-other-reports + .table-responsive,
+    .pos-report-heading, .pos-z-detail .panel-heading button { display:none !important; }
+    .pos-reports-page { min-height: 0; padding: 0; background: #fff; }
+    .pos-z-detail { display:block !important; border:0 !important; box-shadow:none !important; }
+    .pos-z-detail .panel-heading { background:#fff !important; color:#000 !important; border:0 !important; font-size:18px; }
+    .pos-z-detail .panel-body { padding:0 !important; }
+    .pos-reports-page .table-responsive { overflow: visible; border:0; box-shadow:none; }
 }
 </style>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-8"><h2>POS Administration Reports</h2><p>Sales, payment and product performance from posted POS receipts.</p></div>
-        <div class="col-sm-4 text-right"><a class="btn btn-default" href="posindex.php">Return to POS</a></div>
+<div class="container-fluid pos-reports-page">
+    <div class="pos-report-heading">
+        <div><h2>POS Administration Reports</h2><p>Sales, payment and product performance from posted POS receipts.</p></div>
+        <a class="btn" href="posindex.php">Return to POS</a>
     </div>
     <form method="get" class="form-inline pos-report-filters" style="margin:15px 0;">
         <label>From <input class="form-control" type="date" name="from" value="<?php echo posReportEscape($from); ?>"></label>
