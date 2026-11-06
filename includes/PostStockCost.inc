@@ -318,9 +318,23 @@ function PostStockRegister($Quantity,$key,$journal,$PeriodNo){
         return false;
     }
 
+    $documentBaseResult = DB_query("SELECT
+            COALESCE(SUM(CASE WHEN purchaseline.UOM='fulqty'
+                THEN purchaseline.Quantity * stockmaster.partperunit
+                ELSE purchaseline.Quantity END),0) AS documentbaseqty
+        FROM purchaseline
+        JOIN stockmaster ON stockmaster.itemcode=purchaseline.code
+        WHERE purchaseline.documentno='".$GRN."'
+          AND stockmaster.isstock <> 3",$db);
+    $documentBaseRow = DB_fetch_array($documentBaseResult);
+    $documentBaseQty = isset($documentBaseRow['documentbaseqty']) ? (float)$documentBaseRow['documentbaseqty'] : 0;
+    if($documentBaseQty <= 0){
+        return false;
+    }
+
     $unitCost = (float)$row['UnitPrice'] - (float)$row['discount'];
     $freightPerBaseUnit = ((float)$row['freight'] > 0)
-        ? ((float)$row['freight'] / $orderedBaseQty)
+        ? ((float)$row['freight'] / $documentBaseQty)
         : 0;
     $unitCost += $freightPerBaseUnit;
     if($unitCost < 0){
