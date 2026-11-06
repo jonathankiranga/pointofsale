@@ -22,6 +22,29 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 
+if(!function_exists('Triger_stockmaster')){
+    function Triger_stockmaster($descript){
+        global $db;
+        $description = trim((string)$descript);
+        $prefix = substr($description,0,2);
+        if($prefix === ''){
+            $prefix = 'ST';
+        }
+
+        $result = DB_query('SELECT COUNT(*) FROM stockmaster',$db);
+        $row = DB_fetch_row($result);
+        $nextNumber = isset($row[0]) ? (int)$row[0] : 0;
+        do{
+            $code = $prefix.str_pad((string)$nextNumber,6,'0',STR_PAD_LEFT);
+            $escapedCode = str_replace("'", "''", $code);
+            $check = DB_query("SELECT itemcode FROM stockmaster WHERE itemcode='".$escapedCode."'",$db);
+            $exists = DB_num_rows($check) > 0;
+            $nextNumber++;
+        }while($exists);
+
+        return $code;
+    }
+}
 
 
 if(isset($_POST['importexcel'])){
