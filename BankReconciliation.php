@@ -72,7 +72,7 @@ if(isset($_POST['bankstno']) and isset($_POST['Bank_Code'])){
 }
    
 echo '<input type="hidden" name="newreconciliation" value="'.$_SESSION['newreconciliation'].'"/>';
-echo '<table class="table-bordered">';
+echo '<table class="table-bordered bank-reconciliation-form">';
 echo  constructBanks(); 
 
 if(isset($_POST['Bank_Code']) && trim($_POST['Bank_Code']) !== ''){
