@@ -102,11 +102,11 @@ if(isset($_GET['EDIT'])){
 }
 
 
-echo '<table class="table table-bordered" cellspacing="4"><tr><td valign="top">';
+echo '<div class="card supplier-posting-groups-form">';
 echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '" method="post">';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';   
 echo '<input type="hidden" name="codeedit" value="' . $_GET['EDIT'] . '" />';   
-echo '<table class="table table-bordered"><tr>';
+echo '<div class="table-responsive"><table class="table table-bordered supplier-posting-groups-entry"><tbody><tr>';
 
 if(!isset($_GET['EDIT'])){
     echo '<td>Enter Code</td><td><input type="text" name="code" maxlength="10" required="required" /></td></tr>';
@@ -158,18 +158,17 @@ echo '<tr><td>VAT IsTaxed</td><td><select name="IsTaxed">';
     }
  }
  
-echo '</select></td></tr></table>';
-echo '<div class="centre">';
+echo '</select></td></tr></tbody></table></div>';
+echo '<div class="centre supplier-posting-groups-actions">';
         if(isset($_GET['EDIT'])){
             echo '<input type="submit" name="submit" value="Edit Posting group"/>';
             echo '<input type="submit" name="delete" value="Delete Posting group"/>';
         }else{
             echo '<input type="submit" name="submit" value="New Posting group"/>';
         }
-echo '</div></form>';
+echo '</div></form></div>';
 
-
-echo '</td></tr><tr><td valign="top"></td></tr><table class="table table-bordered">';
+echo '<div class="table-responsive supplier-posting-groups-list"><table class="table table-bordered table-hover"><thead>';
 
       $result=DB_query('SELECT [code]
       ,[purchaseaccount]
@@ -178,11 +177,11 @@ echo '</td></tr><tr><td valign="top"></td></tr><table class="table table-bordere
       ,[VATinclusive]
        FROM [arpostinggroups]', $db);
 
-echo '<TR><TH>CODE</TH>'
-      . '<TH>Purchases ACCOUNT</TH>'
-        . '<TH>Creditors ACCOUNT</TH>'
-        . '<TH>Taxable</TH>'
-        . '<TH>VAT INCLUSIVE</TH></TR>';
+echo '<tr><th scope="col">CODE</th>'
+      . '<th scope="col">Purchases ACCOUNT</th>'
+        . '<th scope="col">Creditors ACCOUNT</th>'
+        . '<th scope="col">Taxable</th>'
+        . '<th scope="col">VAT INCLUSIVE</th></tr></thead><tbody>';
 
 while($rows=DB_fetch_array($result)){
     
@@ -199,7 +198,7 @@ while($rows=DB_fetch_array($result)){
     
 }
        
-echo '</table></td></tr></table>';
+echo '</tbody></table></div>';
 
 include('includes/footer.inc');
 
