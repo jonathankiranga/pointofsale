@@ -92,97 +92,79 @@ if(isset($_POST['savecount'])){
 }
 
 if(isset($_POST['saveadjustment'])){
-    
-   $SQL=array();
-   
-   if(isset($_POST['averagecost']) and $_POST['averagecost']>0){
-   $SQL[]="Update stockmaster set [averagestock]='".$_POST['averagecost']."' where itemcode='".$_POST['StockID']."'";
-   }
-   
-   if($_POST['stockbalance']!=0){
-       
-        $journalno = GetNextTransNo(0, $db);
-        $Periodno = GetPeriod(Today(), $db);
-   
-       $SQL[]="INSERT INTO [stockledger]
-           ([date],[stname],[doctyp],[itemcode],[invref],[fulqty],[loosqty],[price],[store],[journal],[period])
-         VALUES (sysdate() ,'Stock Adjust' ,'17','".$_POST['StockID']."'"
-               . ",'".$_POST['DocNo']."'"
-               . ",'".(($_POST['UOM']=='fulqty')?$_POST['stockbalance']*1:'0')."'"
-               . ",'".(($_POST['UOM']=='loosqty')?$_POST['stockbalance']*1:'0')."'"
-               . ",".($_POST['averagecost']*1).""
-               . ",'".$_POST['location']."'"
-               . ",'".$journalno."'"
-               . ",'".$Periodno."'"
-               . ")";
-       
-       if($_POST['stockbalance']>0){
-       
-                        $SQL[]=SPRINTF("Insert into [Generalledger]
-                        ([journalno],[Docdate] ,[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode],[VATaccountcode]
-                        ,[amount],[VATamount],[currencycode],[ExchangeRate],[narration])
-                        (select
-                         '%s'
-                        ,[stockledger].[date]
-                        ,'%s'
-                        ,[stockledger].invref
-                        ,17
-                        ,[inventorypostinggroup].[balancesheet]
-                        ,[inventorypostinggroup].[stockvariance]
-                        ,' '
-                        ,[stockmaster].[averagestock] * ".$_POST['stockbalance']."
-                        ,0
-                        ,".$_SESSION['CompanyRecord']['currencydefault']."
-                        ,1
-                        ,(rtrim([stockmaster].[descrip]) +' X ".$_POST['stockbalance']."' )  as narration
-                        from [stockledger] 
-                        join [stockmaster] on [stockledger].[itemcode]=[stockmaster].itemcode
-                        join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-                        where stockledger.journal='%s' 
-                        )",$journalno,$Periodno,$journalno);
-       }elseif($_POST['stockbalance']<0){
-             $SQL[]=SPRINTF("Insert into [Generalledger]
-                        ([journalno],[Docdate] ,[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode],[VATaccountcode]
-                        ,[amount],[VATamount],[currencycode],[ExchangeRate],[narration])
-                        (select
-                         '%s'
-                        ,[stockledger].[date]
-                        ,'%s'
-                        ,[stockledger].invref
-                        ,17
-                        ,[inventorypostinggroup].[stockvariance]
-                        ,[inventorypostinggroup].[balancesheet]
-                        ,' '
-                        ,[stockmaster].[averagestock] * ".$_POST['stockbalance']."
-                        ,0
-                        ,".$_SESSION['CompanyRecord']['currencydefault']."
-                        ,1
-                       ,(rtrim([stockmaster].[descrip]) +' X ".$_POST['stockbalance']."' )  as narration
-                        from [stockledger] 
-                        join [stockmaster] on [stockledger].[itemcode]=[stockmaster].itemcode
-                        join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-                        where stockledger.journal='%s' 
-                        )",$journalno,$Periodno,$journalno);
-       }
-       
-                   
- 
-   }
-   
-                    DB_Txn_Begin($db);
-                    foreach ($SQL as $value) {
-                        DB_query($value,$db);
-                    }
-                    if(DB_error_no($db)>0){
-                        DB_Txn_Rollback($db);
-                    }else{
-                        DB_Txn_Commit($db);
-                        prnMsg('This transaction has been posted');
-                    }
-   
-    
-}
+    $itemcode = isset($_POST['StockID']) ? str_replace("'", "''", trim($_POST['StockID'])) : '';
+    $store = isset($_POST['location']) ? str_replace("'", "''", trim($_POST['location'])) : '';
+    $uom = isset($_POST['UOM']) ? $_POST['UOM'] : '';
+    $qtyInput = isset($_POST['stockbalance']) ? str_replace(',', '', trim($_POST['stockbalance'])) : '';
+    $averageCostInput = isset($_POST['averagecost']) ? str_replace(',', '', trim($_POST['averagecost'])) : '';
 
+    if($itemcode === '' || $store === '' || !is_numeric($qtyInput)
+        || ($uom !== 'fulqty' && $uom !== 'loosqty')
+        || ($averageCostInput !== '' && (!is_numeric($averageCostInput) || (float)$averageCostInput < 0))){
+        prnMsg('Enter a valid adjustment quantity, unit of measure, store and average cost.','warn');
+    }else{
+        $itemResult = DB_query("SELECT partperunit,averagestock FROM stockmaster WHERE itemcode='".$itemcode."'",$db);
+        if(DB_num_rows($itemResult) < 1){
+            prnMsg('The selected inventory item could not be found.','warn');
+        }else{
+            $itemData = DB_fetch_array($itemResult);
+            $partPerUnit = (float)$itemData['partperunit'];
+            $quantity = (float)$qtyInput;
+            if($uom === 'fulqty' && $partPerUnit <= 0){
+                prnMsg('This item has an invalid pack size. Set a valid Parts In a Unit value before adjusting full units.','warn');
+            }else{
+                $baseAdjustment = ($uom === 'fulqty') ? ($quantity * $partPerUnit) : $quantity;
+                $averageCost = ($averageCostInput !== '') ? (float)$averageCostInput : (float)$itemData['averagestock'];
+                $journalno = GetNextTransNo(0,$db);
+                $documentNo = isset($_POST['DocNo']) ? str_replace("'", "''", $_POST['DocNo']) : GetNextTransNo(17,$db);
+                $periodNo = GetPeriod(Today(),$db);
+                $currency = str_replace("'", "''", $_SESSION['CompanyRecord']['currencydefault']);
+                $amount = abs($baseAdjustment * $averageCost);
+
+                DB_Txn_Begin($db);
+
+                if($averageCostInput !== '' && (float)$averageCostInput > 0){
+                    DB_query("UPDATE stockmaster SET averagestock='".sprintf('%.6F',$averageCost)."' WHERE itemcode='".$itemcode."'",$db);
+                }
+
+                DB_query("INSERT INTO stockledger
+                    (date,stname,doctyp,itemcode,invref,fulqty,loosqty,price,store,journal,period)
+                    VALUES (SYSDATE(),'Stock Adjust','17','".$itemcode."','".$documentNo."',
+                    ".sprintf('%.6F',($uom === 'fulqty' ? $quantity : 0)).",
+                    ".sprintf('%.6F',($uom === 'loosqty' ? $quantity : 0)).",
+                    ".sprintf('%.6F',$averageCost).",'".$store."','".$journalno."','".$periodNo."')",$db);
+
+                DB_query("INSERT INTO Generalledger
+                    (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,VATaccountcode,
+                     amount,VATamount,currencycode,ExchangeRate,narration)
+                    SELECT '".$journalno."',SYSDATE(),'".$periodNo."','".$documentNo."',17,
+                        CASE WHEN ".sprintf('%.6F',$baseAdjustment)." > 0
+                             THEN inventorypostinggroup.balancesheet
+                             ELSE inventorypostinggroup.stockvariance END,
+                        CASE WHEN ".sprintf('%.6F',$baseAdjustment)." > 0
+                             THEN inventorypostinggroup.stockvariance
+                             ELSE inventorypostinggroup.balancesheet END,
+                        '',
+                        ".sprintf('%.6F',$amount).",0,'".$currency."',1,
+                        CONCAT(RTRIM(stockmaster.descrip),' - Manual adjustment ',
+                            '".str_replace("'","''",$qtyInput)."',' ',
+                            '".($uom === 'fulqty' ? 'full units' : 'loose units')."')
+                    FROM stockmaster
+                    JOIN inventorypostinggroup ON inventorypostinggroup.code=stockmaster.postinggroup
+                    WHERE stockmaster.itemcode='".$itemcode."'",$db);
+
+                if(DB_error_no($db)>0){
+                    DB_Txn_Rollback($db);
+                    prnMsg('The stock adjustment could not be posted. No stock change was saved.','warn');
+                }else{
+                    DB_Txn_Commit($db);
+                    prnMsg('The stock adjustment has been posted.');
+                    $_POST['DocNo'] = GetNextTransNo(17,$db);
+                }
+            }
+        }
+    }
+}
 
 echo '<p class="page_title_text"><img src="' . $RootPath . '/css/' . $Theme . '/images/inventory.png" title="' . _('Stock Adjustments') . '" alt="" />' . ' ' . _('Stock Adjustments') . '</p>';
 echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '" method="post" id="inventory">';
