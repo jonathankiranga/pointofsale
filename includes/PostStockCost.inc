@@ -84,56 +84,128 @@ function FindJournal($invref){
     return $rows[0];
 }
 
-function PostDebitRegister($Quantity,$key,$journal,$PeriodNo){
-  global $db;
-  
-    $SQL ="select  
-        purchaseheader.[docdate], 
-        [purchaseheader].[currencycode],
-        [purchaseline].[code], 
-        [purchaseline].[UnitPrice],
-        [purchaseline].[PartPerUnit]
-     from purchaseheader 
-     join purchaseline on [purchaseline].[documentno] = [purchaseheader].[documentno] 
-     where [purchaseline].[entryno]=".$key;
-    
-    $RESULTS = DB_query($SQL,$db);
-    $rows = DB_fetch_row($RESULTS);
-    
-    $ExchRates = New ExchangeRates();
-    $R = $ExchRates->get($rows[1]); 
-    $Price = $rows[3];
-    $cost = ($Price  * $R) ;
-    $itemcode = $rows[2];
-    $PartPerUnit = $rows[4];
-    DB_free_result($RESULTS);
-    
-    $SQL ="Select [averagestock] from stockmaster where itemcode='".$itemcode."'";
-    $r = DB_query($SQL,$db);
-    $row = DB_fetch_row($ResultIndex);
-    $averagestock = $row[0];
-    $quantity= (($PartPerUnit>1)?($PartPerUnit * $Quantity):$Quantity);
-   
-	 
-    $SQL= "Insert into [generalledger]
-    ([journalno] ,[Docdate],[period],[DocumentNo],[DocumentType] ,[accountcode]
-    ,[balaccountcode],[VATaccountcode],[amount],[VATamount],[currencycode],[ExchangeRate],[cutomercode],[narration])
-    (select '".$journal."',purchaseheader.[docdate],'".$PeriodNo."',purchaseheader.documentno
-     ,purchaseheader.documenttype,[inventorypostinggroup].[stockvariance] ,[inventorypostinggroup].[balancesheet] ,''
-     ,(".$averagestock * $quantity." * [purchaseline].[PartPerUnit]),0,'".$_SESSION['CompanyRecord']['currencydefault']."',1,purchaseheader.[vendorcode]
-     ,concat(purchaseline.[description],' X ".$quantity."' ,purchaseline.[unitofmeasure]) as narration
-     from purchaseheader 
-     join purchaseline on [purchaseline].[documentno] = [purchaseheader].[documentno] 
-     join [stockmaster] on [purchaseline].[code]=[stockmaster].itemcode
-     join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-     join [currencies] on [purchaseheader].[currencycode]=[currencies].[currabrev]
-     where [purchaseline].[entryno]=".$key.")";
+function ConsumeStockRegisterFIFO($itemcode,$baseQuantity){
+    global $db;
 
-     $r=DB_System($SQL,$db);
-     
-     GetStockRegister();
+    $itemcode = str_replace("'","''",$itemcode);
+    $remaining = (float)$baseQuantity;
+    if($remaining <= 0){
+        return false;
+    }
+
+    $layers = array();
+    $available = 0.0;
+    $result = DB_query("SELECT rowid,cost,StockBalance
+        FROM stockregister
+        WHERE itemcode='".$itemcode."' AND StockBalance > 0
+        ORDER BY rowid ASC",$db);
+    while($row = DB_fetch_array($result)){
+        $layers[] = $row;
+        $available += max(0,(float)$row['StockBalance']);
+    }
+    DB_free_result($result);
+
+    if($available + 0.0000001 < $remaining){
+        return false;
+    }
+
+    $totalCost = 0.0;
+    foreach($layers as $layer){
+        if($remaining <= 0.0000001){
+            break;
+        }
+        $take = min($remaining,max(0,(float)$layer['StockBalance']));
+        if($take <= 0){
+            continue;
+        }
+        DB_System(sprintf(
+            "UPDATE stockregister
+             SET StockOut=COALESCE(StockOut,0)+%.6F
+             WHERE rowid='%s'",
+            $take,
+            str_replace("'","''",$layer['rowid'])
+        ),$db);
+        $totalCost += $take * (float)$layer['cost'];
+        $remaining -= $take;
+    }
+
+    return ($remaining <= 0.0000001) ? $totalCost : false;
 }
 
+function PostDebitRegister($Quantity,$key,$journal,$PeriodNo){
+    global $db;
+
+    $lineKey = (int)$key;
+    $returnQty = (float)$Quantity;
+    if($returnQty <= 0){
+        return false;
+    }
+
+    $SQL = "SELECT
+                purchaseheader.documentno,
+                purchaseheader.docdate,
+                purchaseheader.currencycode,
+                purchaseheader.vendorcode,
+                purchaseline.code,
+                purchaseline.PartPerUnit,
+                purchaseline.UOM,
+                purchaseline.description,
+                purchaseline.unitofmeasure
+            FROM purchaseheader
+            JOIN purchaseline ON purchaseline.documentno=purchaseheader.documentno
+            WHERE purchaseline.entryno=".$lineKey."
+            LIMIT 1";
+    $RESULTS = DB_query($SQL,$db);
+    if(DB_num_rows($RESULTS) < 1){
+        return false;
+    }
+
+    $line = DB_fetch_array($RESULTS);
+    DB_free_result($RESULTS);
+
+    $partPerUnit = (float)$line['PartPerUnit'];
+    $uom = isset($line['UOM']) ? $line['UOM'] : 'loosqty';
+    if($uom === 'fulqty' && $partPerUnit <= 0){
+        return false;
+    }
+
+    $baseQuantity = ($uom === 'fulqty') ? ($returnQty * $partPerUnit) : $returnQty;
+    $fifoCost = ConsumeStockRegisterFIFO($line['code'],$baseQuantity);
+    if($fifoCost === false){
+        return false;
+    }
+
+    $documentNo = str_replace("'","''",$line['documentno']);
+    $vendorCode = str_replace("'","''",$line['vendorcode']);
+    $itemcode = str_replace("'","''",$line['code']);
+    $journalSql = str_replace("'","''",$journal);
+    $periodSql = str_replace("'","''",$PeriodNo);
+    $currency = str_replace("'","''",$_SESSION['CompanyRecord']['currencydefault']);
+    $description = str_replace("'","''",trim($line['description']));
+    $unitName = str_replace("'","''",trim($line['unitofmeasure']));
+
+    $GLSQL = "INSERT INTO generalledger
+        (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,
+         VATaccountcode,amount,VATamount,currencycode,ExchangeRate,cutomercode,narration)
+        SELECT '".$journalSql."',purchaseheader.docdate,'".$periodSql."',
+            purchaseheader.documentno,purchaseheader.documenttype,
+            inventorypostinggroup.stockvariance,inventorypostinggroup.balancesheet,'',
+            ".sprintf('%.6F',$fifoCost).",0,'".$currency."',1,purchaseheader.vendorcode,
+            CONCAT('Supplier return: ".$description." X ',
+                '".sprintf('%.6F',$returnQty)."',' ','".$unitName."')
+        FROM purchaseheader
+        JOIN purchaseline ON purchaseline.documentno=purchaseheader.documentno
+        JOIN stockmaster ON stockmaster.itemcode=purchaseline.code
+        JOIN inventorypostinggroup ON inventorypostinggroup.code=stockmaster.postinggroup
+        WHERE purchaseheader.documentno='".$documentNo."'
+          AND purchaseheader.vendorcode='".$vendorCode."'
+          AND purchaseline.entryno=".$lineKey."
+          AND purchaseline.code='".$itemcode."'";
+    DB_System($GLSQL,$db);
+
+    GetStockRegister($itemcode);
+    return true;
+}
 Function GetConsumables($journal,$PeriodNo,$salesoderno,$stcode,$qty,$key){
  global $db;
  
