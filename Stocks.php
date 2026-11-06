@@ -181,6 +181,13 @@ if(isset($_POST['confirmimport'])){
     if(count($preview) < 1){
         prnMsg('There is no validated Excel import waiting for confirmation. Upload the file again.','warn');
     }else{
+        $hasPreviewErrors = false;
+        foreach($preview as $previewRow){
+            if(count($previewRow['errors']) > 0){ $hasPreviewErrors = true; break; }
+        }
+        if($hasPreviewErrors){
+            prnMsg('The preview contains validation errors. Correct the Excel file and upload it again; no rows were imported.','warn');
+        }else{
         $inserted = 0;
         $failed = array();
         $insert = $mysqli->prepare("INSERT INTO stockmaster
@@ -233,6 +240,7 @@ if(isset($_POST['confirmimport'])){
                 prnMsg('Some rows were not imported: '.htmlspecialchars(implode(' | ',$failed),ENT_QUOTES,'UTF-8'),'warn');
             }
             unset($_SESSION['stock_import_preview']);
+        }
         }
     }
 }
@@ -357,6 +365,37 @@ if (isset($_GET['StockID'])) {
 }
 
 echo '<p class="page_title_text"><img src="' . $RootPath . '/css/' . $Theme . '/images/inventory.png" title="' . _('Inventory Maintenance') . '" alt="" />' . ' ' . _('Inventory Maintenance') . '</p>';
+
+echo '<div class="alert alert-info" style="margin:12px 0;">Excel columns: A Barcode, B StockName, C RetailPrice, D GroupCode, E PartsPerUnit, F FullUnitCode, G LooseUnitCode, H CategoryID, I ContainerItemCode. Columns E-I are optional for single-unit items; PartsPerUnit defaults to 1. For multi-pack items, provide the pack size and both unit codes.</div>';
+
+if(isset($_SESSION['stock_import_preview']) && is_array($_SESSION['stock_import_preview'])){
+    $previewRows = $_SESSION['stock_import_preview'];
+    $previewHasErrors = false;
+    echo '<div class="container"><h3>Excel Import Preview</h3><p>'.count($previewRows).' row(s) found. Review the data before confirming the import.</p>';
+    echo '<div style="overflow-x:auto;"><table class="table table-bordered"><thead><tr><th>Barcode</th><th>Stock Name</th><th>Retail Price</th><th>Posting Group</th><th>Parts Per Unit</th><th>Full Unit</th><th>Loose Unit</th><th>Validation</th></tr></thead><tbody>';
+    foreach($previewRows as $previewRow){
+        $rowHasErrors = count($previewRow['errors']) > 0;
+        if($rowHasErrors){ $previewHasErrors = true; }
+        echo '<tr><td>'.htmlspecialchars($previewRow['barcode'],ENT_QUOTES,'UTF-8').'</td>';
+        echo '<td>'.htmlspecialchars($previewRow['description'],ENT_QUOTES,'UTF-8').'</td>';
+        echo '<td>'.number_format($previewRow['price'],2).'</td>';
+        echo '<td>'.htmlspecialchars($previewRow['postinggroup'],ENT_QUOTES,'UTF-8').'</td>';
+        echo '<td>'.number_format($previewRow['partperunit'],2).'</td>';
+        echo '<td>'.htmlspecialchars($previewRow['units'],ENT_QUOTES,'UTF-8').'</td>';
+        echo '<td>'.htmlspecialchars($previewRow['subunits'],ENT_QUOTES,'UTF-8').'</td>';
+        echo '<td>'.($rowHasErrors ? '<span style="color:#b42318;">'.htmlspecialchars(implode(' ',$previewRow['errors']),ENT_QUOTES,'UTF-8').'</span>' : '<span style="color:#067647;">Ready</span>').'</td></tr>';
+    }
+    echo '</tbody></table></div>';
+    if(!$previewHasErrors){
+        echo '<form method="post" action="'.htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8').'">';
+        echo '<input type="hidden" name="FormID" value="'.$_SESSION['FormID'].'"/>';
+        echo '<button type="submit" name="confirmimport" value="1" class="btn btn-success" onclick="return confirm(\'Import these validated inventory items?\');">Confirm and Import Items</button>';
+        echo '</form>';
+    }else{
+        echo '<p style="color:#b42318;">Correct the errors in the Excel file and upload it again. No rows have been imported.</p>';
+    }
+    echo '</div>';
+}
 echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '" method="post"  enctype="multipart/form-data" id="inventory">';
 echo '<div>';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
