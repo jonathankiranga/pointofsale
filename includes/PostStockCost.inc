@@ -361,6 +361,10 @@ Function GetFIFO($journal,$PeriodNo,$salesoderno,$stcode,$qty,$key){
         $displayCost = ($uom === 'fulqty') ? ($layerCost * $partPerUnit) : $layerCost;
         $amount = $layerCost * $useBaseQty;
 
+        $displayCostSql = sprintf('%.6F',$displayCost);
+        $displayQtySql = sprintf('%.6F',$displayQty);
+        $amountSql = sprintf('%.6F',$amount);
+        $currency = str_replace("'", "''", $_SESSION['CompanyRecord']['currencydefault']);
         $GLSQL = "INSERT INTO generalledger
             (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,
              VATaccountcode,amount,VATamount,currencycode,ExchangeRate,cutomercode,narration)
@@ -368,11 +372,10 @@ Function GetFIFO($journal,$PeriodNo,$salesoderno,$stcode,$qty,$key){
                 '".$journal."',salesheader.docdate,'".$PeriodNo."',
                 salesheader.documentno,salesheader.documenttype,
                 inventorypostinggroup.stockvariance,inventorypostinggroup.balancesheet,'',
-                ".sprintf('%.6F',$amount).",0,
-                '".$_SESSION['CompanyRecord']['currencydefault']."',1,
+                ".$amountSql.",0,
+                '".$currency."',1,
                 salesheader.customercode,
-                CONCAT(salesline.description,'@',".sprintf('%.6F',$displayCost),
-                ' X ', ".sprintf('%.6F',$displayQty), ",' ',salesline.unitofmeasure)
+                CONCAT(salesline.description,'@',".$displayCostSql.",' X ',".$displayQtySql.",' ',salesline.unitofmeasure)
             FROM salesheader
             JOIN salesline ON salesline.documentno=salesheader.documentno
             JOIN stockmaster ON salesline.code=stockmaster.itemcode
