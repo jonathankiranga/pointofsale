@@ -99,6 +99,8 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
       where documentno='".$_SESSION['DocumentNo']."') ";
 
     
+    $stockCostPostingFailed = false;
+
     foreach ($_POST['subunits'] as $key => $value) {
        
     if($value>0){
@@ -149,8 +151,9 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
                        ,'".$PeriodNo."'
                        ,'".$INVOICENO ."' 
             FROM [PurchaseLine] where [entryno]='".$key."' and code='".$stcode."')";
-                
-             PostDebitRegister($qty,$key,$journal,$PeriodNo);
+              if(PostDebitRegister($qty,$key,$journal,$PeriodNo) === false){
+                  $stockCostPostingFailed = true;
+              }
      
                 
          }
@@ -158,6 +161,12 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
     
    
  
+    if($stockCostPostingFailed){
+        DB_Txn_Rollback($db);
+        prnMsg('The supplier return exceeds the available FIFO costed stock. No debit note was posted.','warn');
+        return;
+    }
+
     foreach ($sql as $value) {
         $ResultIndex=DB_query($value,$db);
     }
