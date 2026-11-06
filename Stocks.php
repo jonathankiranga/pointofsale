@@ -91,7 +91,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $groupRows = array();
         $referenceResult = DB_query("SELECT code FROM inventorypostinggroup ORDER BY code",$db);
         while($referenceRow = DB_fetch_array($referenceResult)){
-            $groupRows[] = array($referenceRow['code'],'');
+            $groupRows[] = array($referenceRow['code'],'Inventory posting and accounting mappings');
         }
         if(count($groupRows)>0){ $codes->fromArray($groupRows,NULL,'A5'); }
 
