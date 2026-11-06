@@ -85,7 +85,7 @@ $taxSql = "SELECT COALESCE(l.pos_tax_category,'UNCLASSIFIED') AS tax_category,
                 FROM SalesLine l INNER JOIN SalesHeader h
                   ON h.documenttype=l.documenttype AND h.documentno=l.documentno
                 WHERE " . $where . "
-                GROUP BY l.pos_tax_category,l.pos_vat_rate ORDER BY l.pos_vat_rate DESC";
+                GROUP BY l.pos_tax_category,l.vatrate ORDER BY l.vatrate DESC";
 $stmt = $mysqli->prepare($taxSql);
 posReportBind($stmt, $types, $params);
 $stmt->execute();
