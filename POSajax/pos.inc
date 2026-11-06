@@ -1,5 +1,10 @@
 <?php
 $POSVatInclusive = 0;
+$POSCanAdminReports = false;
+$posAdminToken = isset($_SESSION['PageSecurityArray']['CompanyPreferences.php']) ? $_SESSION['PageSecurityArray']['CompanyPreferences.php'] : null;
+if ($posAdminToken !== null && isset($_SESSION['AllowedPageSecurityTokens']) && in_array($posAdminToken, $_SESSION['AllowedPageSecurityTokens'])) {
+    $POSCanAdminReports = true;
+}
 if (isset($mysqli) && $mysqli instanceof mysqli) {
     $posPostingResult = $mysqli->query("SELECT confvalue FROM config WHERE confname='POS_DefaultPostingGroup' LIMIT 1");
     if ($posPostingResult && ($posPostingRow = $posPostingResult->fetch_assoc())) {
@@ -72,7 +77,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             <button type="button" class="pos-action" id="pos-shift-open"><span>Open shift</span></button>
             <button type="button" class="pos-action" id="pos-x-report"><span>X report</span></button>
             <button type="button" class="pos-action pos-action-danger" id="pos-z-close"><span>Z close</span></button>
-            <a class="pos-action" href="POSReports.php" id="pos-admin-reports"><span>Admin reports</span></a>
+            <?php if ($POSCanAdminReports) { ?><a class="pos-action" href="POSReports.php" id="pos-admin-reports"><span>Admin reports</span></a><?php } ?>
             <span id="pos-shift-label" class="pos-scan-hint">No open shift</span>
             <div class="pos-scan-hint">
                 <span class="pos-scan-indicator"></span>
