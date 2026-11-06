@@ -56,7 +56,7 @@ $manualTitle = 'POS & Back-office User Manual';
 </head>
 <body>
 <div id="top"></div>
-<div id="pagetitle">SmartERPlims POS &amp; Back-office User Manual</div>
+<div id="pagetitle">POS &amp; Back-office User Manual</div>
 
 <div class="manual-layout">
     <nav class="manual-nav" aria-label="Manual contents">
