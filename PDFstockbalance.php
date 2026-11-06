@@ -44,9 +44,11 @@ if(isset($_POST['trailbalance'])){
      $FontSize = 8;
      $YPos = $firstrowpos;
      $Balance = 0;
-     
+     $inventoryRowCount = 0;
+
      $ResultsP = $stockClass->EXECUTE();
      while($rows = DB_fetch_array($ResultsP)){
+         $inventoryRowCount++;
               
          $LeftOvers = $pdf->addTextWrap(50, $YPos,100, $FontSize, ucfirst($rows['stockname']),'left');
          $LeftOvers = $pdf->addTextWrap(150, $YPos,50, $FontSize, trim($rows['fulqtyName']).'/'.$rows['LoosqtyName'],'right');
@@ -87,11 +89,35 @@ if(isset($_POST['trailbalance'])){
         left join [unit] on [stockmaster].[units]=[unit].[code]
         where [ProductionUnit].[status]=1", $db);
      
-    if(DB_num_rows($rowtanks)>0){
-           $YPos -= $line_height ;
-           $LeftOvers = $pdf->addTextWrap(50, $YPos,100, $FontSize,_('Work In Progress'),'left');
+    $tankCount = DB_num_rows($rowtanks);
+    if ($inventoryRowCount === 0 && $tankCount === 0) {
+        $YPos -= $line_height * 2;
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->SetTextColor(23, 43, 77);
+        $pdf->addTextWrap(50, $YPos, 700, 10,
+            _('No inventory records found for the selected period and store.'), 'center');
+        $pdf->SetTextColor(0, 0, 0);
+        $YPos -= $line_height * 2;
+    } elseif ($inventoryRowCount === 0) {
+        $YPos -= $line_height * 2;
+        $pdf->SetFont('helvetica', 'I', 8);
+        $pdf->addTextWrap(50, $YPos, 700, 8,
+            _('No stock movement records found. Work in Progress is shown below.'), 'left');
+        $pdf->SetFont('helvetica', '', 8);
     }
-    
+
+    if ($tankCount > 0) {
+           $YPos -= $line_height;
+           $pdf->SetFillColor(23, 43, 77);
+           $pdf->Rect(46, $YPos - 4, 744, 18, 'F');
+           $pdf->SetTextColor(255, 255, 255);
+           $pdf->SetFont('helvetica', 'B', 9);
+           $LeftOvers = $pdf->addTextWrap(54, $YPos, 700, 9, _('Work In Progress'), 'left');
+           $pdf->SetTextColor(0, 0, 0);
+           $pdf->SetFont('helvetica', '', 8);
+           $YPos -= 20;
+    }
+
    while($rows = DB_fetch_array($rowtanks)){
        
          $YPos -= $line_height ;
@@ -157,20 +183,24 @@ $pdf->__destruct();
       var $storename;
       
       function __construct() {
-        
-          $this->Fromdate = ConvertSQLDateTime($_POST['fromdate']);  
-          $this->Todate = ConvertSQLDateTime($_POST['todate']).' 23:59:59';
-          $this->StoreCode = $_POST['store'];
-          
-          if(isset($_POST['store'])){
-                if($_POST['store']=='AllStores'){
-                     $this->storename='AllStores';
-               } else {
-                      $sql="SELECT [Storename] FROM [Stores] where [code]='".$_POST['store']."'";
-                      $ResultsP = DB_query($sql,$db);
-                      $rows=DB_fetch_row($ResultsP);
-                      $this->storename=$rows[0];
-               }
+          global $db;
+
+          $fromDate = isset($_POST['fromdate']) ? trim($_POST['fromdate']) : '';
+          $toDate = isset($_POST['todate']) ? trim($_POST['todate']) : '';
+          $this->Fromdate = $fromDate !== '' ? ConvertSQLDateTime($fromDate) : date('Y-m-d');
+          $this->Todate = ($toDate !== '' ? ConvertSQLDateTime($toDate) : date('Y-m-d')) . ' 23:59:59';
+          $this->StoreCode = isset($_POST['store']) && $_POST['store'] !== '' ? $_POST['store'] : 'AllStores';
+          $this->storename = 'AllStores';
+
+          if ($this->StoreCode !== 'AllStores') {
+              $sql = "SELECT [Storename] FROM [Stores] WHERE [code]='" . DB_escape_string($this->StoreCode) . "'";
+              $ResultsP = DB_query($sql, $db);
+              if (DB_num_rows($ResultsP) > 0) {
+                  $rows = DB_fetch_row($ResultsP);
+                  $this->storename = $rows[0];
+              } else {
+                  $this->storename = $this->StoreCode;
+              }
           }
       }
             
