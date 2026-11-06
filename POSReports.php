@@ -529,6 +529,44 @@ include('includes/header.inc');
     .pos-z-detail .panel-body { padding:0 !important; }
     .pos-reports-page .table-responsive { overflow: visible; border:0; box-shadow:none; }
 }
+
+/* Keep report text fully legible: neutralise legacy/Bootstrap row overlays. */
+main#view-panel .pos-reports-page .table > thead > tr > th {
+    position: static;
+    color: #344256 !important;
+    background: #edf2f7 !important;
+    background-image: none !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+}
+
+main#view-panel .pos-reports-page .table > tbody > tr,
+main#view-panel .pos-reports-page .table-striped > tbody > tr:nth-of-type(odd),
+main#view-panel .pos-reports-page .table-striped > tbody > tr:nth-of-type(even) {
+    background: #fff !important;
+    background-image: none !important;
+}
+
+main#view-panel .pos-reports-page .table > tbody > tr > td {
+    position: static;
+    color: #344256 !important;
+    background: #fff !important;
+    background-image: none !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+}
+
+main#view-panel .pos-reports-page .table > tbody > tr:hover > td {
+    color: #243247 !important;
+    background: #f5f8fb !important;
+}
+
+main#view-panel .pos-reports-page .table > tbody > tr > td::before,
+main#view-panel .pos-reports-page .table > tbody > tr > td::after {
+    content: none !important;
+    display: none !important;
+}
+
 </style>
 
 <div class="container-fluid pos-reports-page">
