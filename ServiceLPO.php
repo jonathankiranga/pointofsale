@@ -36,7 +36,7 @@ $SQL="Select
       ,[PurchaseHeader].[userid] desc";
     $Result=DB_query($SQL,$db);
            
-    Echo '<Table class="table table-bordered"><tr>'
+    echo '<div class="table-responsive service-lpo-list"><table class="table table-bordered table-hover"><thead><tr>'
              . '<th>Supplier Invoice<br /> for GRN</th>'
              . '<th>Purchase <br /> Order <br /> Document<br /> date</th>'
              . '<th>Purchase <br /> Order <br />Due <br />Date</th>'
@@ -45,8 +45,8 @@ $SQL="Select
              . '<th>Purchase <br />Order<br /> Value</th>'
              . '<th>Currency</th>'
              . '<th>Authorisation<br /> Status</th>'
-             . '<th>Created<br /> By</th>'
-             . '</tr>';
+              . '<th>Created<br /> By</th>'
+             . '</tr></thead><tbody>';
     
  
   while($row=DB_fetch_array($Result)){
@@ -63,7 +63,7 @@ $SQL="Select
         echo '</tr>';
   }
         
-    echo '</table><br />';
+    echo '</tbody></table></div><br />';
     
      
 include('includes/footer.inc');
