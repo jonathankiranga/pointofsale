@@ -16,11 +16,9 @@ echo '<meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge
 echo '<link rel="shortcut icon" href="favicon.ico" /><link rel="icon" href="favicon.ico" />';
 echo '<input type="hidden" name="Lang" id="Lang" value="'.$Lang.'" />';
 echo '<link rel="stylesheet" href="css/assets/dist/css/bootstrap.min.css" type="text/css"/>';
-<?php
 if (file_exists('css/tailwind.css')) {
     echo '<link rel="stylesheet" href="css/tailwind.css" type="text/css"/>';
 }
-?>
 
 echo '<link rel="stylesheet" href="css/assets/DataTables/datatables.min.css" type="text/css"/>'
    . '<link rel="stylesheet" href="css/dashboard.css" type="text/css"/>';
