@@ -1750,3 +1750,95 @@ main#view-panel form .table-responsive {
         width: 62%;
     }
 }
+
+/* -------------------------------------------------------------------------
+   Content-sized legacy form tables.
+   Data grids and DataTables retain their full-width layout. Plain HTML tables
+   used to arrange form labels and controls are sized to their contents.
+   ------------------------------------------------------------------------- */
+main#view-panel table.bo-compact-form-table {
+    display: table;
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin: 0 auto 18px !important;
+    table-layout: auto !important;
+    border-collapse: separate;
+    border-spacing: 10px 7px;
+}
+
+main#view-panel table.bo-compact-form-table > tbody > tr > td,
+main#view-panel table.bo-compact-form-table > tr > td {
+    width: auto !important;
+    padding: 5px 7px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+main#view-panel table.bo-compact-form-table > tbody > tr > td:first-child:not([colspan]),
+main#view-panel table.bo-compact-form-table > tr > td:first-child:not([colspan]) {
+    width: auto !important;
+    min-width: 0;
+    color: #4b5d73;
+    font-weight: 600;
+    text-align: right;
+}
+
+main#view-panel table.bo-compact-form-table input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="file"]),
+main#view-panel table.bo-compact-form-table select {
+    display: inline-block;
+    width: auto !important;
+    min-width: 8ch;
+    max-width: min(32ch, 100%);
+    field-sizing: content;
+    vertical-align: middle;
+}
+
+main#view-panel table.bo-compact-form-table input[type="number"] {
+    min-width: 8ch;
+    max-width: 14ch;
+    text-align: right;
+}
+
+main#view-panel table.bo-compact-form-table input[type="date"],
+main#view-panel table.bo-compact-form-table input[type="datetime-local"] {
+    min-width: 12.5rem;
+    max-width: 100%;
+}
+
+main#view-panel table.bo-compact-form-table select {
+    min-width: 9ch;
+    max-width: min(30ch, 100%);
+    padding-right: 25px;
+}
+
+main#view-panel table.bo-compact-form-table textarea {
+    display: block;
+    width: min(34rem, 100%) !important;
+    min-width: 18ch;
+    max-width: 100%;
+}
+
+main#view-panel table.bo-compact-form-table input[type="checkbox"],
+main#view-panel table.bo-compact-form-table input[type="radio"] {
+    width: auto !important;
+    min-width: 0;
+}
+
+@media (max-width: 767px) {
+    main#view-panel table.bo-compact-form-table {
+        display: block;
+        width: 100% !important;
+        overflow-x: auto;
+        border-spacing: 5px;
+    }
+
+    main#view-panel table.bo-compact-form-table > tbody {
+        display: table;
+        width: max-content;
+        max-width: 100%;
+    }
+
+    main#view-panel table.bo-compact-form-table > tbody > tr > td {
+        white-space: normal;
+    }
+}
