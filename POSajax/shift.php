@@ -34,7 +34,7 @@ function posShiftTotals($mysqli, $shiftId) {
     $sql = "SELECT COUNT(*) AS receipt_count,
                    COALESCE(SUM(total),0) AS total_sales,
                    COALESCE(SUM(total_vat),0) AS total_vat,
-                   COALESCE(SUM(CASE WHEN payment_method='CASH' THEN cash- change_amount ELSE 0 END),0) AS cash_sales,
+                   COALESCE(SUM(CASE WHEN payment_method='CASH' THEN COALESCE(cash,0)-COALESCE(change_amount,0) ELSE 0 END),0) AS cash_sales,
                    COALESCE(SUM(CASE WHEN payment_method='MPESA' THEN total ELSE 0 END),0) AS mpesa_sales
             FROM SalesHeader
             WHERE pos_shift_id=? AND documenttype=1 AND COALESCE(status,1)=1";
@@ -132,7 +132,7 @@ try {
         $cashSales = (float)$totals['cash_sales'];
         $mpesaSales = (float)$totals['mpesa_sales'];
         $shiftId = (int)$shift['id'];
-        $update->bind_param('ddddddssi', $counted, $expected, $variance, $totalSales, $totalVat, $cashSales, $mpesaSales, $zNumber, $shiftId);
+        $update->bind_param('dddddddsi', $counted, $expected, $variance, $totalSales, $totalVat, $cashSales, $mpesaSales, $zNumber, $shiftId);
         if (!$update->execute() || $update->affected_rows !== 1) { throw new Exception($update->error ? $update->error : 'The shift was already closed.'); }
         $update->close();
         $mysqli->commit();
