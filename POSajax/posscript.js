@@ -675,7 +675,7 @@ $(document).ready(function() {
         }
         posShiftRequest('close', { cash_counted: counted }, function(response) {
             var variance = Number(response.cash_variance);
-            showCustomDialog('Z REPORT ' + response.z_report_number +
+            var message = 'Z REPORT ' + response.z_report_number +
                 '\\nGross sales: KES ' + Number(response.total_sales).toFixed(2) +
                 '\\nVAT: KES ' + Number(response.total_vat).toFixed(2) +
                 '\\nCash sales: KES ' + Number(response.cash_sales).toFixed(2) +
