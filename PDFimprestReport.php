@@ -90,10 +90,27 @@ while($rows =DB_fetch_array($ResultIndex)){
 }
 
 echo '<p class="page_title_text"><img src="css/'.$Theme.'/images/money_delete.png" title="' . _('Petty Cash') .'" alt="" />' . ' ' . _('Pettey Cash') . '</p>';
+echo '<style>
+.petty-cash-report-filter {
+    width: 100%;
+    text-align: center;
+}
+.petty-cash-report-filter table {
+    display: inline-table;
+    width: auto !important;
+    max-width: 100%;
+    table-layout: auto;
+    margin: 0 auto;
+}
+.petty-cash-report-filter select {
+    width: auto;
+    max-width: 34rem;
+}
+</style>';
 echo '<form autocomplete="off"action="'. htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') .'" method="post"><input autocomplete="false" name="hidden" type="text" style="display:none;"><div>';
 echo '<input type="hidden" name="FormID" value="'. $_SESSION['FormID'] .'"/>';
-echo '<div class="centre">'
-       . '<table class="table table-bordered">'
+echo '<div class="centre petty-cash-report-filter">'
+       . '<table class="table-bordered">'
        . '<thead><tr><th>Disbursement No</th><th>Cashier</th></tr></thead>';
         
 echo '<tr><td >Select the Cashier</td>'
