@@ -136,8 +136,8 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes->getStyle('A'.$guidanceRow.':K'.$guidanceRow)->getFont()->setBold(true);
         $codes->getRowDimension($guidanceRow)->setRowHeight(42);
         $codes->freezePane('A5');
-        $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\\PageSetup::ORIENTATION_LANDSCAPE);
-        $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\\PageSetup::PAPERSIZE_A3);
+        $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
+        $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A3);
         $codes->getPageSetup()->setFitToWidth(1)->setFitToHeight(0);
         $codes->getPageSetup()->setFitToPage(true);
         $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
@@ -191,7 +191,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
             $inventory->setCellValue('M'.$row,'=IFERROR(VLOOKUP(H'.$row.',\'Code Reference\'!$G$5:$H$'.$categoryLast.',2,FALSE),"")');
             $inventory->setCellValue('N'.$row,'=IFERROR(VLOOKUP(I'.$row.',\'Code Reference\'!$J$5:$K$'.$containerLast.',2,FALSE),"")');
         }
-        $inventory->getStyle('J2:N101')->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\\Color('FF666666'));
+        $inventory->getStyle('J2:N101')->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FF666666'));
         $inventory->getStyle('J2:N101')->getAlignment()->setWrapText(true)->setVertical('center');
         $inventory->getPageSetup()->setPrintArea('A1:N101');
         $spreadsheet->setActiveSheetIndex(0);
