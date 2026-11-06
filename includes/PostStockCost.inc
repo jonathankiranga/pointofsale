@@ -320,7 +320,7 @@ function PostStockRegister($Quantity,$key,$journal,$PeriodNo){
 
     $documentBaseResult = DB_query("SELECT
             COALESCE(SUM(CASE WHEN purchaseline.UOM='fulqty'
-                THEN purchaseline.Quantity * stockmaster.partperunit
+                THEN purchaseline.Quantity * purchaseline.PartPerUnit
                 ELSE purchaseline.Quantity END),0) AS documentbaseqty
         FROM purchaseline
         JOIN stockmaster ON stockmaster.itemcode=purchaseline.code
