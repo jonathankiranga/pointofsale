@@ -77,6 +77,21 @@ $stmt->execute();
 $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+$taxSql = "SELECT COALESCE(l.pos_tax_category,'UNCLASSIFIED') AS tax_category,
+                       l.pos_vat_rate AS vat_rate,
+                       SUM(l.invoiceamount-l.vatamount) AS net_value,
+                       SUM(l.vatamount) AS vat_value,
+                       SUM(l.invoiceamount) AS gross_value
+                FROM SalesLine l INNER JOIN SalesHeader h
+                  ON h.documenttype=l.documenttype AND h.documentno=l.documentno
+                WHERE " . $where . "
+                GROUP BY l.pos_tax_category,l.pos_vat_rate ORDER BY l.pos_vat_rate DESC";
+$stmt = $mysqli->prepare($taxSql);
+posReportBind($stmt, $types, $params);
+$stmt->execute();
+$taxBreakdown = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 $transactionSql = "SELECT h.documentno,h.docdate,h.userid,h.payment_method,h.total,h.total_vat
                    FROM SalesHeader h WHERE " . $where . " ORDER BY h.docdate DESC,h.documentno DESC LIMIT 500";
 $stmt = $mysqli->prepare($transactionSql);
@@ -114,6 +129,13 @@ include('includes/header.inc');
     <div class="table-responsive"><table class="table table-bordered table-striped">
         <thead><tr><th>Payment method</th><th>Receipts</th><th class="text-right">Amount (KES)</th></tr></thead><tbody>
         <?php foreach ($payments as $payment) { ?><tr><td><?php echo posReportEscape($payment['payment_method']); ?></td><td><?php echo (int)$payment['receipts']; ?></td><td class="text-right"><?php echo posReportMoney($payment['amount']); ?></td></tr><?php } ?>
+    </tbody></table></div>
+
+    <h3>Tax breakdown by ERP VAT category</h3>
+    <div class="table-responsive"><table class="table table-bordered table-striped">
+        <thead><tr><th>ERP VAT category</th><th class="text-right">VAT rate (%)</th><th class="text-right">Net value (KES)</th><th class="text-right">VAT (KES)</th><th class="text-right">Gross value (KES)</th></tr></thead><tbody>
+        <?php foreach ($taxBreakdown as $tax) { ?><tr><td><?php echo posReportEscape($tax['tax_category']); ?></td><td class="text-right"><?php echo posReportMoney($tax['vat_rate']); ?></td><td class="text-right"><?php echo posReportMoney($tax['net_value']); ?></td><td class="text-right"><?php echo posReportMoney($tax['vat_value']); ?></td><td class="text-right"><?php echo posReportMoney($tax['gross_value']); ?></td></tr><?php } ?>
+        <?php if (!$taxBreakdown) { ?><tr><td colspan="5">No tax data found for this period.</td></tr><?php } ?>
     </tbody></table></div>
 
     <h3>Products sold</h3>
