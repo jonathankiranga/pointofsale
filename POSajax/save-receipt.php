@@ -236,6 +236,6 @@ try {
     $mysqli->rollback();
     $mysqli->query("SELECT RELEASE_LOCK('pos_sales_entryno')");
     error_log('POS receipt save failed: ' . $e->getMessage());
-    posSaveResponse(false, 'The receipt could not be saved: ' . $e->getMessage(), 500);
+    posSaveResponse(false, 'The receipt could not be saved. Check the server error log.', 500);
 }
 ?>
