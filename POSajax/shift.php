@@ -153,6 +153,9 @@ try {
     posShiftResponse(false, 'Unknown shift action.', 400);
 } catch (Exception $e) {
     if ($mysqli instanceof mysqli) { $mysqli->rollback(); }
+    if ((int)$e->getCode() === 1062) {
+        posShiftResponse(false, 'You already have an open cashier shift.', 409);
+    }
     error_log('POS shift operation failed: ' . $e->getMessage());
     posShiftResponse(false, 'The shift operation failed. Check the server error log.', 500);
 }
