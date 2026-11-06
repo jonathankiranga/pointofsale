@@ -126,7 +126,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         foreach(array('C','F','I') as $column){ $codes->getColumnDimension($column)->setWidth(3); }
         $codes->getStyle('A5:K'.max($groupLast,$unitLast,$categoryLast,$containerLast))->getAlignment()->setVertical('top')->setWrapText(true);
         foreach(array('A5:B'.$groupLast,'D5:E'.$unitLast,'G5:H'.$categoryLast,'J5:K'.$containerLast) as $dataRange){
-            $codes->getStyle($dataRange)->getBorders()->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\\Style\\Border::BORDER_HAIR)->getColor()->setRGB('D9E2F3');
+            $codes->getStyle($dataRange)->getBorders()->getBottom()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\\Border::BORDER_HAIR)->getColor()->setRGB('D9E2F3');
         }
 
         $guidanceRow = max($groupLast,$unitLast,$categoryLast,$containerLast)+2;
@@ -136,8 +136,8 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes->getStyle('A'.$guidanceRow.':K'.$guidanceRow)->getFont()->setBold(true);
         $codes->getRowDimension($guidanceRow)->setRowHeight(42);
         $codes->freezePane('A5');
-        $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\\Worksheet\\PageSetup::ORIENTATION_LANDSCAPE);
-        $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\\Worksheet\\PageSetup::PAPERSIZE_A3);
+        $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\\PageSetup::ORIENTATION_LANDSCAPE);
+        $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\\PageSetup::PAPERSIZE_A3);
         $codes->getPageSetup()->setFitToWidth(1)->setFitToHeight(0);
         $codes->getPageSetup()->setFitToPage(true);
         $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
@@ -158,8 +158,8 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
             $lastRow = $list[1];
             for($row=2;$row<=101;$row++){
                 $validation = $inventory->getCell($targetColumn.$row)->getDataValidation();
-                $validation->setType(\PhpOffice\PhpSpreadsheet\\Cell\\DataValidation::TYPE_LIST);
-                $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\\Cell\\DataValidation::STYLE_STOP);
+                $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\\DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\\DataValidation::STYLE_STOP);
                 $validation->setAllowBlank(true);
                 $validation->setShowInputMessage(true);
                 $validation->setShowErrorMessage(true);
@@ -191,7 +191,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
             $inventory->setCellValue('M'.$row,'=IFERROR(VLOOKUP(H'.$row.',\'Code Reference\'!$G$5:$H$'.$categoryLast.',2,FALSE),"")');
             $inventory->setCellValue('N'.$row,'=IFERROR(VLOOKUP(I'.$row.',\'Code Reference\'!$J$5:$K$'.$containerLast.',2,FALSE),"")');
         }
-        $inventory->getStyle('J2:N101')->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\\Style\\Color('FF666666'));
+        $inventory->getStyle('J2:N101')->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\\Color('FF666666'));
         $inventory->getStyle('J2:N101')->getAlignment()->setWrapText(true)->setVertical('center');
         $inventory->getPageSetup()->setPrintArea('A1:N101');
         $spreadsheet->setActiveSheetIndex(0);
