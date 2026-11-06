@@ -11,7 +11,9 @@ include('includes/budgetbalance.php');
 include('includes/chartbalancing.inc');
 
 Global $statementstartdate, $DRamount, $CRamount,$tableObject, $PostingGroup,$Uncleared;
-      
+
+$_POST['date'] = isset($_POST['date']) ? trim($_POST['date']) : '';
+
 $DRamount=0; $CRamount=0; $Openbalance=0; $Difference=0;$Uncleared=0;
 $SQL = array() ;
 $banklist = array();
@@ -24,25 +26,33 @@ while($row=DB_fetch_array($resultindex)){
  
     
 if(isset($_POST['SaveRecon'])){
-    
-    if(mb_strlen($_POST['bankstno'])==0){
-      prnMsg('You need to select a bank statement No','warn');
+
+    $ValidBankStatementNo = isset($_POST['bankstno']) && mb_strlen(trim($_POST['bankstno'])) > 0;
+    $ValidStatementEndDate = isset($_POST['date']) && Is_date($_POST['date']);
+
+    if (!$ValidBankStatementNo) {
+        prnMsg('You need to select a bank statement No','warn');
     }
-        
-    if(mb_strlen($_POST['date'])==0){
-     prnMsg('You need to select a bank statement End Date','warn');
+
+    if (!$ValidStatementEndDate) {
+        prnMsg('You need to select a valid bank statement End Date','warn');
     }
-       
-   if($_POST['newreconciliation']==$_SESSION['newreconciliation']){
-     if($_POST['Totalcleared']==$_POST['bankendbalance']){
-          UpdateStatus();
-          SaveBankreconciliation();
-          $_GET['new']='1';
-     }else{
-         prnMsg('Your Reconciliation does not balance','warn');
-     }
-   }else{
-        prnMsg('You cannot resend this page. ','warn');
+
+    // Do not continue into reconciliation updates or SQL when required
+    // statement details are missing or the supplied date is invalid.
+    if ($ValidBankStatementNo && $ValidStatementEndDate) {
+        if ($_POST['newreconciliation'] == $_SESSION['newreconciliation']) {
+            if (isset($_POST['Totalcleared'], $_POST['bankendbalance']) &&
+                (float)$_POST['Totalcleared'] == (float)$_POST['bankendbalance']) {
+                UpdateStatus();
+                SaveBankreconciliation();
+                $_GET['new'] = '1';
+            } else {
+                prnMsg('Your Reconciliation does not balance','warn');
+            }
+        } else {
+            prnMsg('You cannot resend this page. ','warn');
+        }
     }
 
 }
@@ -85,7 +95,8 @@ $PostingGroup       = $ArrayBanks['PostingGroup'];
 $statementstartdate = $ArrayBanks['lastreconcileddate'];
 $Openbalance        = $ArrayBanks['lastreconbalance'];
 
- echo '<input type="hidden" id="statementstartdate"  value="' .$statementstartdate. '"/><input type="hidden" id="bankrecondate"  value="' . FormatDateForSQL($_POST['date']). '"/>';
+ $ReconciliationEndDate = Is_date($_POST['date']) ? FormatDateForSQL($_POST['date']) : '';
+ echo '<input type="hidden" id="statementstartdate" value="' . $statementstartdate . '"/><input type="hidden" id="bankrecondate" value="' . $ReconciliationEndDate . '"/>';
    
 if(!isset($_POST['bankendbalance'])){
     $_POST['bankendbalance']=$ArrayBanks['lastreconbalance'];
