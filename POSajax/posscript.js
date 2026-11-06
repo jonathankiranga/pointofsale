@@ -583,21 +583,25 @@ function posReportMoney(value) {
 }
 
 function posShiftReportPrintCss() {
-    return 'body{margin:0;padding:28px;background:#eef2f7;color:#172033;font:14px/1.45 Arial,sans-serif}' +
-        '.pos-shift-report{max-width:900px;margin:0 auto;padding:34px;background:#fff;border:1px solid #dfe5ee}' +
-        '.psr-head{display:flex;justify-content:space-between;gap:20px;border-bottom:3px solid #172b4d;padding-bottom:20px}' +
-        '.psr-brand{font-size:12px;font-weight:800;letter-spacing:2px;color:#52627a}.psr-title{font-size:28px;font-weight:800;margin:5px 0}' +
-        '.psr-sub{color:#667085}.psr-stamp{align-self:flex-start;padding:9px 14px;background:#eaf2ff;color:#145cc5;font-weight:800;letter-spacing:1px}' +
-        '.psr-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.psr-meta div,.psr-metric{padding:13px;background:#f5f7fa;border:1px solid #e6ebf2}' +
-        '.psr-label{display:block;color:#667085;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}.psr-value{display:block;margin-top:5px;font-weight:700}' +
-        '.psr-total{background:#10233f;color:#fff;padding:20px;margin:16px 0}.psr-total .psr-label{color:#c7d4e7}.psr-total strong{display:block;font-size:30px;margin-top:4px}' +
-        '.psr-section{margin-top:24px}.psr-section h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid #dfe5ee;padding-bottom:9px}' +
-        '.psr-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.psr-metric strong{display:block;margin-top:6px;font-size:16px}' +
-        '.psr-table{width:100%;border-collapse:collapse;margin-top:10px}.psr-table th{background:#f1f4f8;text-align:left;font-size:10px;text-transform:uppercase;color:#52627a}' +
-        '.psr-table th,.psr-table td{padding:10px;border-bottom:1px solid #e7ebf1}.psr-table .num{text-align:right;font-variant-numeric:tabular-nums}' +
-        '.psr-empty{text-align:center;color:#667085;padding:22px!important}.psr-footer{margin-top:28px;padding-top:12px;border-top:1px solid #dfe5ee;color:#667085;font-size:10px;display:flex;justify-content:space-between}' +
-        '@page{size:A4;margin:12mm}@media print{body{padding:0;background:#fff}.pos-shift-report{border:0;padding:0;max-width:none}.psr-total,.psr-stamp{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
-}
+    return 'body{margin:0;padding:18px;background:#fff;color:#172033;font:12px/1.4 Arial,sans-serif}' +
+        '.pos-shift-report{max-width:980px;margin:0 auto;padding:20px;background:#fff}' +
+        '.psr-company-head{text-align:center;border-bottom:2px solid #172b4d;padding-bottom:12px}' +
+        '.psr-company-name{font-size:21px;font-weight:800;text-transform:uppercase}.psr-company-address{margin-top:3px;color:#475467;font-size:11px}' +
+        '.psr-report-heading{display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px}' +
+        '.psr-report-heading h2{margin:0;font-size:17px}.psr-report-heading span{color:#667085;font-size:10px}' +
+        '.psr-report-heading strong{border:1px solid #9aa8ba;padding:7px 12px}' +
+        '.psr-parties,.psr-table,.psr-summary{width:100%;border-collapse:collapse;margin:10px 0 16px}' +
+        '.psr-parties th,.psr-parties td,.psr-table th,.psr-table td,.psr-summary th,.psr-summary td{border:1px solid #aeb8c5;padding:7px 8px}' +
+        '.psr-parties th{width:13%;background:#f0f2f5;text-align:left;font-size:10px;text-transform:uppercase}' +
+        '.psr-parties td{width:37%}.psr-table th{background:#e9edf2;text-align:left;font-size:10px;text-transform:uppercase}' +
+        '.psr-table-title{text-align:center!important;background:#dfe5ed!important;font-size:11px!important;letter-spacing:.8px}' +
+        '.psr-table .num,.psr-parties .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}' +
+        '.psr-table tfoot th{background:#f0f2f5;font-weight:800}.psr-empty{text-align:center;padding:18px!important;color:#667085}' +
+        '.psr-summary{width:55%;margin-left:auto}.psr-summary th{background:#dfe5ed;text-align:left}.psr-summary td:first-child{background:#f5f6f8}' +
+        '.psr-summary td:last-child{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}' +
+        '.psr-footer{margin-top:24px;padding-top:8px;border-top:1px solid #aeb8c5;text-align:center;color:#667085;font-size:9px}' +
+        '@page{size:A4 portrait;margin:12mm}@media print{body{padding:0}.pos-shift-report{padding:0;max-width:none}.psr-table{page-break-inside:auto}.psr-table tr{page-break-inside:avoid;page-break-after:auto}}';
+
 
 function showPosShiftReport(type, shift, items) {
     var isZ = type === 'Z';
@@ -619,8 +623,8 @@ function showPosShiftReport(type, shift, items) {
         rows += '<tr><td class="num">' + (index + 1) + '</td><td>' + posReportEscape(item.itemcode || '') +
             '</td><td>' + posReportEscape(item.description || '') + '</td><td class="num">' +
             qty.toLocaleString('en-KE', {minimumFractionDigits:2, maximumFractionDigits:2}) +
-            '</td><td class="num">' + posReportMoney(sales - vat) + '</td><td class="num">' +
-            posReportMoney(vat) + '</td><td class="num">' + posReportMoney(sales) + '</td></tr>';
+            '</td><td class="num">' + posReportMoney(sales) + '</td><td class="num">' +
+            posReportMoney(vat) + '</td><td class="num">' + posReportMoney(sales + vat) + '</td></tr>';
     });
     if (!rows) {
         rows = '<tr><td colspan="7" class="psr-empty">No sales have been recorded for this shift.</td></tr>';
@@ -644,8 +648,8 @@ function showPosShiftReport(type, shift, items) {
         '<th class="num">Net amount</th><th class="num">VAT</th><th class="num">Gross amount</th></tr></thead><tbody>' + rows +
         '</tbody><tfoot><tr><th colspan="3">TOTAL</th><th class="num">' +
         totalQty.toLocaleString('en-KE', {minimumFractionDigits:2, maximumFractionDigits:2}) +
-        '</th><th class="num">' + posReportMoney(totalSales-totalVat) + '</th><th class="num">' +
-        posReportMoney(totalVat) + '</th><th class="num">' + posReportMoney(totalSales) +
+        '</th><th class="num">' + posReportMoney(totalSales) + '</th><th class="num">' +
+        posReportMoney(totalVat) + '</th><th class="num">' + posReportMoney(totalSales+totalVat) +
         '</th></tr></tfoot></table>' +
         '<table class="psr-summary"><tbody><tr><th colspan="2">SHIFT FINANCIAL SUMMARY</th></tr>' +
         '<tr><td>Gross sales</td><td>' + posReportMoney(shift.total_sales) + '</td></tr>' +
