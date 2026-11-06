@@ -128,6 +128,7 @@ foreach ($receiptData['items'] as $item) {
         : ($vatRate > 0 ? round($lineTotal * ($vatRate / 100), 2) : 0.00);
     if (!$vatInclusive) { $lineTotal = round($lineTotal + $vatAmount, 2); }
     $items[] = array(
+        'barcode' => $product['barcode'],
         'itemcode' => $product['itemcode'],
         'description' => $product['descrip'],
         'units' => $product['units'],
@@ -228,9 +229,19 @@ try {
     $lineStmt->close();
     $mysqli->query("SELECT RELEASE_LOCK('pos_sales_entryno')");
 
+    $printItems = array();
+    foreach ($items as $saleLine) {
+        $printItems[] = array(
+            'barcode' => $saleLine['barcode'], 'itemcode' => $saleLine['itemcode'],
+            'description' => $saleLine['description'], 'quantity' => $saleLine['quantity'],
+            'unitPrice' => $saleLine['unit_price'], 'vatRate' => $saleLine['vat_rate'],
+            'vatAmount' => $saleLine['vat_amount'], 'lineTotal' => $saleLine['line_total']
+        );
+    }
     $mysqli->commit();
     posSaveResponse(true, 'Receipt saved successfully.', 200, array(
-        'documentno' => $docno, 'total' => $calculatedTotal, 'total_vat' => $calculatedVat
+        'documentno' => $docno, 'total' => $calculatedTotal, 'total_vat' => $calculatedVat,
+        'items' => $printItems
     ));
 } catch (Exception $e) {
     $mysqli->rollback();
