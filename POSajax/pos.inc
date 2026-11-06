@@ -241,6 +241,20 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         window.POS_PRINT_URL = <?php echo json_encode($POSPrintUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINT_TOKEN = <?php echo json_encode($POSPrintToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINTER_ID = <?php echo json_encode(isset($POSPrinterId) ? $POSPrinterId : '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+        window.POS_COMPANY_DETAILS = <?php
+            $posCompany = isset($_SESSION['CompanyRecord']) && is_array($_SESSION['CompanyRecord']) ? $_SESSION['CompanyRecord'] : array();
+            $posCompanyAddress = array();
+            for ($posAddressIndex = 1; $posAddressIndex <= 6; $posAddressIndex++) {
+                $posAddressKey = 'regoffice' . $posAddressIndex;
+                if (!empty($posCompany[$posAddressKey])) { $posCompanyAddress[] = $posCompany[$posAddressKey]; }
+            }
+            echo json_encode(array(
+                'name' => isset($posCompany['coyname']) ? $posCompany['coyname'] : '',
+                'address' => $posCompanyAddress,
+                'telephone' => isset($posCompany['telephone']) ? $posCompany['telephone'] : '',
+                'email' => isset($posCompany['email']) ? $posCompany['email'] : ''
+            ), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+        ?>;
     </script>
     <script src="POSajax/printreceipt.js"></script>
 </body>
