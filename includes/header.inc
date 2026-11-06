@@ -53,6 +53,9 @@ echo '<link rel="stylesheet" href="css/index.css" type="text/css"/>
 <?php
 include("css/htmlpurifier/library/HTMLPurifier.auto.php");
 include('includes/svg.inc');
+
+$ViewTopic = isset($ViewTopic) ? $ViewTopic : '';
+$BookMark = isset($BookMark) ? $BookMark : '';
 echo '</head><body>';
 echo '<div id="page"></div>';
 echo '<header id="headerid" class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
