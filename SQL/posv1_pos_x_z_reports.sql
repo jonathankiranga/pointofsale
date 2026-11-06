@@ -34,7 +34,6 @@ ALTER TABLE SalesHeader
     ADD KEY idx_salesheader_payment_method (payment_method);
 
 ALTER TABLE SalesLine
-    ADD COLUMN pos_vat_rate DECIMAL(8,4) NOT NULL DEFAULT 0.0000,
     ADD COLUMN pos_tax_category VARCHAR(20) NULL;
 
 -- Required defaults use the existing config table. Configure these ERP master
