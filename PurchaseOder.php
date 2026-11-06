@@ -86,22 +86,22 @@ if(!isset($_POST['datedue'])){
 echo '</div><div class="card-body">'
  . '<div class="table-responsive"><table class="table table-bordered purchase-order-header"><caption>Purchase Order Header Details</caption><tbody>';
 echo '<tr><td>Date</td><td><input tabindex="1" type="text" class="date form-control" alt="'.$_SESSION['DefaultDateFormat'].'" name="date" size="11" maxlength="10" autofocus="autofocus" required="required" value="' .$_POST['date']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td>';
-echo '<td>Date of order</td><td><input tabindex="2" type="text" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" name="Purchaseoderdate" size="11" maxlength="10"   value="' .$_POST['Purchaseoderdate']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td>';
-echo '<td>Date Due</td><td><input tabindex="3" type="text" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" name="datedue" size="11" maxlength="10"   value="' .$_POST['datedue']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td></tr>';
+echo '<td>Date of order</td><td><input tabindex="2" type="text" class="date form-control" alt="'.$_SESSION['DefaultDateFormat'].'" name="Purchaseoderdate" size="11" maxlength="10"   value="' .$_POST['Purchaseoderdate']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td>';
+echo '<td>Date Due</td><td><input tabindex="3" type="text" class="date form-control" alt="'.$_SESSION['DefaultDateFormat'].'" name="datedue" size="11" maxlength="10"   value="' .$_POST['datedue']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td></tr>';
 
 echo '<tr><td>Document No</td>'
-        . '<td><input tabindex="4" type="text" name="documentno" value="'.$_POST['documentno'].'"  size="5" required="required"/></td>'
+        . '<td><input class="form-control" tabindex="4" type="text" name="documentno" value="'.$_POST['documentno'].'"  size="5" required="required"/></td>'
         . '<td>Your Reference</td>'
-        . '<td colspan="3"><input tabindex="5" type="text" name="reference" value="'.$_POST['reference'].'"  size="5" /></td></tr>';
+        . '<td colspan="3"><input class="form-control" tabindex="5" type="text" name="reference" value="'.$_POST['reference'].'"  size="5" /></td></tr>';
 
 echo '<tr><td>Supplier ID</td>'
-        . '<td><input tabindex="4" type="text" name="VendorID" id="VendorID" value="'.$_POST['VendorID'].'"  size="5" readonly="readonly"  required="required" />'
+        . '<td><input class="form-control" tabindex="4" type="text" name="VendorID" id="VendorID" value="'.$_POST['VendorID'].'"  size="5" readonly="readonly"  required="required" />'
         . '<input type="button" id="searchvendor" class="btn btn-outline-secondary" value="Search for Vendor"/></td>'
         . '<td>Supplier Name</td>'
-        . '<td colspan="3"><input tabindex="5" type="text" name="VendorName" id="VendorName" value="'.$_POST['VendorName'].'"  size="50"  required="required" /></td></tr>';
+        . '<td colspan="3"><input class="form-control" tabindex="5" type="text" name="VendorName" id="VendorName" value="'.$_POST['VendorName'].'"  size="50"  required="required" /></td></tr>';
 
 echo '<tr><td>Supplier Currency</td><td colspan="5">'
-. '<input tabindex="6" type="text" id="currencycode" size="5" name="currencycode" id="currencycode" value="'.$_POST['currencycode'].'" readonly="readonly"/></td></tr>';
+. '<input class="form-control" tabindex="6" type="text" id="currencycode" size="5" name="currencycode" id="currencycode" value="'.$_POST['currencycode'].'" readonly="readonly"/></td></tr>';
 
 echo '<tr>'.$_SESSION['SelectObject']['dimensionone'];
 echo $_SESSION['SelectObject']['dimensiontwo'].'<td colspan="2"></td></tr>';
