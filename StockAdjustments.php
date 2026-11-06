@@ -124,6 +124,8 @@ if(isset($_POST['savecount'])){
                         DB_Txn_Rollback($db);
                         prnMsg('The FIFO register does not contain enough costed stock to post this shortage. Reconcile the FIFO layers before posting the stock take.','warn');
                     }else{
+                        $ledgerUnitCost = abs($difference) > 0 ? (abs($fifoValue) / abs($difference)) : $averageCost;
+                        DB_query("UPDATE stockledger SET price='".sprintf('%.6F',$ledgerUnitCost)."' WHERE journal='".$journalno."'",$db);
                         $amountSql = sprintf('%.6F',abs($fifoValue));
                         DB_query("INSERT INTO Generalledger
                             (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,
@@ -205,6 +207,8 @@ if(isset($_POST['saveadjustment'])){
                     DB_Txn_Rollback($db);
                     prnMsg('The FIFO register does not contain enough costed stock to post this shortage. Reconcile the FIFO layers before posting the adjustment.','warn');
                 }else{
+                    $ledgerUnitCost = abs($baseAdjustment) > 0 ? (abs($fifoValue) / abs($baseAdjustment)) : $averageCost;
+                    DB_query("UPDATE stockledger SET price='".sprintf('%.6F',$ledgerUnitCost)."' WHERE journal='".$journalno."'",$db);
                     $amountSql = sprintf('%.6F',abs($fifoValue));
                     DB_query("INSERT INTO Generalledger
                         (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,VATaccountcode,
