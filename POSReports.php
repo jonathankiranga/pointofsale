@@ -58,8 +58,12 @@ $summary = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 $cashiers = array();
-$r = $mysqli->query("SELECT DISTINCT userid FROM SalesHeader WHERE documenttype=1 ORDER BY userid");
-if ($r) { while ($row = $r->fetch_assoc()) { $cashiers[] = $row['userid']; } }
+$r = $mysqli->query("SELECT userid, realname FROM www_users ORDER BY realname, userid");
+if ($r) {
+    while ($row = $r->fetch_assoc()) {
+        $cashiers[] = $row;
+    }
+}
 
 $paymentSql = "SELECT COALESCE(payment_method,'UNCLASSIFIED') AS payment_method,
                       COUNT(*) AS receipts, COALESCE(SUM(total),0) AS amount
@@ -174,7 +178,11 @@ include('includes/header.inc');
         <label>From <input class="form-control" type="date" name="from" value="<?php echo posReportEscape($from); ?>"></label>
         <label style="margin-left:10px;">To <input class="form-control" type="date" name="to" value="<?php echo posReportEscape($to); ?>"></label>
         <label style="margin-left:10px;">Cashier <select class="form-control" name="cashier"><option value="">All cashiers</option>
-            <?php foreach ($cashiers as $cashierId) { ?><option value="<?php echo posReportEscape($cashierId); ?>"<?php echo $cashierId === $cashier ? ' selected' : ''; ?>><?php echo posReportEscape($cashierId); ?></option><?php } ?>
+            <?php foreach ($cashiers as $cashierUser) {
+                $cashierId = (string)$cashierUser['userid'];
+                $cashierName = trim((string)$cashierUser['realname']);
+                if ($cashierName === '') { $cashierName = $cashierId; }
+            ?><option value="<?php echo posReportEscape($cashierId); ?>"<?php echo $cashierId === $cashier ? ' selected' : ''; ?>><?php echo posReportEscape($cashierName . ' (' . $cashierId . ')'); ?></option><?php } ?>
         </select></label>
         <button class="btn btn-primary" type="submit">Run report</button>
         <button class="btn btn-default" type="button" onclick="window.print()">Print</button>
