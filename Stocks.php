@@ -17,6 +17,14 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 
+if(isset($_POST['importexcel']) && !(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1')){
+    require_once 'vendor/phpoffice/phpspreadsheet/src/Bootstrap.php';
+    require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Spreadsheet.php';
+    require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xlsx.php';
+    require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xls.php';
+    require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/Xlsx.php';
+}
+
 if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
     try{
         require_once 'vendor/phpoffice/phpspreadsheet/src/Bootstrap.php';
