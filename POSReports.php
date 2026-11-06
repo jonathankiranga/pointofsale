@@ -1,16 +1,21 @@
 <?php
-$AllowAnyone = true;
-$PathPrefix = '';
-include('includes/globalsession.inc');
-
+session_name('smartlimserp');
+if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 $adminToken = isset($_SESSION['PageSecurityArray']['CompanyPreferences.php'])
     ? $_SESSION['PageSecurityArray']['CompanyPreferences.php'] : null;
-if (empty($_SESSION['DatabaseName']) || $adminToken === null ||
-    !in_array($adminToken, $_SESSION['AllowedPageSecurityTokens'])) {
+if (empty($_SESSION['DatabaseName'])) {
+    http_response_code(401);
+    echo 'Your session has expired. Sign in again.';
+    exit;
+}
+if ($adminToken === null || !in_array($adminToken, $_SESSION['AllowedPageSecurityTokens'])) {
     http_response_code(403);
     echo 'You do not have permission to view POS administration reports.';
     exit;
 }
+$PageSecurity = $adminToken;
+$PathPrefix = '';
+include('includes/globalsession.inc');
 global $mysqli;
 if (!($mysqli instanceof mysqli) || $mysqli->connect_errno) {
     die('Could not connect to the company database.');
