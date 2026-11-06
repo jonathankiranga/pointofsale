@@ -211,7 +211,7 @@ function restoreSalesData() {
           
         // Restore each item row
         receiptData.items.forEach(function(item) {
-            const newRow = `<tr class="selectable" data-barcode="${item.barcode}">
+            const newRow = `<tr class="selectable" data-barcode="${item.barcode}" data-itemcode="${item.itemcode || ''}">
                     <td>${item.barcode}</td>
                     <td>${item.description}</td>
                     <td contenteditable="true" class="quantity">${item.quantity}</td>
@@ -242,6 +242,7 @@ function saveSalesData() {
 
     $('#sales-table tbody tr').each(function() {
         const barcode = $(this).find('td').eq(0).text().trim();
+        const itemcode = String($(this).attr('data-itemcode') || '').trim();
         const description = $(this).find('td').eq(1).text().trim();
         const quantity = $(this).find('.quantity').text().trim();
         const unitPrice = $(this).find('.unit-price').text().trim();
@@ -253,6 +254,7 @@ function saveSalesData() {
         if (barcode !== '' && description !== '') {
             items.push({
                 barcode: barcode,
+                itemcode: itemcode,
                 description: description,
                 quantity: quantity,
                 unitPrice: unitPrice,
@@ -347,7 +349,7 @@ function recallSalesDataByReference(referenceNumber) {
         // Restore each item row
         receiptData.items.forEach(function(item) {
             const newRow = `
-                <tr class="selectable">
+                <tr class="selectable" data-barcode="${item.barcode}" data-itemcode="${item.itemcode || ''}">
                     <td>${item.barcode}</td>
                     <td>${item.description}</td>
                     <td contenteditable="true" class="quantity">${item.quantity}</td>
@@ -426,6 +428,7 @@ function fetchProduct(barcode) {
               const unitPrice = parseFloat(product.unit_price) || 0;
               const vatamount = (unitPrice * vatper * 0.01).toFixed(2);
                // Replace the blank row with the product data
+                targetRow.attr('data-itemcode', product.itemcode || '');
                 targetRow.html(`
                     <td class="barcode">${product.barcode}</td>
                     <td>${product.description}</td>

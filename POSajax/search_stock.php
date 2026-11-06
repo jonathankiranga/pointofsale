@@ -15,7 +15,7 @@ if ($conn->connect_error) {
     echo json_encode(array('error' => 'Could not connect to the company database.'));
     exit;
 }
-$sql = "SELECT stockmaster.barcode, stockmaster.descrip AS description,
+$sql = "SELECT stockmaster.barcode, stockmaster.itemcode, stockmaster.descrip AS description,
                stockmaster.postinggroup AS category,
                IFNULL(vatcategory.vat, 0) AS vat,
                IFNULL(stockmaster.sellingprice, 0) AS unit_price

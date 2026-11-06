@@ -45,17 +45,18 @@ $items = array();
 $calculatedTotal = 0;
 foreach ($receiptData['items'] as $item) {
     $barcode = isset($item['barcode']) ? trim((string)$item['barcode']) : '';
+    $itemcode = isset($item['itemcode']) ? trim((string)$item['itemcode']) : '';
     $description = isset($item['description']) ? trim((string)$item['description']) : '';
     $quantity = isset($item['quantity']) ? (float)$item['quantity'] : 0;
     $unitPrice = isset($item['unitPrice']) ? (float)$item['unitPrice'] : 0;
     $vatAmount = isset($item['vatAmount']) ? (float)$item['vatAmount'] : 0;
     $lineTotal = isset($item['lineTotal']) ? (float)$item['lineTotal'] : 0;
 
-    if ($barcode === '' || $description === '' || $quantity <= 0 || $unitPrice < 0 || $lineTotal < 0 || $vatAmount < 0) {
+    if ($barcode === '' || $itemcode === '' || $description === '' || $quantity <= 0 || $unitPrice < 0 || $lineTotal < 0 || $vatAmount < 0) {
         posSaveResponse(false, 'A sale line contains invalid product, quantity or price data.', 400);
     }
 
-    $items[] = array($barcode, $description, $quantity, $unitPrice, $vatAmount, $lineTotal);
+    $items[] = array($itemcode, $description, $quantity, $unitPrice, $vatAmount, $lineTotal);
     $calculatedTotal += $lineTotal;
 }
 
@@ -109,15 +110,15 @@ try {
     $header->close();
 
     $line = $mysqli->prepare("INSERT INTO SalesLine
-        (documenttype, documentno, barcode, description, Quantity, UnitPrice, vatamount, invoiceamount)
+        (documenttype, documentno, code, description, Quantity, UnitPrice, vatamount, invoiceamount)
         VALUES ('1', ?, ?, ?, ?, ?, ?, ?)");
     if (!$line) {
         throw new Exception('Could not prepare receipt lines: ' . $mysqli->error);
     }
 
     foreach ($items as $item) {
-        list($barcode, $description, $quantity, $unitPrice, $vatAmount, $lineTotal) = $item;
-        $line->bind_param('sssdddd', $docno, $barcode, $description, $quantity, $unitPrice, $vatAmount, $lineTotal);
+        list($itemcode, $description, $quantity, $unitPrice, $vatAmount, $lineTotal) = $item;
+        $line->bind_param('sssdddd', $docno, $itemcode, $description, $quantity, $unitPrice, $vatAmount, $lineTotal);
         if (!$line->execute()) {
             throw new Exception('Could not save a receipt line: ' . $line->error);
         }
