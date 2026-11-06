@@ -6,8 +6,8 @@ require_once 'vendor/phpoffice/phpspreadsheet/src/Bootstrap.php';
 require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Spreadsheet.php';
 require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xlsx.php';
 require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xls.php';
+require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/Xlsx.php';
 $Title = _('Inventory Maintenace');
-include('includes/header.inc');
 
 $mbflag = array();
 $mbflag[1]='Stock type';
@@ -21,6 +21,123 @@ $thispage = htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
+
+if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
+    try{
+        $spreadsheet = new Spreadsheet();
+        $inventory = $spreadsheet->getActiveSheet();
+        $inventory->setTitle('Inventory List');
+        $inventory->fromArray(array(array('Barcode','StockName','RetailPrice','GroupCode','PartsPerUnit','FullUnitCode','LooseUnitCode','CategoryID','ContainerItemCode')),NULL,'A1');
+        $inventory->getStyle('A1:I1')->applyFromArray(array(
+            'font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),
+            'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'1F4E78')),
+            'alignment'=>array('horizontal'=>'center','vertical'=>'center','wrapText'=>true),
+            'borders'=>array('bottom'=>array('style'=>'medium','color'=>array('rgb'=>'17365D')))
+        ));
+        $inventory->getRowDimension(1)->setRowHeight(30);
+        $widths = array('A'=>18,'B'=>34,'C'=>15,'D'=>17,'E'=>15,'F'=>17,'G'=>17,'H'=>14,'I'=>22);
+        foreach($widths as $column=>$width){ $inventory->getColumnDimension($column)->setWidth($width); }
+        for($row=2;$row<=101;$row++){
+            $inventory->setCellValue('E'.$row,1);
+            if($row % 2 === 0){
+                $inventory->getStyle('A'.$row.':I'.$row)->getFill()->setFillType('solid')->getStartColor()->setRGB('F2F6FA');
+            }
+        }
+        $inventory->getStyle('C2:C101')->getNumberFormat()->setFormatCode('#,##0.00');
+        $inventory->getStyle('E2:E101')->getNumberFormat()->setFormatCode('0.####');
+        $inventory->freezePane('A2');
+        $inventory->setAutoFilter('A1:I101');
+        $inventory->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
+        $inventory->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
+        $inventory->getPageSetup()->setFitToWidth(1)->setFitToHeight(0);
+        $inventory->getSheetProperties()->setPageSetUpPrFitToPage(true);
+        $inventory->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,1);
+        $inventory->getPageMargins()->setTop(0.5)->setBottom(0.5)->setLeft(0.25)->setRight(0.25);
+        $inventory->getHeaderFooter()->setOddFooter('&CInventory List - Page &P of &N');
+        $inventory->getPageSetup()->setPrintArea('A1:I101');
+
+        $codes = $spreadsheet->createSheet();
+        $codes->setTitle('Code Reference');
+        $codes->setShowGridlines(false);
+        $codes->mergeCells('A1:O1');
+        $codes->setCellValue('A1','LIVE ERP CODE REFERENCE');
+        $codes->getStyle('A1:O1')->applyFromArray(array(
+            'font'=>array('bold'=>true,'size'=>16,'color'=>array('rgb'=>'FFFFFF')),
+            'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'1F4E78')),
+            'alignment'=>array('horizontal'=>'center','vertical'=>'center')
+        ));
+        $codes->getRowDimension(1)->setRowHeight(30);
+        $codes->mergeCells('A2:O2');
+        $codes->setCellValue('A2','These values are read from the live ERP database when this workbook is downloaded. Use the exact code in the matching Inventory List column.');
+        $codes->getStyle('A2:O2')->getAlignment()->setWrapText(true);
+        $codes->getRowDimension(2)->setRowHeight(32);
+
+        $groupResult = $mysqli->query("SELECT ipg.code, ipg.balancesheet, inv.accdesc AS inventory_desc, ipg.defaultgl_sales, sales.accdesc AS sales_desc, ipg.defaultgl_purch, purch.accdesc AS purchase_desc, ipg.defaultgl_vat, vat.accdesc AS vat_desc, ipg.vatcategory FROM inventorypostinggroup ipg LEFT JOIN acct inv ON inv.accno=ipg.balancesheet LEFT JOIN acct sales ON sales.accno=ipg.defaultgl_sales LEFT JOIN acct purch ON purch.accno=ipg.defaultgl_purch LEFT JOIN acct vat ON vat.accno=ipg.defaultgl_vat ORDER BY ipg.code");
+        if(!$groupResult){ throw new Exception('Could not read inventory posting groups: '.$mysqli->error); }
+        $categoryResult = $mysqli->query("SELECT categoryid, categorydescription FROM stockcategory ORDER BY categoryid");
+        if(!$categoryResult){ throw new Exception('Could not read inventory categories: '.$mysqli->error); }
+        $unitResult = $mysqli->query("SELECT code, descrip FROM unit ORDER BY code");
+        if(!$unitResult){ throw new Exception('Could not read units of measure: '.$mysqli->error); }
+        $containerResult = $mysqli->query("SELECT itemcode, descrip FROM stockmaster WHERE isstock='6' ORDER BY descrip");
+        if(!$containerResult){ throw new Exception('Could not read container items: '.$mysqli->error); }
+
+        $codes->fromArray(array(array('GROUP CODE','INVENTORY ACCOUNT','SALES ACCOUNT','PURCHASE ACCOUNT','VAT ACCOUNT','VAT CATEGORY')),NULL,'A4');
+        $codes->getStyle('A4:F4')->applyFromArray(array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'4472C4')),'alignment'=>array('horizontal'=>'center','wrapText'=>true)));
+        $row=5;
+        while($g=$groupResult->fetch_assoc()){
+            $codes->fromArray(array(array($g['code'],trim((string)$g['balancesheet'].' - '.(string)$g['inventory_desc']),trim((string)$g['defaultgl_sales'].' - '.(string)$g['sales_desc']),trim((string)$g['defaultgl_purch'].' - '.(string)$g['purchase_desc']),trim((string)$g['defaultgl_vat'].' - '.(string)$g['vat_desc'],$g['vatcategory'])),NULL,'A'.$row);
+            $row++;
+        }
+        $codes->setCellValue('H4','CATEGORY ID');
+        $codes->setCellValue('I4','CATEGORY DESCRIPTION');
+        $codes->getStyle('H4:I4')->applyFromArray(array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'548235')),'alignment'=>array('horizontal'=>'center','wrapText'=>true)));
+        $row=5;
+        while($c=$categoryResult->fetch_assoc()){
+            $codes->fromArray(array(array($c['categoryid'],$c['categorydescription'])),NULL,'H'.$row);
+            $row++;
+        }
+        $codes->setCellValue('K4','UNIT CODE');
+        $codes->setCellValue('L4','UNIT DESCRIPTION');
+        $codes->getStyle('K4:L4')->applyFromArray(array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'BF9000')),'alignment'=>array('horizontal'=>'center','wrapText'=>true)));
+        $row=5;
+        while($u=$unitResult->fetch_assoc()){
+            $codes->fromArray(array(array($u['code'],$u['descrip'])),NULL,'K'.$row);
+            $row++;
+        }
+        $codes->setCellValue('N4','CONTAINER ITEM CODE');
+        $codes->setCellValue('O4','CONTAINER DESCRIPTION');
+        $codes->getStyle('N4:O4')->applyFromArray(array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'7030A0')),'alignment'=>array('horizontal'=>'center','wrapText'=>true)));
+        $row=5;
+        while($container=$containerResult->fetch_assoc()){
+            $codes->fromArray(array(array($container['itemcode'],$container['descrip'])),NULL,'N'.$row);
+            $row++;
+        }
+        $codeWidths=array('A'=>18,'B'=>30,'C'=>30,'D'=>30,'E'=>30,'F'=>14,'H'=>16,'I'=>24,'K'=>16,'L'=>22,'N'=>24,'O'=>30);
+        foreach($codeWidths as $column=>$width){ $codes->getColumnDimension($column)->setWidth($width); }
+        $codes->getStyle('A4:O'.max(5,$codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
+        $codes->freezePane('A5');
+        $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
+        $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
+        $codes->getPageSetup()->setFitToWidth(1)->setFitToHeight(0);
+        $codes->getSheetProperties()->setPageSetUpPrFitToPage(true);
+        $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
+        $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.25)->setRight(0.25);
+        $codes->getHeaderFooter()->setOddFooter('&CLive ERP Code Reference - Page &P of &N');
+        $codes->setPrintArea('A1:O'.max(5,$codes->getHighestRow()));
+        $spreadsheet->setActiveSheetIndex(0);
+        if(ob_get_length()){ ob_end_clean(); }
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="stock_catalogue_import.xlsx"');
+        header('Cache-Control: max-age=0');
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }catch(\Exception $e){
+        die('Unable to generate the inventory workbook: '.htmlspecialchars($e->getMessage(),ENT_QUOTES,'UTF-8'));
+    }
+}
+
+include('includes/header.inc');
 
 if(!function_exists('Triger_stockmaster')){
     function Triger_stockmaster($descript){
@@ -546,6 +663,7 @@ echo '<tr><td>'._('Select the Package for Item if any').'</td><td>';
         echo  '<div class="centre">'
             . '<label>Choose Excel File</label><input type="file" name="importfile"  accept=".xls,.xlsx">'
             . '<input type="submit" name="importexcel"  value="'._('Import New Stock list from Excel').'"/>'
+            . '<a class="btn btn-default" style="margin-left:8px;" href="'.htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8').'?downloadtemplate=1">Download Excel Inventory Template</a>'
             . '</div>';
           }
      
