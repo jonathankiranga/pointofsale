@@ -80,63 +80,30 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $sectionStyle=array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'1F4E78')),'alignment'=>array('horizontal'=>'left','vertical'=>'center'));
         $tableHeaderStyle=array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'4472C4')),'alignment'=>array('horizontal'=>'center','vertical'=>'center','wrapText'=>true));
 
-        $codes->fromArray(array(array('GROUP CODE','INVENTORY ACCOUNT','SALES ACCOUNT','PURCHASE ACCOUNT','VAT ACCOUNT','VAT CATEGORY')),NULL,'A4');
-        $codes->getStyle('A4:F4')->applyFromArray($tableHeaderStyle);
-        $row=5;
-        while($g=$groupResult->fetch_assoc()){
-            $codes->fromArray(array(array(
-                $g['code'],
-                trim((string)$g['balancesheet'].' - '.(string)$g['inventory_desc']),
-                trim((string)$g['defaultgl_sales'].' - '.(string)$g['sales_desc']),
-                trim((string)$g['defaultgl_purch'].' - '.(string)$g['purchase_desc']),
-                trim((string)$g['defaultgl_vat'].' - '.(string)$g['vat_desc']),
-                $g['vatcategory']
-            )),NULL,'A'.$row);
-            $row++;
-        }
-
-        $sectionRow=$row+2;
-        $codes->mergeCells('A'.$sectionRow.':F'.$sectionRow);
-        $codes->setCellValue('A'.$sectionRow,'INVENTORY CATEGORIES');
-        $codes->getStyle('A'.$sectionRow.':F'.$sectionRow)->applyFromArray($sectionStyle);
-        $categoryHeader=$sectionRow+1;
-        $codes->fromArray(array(array('CATEGORY ID','CATEGORY DESCRIPTION')),NULL,'A'.$categoryHeader);
-        $codes->getStyle('A'.$categoryHeader.':B'.$categoryHeader)->applyFromArray($tableHeaderStyle);
-        $row=$categoryHeader+1;
-        while($c=$categoryResult->fetch_assoc()){
-            $codes->fromArray(array(array($c['categoryid'],$c['categorydescription'])),NULL,'A'.$row);
-            $row++;
-        }
-
-        $sectionRow=$row+2;
-        $codes->mergeCells('A'.$sectionRow.':F'.$sectionRow);
-        $codes->setCellValue('A'.$sectionRow,'UNITS OF MEASURE');
-        $codes->getStyle('A'.$sectionRow.':F'.$sectionRow)->applyFromArray($sectionStyle);
-        $unitHeader=$sectionRow+1;
-        $codes->fromArray(array(array('UNIT CODE','UNIT DESCRIPTION')),NULL,'A'.$unitHeader);
-        $codes->getStyle('A'.$unitHeader.':B'.$unitHeader)->applyFromArray($tableHeaderStyle);
-        $row=$unitHeader+1;
-        while($u=$unitResult->fetch_assoc()){
-            $codes->fromArray(array(array($u['code'],$u['descrip'])),NULL,'A'.$row);
-            $row++;
-        }
-
-        $sectionRow=$row+2;
-        $codes->mergeCells('A'.$sectionRow.':F'.$sectionRow);
-        $codes->setCellValue('A'.$sectionRow,'CONTAINER ITEMS');
-        $codes->getStyle('A'.$sectionRow.':F'.$sectionRow)->applyFromArray($sectionStyle);
-        $containerHeader=$sectionRow+1;
-        $codes->fromArray(array(array('CONTAINER ITEM CODE','CONTAINER DESCRIPTION')),NULL,'A'.$containerHeader);
-        $codes->getStyle('A'.$containerHeader.':B'.$containerHeader)->applyFromArray($tableHeaderStyle);
-        $row=$containerHeader+1;
-        while($container=$containerResult->fetch_assoc()){
-            $codes->fromArray(array(array($container['itemcode'],$container['descrip'])),NULL,'A'.$row);
-            $row++;
-        }
+        $codes->fromArray(array(
+            array('FIELD','WHAT TO ENTER'),
+            array('GroupCode','Use an existing inventory posting group code configured in the back office. This controls the inventory, sales, purchase and VAT account mappings.'),
+            array('CategoryID','Use the existing stock category ID. This classifies the item for inventory reporting; it is not an accounting posting group.'),
+            array('FullUnitCode','Use an existing unit-of-measure code for the full selling or purchasing unit.'),
+            array('LooseUnitCode','Use an existing unit-of-measure code for the base or loose unit.'),
+            array('PartsPerUnit','Enter how many loose/base units make up one full unit. Leave blank for a single-unit item; the importer defaults it to 1.'),
+            array('ContainerItemCode','For container items, enter the item code of an existing stock item configured as a container. Otherwise leave blank.'),
+            array('Important','This template is generated without querying reference tables. Use the codes already configured in the application. The import preview validates the entered codes before anything is imported.')
+        ),NULL,'A4');
+        $codes->getStyle('A4:B4')->applyFromArray($tableHeaderStyle);
+        $codes->getStyle('A5:B'.($codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
+        $codes->getStyle('A11:B11')->getFont()->setBold(true);
+        $codes->getRowDimension(5)->setRowHeight(42);
+        $codes->getRowDimension(6)->setRowHeight(42);
+        $codes->getRowDimension(7)->setRowHeight(32);
+        $codes->getRowDimension(8)->setRowHeight(32);
+        $codes->getRowDimension(9)->setRowHeight(42);
+        $codes->getRowDimension(10)->setRowHeight(42);
+        $codes->getRowDimension(11)->setRowHeight(50);
 
         $codeWidths=array('A'=>24,'B'=>34,'C'=>34,'D'=>34,'E'=>34,'F'=>16);
         foreach($codeWidths as $column=>$width){ $codes->getColumnDimension($column)->setWidth($width); }
-        $codes->getStyle('A4:F'.max(4,$codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
+        $codes->getStyle('A4:B'.max(4,$codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
         $codes->freezePane('A5');
         $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
         $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
@@ -145,7 +112,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
         $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.35)->setRight(0.35);
         $codes->getHeaderFooter()->setOddFooter('&CLive ERP Code Reference - Page &P of &N');
-        $codes->setPrintArea('A1:F'.max(4,$codes->getHighestRow()));
+        $codes->setPrintArea('A1:B'.max(4,$codes->getHighestRow()));
         $spreadsheet->setActiveSheetIndex(0);
         if(ob_get_length()){ ob_end_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -154,8 +121,13 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save('php://output');
         exit;
-    }catch(\Exception $e){
-        die('Unable to generate the inventory workbook: '.htmlspecialchars($e->getMessage(),ENT_QUOTES,'UTF-8'));
+    }catch(\Throwable $e){
+        error_log('Inventory template generation failed: '.$e->getMessage());
+        if(!headers_sent()){
+            http_response_code(500);
+            header('Content-Type: text/plain; charset=utf-8');
+        }
+        die('Unable to generate the inventory workbook. Please check the PHP error log.');
     }
 }
 
