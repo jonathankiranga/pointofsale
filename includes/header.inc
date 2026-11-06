@@ -41,9 +41,6 @@ echo '<link rel="stylesheet" href="css/index.css" type="text/css"/>
       <script type="text/javascript" src="css/toastr/confirmtoastr.js"></script>'; 
 ?>
 <style>
-  body{
-   background: #80808045;
-  }
   .modal-dialog.large {
     width: 80% !important;
     max-width: unset;
