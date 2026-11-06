@@ -47,9 +47,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                 <script>
                     document.getElementById('cashsaleno').textContent = 'CS-' + Date.now();
                 </script>
-                <a class="pos-logout" href="POSConfiguration.php" aria-label="POS configuration" title="POS configuration">
-                    <span>POS settings</span>
-                </a>
                 <a class="pos-logout" href="PosLogout.php" aria-label="Log out">
                     <svg width="21" height="21" aria-hidden="true"><use xlink:href="POScss/svg.svg#logout"/></svg>
                     <span>Log out</span>
