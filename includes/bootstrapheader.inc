@@ -99,6 +99,61 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
     } else {
         window.addEventListener("resize", updateHeaderHeight);
     }
+
+    /*
+     * Mark legacy HTML form-layout tables so the shared stylesheet can size
+     * them to their controls. Real data grids and DataTables are left alone.
+     */
+    var markCompactFormTables = function (root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        var tables = [];
+
+        if (scope.matches && scope.matches("table")) {
+            tables.push(scope);
+        }
+
+        Array.prototype.forEach.call(
+            scope.querySelectorAll("form table"),
+            function (table) {
+                tables.push(table);
+            }
+        );
+
+        tables.forEach(function (table) {
+            if (!table.closest("form") ||
+                table.classList.contains("dataTable") ||
+                table.closest(".dataTables_wrapper, .table-responsive") ||
+                table.querySelector(":scope > thead") ||
+                table.parentElement.closest("table")) {
+                return;
+            }
+
+            if (table.querySelector(
+                'input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea'
+            )) {
+                table.classList.add("bo-compact-form-table");
+            }
+        });
+    };
+
+    markCompactFormTables(document);
+
+    if (document.body && typeof MutationObserver !== "undefined") {
+        var formTableObserver = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                Array.prototype.forEach.call(mutation.addedNodes, function (node) {
+                    if (node.nodeType === 1) {
+                        markCompactFormTables(node);
+                    }
+                });
+            });
+        });
+
+        formTableObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
 })();
 </script>';
 
