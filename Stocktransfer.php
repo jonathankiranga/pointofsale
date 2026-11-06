@@ -9,69 +9,57 @@ echo '<p class="page_title_text"><img src="css/'.$Theme.'/images/inventory.png" 
 $thispage = htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
 
 if(isset($_POST['transfer'])){
-  $SQL=array();
-    
-  $transferQty = isset($_POST['qty']) ? (float)str_replace(',', '', $_POST['qty']) : 0;
-  $transferUOM = isset($_POST['UOM']) ? $_POST['UOM'] : '';
-  $partPerUnit = getpartperunit($_POST['itemcode']);
-  $availableBaseUnits = getbalance($_POST['itemcode'],$_POST['location']);
-  $requestedBaseUnits = ($transferUOM === 'fulqty') ? $transferQty * $partPerUnit : $transferQty;
+    $transferQty = isset($_POST['qty']) ? (float)str_replace(',', '', $_POST['qty']) : 0;
+    $transferUOM = isset($_POST['UOM']) ? $_POST['UOM'] : '';
+    $itemcode = isset($_POST['itemcode']) ? str_replace("'", "''", trim($_POST['itemcode'])) : '';
+    $fromStore = isset($_POST['location']) ? str_replace("'", "''", trim($_POST['location'])) : '';
+    $toStore = isset($_POST['locationTo']) ? str_replace("'", "''", trim($_POST['locationTo'])) : '';
+    $partPerUnit = getpartperunit($itemcode);
+    $availableBaseUnits = getbalance($itemcode,$fromStore);
+    $requestedBaseUnits = ($transferUOM === 'fulqty') ? $transferQty * $partPerUnit : $transferQty;
 
-  if($transferQty > 0 && $partPerUnit > 0
-      && ($transferUOM === 'fulqty' || $transferUOM === 'loosqty')
-      && $availableBaseUnits + 0.0000001 >= $requestedBaseUnits){
-        $journalno = GetNextTransNo(16, $db);
-        $Periodno  = GetPeriod($_POST['date'], $db);
-   
-      $SQL[]="INSERT INTO [stockledger]
-           ([date],[stname],[doctyp],[itemcode],[invref],[fulqty],[loosqty],[price],[store],[journal],[period])
-            VALUES ('".FormatDateForSQL($_POST['date'])."'
-                ,'Stock Transfer' 
-                ,'16'
-                ,'".$_POST['itemcode']."'"
-               . ",'".$journalno."'"
-               . ",'".(($_POST['UOM']=='fulqty')?$_POST['qty']* -1:'0')."'"
-               . ",'".(($_POST['UOM']=='loosqty')?$_POST['qty']* -1:'0')."'"
-               . ",".(0).""
-               . ",'".$_POST['location']."'"
-               . ",'".$journalno."'"
-               . ",'".$Periodno."'"
-               . ")";
-      
-     $SQL[]="INSERT INTO [stockledger]
-           ([date],[stname],[doctyp],[itemcode],[invref],[fulqty],[loosqty],[price],[store],[journal],[period])
-             VALUES ('".FormatDateForSQL($_POST['date'])."'
-                ,'Stock Transfer' 
-                ,'16'
-                ,'".$_POST['itemcode']."'"
-               . ",'".$journalno."'"
-               . ",'".(($_POST['UOM']=='fulqty')?$_POST['qty']:'0')."'"
-               . ",'".(($_POST['UOM']=='loosqty')?$_POST['qty']:'0')."'"
-               . ",".(0).""
-               . ",'".$_POST['locationTo']."'"
-               . ",'".$journalno."'"
-               . ",'".$Periodno."'"
-               . ")"; 
-     
-     
-       DB_Txn_Begin($db);
-       foreach($SQL as $value) {
-           DB_query($value,$db);
-       }
-       
-       if(DB_error_no($db)>0){
-           DB_Txn_Rollback($db);
-       }else{
-           DB_Txn_Commit($db);
-           prnMsg('You have created transfer Document '.$journalno .' successfuly Units:'.$_POST['qty'],'succes');
-           unset($_POST['qty']);
-      }
-      
-  }else{
-      prnMsg('You do not have enough stock available in the selected unit of measure. Check the full and loose unit balance.','warn');
-  }
-    
-    
+    if($transferQty > 0 && $partPerUnit > 0
+        && ($transferUOM === 'fulqty' || $transferUOM === 'loosqty')
+        && $fromStore !== '' && $toStore !== ''
+        && $fromStore !== $toStore
+        && $availableBaseUnits + 0.0000001 >= $requestedBaseUnits){
+
+        $qtySql = sprintf('%.4F',$transferQty);
+        $journalno = GetNextTransNo(16,$db);
+        $Periodno = GetPeriod($_POST['date'],$db);
+        $dateSql = FormatDateForSQL($_POST['date']);
+        $fullQty = ($transferUOM === 'fulqty') ? $qtySql : '0';
+        $looseQty = ($transferUOM === 'loosqty') ? $qtySql : '0';
+
+        $SQL = array();
+        $SQL[] = "INSERT INTO stockledger
+            (date,stname,doctyp,itemcode,invref,fulqty,loosqty,price,store,journal,period)
+            VALUES ('".$dateSql."','Stock Transfer','16','".$itemcode."','".$journalno."',
+                '".(-1 * (float)$fullQty)."','".(-1 * (float)$looseQty)."',0,
+                '".$fromStore."','".$journalno."','".$Periodno."')";
+
+        $SQL[] = "INSERT INTO stockledger
+            (date,stname,doctyp,itemcode,invref,fulqty,loosqty,price,store,journal,period)
+            VALUES ('".$dateSql."','Stock Transfer','16','".$itemcode."','".$journalno."',
+                '".$fullQty."','".$looseQty."',0,
+                '".$toStore."','".$journalno."','".$Periodno."')";
+
+        DB_Txn_Begin($db);
+        foreach($SQL as $value){
+            DB_query($value,$db);
+        }
+
+        if(DB_error_no($db)>0){
+            DB_Txn_Rollback($db);
+            prnMsg('The stock transfer could not be posted. No stock movement was saved.','warn');
+        }else{
+            DB_Txn_Commit($db);
+            prnMsg('You have created transfer Document '.$journalno.' successfully. Quantity: '.$transferQty,'success');
+            unset($_POST['qty']);
+        }
+    }else{
+        prnMsg('Select different source and destination stores, a valid unit and quantity, and ensure the source store has enough stock.','warn');
+    }
 }
 
 echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '" method="post">';
