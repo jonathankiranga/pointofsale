@@ -47,6 +47,24 @@ function posShiftTotals($mysqli, $shiftId) {
     return $row;
 }
 
+function posShiftItems($mysqli, $shiftId) {
+    $items = array();
+    $sql = "SELECT l.code AS itemcode, l.description, SUM(l.Quantity) AS quantity,
+                   SUM(l.invoiceamount) AS sales_value, SUM(l.vatamount) AS vat_value
+            FROM SalesLine l INNER JOIN SalesHeader h
+              ON h.documenttype=l.documenttype AND h.documentno=l.documentno
+            WHERE h.pos_shift_id=? AND h.documenttype=1 AND COALESCE(h.status,1)=1
+            GROUP BY l.code, l.description ORDER BY l.description";
+    $stmt = $mysqli->prepare($sql);
+    if (!$stmt) { throw new Exception($mysqli->error); }
+    $stmt->bind_param('i', $shiftId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) { $items[] = $row; }
+    $stmt->close();
+    return $items;
+}
+
 try {
     if ($action === 'status' || $action === 'x-report') {
         $stmt = $mysqli->prepare("SELECT * FROM pos_shifts WHERE cashier_id=? AND status='OPEN' ORDER BY id DESC LIMIT 1");
@@ -62,19 +80,7 @@ try {
         $shift['cash_sales'] = (float)$totals['cash_sales'];
         $shift['mpesa_sales'] = (float)$totals['mpesa_sales'];
         $shift['expected_cash'] = (float)$shift['opening_float'] + $shift['cash_sales'];
-        $lines = array();
-        $lineSql = "SELECT l.code AS itemcode, l.description, SUM(l.Quantity) AS quantity,
-                           SUM(l.invoiceamount) AS sales_value, SUM(l.vatamount) AS vat_value
-                    FROM SalesLine l INNER JOIN SalesHeader h
-                      ON h.documenttype=l.documenttype AND h.documentno=l.documentno
-                    WHERE h.pos_shift_id=? AND h.documenttype=1 AND COALESCE(h.status,1)=1
-                    GROUP BY l.code, l.description ORDER BY l.description";
-        $lineStmt = $mysqli->prepare($lineSql);
-        $lineStmt->bind_param('i', $shift['id']);
-        $lineStmt->execute();
-        $res = $lineStmt->get_result();
-        while ($line = $res->fetch_assoc()) { $lines[] = $line; }
-        $lineStmt->close();
+        $lines = posShiftItems($mysqli, (int)$shift['id']);
         posShiftResponse(true, 'Shift summary loaded.', 200, array('shift' => $shift, 'items' => $lines, 'report_type' => 'X'));
     }
 
@@ -121,6 +127,7 @@ try {
         }
         $totals = posShiftTotals($mysqli, (int)$shift['id']);
         $expected = round((float)$shift['opening_float'] + (float)$totals['cash_sales'], 2);
+        $items = posShiftItems($mysqli, (int)$shift['id']);
         $variance = round($counted - $expected, 2);
         $zNumber = 'Z-' . str_pad((string)$shift['id'], 8, '0', STR_PAD_LEFT);
         $update = $mysqli->prepare("UPDATE pos_shifts
@@ -139,7 +146,7 @@ try {
         posShiftResponse(true, 'Z report closed and saved.', 200, array(
             'z_report_number' => $zNumber, 'receipt_count' => (int)$totals['receipt_count'],
             'total_sales' => $totalSales, 'total_vat' => $totalVat, 'cash_sales' => $cashSales,
-            'mpesa_sales' => $mpesaSales, 'opening_float' => (float)$shift['opening_float'],
+            'mpesa_sales' => $mpesaSales, 'opening_float' => (float)$shift['opening_float'], 'items' => $items,
             'expected_cash' => $expected, 'cash_counted' => $counted, 'cash_variance' => $variance
         ));
     }
