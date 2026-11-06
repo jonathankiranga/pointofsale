@@ -150,6 +150,165 @@ $stmt->execute();
 $transactions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+
+/* Generate a real PDF using the ERP's bundled TCPDF wrapper. */
+if (isset($_GET['output']) && $_GET['output'] === 'pdf') {
+    $PaperSize = 'A4_Landscape';
+    include('includes/PDFStarter.php');
+    $pdf->addInfo('Title', 'POS Administration Report');
+    $pdf->addInfo('Subject', 'POS sales and cashier reconciliation');
+    $pdf->addInfo('Creator', 'SmartERP POS');
+
+    $pageNumber = 0;
+    $left = 36;
+    $usableWidth = 770;
+    $y = 0;
+    $company = isset($_SESSION['CompanyRecord']) ? $_SESSION['CompanyRecord'] : array();
+    $companyName = isset($company['coyname']) ? $company['coyname'] : 'Company';
+    $companyAddress = trim(
+        (isset($company['regoffice1']) ? $company['regoffice1'] . ' ' : '') .
+        (isset($company['regoffice2']) ? $company['regoffice2'] . ' ' : '') .
+        (isset($company['regoffice3']) ? $company['regoffice3'] . ' ' : '') .
+        (isset($company['regoffice4']) ? $company['regoffice4'] . ' ' : '') .
+        (isset($company['regoffice5']) ? $company['regoffice5'] : '')
+    );
+    $cashierLabel = 'All cashiers';
+    if ($cashier !== '') {
+        foreach ($cashiers as $cashierUser) {
+            if ((string)$cashierUser['userid'] === $cashier) {
+                $cashierLabel = trim((string)$cashierUser['realname']);
+                if ($cashierLabel === '') { $cashierLabel = $cashier; }
+                break;
+            }
+        }
+        if ($cashierLabel === 'All cashiers') { $cashierLabel = $cashier; }
+    }
+
+    $drawPageHeader = function () use (&$pdf, &$pageNumber, &$y, $left, $usableWidth, $companyName, $companyAddress, $from, $to, $cashierLabel) {
+        if ($pageNumber > 0) { $pdf->newPage(); }
+        $pageNumber++;
+        $pdf->SetFont('helvetica', 'B', 15);
+        $pdf->addText($left, 552, 15, $companyName);
+        $pdf->SetFont('helvetica', '', 8);
+        if ($companyAddress !== '') { $pdf->addText($left, 538, 8, $companyAddress); }
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->addText($left, 512, 12, 'POS ADMINISTRATION REPORT');
+        $pdf->SetFont('helvetica', '', 8);
+        $pdf->addText($left, 498, 8, 'Period: ' . $from . ' to ' . $to . '    Cashier: ' . $cashierLabel);
+        $pdf->addText($left + $usableWidth - 55, 498, 8, 'Page ' . $pageNumber);
+        $pdf->line($left, 488, $left + $usableWidth, 488);
+        $y = 470;
+    };
+
+    $renderTable = function ($title, $headers, $rows, $widths) use (&$pdf, &$y, &$drawPageHeader, $left, $usableWidth) {
+        if ($y < 65) { $drawPageHeader(); }
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->addText($left, $y, 10, $title);
+        $y -= 17;
+        $headerHeight = 18;
+        $pdf->SetFillColor(226, 235, 245);
+        $pdf->Rect($left, $y - 4, $usableWidth, $headerHeight, 'F');
+        $x = $left + 5;
+        $pdf->SetFont('helvetica', 'B', 7);
+        foreach ($headers as $i => $heading) {
+            $pdf->addTextWrap($x, $y, $widths[$i] - 8, 7, $heading, 'left');
+            $x += $widths[$i];
+        }
+        $y -= $headerHeight;
+        $pdf->SetFont('helvetica', '', 7);
+        foreach ($rows as $row) {
+            if ($y < 48) {
+                $drawPageHeader();
+                $pdf->SetFont('helvetica', 'B', 10);
+                $pdf->addText($left, $y, 10, $title . ' (continued)');
+                $y -= 17;
+                $pdf->SetFillColor(226, 235, 245);
+                $pdf->Rect($left, $y - 4, $usableWidth, $headerHeight, 'F');
+                $x = $left + 5;
+                $pdf->SetFont('helvetica', 'B', 7);
+                foreach ($headers as $i => $heading) {
+                    $pdf->addTextWrap($x, $y, $widths[$i] - 8, 7, $heading, 'left');
+                    $x += $widths[$i];
+                }
+                $y -= $headerHeight;
+                $pdf->SetFont('helvetica', '', 7);
+            }
+            $x = $left + 5;
+            foreach ($row as $i => $value) {
+                $align = ($i > 0 && preg_match('/KES|Amount|Sales|VAT|Gross|Net|Qty|Quantity|Rate|Receipts|Variance|Float|Cash/i', $headers[$i])) ? 'right' : 'left';
+                $pdf->addTextWrap($x, $y, $widths[$i] - 8, 7, (string)$value, $align);
+                $x += $widths[$i];
+            }
+            $pdf->line($left, $y - 4, $left + $usableWidth, $y - 4);
+            $y -= 14;
+        }
+        if (!$rows) {
+            $pdf->SetFont('helvetica', 'I', 7);
+            $pdf->addText($left + 5, $y, 7, 'No records found.');
+            $y -= 15;
+        }
+        $y -= 12;
+    };
+
+    $drawPageHeader();
+    $renderTable('Sales summary',
+        array('Receipts', 'Gross sales (KES)', 'VAT (KES)', 'Cash sales (KES)', 'M-Pesa sales (KES)'),
+        array(array((string)(int)$summary['receipts'], posReportMoney($summary['sales']), posReportMoney($summary['vat']), posReportMoney($summary['cash_sales']), posReportMoney($summary['mpesa_sales']))),
+        array(105, 165, 145, 165, 190)
+    );
+
+    $paymentRows = array();
+    foreach ($payments as $payment) { $paymentRows[] = array($payment['payment_method'], (string)(int)$payment['receipts'], posReportMoney($payment['amount'])); }
+    $renderTable('Payment reconciliation', array('Payment method', 'Receipts', 'Amount (KES)'), $paymentRows, array(400, 150, 220));
+
+    $taxRows = array();
+    foreach ($taxBreakdown as $tax) {
+        $taxRows[] = array($tax['tax_category'], posReportMoney($tax['vat_rate']), posReportMoney($tax['net_value']), posReportMoney($tax['vat_value']), posReportMoney($tax['gross_value']));
+    }
+    $renderTable('Tax breakdown by ERP VAT category', array('VAT category', 'VAT rate (%)', 'Net value (KES)', 'VAT (KES)', 'Gross value (KES)'), $taxRows, array(220, 105, 150, 130, 165));
+
+    $itemRows = array();
+    foreach ($items as $item) { $itemRows[] = array($item['itemcode'], $item['description'], posReportMoney($item['quantity']), posReportMoney($item['sales_value']), posReportMoney($item['vat_value'])); }
+    $renderTable('Products sold', array('Item code', 'Description', 'Quantity', 'Sales (KES)', 'VAT (KES)'), $itemRows, array(115, 300, 100, 145, 110));
+
+    $receiptRows = array();
+    foreach ($transactions as $transaction) {
+        $receiptRows[] = array($transaction['documentno'], $transaction['docdate'], $transaction['userid'], $transaction['payment_method'], posReportMoney($transaction['total']), posReportMoney($transaction['total_vat']));
+    }
+    $renderTable('Receipts (maximum 500 records)', array('Receipt', 'Date', 'Cashier', 'Payment', 'Gross (KES)', 'VAT (KES)'), $receiptRows, array(125, 145, 125, 125, 125, 130));
+
+    $shiftRows = array();
+    foreach ($shifts as $shift) {
+        $shiftRows[] = array($shift['z_report_number'] ? $shift['z_report_number'] : ('Shift #' . $shift['id']), $shift['cashier_name'], $shift['opened_at'], $shift['closed_at'] ? $shift['closed_at'] : 'Open', $shift['status'], posReportMoney($shift['total_sales']));
+    }
+    $renderTable('Cashier shifts and Z reports', array('Z report / shift', 'Cashier', 'Opened', 'Closed', 'Status', 'Gross sales (KES)'), $shiftRows, array(140, 150, 150, 150, 90, 95));
+
+    if ($selectedShift) {
+        $renderTable('Selected shift: ' . ($selectedShift['z_report_number'] ? $selectedShift['z_report_number'] : ('Shift #' . $selectedShift['id'])),
+            array('Cashier', 'Opened', 'Closed', 'Status', 'Gross sales (KES)'),
+            array(array($selectedShift['cashier_name'], $selectedShift['opened_at'], $selectedShift['closed_at'] ? $selectedShift['closed_at'] : 'Not closed', $selectedShift['status'], posReportMoney($selectedShift['total_sales']))),
+            array(170, 180, 180, 120, 150)
+        );
+        $shiftPaymentRows = array();
+        foreach ($shiftPayments as $payment) { $shiftPaymentRows[] = array($payment['payment_method'], (string)(int)$payment['receipts'], posReportMoney($payment['amount'])); }
+        $renderTable('Selected shift payment breakdown', array('Payment method', 'Receipts', 'Amount (KES)'), $shiftPaymentRows, array(400, 150, 220));
+
+        $shiftProductRows = array();
+        foreach ($shiftProducts as $item) { $shiftProductRows[] = array($item['itemcode'], $item['description'], posReportMoney($item['quantity']), posReportMoney($item['sales_value']), posReportMoney($item['vat_value'])); }
+        $renderTable('Selected shift products sold', array('Item code', 'Description', 'Quantity', 'Sales (KES)', 'VAT (KES)'), $shiftProductRows, array(115, 300, 100, 145, 110));
+
+        $shiftReceiptRows = array();
+        foreach ($shiftReceipts as $receipt) { $shiftReceiptRows[] = array($receipt['documentno'], $receipt['docdate'], $receipt['userid'], $receipt['payment_method'], posReportMoney($receipt['total']), posReportMoney($receipt['total_vat'])); }
+        $renderTable('Selected shift receipts', array('Receipt', 'Date', 'Cashier', 'Payment', 'Gross (KES)', 'VAT (KES)'), $shiftReceiptRows, array(125, 145, 125, 125, 125, 130));
+    }
+
+    $pdf->SetFont('helvetica', 'I', 7);
+    $pdf->addText($left, 28, 7, 'Internal POS reconciliation report. This report does not replace KRA eTIMS fiscalisation or statutory tax invoice records.');
+    $pdf->OutputD('POS-Administration-Report-' . $from . '-to-' . $to . '.pdf');
+    $pdf->__destruct();
+    exit;
+}
+
 $Title = 'POS Administration Reports';
 include('includes/header.inc');
 ?>
@@ -388,7 +547,7 @@ include('includes/header.inc');
             ?><option value="<?php echo posReportEscape($cashierId); ?>"<?php echo $cashierId === $cashier ? ' selected' : ''; ?>><?php echo posReportEscape($cashierName . ' (' . $cashierId . ')'); ?></option><?php } ?>
         </select></label>
         <button class="btn btn-primary" type="submit">Run report</button>
-        <button class="btn btn-default" type="button" onclick="window.print()">Print</button>
+        <button class="btn btn-success" type="submit" name="output" value="pdf"><i class="fa fa-file-pdf-o"></i> Generate PDF</button>
     </form>
 
     <div class="row pos-admin-summary">
@@ -403,7 +562,7 @@ include('includes/header.inc');
     <section class="panel panel-primary pos-z-detail" id="pos-z-detail">
         <div class="panel-heading">
             <strong><?php echo posReportEscape($selectedShift['z_report_number'] ? $selectedShift['z_report_number'] : 'Shift #' . $selectedShift['id']); ?> — Full shift report</strong>
-            <button type="button" class="btn btn-default btn-sm pull-right" onclick="window.print()">Print Z report</button>
+            <a class="btn btn-default btn-sm pull-right" href="POSReports.php?from=<?php echo rawurlencode($from); ?>&amp;to=<?php echo rawurlencode($to); ?>&amp;cashier=<?php echo rawurlencode($cashier); ?>&amp;shift_id=<?php echo (int)$selectedShift['id']; ?>&amp;output=pdf">Download Z report PDF</a>
         </div>
         <div class="panel-body">
             <div class="row">
