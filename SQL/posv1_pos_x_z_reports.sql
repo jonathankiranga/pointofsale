@@ -34,7 +34,8 @@ ALTER TABLE SalesHeader
     ADD KEY idx_salesheader_payment_method (payment_method);
 
 ALTER TABLE SalesLine
-    ADD COLUMN pos_tax_category VARCHAR(20) NULL;
+    ADD COLUMN pos_tax_category VARCHAR(20) NULL,
+    ADD KEY idx_salesline_pos_document (documenttype, documentno);
 
 -- Required defaults use the existing config table. Configure these ERP master
 -- records in POSConfiguration.php; this migration deliberately invents none.
