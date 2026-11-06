@@ -172,8 +172,46 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
         });
     };
 
+
+    /*
+     * Remove Bootstrap's visual table treatment from ordinary HTML tables.
+     * Keep it on actual data grids (DataTables, tablesorter, or explicitly
+     * marked grid tables/containers).
+     */
+    var updateBootstrapTableClasses = function (root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        var tables = [];
+
+        if (scope.matches && scope.matches("table")) {
+            tables.push(scope);
+        }
+
+        Array.prototype.forEach.call(scope.querySelectorAll("table"), function (table) {
+            tables.push(table);
+        });
+
+        tables.forEach(function (table) {
+            var isGrid =
+                table.classList.contains("dataTable") ||
+                table.classList.contains("tablesorter") ||
+                table.classList.contains("table-grid") ||
+                table.classList.contains("grid-table") ||
+                table.hasAttribute("data-grid") ||
+                table.getAttribute("role") === "grid" ||
+                !!table.closest(
+                    ".dataTables_wrapper, .tablesorter, .grid-table, .table-grid, " +
+                    "[data-grid], [role=grid]"
+                );
+
+            if (!isGrid && table.classList.contains("table")) {
+                table.classList.remove("table");
+            }
+        });
+    };
+
     markCompactFormTables(document);
     removeOversizedBootstrapControlClasses(document);
+    updateBootstrapTableClasses(document);
 
     if (document.body && typeof MutationObserver !== "undefined") {
         var formTableObserver = new MutationObserver(function (mutations) {
@@ -182,6 +220,7 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
                     if (node.nodeType === 1) {
                         markCompactFormTables(node);
                         removeOversizedBootstrapControlClasses(node);
+                        updateBootstrapTableClasses(node);
                     }
                 });
             });
@@ -189,7 +228,9 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
 
         formTableObserver.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class", "role", "data-grid"]
         });
     }
 })();
