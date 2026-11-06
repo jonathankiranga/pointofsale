@@ -71,13 +71,15 @@ $(document).ready(function() {
     const lineTotal = unitPrice * quantity;
     const vatper = parseFloat($row.find('.vat-per').text()) || 0; // Ensure vatper is a number or default to 0
 
-    // Calculate the base price and VAT amount
-    const basePrice = lineTotal / (1 + (vatper / 100));
-    const vatAmount = lineTotal - basePrice;
+    // Respect the configured ERP sales posting group's VAT-inclusive setting.
+    const vatInclusive = Number(window.POS_VAT_INCLUSIVE) === 1;
+    const vatAmount = vatInclusive
+        ? lineTotal - (lineTotal / (1 + (vatper / 100)))
+        : lineTotal * (vatper / 100);
+    const grossTotal = vatInclusive ? lineTotal : lineTotal + vatAmount;
 
-    // Update the VAT and line total fields in the current row
-    $row.find('.VAT-total').text(vatAmount.toFixed(2)); // Corrected variable name to 'vatAmount'
-    $row.find('.line-total').text(lineTotal.toFixed(2));
+    $row.find('.VAT-total').text(vatAmount.toFixed(2));
+    $row.find('.line-total').text(grossTotal.toFixed(2));
 
     // Call updateLineTotal to recalculate totals across the entire table
     updateLineTotal();    
@@ -426,7 +428,12 @@ function fetchProduct(barcode) {
               const targetRow = $('#sales-table tbody tr.blank-row').first();
               const vatper = parseFloat(product.vat) || 0;
               const unitPrice = parseFloat(product.unit_price) || 0;
-              const vatamount = (unitPrice * vatper * 0.01).toFixed(2);
+              const vatInclusive = Number(window.POS_VAT_INCLUSIVE) === 1;
+              const netAmount = unitPrice;
+              const vatamount = (vatInclusive
+                  ? netAmount - (netAmount / (1 + (vatper / 100)))
+                  : netAmount * (vatper / 100)).toFixed(2);
+              const initialTotal = vatInclusive ? netAmount : netAmount + parseFloat(vatamount);
                // Replace the blank row with the product data
                 targetRow.attr('data-itemcode', product.itemcode || '');
                 targetRow.html(`
@@ -436,7 +443,7 @@ function fetchProduct(barcode) {
                     <td class="unit-price">${product.unit_price}</td>
                     <td class="vat-per">${product.vat}</td>
                     <td class="VAT-total">${vatamount}</td>
-                    <td class="line-total">${(product.unit_price * 1).toFixed(2)}</td>
+                    <td class="line-total">${initialTotal.toFixed(2)}</td>
                 `).removeClass('blank-row'); // Remove 'blank-row' class
 
                 // Remove the contenteditable attribute from the barcode cell
