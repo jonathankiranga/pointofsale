@@ -88,7 +88,7 @@ function CreateUnits($stockcode,$pkey){
         $partPerUnit = (float)$row[1];
 
         if($UOM === 'fulqty'){
-            return ($partPerUnit > 0) ? (float)((int)($baseUnits / $partPerUnit)) : 0.0;
+            return ($partPerUnit > 0) ? ($baseUnits / $partPerUnit) : 0.0;
         }
         return $baseUnits;
     }
