@@ -71,20 +71,20 @@ if(!isset($_POST['date'])){
 
 
 echo '<p class="page_title_text"><img src="css/'.$Theme.'/images/sales.png" title="' . _('Create Customer Receipts') .'" alt="" />' . ' ' . _('Create Customer Receipts') . '</p>';
-echo '<a href="'.htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8').'?new=1">To Create A new number click here</a>';
+echo '<p><a class="btn btn-outline-primary" href="'.htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8').'?new=1">To Create A new number click here</a></p>';
 echo '<form autocomplete="off"action="'. htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') .'" method="post" id="custreseipts">'
         . '<div class="card">';
 echo '<input type="hidden" name="FormID" value="'. $_SESSION['FormID'] .'"/>';
 echo '<input type="hidden" name="SelectedCustomer" value="'.$SelectedCustomer.'"/>';
 
-Echo '<table   class="table-bordered">';
-echo '<tr><td>Date</td><td><input tabindex="1" type="text" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" name="date" size="11" maxlength="10" autofocus="autofocus" required="required" value="' .$_POST['date']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td></tr>';
+echo '<div class="table-responsive"><table class="table table-bordered receipt-entry-table"><tbody>';
+echo '<tr><td>Date</td><td><input tabindex="1" type="text" class="date form-control" alt="'.$_SESSION['DefaultDateFormat'].'" name="date" size="11" maxlength="10" autofocus="autofocus" required="required" value="' .$_POST['date']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td></tr>';
 echo '<tr><td>Document No</td><td>'
         . '<input tabindex="4" type="text" name="documentno" value="'.$_POST['documentno'].'"  size="5" required="required" /></td></tr>'
         . '<tr><td>Your Reference</td><td>'
         . '<input tabindex="5" type="text" name="reference" value="'.$_POST['reference'].'"  size="5" /></td></tr>';
 echo '<tr><td>Customer ID</td><td>'
-        . '<input type="button" id="searchcustomer" value="Search Customer"/><input tabindex="4" type="text" name="CustomerID" id="CustomerID" value="'.$_POST['CustomerID'].'"  size="5" readonly="readonly"  required="required" />'
+        . '<input type="button" id="searchcustomer" class="btn btn-outline-secondary" value="Search Customer"/><input tabindex="4" type="text" name="CustomerID" id="CustomerID" value="'.$_POST['CustomerID'].'"  size="5" readonly="readonly"  required="required" />'
         . '<input type="hidden" name="salespersoncode" id="salespersoncode" value=""/></td></tr>'
         . '<tr><td>Customer Name</td>'
         . '<td><input tabindex="5" type="text" name="CustomerName" id="CustomerName" value="'.$_POST['CustomerName'].'"  size="50"  required="required" /></td></tr>';
@@ -92,10 +92,10 @@ echo '<tr><td>Customer ID</td><td>'
 echo $TRBanks->Get();
 
 echo '<tr><td>Currency Code</td><td>'
-   . '<input tabindex="6" type="text" size="5" name="currencycode" id="currencycode" value="'.$_POST['currencycode'].'" readonly="readonly"/><input type="text" class="number"    value="'.$_POST['totalamount'].'" name="totalamount"/>';
+   . '<input tabindex="6" type="text" size="5" name="currencycode" id="currencycode" value="'.$_POST['currencycode'].'" readonly="readonly"/><input type="text" class="number form-control"    value="'.$_POST['totalamount'].'" name="totalamount"/>';
 echo '</td></tr>'
 . '<tr><td></td>'
-     . '<td><input type="submit" name="receipt" value="Receive Amount"   onclick="return confirm(\''._('Do you want to save this receipt ?').'\');" /></td></tr></table>';
+     . '<td><input type="submit" class="btn btn-primary" name="receipt" value="Receive Amount" onclick="return confirm(\''._('Do you want to save this receipt ?').'\');" /></td></tr></tbody></table></div>';
 echo '</div></form>';
  
 include('includes/footer.inc');
