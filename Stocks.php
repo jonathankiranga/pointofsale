@@ -121,8 +121,13 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save('php://output');
         exit;
-    }catch(\Exception $e){
-        die('Unable to generate the inventory workbook: '.htmlspecialchars($e->getMessage(),ENT_QUOTES,'UTF-8'));
+    }catch(\Throwable $e){
+        error_log('Inventory template generation failed: '.$e->getMessage());
+        if(!headers_sent()){
+            http_response_code(500);
+            header('Content-Type: text/plain; charset=utf-8');
+        }
+        die('Unable to generate the inventory workbook. Please check the PHP error log.');
     }
 }
 
