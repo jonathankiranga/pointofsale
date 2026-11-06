@@ -560,3 +560,107 @@ setInterval(saveSalesData,5000);  // Save every 5 seconds
 clearTable(); // Call this to clear the existing table and create editable row
 restoreSalesData();
 fillAnySavedDataOnLoading();
+function posShiftRequest(action, data, onSuccess) {
+    $.ajax({
+        url: 'POSajax/shift.php' + (data ? '' : '?action=' + encodeURIComponent(action)),
+        type: data ? 'POST' : 'GET',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        headers: data ? { 'X-POS-FormID': window.POS_FORM_ID || '' } : {},
+        data: data ? JSON.stringify($.extend({ action: action }, data)) : undefined
+    }).done(function(response) {
+        if (!response || !response.success) {
+            showCustomDialog(response && response.message ? response.message : 'The shift request failed.');
+            return;
+        }
+        if (typeof onSuccess === 'function') { onSuccess(response); }
+    }).fail(function(xhr) {
+        var message = xhr.responseJSON && xhr.responseJSON.message
+            ? xhr.responseJSON.message : 'Could not communicate with the POS shift service.';
+        showCustomDialog(message);
+    });
+}
+
+function posRefreshShift() {
+    posShiftRequest('status', null, function(response) {
+        var shift = response.shift;
+        if (!shift) {
+            $('#pos-shift-label').text('No open shift');
+            $('#pos-shift-open').prop('disabled', false);
+            $('#pos-x-report, #pos-z-close').prop('disabled', true);
+            $('#pay-cash-btn, #pay-mpesa-btn').prop('disabled', true);
+            return;
+        }
+        $('#pos-shift-label').text('Shift #' + shift.id + ' · Opened ' + shift.opened_at);
+        $('#pos-shift-open').prop('disabled', true);
+        $('#pos-x-report, #pos-z-close').prop('disabled', false);
+        $('#pay-cash-btn, #pay-mpesa-btn').prop('disabled', false);
+    });
+}
+
+$(document).ready(function() {
+    posRefreshShift();
+
+    $('#pos-shift-open').on('click', function() {
+        var openingFloat = window.prompt('Enter the opening cash float (KES):', '0.00');
+        if (openingFloat === null) { return; }
+        openingFloat = parseFloat(openingFloat);
+        if (!Number.isFinite(openingFloat) || openingFloat < 0) {
+            showCustomDialog('Enter a valid opening cash float.');
+            return;
+        }
+        posShiftRequest('open', { opening_float: openingFloat }, function(response) {
+            showCustomDialog(response.message + ' Shift #' + response.shift_id);
+            posRefreshShift();
+        });
+    });
+
+    $('#pos-x-report').on('click', function() {
+        posShiftRequest('x-report', null, function(response) {
+            var shift = response.shift;
+            var message = 'X REPORT · SHIFT #' + shift.id +
+                '\\nCashier: ' + shift.cashier_name +
+                '\\nOpened: ' + shift.opened_at +
+                '\\nReceipts: ' + shift.receipt_count +
+                '\\nGross sales: KES ' + Number(shift.total_sales).toFixed(2) +
+                '\\nVAT: KES ' + Number(shift.total_vat).toFixed(2) +
+                '\\nCash sales: KES ' + Number(shift.cash_sales).toFixed(2) +
+                '\\nM-Pesa sales: KES ' + Number(shift.mpesa_sales).toFixed(2) +
+                '\\nOpening float: KES ' + Number(shift.opening_float).toFixed(2) +
+                '\\nExpected drawer cash: KES ' + Number(shift.expected_cash).toFixed(2) +
+                '\\n\\nPRODUCTS SOLD';
+            (response.items || []).forEach(function(item) {
+                message += '\\n' + item.itemcode + ' · ' + item.description +
+                    ' · Qty ' + Number(item.quantity).toFixed(2) +
+                    ' · KES ' + Number(item.sales_value).toFixed(2);
+            });
+            showCustomDialog(message);
+        });
+    });
+
+    $('#pos-z-close').on('click', function() {
+        var counted = window.prompt('Count the actual cash in the drawer and enter the amount (KES):', '');
+        if (counted === null) { return; }
+        counted = parseFloat(counted);
+        if (!Number.isFinite(counted) || counted < 0) {
+            showCustomDialog('Enter the actual cash counted in the drawer.');
+            return;
+        }
+        if (!window.confirm('Close this cashier shift using the cash count of KES ' + counted.toFixed(2) + '? The Z report cannot be reopened.')) {
+            return;
+        }
+        posShiftRequest('close', { cash_counted: counted }, function(response) {
+            var variance = Number(response.cash_variance);
+            showCustomDialog('Z REPORT ' + response.z_report_number +
+                '\\nGross sales: KES ' + Number(response.total_sales).toFixed(2) +
+                '\\nVAT: KES ' + Number(response.total_vat).toFixed(2) +
+                '\\nCash sales: KES ' + Number(response.cash_sales).toFixed(2) +
+                '\\nM-Pesa sales: KES ' + Number(response.mpesa_sales).toFixed(2) +
+                '\\nOpening float: KES ' + Number(response.opening_float).toFixed(2) +
+                '\\nExpected cash: KES ' + Number(response.expected_cash).toFixed(2) +
+                '\\nActual cash counted: KES ' + Number(response.cash_counted).toFixed(2) +
+                '\\nCash ' + (variance < 0 ? 'shortage' : 'overage') + ': KES ' + Math.abs(variance).toFixed(2));
+            posRefreshShift();
+        });
+    });
+});
