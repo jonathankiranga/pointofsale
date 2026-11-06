@@ -4,6 +4,16 @@ include('includes/CurrenciesArray.php'); // To get the currency name from the cu
 include('includes/chartbalancing.inc'); // To get the currency name from the currency code.
 $Title = _('Print Stock');
 
+if (!isset($_POST['fromdate'])) {
+    $_POST['fromdate'] = '';
+}
+if (!isset($_POST['todate'])) {
+    $_POST['todate'] = '';
+}
+if (!isset($_POST['store']) || $_POST['store'] === '') {
+    $_POST['store'] = 'AllStores';
+}
+
 $stockClass = new StockBalance();
 
 if(mb_strlen($_POST['fromdate'])>0){
@@ -193,7 +203,8 @@ $pdf->__destruct();
           $this->storename = 'AllStores';
 
           if ($this->StoreCode !== 'AllStores') {
-              $sql = "SELECT [Storename] FROM [Stores] WHERE [code]='" . DB_escape_string($this->StoreCode) . "'";
+              $storeCode = str_replace("'", "''", $this->StoreCode);
+              $sql = "SELECT [Storename] FROM [Stores] WHERE [code]='" . $storeCode . "'";
               $ResultsP = DB_query($sql, $db);
               if (DB_num_rows($ResultsP) > 0) {
                   $rows = DB_fetch_row($ResultsP);
