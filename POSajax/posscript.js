@@ -583,25 +583,25 @@ function posReportMoney(value) {
 }
 
 function posShiftReportPrintCss() {
-    return 'body{margin:0;padding:18px;background:#fff;color:#172033;font:12px/1.4 Arial,sans-serif}' +
-        '.pos-shift-report{max-width:980px;margin:0 auto;padding:20px;background:#fff}' +
-        '.psr-company-head{text-align:center;border-bottom:2px solid #172b4d;padding-bottom:12px}' +
-        '.psr-company-name{font-size:21px;font-weight:800;text-transform:uppercase}.psr-company-address{margin-top:3px;color:#475467;font-size:11px}' +
-        '.psr-report-heading{display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px}' +
-        '.psr-report-heading h2{margin:0;font-size:17px}.psr-report-heading span{color:#667085;font-size:10px}' +
-        '.psr-report-heading strong{border:1px solid #9aa8ba;padding:7px 12px}' +
-        '.psr-parties,.psr-table,.psr-summary{width:100%;border-collapse:collapse;margin:10px 0 16px}' +
-        '.psr-parties th,.psr-parties td,.psr-table th,.psr-table td,.psr-summary th,.psr-summary td{border:1px solid #aeb8c5;padding:7px 8px}' +
-        '.psr-parties th{width:13%;background:#f0f2f5;text-align:left;font-size:10px;text-transform:uppercase}' +
-        '.psr-parties td{width:37%}.psr-table th{background:#e9edf2;text-align:left;font-size:10px;text-transform:uppercase}' +
-        '.psr-table-title{text-align:center!important;background:#dfe5ed!important;font-size:11px!important;letter-spacing:.8px}' +
-        '.psr-table .num,.psr-parties .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}' +
-        '.psr-table tfoot th{background:#f0f2f5;font-weight:800}.psr-empty{text-align:center;padding:18px!important;color:#667085}' +
-        '.psr-summary{width:55%;margin-left:auto}.psr-summary th{background:#dfe5ed;text-align:left}.psr-summary td:first-child{background:#f5f6f8}' +
-        '.psr-summary td:last-child{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}' +
-        '.psr-footer{margin-top:24px;padding-top:8px;border-top:1px solid #aeb8c5;text-align:center;color:#667085;font-size:9px}' +
-        '@page{size:A4 portrait;margin:12mm}@media print{body{padding:0}.pos-shift-report{padding:0;max-width:none}.psr-table{page-break-inside:auto}.psr-table tr{page-break-inside:avoid;page-break-after:auto}}';
-
+    return 'body{margin:0;padding:18px;background:#eef2f7;color:#1c2940;font:12px/1.5 Segoe UI,Arial,sans-serif}' +
+        '.pos-shift-report{box-sizing:border-box;max-width:1080px;margin:0 auto;padding:34px 38px;background:#fff;border:1px solid #d9e1eb;border-top:5px solid #17365d;border-radius:8px}' +
+        '.psr-company-head{min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 12px 20px;border-bottom:1px solid #cbd5e1}' +
+        '.psr-company-name{color:#17365d;font-size:25px;line-height:1.2;font-weight:800;letter-spacing:1.1px;text-transform:uppercase}.psr-company-address{margin-top:5px;color:#617187;font-size:11px}' +
+        '.psr-report-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:22px 0 16px;padding-bottom:13px;border-bottom:3px solid #17365d}' +
+        '.psr-report-heading h2{margin:0;color:#17365d;font-size:18px;font-weight:800;letter-spacing:.65px}.psr-report-heading span{display:block;margin-top:4px;color:#77869a;font-size:10px}' +
+        '.psr-report-heading strong{min-width:135px;padding:10px 15px;border:1px solid #b8c6d8;border-radius:4px;background:#f2f6fb;color:#17365d;text-align:center;font-size:12px}' +
+        '.psr-parties,.psr-table,.psr-summary{width:100%;margin:0 0 22px;border-collapse:separate;border-spacing:0;table-layout:fixed}' +
+        '.psr-parties{border:1px solid #d8e0ea}.psr-parties th,.psr-parties td,.psr-table th,.psr-table td,.psr-summary th,.psr-summary td{padding:10px 12px;border-right:1px solid #d8e0ea;border-bottom:1px solid #d8e0ea}' +
+        '.psr-parties th{width:16%;background:#f2f5f9;color:#596b82;text-align:left;font-size:9px;font-weight:800;text-transform:uppercase}.psr-parties td{width:34%;font-weight:650}' +
+        '.psr-table thead th{background:#17365d;color:#fff;text-align:left;font-size:9px;font-weight:800;text-transform:uppercase;border-color:#365578}' +
+        '.psr-table thead .psr-table-title{background:#e9eff6!important;color:#17365d!important;text-align:center!important;font-size:10px!important;letter-spacing:1.2px}' +
+        '.psr-table tbody tr:nth-child(even){background:#f7f9fc}.psr-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.psr-table tfoot th{background:#e9eff6;color:#17365d;font-weight:800;border-top:2px solid #9aabc0}' +
+        '.psr-empty{padding:24px!important;color:#718096;text-align:center}.psr-summary{width:72%;margin:0 auto 22px;border:1px solid #cbd5e1}' +
+        '.psr-summary th{background:#e9eff6;color:#17365d;text-align:center;font-size:10px;font-weight:800;letter-spacing:1px}.psr-summary td{width:50%}' +
+        '.psr-summary td:first-child{background:#f7f9fc;color:#596b82;font-weight:650}.psr-summary td:last-child{background:#fff;color:#1c2940;text-align:right;font-weight:750;font-variant-numeric:tabular-nums}' +
+        '.psr-footer{display:flex;justify-content:center;margin-top:24px;padding-top:12px;border-top:1px solid #cbd5e1;color:#7b899b;text-align:center;font-size:9px;letter-spacing:.25px}' +
+        '@page{size:A4 portrait;margin:12mm}@media print{body{padding:0;background:#fff}.pos-shift-report{max-width:none;padding:24px 26px;border-radius:0;box-shadow:none}.psr-table{page-break-inside:auto}.psr-table tr{page-break-inside:avoid;page-break-after:auto}}';
+}
 
 function showPosShiftReport(type, shift, items) {
     var isZ = type === 'Z';
