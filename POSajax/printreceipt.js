@@ -4,9 +4,10 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
     $('#sales-table tbody tr').each(function() {
         const $row = $(this);
         const barcode = $row.find('td').eq(0).text().trim();
+        const itemcode = String($row.attr('data-itemcode') || '').trim();
         const description = $row.find('td').eq(1).text().trim();
 
-        if (barcode && description && !$row.hasClass('blank-row')) {
+        if (barcode && itemcode && description && !$row.hasClass('blank-row')) {
             const quantity = parseFloat($row.find('.quantity').text()) || 0;
             const unitPrice = parseFloat($row.find('.unit-price').text()) || 0;
             const vatRate = parseFloat($row.find('.vat-per').text()) || 0;
@@ -21,6 +22,7 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
 
             items.push({
                 barcode: barcode,
+                itemcode: itemcode,
                 description: description,
                 quantity: quantity,
                 unitPrice: unitPrice,

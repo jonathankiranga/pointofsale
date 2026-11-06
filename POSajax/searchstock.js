@@ -45,6 +45,7 @@ $(document).ready(function() {
 
         blankRow.classList.add('selectable');
         blankRow.classList.remove('blank-row');
+        blankRow.setAttribute('data-itemcode', selectedProduct.itemcode || '');
         blankRow.querySelector('.barcode').textContent = selectedProduct.barcode || '';
         blankRow.querySelector('.description').textContent = selectedProduct.description || '';
         blankRow.querySelector('.unit-price').textContent = unitPrice;
