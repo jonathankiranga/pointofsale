@@ -8,7 +8,7 @@ $thispage=htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
 
 
  if(!isset($_POST['date'])){ 
-    $ResultIndex = DB_query('Select sysdate()-30 as date ',$db);
+    $ResultIndex = DB_query('SELECT DATE_SUB(CURDATE(), INTERVAL 30 DAY) AS date ',$db);
     $rowdate = DB_fetch_row($ResultIndex);
     $_POST['date']= ConvertSQLDate($rowdate[0]); 
     $date = $rowdate[0];
