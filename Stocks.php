@@ -59,71 +59,94 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes = $spreadsheet->createSheet();
         $codes->setTitle('Code Reference');
         $codes->setShowGridlines(false);
-        $codes->mergeCells('A1:O1');
+        $codes->mergeCells('A1:F1');
         $codes->setCellValue('A1','LIVE ERP CODE REFERENCE');
-        $codes->getStyle('A1:O1')->applyFromArray(array(
+        $codes->getStyle('A1:F1')->applyFromArray(array(
             'font'=>array('bold'=>true,'size'=>16,'color'=>array('rgb'=>'FFFFFF')),
             'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'1F4E78')),
             'alignment'=>array('horizontal'=>'center','vertical'=>'center')
         ));
         $codes->getRowDimension(1)->setRowHeight(30);
-        $codes->mergeCells('A2:O2');
-        $codes->setCellValue('A2','These values are read from the live ERP database when this workbook is downloaded. Use the exact code in the matching Inventory List column.');
-        $codes->getStyle('A2:O2')->getAlignment()->setWrapText(true);
+        $codes->mergeCells('A2:F2');
+        $codes->setCellValue('A2','Generated from live ERP records at download time. Enter the exact code in the matching column on the Inventory List sheet.');
+        $codes->getStyle('A2:F2')->getAlignment()->setWrapText(true);
         $codes->getRowDimension(2)->setRowHeight(32);
 
-        $groupResult = $mysqli->query("SELECT ipg.code, ipg.balancesheet, inv.accdesc AS inventory_desc, ipg.defaultgl_sales, sales.accdesc AS sales_desc, ipg.defaultgl_purch, purch.accdesc AS purchase_desc, ipg.defaultgl_vat, vat.accdesc AS vat_desc, ipg.vatcategory FROM inventorypostinggroup ipg LEFT JOIN acct inv ON inv.accno=ipg.balancesheet LEFT JOIN acct sales ON sales.accno=ipg.defaultgl_sales LEFT JOIN acct purch ON purch.accno=ipg.defaultgl_purch LEFT JOIN acct vat ON vat.accno=ipg.defaultgl_vat ORDER BY ipg.code");
-        if(!$groupResult){ throw new Exception('Could not read inventory posting groups: '.$mysqli->error); }
-        $categoryResult = $mysqli->query("SELECT categoryid, categorydescription FROM stockcategory ORDER BY categoryid");
-        if(!$categoryResult){ throw new Exception('Could not read inventory categories: '.$mysqli->error); }
-        $unitResult = $mysqli->query("SELECT code, descrip FROM unit ORDER BY code");
-        if(!$unitResult){ throw new Exception('Could not read units of measure: '.$mysqli->error); }
-        $containerResult = $mysqli->query("SELECT itemcode, descrip FROM stockmaster WHERE isstock='6' ORDER BY descrip");
-        if(!$containerResult){ throw new Exception('Could not read container items: '.$mysqli->error); }
+        $codes->mergeCells('A3:F3');
+        $codes->setCellValue('A3','GROUP CODE identifies the inventory posting and accounting setup. CATEGORY ID classifies the item for inventory reporting. They are different values and must not be interchanged.');
+        $codes->getStyle('A3:F3')->getFont()->setBold(true);
+        $codes->getStyle('A3:F3')->getAlignment()->setWrapText(true);
+        $codes->getRowDimension(3)->setRowHeight(34);
+
+        $sectionStyle=array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'1F4E78')),'alignment'=>array('horizontal'=>'left','vertical'=>'center'));
+        $tableHeaderStyle=array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'4472C4')),'alignment'=>array('horizontal'=>'center','vertical'=>'center','wrapText'=>true));
 
         $codes->fromArray(array(array('GROUP CODE','INVENTORY ACCOUNT','SALES ACCOUNT','PURCHASE ACCOUNT','VAT ACCOUNT','VAT CATEGORY')),NULL,'A4');
-        $codes->getStyle('A4:F4')->applyFromArray(array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'4472C4')),'alignment'=>array('horizontal'=>'center','wrapText'=>true)));
+        $codes->getStyle('A4:F4')->applyFromArray($tableHeaderStyle);
         $row=5;
         while($g=$groupResult->fetch_assoc()){
-            $codes->fromArray(array(array($g['code'],trim((string)$g['balancesheet'].' - '.(string)$g['inventory_desc']),trim((string)$g['defaultgl_sales'].' - '.(string)$g['sales_desc']),trim((string)$g['defaultgl_purch'].' - '.(string)$g['purchase_desc']),trim((string)$g['defaultgl_vat'].' - '.(string)$g['vat_desc'],$g['vatcategory'])),NULL,'A'.$row);
+            $codes->fromArray(array(array(
+                $g['code'],
+                trim((string)$g['balancesheet'].' - '.(string)$g['inventory_desc']),
+                trim((string)$g['defaultgl_sales'].' - '.(string)$g['sales_desc']),
+                trim((string)$g['defaultgl_purch'].' - '.(string)$g['purchase_desc']),
+                trim((string)$g['defaultgl_vat'].' - '.(string)$g['vat_desc']),
+                $g['vatcategory']
+            )),NULL,'A'.$row);
             $row++;
         }
-        $codes->setCellValue('H4','CATEGORY ID');
-        $codes->setCellValue('I4','CATEGORY DESCRIPTION');
-        $codes->getStyle('H4:I4')->applyFromArray(array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'548235')),'alignment'=>array('horizontal'=>'center','wrapText'=>true)));
-        $row=5;
+
+        $sectionRow=$row+2;
+        $codes->mergeCells('A'.$sectionRow.':F'.$sectionRow);
+        $codes->setCellValue('A'.$sectionRow,'INVENTORY CATEGORIES');
+        $codes->getStyle('A'.$sectionRow.':F'.$sectionRow)->applyFromArray($sectionStyle);
+        $categoryHeader=$sectionRow+1;
+        $codes->fromArray(array(array('CATEGORY ID','CATEGORY DESCRIPTION')),NULL,'A'.$categoryHeader);
+        $codes->getStyle('A'.$categoryHeader.':B'.$categoryHeader)->applyFromArray($tableHeaderStyle);
+        $row=$categoryHeader+1;
         while($c=$categoryResult->fetch_assoc()){
-            $codes->fromArray(array(array($c['categoryid'],$c['categorydescription'])),NULL,'H'.$row);
+            $codes->fromArray(array(array($c['categoryid'],$c['categorydescription'])),NULL,'A'.$row);
             $row++;
         }
-        $codes->setCellValue('K4','UNIT CODE');
-        $codes->setCellValue('L4','UNIT DESCRIPTION');
-        $codes->getStyle('K4:L4')->applyFromArray(array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'BF9000')),'alignment'=>array('horizontal'=>'center','wrapText'=>true)));
-        $row=5;
+
+        $sectionRow=$row+2;
+        $codes->mergeCells('A'.$sectionRow.':F'.$sectionRow);
+        $codes->setCellValue('A'.$sectionRow,'UNITS OF MEASURE');
+        $codes->getStyle('A'.$sectionRow.':F'.$sectionRow)->applyFromArray($sectionStyle);
+        $unitHeader=$sectionRow+1;
+        $codes->fromArray(array(array('UNIT CODE','UNIT DESCRIPTION')),NULL,'A'.$unitHeader);
+        $codes->getStyle('A'.$unitHeader.':B'.$unitHeader)->applyFromArray($tableHeaderStyle);
+        $row=$unitHeader+1;
         while($u=$unitResult->fetch_assoc()){
-            $codes->fromArray(array(array($u['code'],$u['descrip'])),NULL,'K'.$row);
+            $codes->fromArray(array(array($u['code'],$u['descrip'])),NULL,'A'.$row);
             $row++;
         }
-        $codes->setCellValue('N4','CONTAINER ITEM CODE');
-        $codes->setCellValue('O4','CONTAINER DESCRIPTION');
-        $codes->getStyle('N4:O4')->applyFromArray(array('font'=>array('bold'=>true,'color'=>array('rgb'=>'FFFFFF')),'fill'=>array('fillType'=>'solid','startColor'=>array('rgb'=>'7030A0')),'alignment'=>array('horizontal'=>'center','wrapText'=>true)));
-        $row=5;
+
+        $sectionRow=$row+2;
+        $codes->mergeCells('A'.$sectionRow.':F'.$sectionRow);
+        $codes->setCellValue('A'.$sectionRow,'CONTAINER ITEMS');
+        $codes->getStyle('A'.$sectionRow.':F'.$sectionRow)->applyFromArray($sectionStyle);
+        $containerHeader=$sectionRow+1;
+        $codes->fromArray(array(array('CONTAINER ITEM CODE','CONTAINER DESCRIPTION')),NULL,'A'.$containerHeader);
+        $codes->getStyle('A'.$containerHeader.':B'.$containerHeader)->applyFromArray($tableHeaderStyle);
+        $row=$containerHeader+1;
         while($container=$containerResult->fetch_assoc()){
-            $codes->fromArray(array(array($container['itemcode'],$container['descrip'])),NULL,'N'.$row);
+            $codes->fromArray(array(array($container['itemcode'],$container['descrip'])),NULL,'A'.$row);
             $row++;
         }
-        $codeWidths=array('A'=>18,'B'=>30,'C'=>30,'D'=>30,'E'=>30,'F'=>14,'H'=>16,'I'=>24,'K'=>16,'L'=>22,'N'=>24,'O'=>30);
+
+        $codeWidths=array('A'=>24,'B'=>34,'C'=>34,'D'=>34,'E'=>34,'F'=>16);
         foreach($codeWidths as $column=>$width){ $codes->getColumnDimension($column)->setWidth($width); }
-        $codes->getStyle('A4:O'.max(5,$codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
+        $codes->getStyle('A4:F'.max(4,$codes->getHighestRow()))->getAlignment()->setVertical('top')->setWrapText(true);
         $codes->freezePane('A5');
         $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
         $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
         $codes->getPageSetup()->setFitToWidth(1)->setFitToHeight(0);
         $codes->getSheetProperties()->setPageSetUpPrFitToPage(true);
         $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
-        $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.25)->setRight(0.25);
+        $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.35)->setRight(0.35);
         $codes->getHeaderFooter()->setOddFooter('&CLive ERP Code Reference - Page &P of &N');
-        $codes->setPrintArea('A1:O'.max(5,$codes->getHighestRow()));
+        $codes->setPrintArea('A1:F'.max(4,$codes->getHighestRow()));
         $spreadsheet->setActiveSheetIndex(0);
         if(ob_get_length()){ ob_end_clean(); }
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
