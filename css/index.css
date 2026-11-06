@@ -1842,3 +1842,44 @@ main#view-panel table.bo-compact-form-table input[type="radio"] {
         white-space: normal;
     }
 }
+
+/* Bank Reconciliation form: use equal-width columns for each row shape.
+   Two-cell rows split the available width evenly; four-cell rows retain
+   four equal columns so the bank action button cannot be collapsed. */
+main#view-panel form table.bank-reconciliation-form {
+    table-layout: fixed;
+}
+main#view-panel form table.bank-reconciliation-form > tbody > tr,
+main#view-panel form table.bank-reconciliation-form > tr {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+}
+main#view-panel form table.bank-reconciliation-form > tbody > tr > td,
+main#view-panel form table.bank-reconciliation-form > tr > td {
+    box-sizing: border-box;
+    width: auto !important;
+    min-width: 0;
+    text-align: left;
+}
+main#view-panel form table.bank-reconciliation-form > tbody > tr:not(:has(> td:nth-child(3))) > td:first-child:not([colspan]),
+main#view-panel form table.bank-reconciliation-form > tr:not(:has(> td:nth-child(3))) > td:first-child:not([colspan]) {
+    grid-column: span 2;
+}
+main#view-panel form table.bank-reconciliation-form > tbody > tr:not(:has(> td:nth-child(3))) > td:nth-child(2):not([colspan]),
+main#view-panel form table.bank-reconciliation-form > tr:not(:has(> td:nth-child(3))) > td:nth-child(2):not([colspan]) {
+    grid-column: span 2;
+}
+main#view-panel form table.bank-reconciliation-form > tbody > tr > td[colspan="2"],
+main#view-panel form table.bank-reconciliation-form > tr > td[colspan="2"] {
+    grid-column: span 2;
+}
+main#view-panel form table.bank-reconciliation-form > tbody > tr > td[colspan="3"],
+main#view-panel form table.bank-reconciliation-form > tr > td[colspan="3"] {
+    grid-column: span 3;
+}
+main#view-panel form table.bank-reconciliation-form > tbody > tr:has(> td[colspan]) > td:first-child:not([colspan]),
+main#view-panel form table.bank-reconciliation-form > tr:has(> td[colspan]) > td:first-child:not([colspan]) {
+    grid-column: span 1;
+}
+
