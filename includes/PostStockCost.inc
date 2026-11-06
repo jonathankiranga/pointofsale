@@ -210,63 +210,98 @@ Function GetConsumables($journal,$PeriodNo,$salesoderno,$stcode,$qty,$key){
 
 function PostStockRegister($Quantity,$key,$journal,$PeriodNo){
     global $db;
-    
-    $SQL ="Select  
-        [purchaseheader].[documentno],
-        [purchaseheader].[docdate], 
-        [purchaseheader].[currencycode],
-        [purchaseline].[code], 
-        ([purchaseline].[UnitPrice] * currencies.rate) as UnitPrice,
-        [purchaseline].[PartPerUnit],
-        ([purchaseline].[invoiceamount] * currencies.rate) as invoiceamount,
-        ([purchaseheader].[freight] * currencies.rate) as freight,
-        [purchaseline].[Quantity],
-        ([purchaseline].[PartPerUnit]*[purchaseline].[Quantity]) as Totunits,
-        ifnull([purchaseline].[discount],0) * currencies.rate as discount
-     from purchaseheader 
-     join purchaseline on [purchaseline].[documentno] = [purchaseheader].[documentno]
-     join currencies on currencies.currabrev = [purchaseheader].[currencycode]
-     and  [purchaseline].[entryno]=".$key;
-    
-        $RESULTS  = DB_query($SQL,$db);
-        $rows     = DB_fetch_row($RESULTS);
 
-        $GRN      = (string)trim($rows[0]);
-        $Price    = (float)$rows[4]-(float)$rows[10];
-        $itemcode = (string)trim($rows[3]);
-        $partperunit = (int)$rows[5];
-        $freight  = (float)$rows[7];
-        $Unitstodevide = (int)$rows[9];
-
-        DB_free_result($RESULTS);
-
-        $AMOUNT   = $Price * $Quantity   ;
-       If(mb_strlen($itemcode)>0){
-
-            if($freight>0){
-                $freight=($freight/$Unitstodevide);
-                $Price += $freight; 
-            }
-
-            $SQL=sprintf("INSERT INTO [stockregister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN],PartPerUnit) 
-                VALUES  ('%s','%s','%s',0,'%s','%s','%s')",$itemcode,$Quantity,$Price,$journal,$GRN,$partperunit);
-             $RESULTS  = DB_System($SQL,$db);
-
-            $SQL= " Insert into [generalledger] ([journalno],[Docdate],[period],[DocumentNo],[DocumentType] ,[accountcode]
-                    ,[balaccountcode],[VATaccountcode],[amount],[VATamount],[currencycode],[ExchangeRate],[cutomercode],[narration])
-                    (select  '".$journal."',purchaseheader.[docdate],'".$PeriodNo."',purchaseheader.documentno,purchaseheader.documenttype,[inventorypostinggroup].[balancesheet] ,[inventorypostinggroup].[stockvariance] ,''
-                     ,(".$AMOUNT."),0,'".$_SESSION['CompanyRecord']['currencydefault']."',1,purchaseheader.[vendorcode]
-                     ,concat(purchaseline.[description],' X', ".$Quantity.",purchaseline.[unitofmeasure])  as narration
-                     from purchaseheader 
-                     join purchaseline on [purchaseline].[documentno] = [purchaseheader].[documentno] 
-                     join [stockmaster] on [purchaseline].[code]=[stockmaster].itemcode
-                     join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-                     join [currencies] on [purchaseheader].[currencycode]=[currencies].[currabrev]
-                     where [purchaseline].[entryno]='".$key."')";
-            $RESULTS  = DB_System($SQL,$db);
+    $lineKey = (int)$key;
+    $receivedQty = (float)$Quantity;
+    if($receivedQty <= 0){
+        return false;
     }
-            
-     GetStockRegister($itemcode);
+
+    $SQL = "SELECT
+                purchaseheader.documentno,
+                purchaseheader.docdate,
+                purchaseheader.currencycode,
+                purchaseline.code,
+                (purchaseline.UnitPrice * currencies.rate) AS UnitPrice,
+                purchaseline.PartPerUnit,
+                purchaseline.Quantity,
+                (purchaseheader.freight * currencies.rate) AS freight,
+                purchaseline.UOM,
+                (IFNULL(purchaseline.discount,0) * currencies.rate) AS discount,
+                purchaseline.description,
+                purchaseline.unitofmeasure
+            FROM purchaseheader
+            JOIN purchaseline ON purchaseline.documentno=purchaseheader.documentno
+            JOIN currencies ON currencies.currabrev=purchaseheader.currencycode
+            WHERE purchaseline.entryno=".$lineKey."
+            LIMIT 1";
+
+    $RESULTS = DB_query($SQL,$db);
+    if(DB_num_rows($RESULTS) < 1){
+        return false;
+    }
+
+    $row = DB_fetch_array($RESULTS);
+    DB_free_result($RESULTS);
+
+    $GRN = str_replace("'","''",trim($row['documentno']));
+    $itemcode = str_replace("'","''",trim($row['code']));
+    $partPerUnit = (float)$row['PartPerUnit'];
+    $uom = isset($row['UOM']) ? $row['UOM'] : 'loosqty';
+    $orderedQty = (float)$row['Quantity'];
+    if($uom === 'fulqty' && $partPerUnit <= 0){
+        return false;
+    }
+
+    $orderedBaseQty = ($uom === 'fulqty') ? ($orderedQty * $partPerUnit) : $orderedQty;
+    $receivedBaseQty = ($uom === 'fulqty') ? ($receivedQty * $partPerUnit) : $receivedQty;
+    if($orderedBaseQty <= 0 || $receivedBaseQty <= 0){
+        return false;
+    }
+
+    $unitCost = (float)$row['UnitPrice'] - (float)$row['discount'];
+    $freightPerBaseUnit = ((float)$row['freight'] > 0)
+        ? ((float)$row['freight'] / $orderedBaseQty)
+        : 0;
+    $unitCost += $freightPerBaseUnit;
+    if($unitCost < 0){
+        return false;
+    }
+
+    $amount = $unitCost * $receivedBaseQty;
+    $journalSql = str_replace("'","''",$journal);
+    $periodSql = str_replace("'","''",$PeriodNo);
+    $docDate = str_replace("'","''",$row['docdate']);
+    $description = str_replace("'","''",trim($row['description']));
+    $unitName = str_replace("'","''",trim($row['unitofmeasure']));
+    $currency = str_replace("'","''",$_SESSION['CompanyRecord']['currencydefault']);
+
+    $insertRegister = "INSERT INTO stockregister
+        (itemcode,StockIn,cost,StockOut,journal,GRN)
+        VALUES
+        ('".$itemcode."',".sprintf('%.6F',$receivedBaseQty).",
+         ".sprintf('%.6F',$unitCost).",0,'".$journalSql."','".$GRN."')";
+    DB_System($insertRegister,$db);
+
+    $insertGL = "INSERT INTO generalledger
+        (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,
+         VATaccountcode,amount,VATamount,currencycode,ExchangeRate,cutomercode,narration)
+        SELECT
+            '".$journalSql."',purchaseheader.docdate,'".$periodSql."',
+            purchaseheader.documentno,purchaseheader.documenttype,
+            inventorypostinggroup.balancesheet,inventorypostinggroup.stockvariance,'',
+            ".sprintf('%.6F',$amount).",0,'".$currency."',1,purchaseheader.vendorcode,
+            CONCAT('".$description." X ', '".sprintf('%.6F',$receivedQty)."', ' ', '".$unitName."')
+        FROM purchaseheader
+        JOIN purchaseline ON purchaseline.documentno=purchaseheader.documentno
+        JOIN stockmaster ON purchaseline.code=stockmaster.itemcode
+        JOIN inventorypostinggroup ON inventorypostinggroup.code=stockmaster.postinggroup
+        WHERE purchaseline.entryno=".$lineKey."
+          AND purchaseline.code='".$itemcode."'";
+    DB_System($insertGL,$db);
+
+    GetStockRegister($itemcode);
+    return true;
 }
 
 Function GetStockRegister($itemcode){
