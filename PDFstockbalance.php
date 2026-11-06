@@ -1,5 +1,6 @@
 <?php 
 include('includes/session.inc');
+global $db;
 include('includes/CurrenciesArray.php'); // To get the currency name from the currency code.
 include('includes/chartbalancing.inc'); // To get the currency name from the currency code.
 $Title = _('Print Stock');
