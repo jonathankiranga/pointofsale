@@ -1,0 +1,17 @@
+{
+  "name": "pointofsale-assets",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Frontend asset build for the PHP point-of-sale application",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:css": "@tailwindcss/cli -i css/tailwind.input.css -o css/tailwind.css --minify",
+    "watch:css": "@tailwindcss/cli -i css/tailwind.input.css -o css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  }
+}
