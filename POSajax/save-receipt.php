@@ -169,9 +169,6 @@ try {
     $periodNo = GetPeriod($_POST['date'], $db, true);
     if (!$periodNo) { throw new Exception('The current financial period could not be determined.'); }
 
-    if (!$mysqli->query("SELECT GET_LOCK('pos_sales_entryno',10) AS lock_ok")) {
-        throw new Exception('Could not lock the sales entry sequence.');
-    }
     $lockResult = $mysqli->query("SELECT GET_LOCK('pos_sales_entryno',10) AS lock_ok");
     $lockRow = $lockResult ? $lockResult->fetch_assoc() : null;
     if (!$lockRow || (int)$lockRow['lock_ok'] !== 1) { throw new Exception('Could not lock the sales entry sequence.'); }
@@ -187,7 +184,7 @@ try {
     $customerName = (string)$customerRow['customer'];
     $userName = isset($_SESSION['UsersRealName']) ? (string)$_SESSION['UsersRealName'] : $userId;
     $periodString = (int)$periodNo;
-    $header->bind_param('ssssssssididddisds',
+    $header->bind_param('ssssssssiiidddissd',
         $docno, $currentDate, $customerCode, $customerName, $storeCode, $postingGroup, $currencyCode,
         $userId, $periodString, $entryNo, $vatInclusive, $calculatedTotal, $cash, $change,
         $shiftId, $paymentMethod, $mpesaPhone, $calculatedVat);
@@ -198,7 +195,7 @@ try {
         (entryno,documenttype,docdate,documentno,locationcode,code,description,unitofmeasure,
          Quantity,Quantity_toinvoice,Qunatity_delivered,UnitPrice,vatamount,invoiceamount,
          completed,printed,vatrate,inclusive)
-        VALUES (?,1,?,?,?,?,?,?,?,?,?,?,?, ?,1,1,?,?)");
+        VALUES (?,1,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?)");
     if (!$lineStmt) { throw new Exception('Could not prepare sales lines: ' . $mysqli->error); }
     foreach ($items as $saleLine) {
         $lineEntry = $entryNo;
@@ -211,7 +208,7 @@ try {
         $vatAmount = $saleLine['vat_amount'];
         $lineTotal = $saleLine['line_total'];
         $rate = $saleLine['vat_rate'];
-        $lineStmt->bind_param('iisssssdddddddi', $lineEntry, $currentDate, $docno, $lineLocation,
+        $lineStmt->bind_param('issssssdddddddi', $lineEntry, $currentDate, $docno, $lineLocation,
             $code, $description, $unit, $qty, $qty, $qty, $unitPrice, $vatAmount, $lineTotal, $rate, $vatInclusive);
         if (!$lineStmt->execute()) { throw new Exception('Could not save a sales line: ' . $lineStmt->error); }
     }
