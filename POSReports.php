@@ -78,7 +78,7 @@ $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 $taxSql = "SELECT COALESCE(l.pos_tax_category,'UNCLASSIFIED') AS tax_category,
-                       l.pos_vat_rate AS vat_rate,
+                       l.vatrate AS vat_rate,
                        SUM(l.invoiceamount-l.vatamount) AS net_value,
                        SUM(l.vatamount) AS vat_value,
                        SUM(l.invoiceamount) AS gross_value
