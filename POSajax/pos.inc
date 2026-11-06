@@ -227,7 +227,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                 <span class="pos-eyebrow">POS MESSAGE</span>
                 <button type="button" class="dialog-close pos-close-button" aria-label="Close">&times;</button>
             </div>
-            <p id="dialog-message"></p>
+            <div id="dialog-message"></div>
             <button type="button" id="dialog-print-btn" class="pos-primary-button" style="display:none;">Print report</button>
             <button type="button" id="dialog-ok-btn" class="pos-primary-button">OK</button>
         </div>
