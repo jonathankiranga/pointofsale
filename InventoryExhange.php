@@ -48,7 +48,7 @@ if(isset($_POST['submit'])){
 
             
             if(CheckUOM()=='fulqty'){
-              $sql[] = "Update [stockmaster] set [averagestock]=('".$stockexchange[0]."'/partsperunit) where itemcode='".$stockexchange[1]."'";
+              $sql[] = "Update [stockmaster] set [averagestock]=('".$stockexchange[0]."'/partperunit) where itemcode='".$stockexchange[1]."'";
             }else{
               $sql[] = "Update [stockmaster] set [averagestock]='".$stockexchange[0]."' where itemcode='".$stockexchange[1]."'";
             }
@@ -65,7 +65,7 @@ if(isset($_POST['submit'])){
                     ,[arpostinggroups].[creditorsaccount]
                     ,''
                     ,case when [stockexchange].uom='fulqty' 
-                    then (([stockexchange].[cost]/[stockmaster].partsperunit) * [stockexchange].qty )
+                    then (([stockexchange].[cost]/[stockmaster].partperunit) * [stockexchange].qty )
                     else ([stockexchange].[cost] * [stockexchange].qty) end
                     ,0
                     ,[currencies].[currabrev]
@@ -86,7 +86,7 @@ if(isset($_POST['submit'])){
                     ,[inventorypostinggroup].[stockvariance]
                     ,''
                     ,case when [stockexchange].uom='fulqty' 
-                    then (([stockexchange].[cost]/[stockmaster].partsperunit) * [stockexchange].qty )
+                    then (([stockexchange].[cost]/[stockmaster].partperunit) * [stockexchange].qty )
                     else ([stockexchange].[cost] * [stockexchange].qty) end
                     ,0
                     ,[currencies].[currabrev]
