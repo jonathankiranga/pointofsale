@@ -1633,15 +1633,10 @@ main#view-panel form table.table-bordered > tr:last-child > td {
 }
 main#view-panel form table.table-bordered > tbody > tr > td:first-child:not([colspan]),
 main#view-panel form table.table-bordered > tr > td:first-child:not([colspan]) {
-    width: 36%;
     color: #4b5d73;
     font-size: 12px;
     font-weight: 600;
     text-align: right;
-}
-main#view-panel form table.table-bordered > tbody > tr > td:nth-child(2),
-main#view-panel form table.table-bordered > tr > td:nth-child(2) {
-    width: 64%;
 }
 main#view-panel form table.table-bordered input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]),
 main#view-panel form table.table-bordered select,
@@ -1742,12 +1737,7 @@ main#view-panel form .table-responsive {
     }
     main#view-panel form table.table-bordered > tbody > tr > td:first-child:not([colspan]),
     main#view-panel form table.table-bordered > tr > td:first-child:not([colspan]) {
-        width: 38%;
         text-align: left;
-    }
-    main#view-panel form table.table-bordered > tbody > tr > td:nth-child(2),
-    main#view-panel form table.table-bordered > tr > td:nth-child(2) {
-        width: 62%;
     }
 }
 
