@@ -675,6 +675,7 @@ $(document).ready(function() {
         }
         posShiftRequest('close', { cash_counted: counted }, function(response) {
             var variance = Number(response.cash_variance);
+            var varianceLabel = variance < 0 ? 'shortage' : (variance > 0 ? 'overage' : 'balanced');
             var message = 'Z REPORT ' + response.z_report_number +
                 '\\nGross sales: KES ' + Number(response.total_sales).toFixed(2) +
                 '\\nVAT: KES ' + Number(response.total_vat).toFixed(2) +
@@ -683,7 +684,7 @@ $(document).ready(function() {
                 '\\nOpening float: KES ' + Number(response.opening_float).toFixed(2) +
                 '\\nExpected cash: KES ' + Number(response.expected_cash).toFixed(2) +
                 '\\nActual cash counted: KES ' + Number(response.cash_counted).toFixed(2) +
-                '\\nCash ' + (variance < 0 ? 'shortage' : 'overage') + ': KES ' + Math.abs(variance).toFixed(2);
+                '\\nCash ' + varianceLabel + ': KES ' + Math.abs(variance).toFixed(2);
             (response.items || []).forEach(function(item) {
                 message += '\\n' + item.itemcode + ' · ' + item.description +
                     ' · Qty ' + Number(item.quantity).toFixed(2) +
