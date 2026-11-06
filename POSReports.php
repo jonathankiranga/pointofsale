@@ -1,0 +1,128 @@
+<?php
+$AllowAnyone = true;
+$PathPrefix = '';
+include('includes/globalsession.inc');
+
+$adminToken = isset($_SESSION['PageSecurityArray']['CompanyPreferences.php'])
+    ? $_SESSION['PageSecurityArray']['CompanyPreferences.php'] : null;
+if (empty($_SESSION['DatabaseName']) || $adminToken === null ||
+    !in_array($adminToken, $_SESSION['AllowedPageSecurityTokens'])) {
+    http_response_code(403);
+    echo 'You do not have permission to view POS administration reports.';
+    exit;
+}
+global $mysqli;
+if (!($mysqli instanceof mysqli) || $mysqli->connect_errno) {
+    die('Could not connect to the company database.');
+}
+
+function posReportEscape($value) {
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
+function posReportMoney($value) {
+    return number_format((float)$value, 2);
+}
+$from = isset($_GET['from']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['from']) ? $_GET['from'] : date('Y-m-01');
+$to = isset($_GET['to']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['to']) ? $_GET['to'] : date('Y-m-d');
+$cashier = isset($_GET['cashier']) ? trim((string)$_GET['cashier']) : '';
+
+$where = "h.documenttype=1 AND COALESCE(h.status,1)=1 AND h.docdate >= ? AND h.docdate < DATE_ADD(?, INTERVAL 1 DAY)";
+$params = array($from, $to);
+$types = 'ss';
+if ($cashier !== '') {
+    $where .= ' AND h.userid=?';
+    $params[] = $cashier;
+    $types .= 's';
+}
+
+$sql = "SELECT COUNT(*) AS receipts, COALESCE(SUM(h.total),0) AS sales,
+        COALESCE(SUM(h.total_vat),0) AS vat,
+        COALESCE(SUM(CASE WHEN h.payment_method='CASH' THEN h.total ELSE 0 END),0) AS cash_sales,
+        COALESCE(SUM(CASE WHEN h.payment_method='MPESA' THEN h.total ELSE 0 END),0) AS mpesa_sales
+        FROM SalesHeader h WHERE " . $where;
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$summary = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+$cashiers = array();
+$r = $mysqli->query("SELECT DISTINCT userid FROM SalesHeader WHERE documenttype=1 ORDER BY userid");
+if ($r) { while ($row = $r->fetch_assoc()) { $cashiers[] = $row['userid']; } }
+
+$paymentSql = "SELECT COALESCE(payment_method,'UNCLASSIFIED') AS payment_method,
+                      COUNT(*) AS receipts, COALESCE(SUM(total),0) AS amount
+               FROM SalesHeader h WHERE " . $where . " GROUP BY payment_method ORDER BY payment_method";
+$stmt = $mysqli->prepare($paymentSql);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$payments = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+$itemSql = "SELECT l.code AS itemcode, l.description, SUM(l.Quantity) AS quantity,
+                   SUM(l.invoiceamount) AS sales_value, SUM(l.vatamount) AS vat_value
+            FROM SalesLine l INNER JOIN SalesHeader h
+              ON h.documenttype=l.documenttype AND h.documentno=l.documentno
+            WHERE " . $where . "
+            GROUP BY l.code,l.description ORDER BY sales_value DESC";
+$stmt = $mysqli->prepare($itemSql);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+$transactionSql = "SELECT h.documentno,h.docdate,h.userid,h.payment_method,h.total,h.total_vat
+                   FROM SalesHeader h WHERE " . $where . " ORDER BY h.docdate DESC,h.documentno DESC LIMIT 500";
+$stmt = $mysqli->prepare($transactionSql);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$transactions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+$Title = 'POS Administration Reports';
+include('includes/header.inc');
+?>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-8"><h2>POS Administration Reports</h2><p>Sales, payment and product performance from posted POS receipts.</p></div>
+        <div class="col-sm-4 text-right"><a class="btn btn-default" href="posindex.php">Return to POS</a></div>
+    </div>
+    <form method="get" class="form-inline" style="margin:15px 0;">
+        <label>From <input class="form-control" type="date" name="from" value="<?php echo posReportEscape($from); ?>"></label>
+        <label style="margin-left:10px;">To <input class="form-control" type="date" name="to" value="<?php echo posReportEscape($to); ?>"></label>
+        <label style="margin-left:10px;">Cashier <select class="form-control" name="cashier"><option value="">All cashiers</option>
+            <?php foreach ($cashiers as $cashierId) { ?><option value="<?php echo posReportEscape($cashierId); ?>"<?php echo $cashierId === $cashier ? ' selected' : ''; ?>><?php echo posReportEscape($cashierId); ?></option><?php } ?>
+        </select></label>
+        <button class="btn btn-primary" type="submit">Run report</button>
+        <button class="btn btn-default" type="button" onclick="window.print()">Print</button>
+    </form>
+
+    <div class="row">
+        <div class="col-sm-3"><div class="panel panel-default"><div class="panel-body"><small>RECEIPTS</small><h3><?php echo (int)$summary['receipts']; ?></h3></div></div></div>
+        <div class="col-sm-3"><div class="panel panel-default"><div class="panel-body"><small>GROSS SALES (KES)</small><h3><?php echo posReportMoney($summary['sales']); ?></h3></div></div></div>
+        <div class="col-sm-3"><div class="panel panel-default"><div class="panel-body"><small>VAT RECORDED (KES)</small><h3><?php echo posReportMoney($summary['vat']); ?></h3></div></div></div>
+        <div class="col-sm-3"><div class="panel panel-default"><div class="panel-body"><small>CASH / M-PESA (KES)</small><h3><?php echo posReportMoney($summary['cash_sales']); ?> / <?php echo posReportMoney($summary['mpesa_sales']); ?></h3></div></div></div>
+    </div>
+
+    <h3>Payment reconciliation</h3>
+    <div class="table-responsive"><table class="table table-bordered table-striped">
+        <thead><tr><th>Payment method</th><th>Receipts</th><th class="text-right">Amount (KES)</th></tr></thead><tbody>
+        <?php foreach ($payments as $payment) { ?><tr><td><?php echo posReportEscape($payment['payment_method']); ?></td><td><?php echo (int)$payment['receipts']; ?></td><td class="text-right"><?php echo posReportMoney($payment['amount']); ?></td></tr><?php } ?>
+    </tbody></table></div>
+
+    <h3>Products sold</h3>
+    <div class="table-responsive"><table class="table table-bordered table-striped">
+        <thead><tr><th>Item code</th><th>Description</th><th class="text-right">Quantity</th><th class="text-right">Sales (KES)</th><th class="text-right">VAT (KES)</th></tr></thead><tbody>
+        <?php foreach ($items as $item) { ?><tr><td><?php echo posReportEscape($item['itemcode']); ?></td><td><?php echo posReportEscape($item['description']); ?></td><td class="text-right"><?php echo posReportMoney($item['quantity']); ?></td><td class="text-right"><?php echo posReportMoney($item['sales_value']); ?></td><td class="text-right"><?php echo posReportMoney($item['vat_value']); ?></td></tr><?php } ?>
+        <?php if (!$items) { ?><tr><td colspan="5">No POS sales found for this period.</td></tr><?php } ?>
+    </tbody></table></div>
+
+    <h3>Receipts</h3>
+    <div class="table-responsive"><table class="table table-bordered table-striped">
+        <thead><tr><th>Receipt</th><th>Date</th><th>Cashier</th><th>Payment</th><th class="text-right">Gross (KES)</th><th class="text-right">VAT (KES)</th></tr></thead><tbody>
+        <?php foreach ($transactions as $transaction) { ?><tr><td><?php echo posReportEscape($transaction['documentno']); ?></td><td><?php echo posReportEscape($transaction['docdate']); ?></td><td><?php echo posReportEscape($transaction['userid']); ?></td><td><?php echo posReportEscape($transaction['payment_method']); ?></td><td class="text-right"><?php echo posReportMoney($transaction['total']); ?></td><td class="text-right"><?php echo posReportMoney($transaction['total_vat']); ?></td></tr><?php } ?>
+        <?php if (!$transactions) { ?><tr><td colspan="6">No POS receipts found for this period.</td></tr><?php } ?>
+    </tbody></table></div>
+    <p class="text-muted">These are internal POS reconciliation reports. They do not replace KRA eTIMS fiscalisation or statutory tax invoice records.</p>
+</div>
+<?php include('includes/footer.inc'); ?>
