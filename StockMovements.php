@@ -5,7 +5,7 @@ include('includes/header.inc');
 include('production/poscart.inc');
 
 $thispage=htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8');
-$POSclass = new NewAssemble();
+
 
  if(!isset($_POST['date'])){ 
     $ResultIndex = DB_query('Select sysdate()-30 as date ',$db);
@@ -50,7 +50,7 @@ if(isset($StockID)){
     . '<input type="text" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" name="date" size="11" '
     . 'maxlength="10" readonly="readonly" value="' .$_POST['date']. '" '
     . 'onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/>'
-    . '<select name="ProdStore" onchange="ReloadForm(inventory.Refresh)">'.$POSclass->ToStoreTankForItem($StockID).'</select></td></tr></table>';
+    . '<select name="ProdStore" onchange="ReloadForm(inventory.Refresh)">'.StockMovementStoreOptions($StockID, isset($Storecode) ? $Storecode : '').'</select></td></tr></table>';
     
     echo '<table class="table-bordered" id="testTable">'
             . '<thead>'
@@ -246,6 +246,56 @@ Function Formatdata($row){
       
 }
 
+
+
+/**
+ * Build the store/tank selector for the selected inventory item.
+ * NewAssemble is not defined or loaded in this application.
+ */
+function StockMovementStoreOptions($ItemCode, $SelectedStore) {
+    global $db;
+
+    $Options = '';
+    $SafeItemCode = DB_escape_string(trim($ItemCode));
+    $ResultIndex = DB_query(
+        sprintf("SELECT COUNT(*) FROM [ProductionUnit] WHERE itemcode='%s'", $SafeItemCode),
+        $db
+    );
+    $StoreCount = DB_fetch_row($ResultIndex);
+
+    if ((int)$StoreCount[0] === 0) {
+        if (stripos($ItemCode, 'H2O') === 0) {
+            return '<option value=""></option>';
+        }
+
+        $Results = DB_query('SELECT [code], [Storename] FROM [Stores] ORDER BY [Storename]', $db);
+        while ($Store = DB_fetch_array($Results)) {
+            $Code = trim($Store['code']);
+            $Options .= sprintf(
+                '<option value="%s" %s>%s</option>',
+                htmlspecialchars($Code, ENT_QUOTES, 'UTF-8'),
+                ($SelectedStore === $Code ? 'selected="selected"' : ''),
+                htmlspecialchars($Store['Storename'], ENT_QUOTES, 'UTF-8')
+            );
+        }
+    } else {
+        $Results = DB_query(
+            sprintf("SELECT [tankname] FROM [ProductionUnit] WHERE itemcode='%s' ORDER BY [tankname]", $SafeItemCode),
+            $db
+        );
+        while ($Tank = DB_fetch_array($Results)) {
+            $TankName = trim($Tank['tankname']);
+            $Options .= sprintf(
+                '<option value="%s" %s>%s</option>',
+                htmlspecialchars($TankName, ENT_QUOTES, 'UTF-8'),
+                ($SelectedStore === $TankName ? 'selected="selected"' : ''),
+                htmlspecialchars($TankName, ENT_QUOTES, 'UTF-8')
+            );
+        }
+    }
+
+    return $Options;
+}
 
 Function IsTankOrStore($ItemCode){
         global $db;
