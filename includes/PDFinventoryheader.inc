@@ -45,6 +45,7 @@ $pdf->addTextWrap(520, 501, 260, 8, _('Page') . ' ' . $PageNumber, 'right');
 $pdf->SetTextColor(36, 50, 71);
 $pdf->addText(46, 480, 8, _('Store') . ': ' . $store_name);
 $pdf->addText(300, 480, 8, _('Period') . ': ' . $_POST['fromdate'] . '  -  ' . $_POST['todate']);
+$pdf->addTextWrap(570, 480, 220, 8, _('Generated') . ': ' . date('d/m/Y H:i:s'), 'right');
 $pdf->line(46, 471, 790, 471);
 
 /* Column group headings */
