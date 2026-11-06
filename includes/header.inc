@@ -164,25 +164,6 @@ echo '<button class="navbar-toggler position-absolute d-md-none collapsed" type=
   </div>
 </header><main>';
  
- $CashbookPages = array(
-    'bankregister.php',
-    'CreateBankAccount.php',
-    'Currencies.php',
-    'PettyCashUsers.php',
-    'ReceitsAllocation.php',
-    'PaymentsAllocation.php',
-    'PetteyCash.php',
-    'PaymentVoucher.php',
-    'WriteCheque.php',
-    'receiptsprepayment.php',
-    'BankReconciliation.php'
-);
-$CashbookPage = basename($_SERVER['PHP_SELF']);
-if ($CashbookPage === 'index.php' && isset($_SESSION['SCRIPT_NAME_BASE'])) {
-    $CashbookPage = basename($_SESSION['SCRIPT_NAME_BASE']);
-}
-$CashbookLayoutClass = in_array($CashbookPage, $CashbookPages, true) ? ' cashbook-window' : '';
-
-echo '<main id="view-panel" class="container' . $CashbookLayoutClass . '">'
+ echo '<main id="view-panel" class="container">'
          . '<div class="responsive">'
          . '<div class="container-fluid">';
