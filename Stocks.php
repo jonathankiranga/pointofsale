@@ -2,11 +2,6 @@
 include('includes/session.inc');
 include('includes/CurrenciesArray.php'); // To get the currency name from the currency code.
 include('includes/CountriesArray.php');
-require_once 'vendor/phpoffice/phpspreadsheet/src/Bootstrap.php';
-require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Spreadsheet.php';
-require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xlsx.php';
-require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xls.php';
-require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/Xlsx.php';
 $Title = _('Inventory Maintenace');
 
 $mbflag = array();
@@ -22,8 +17,21 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 
+if(isset($_POST['importexcel']) && !(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1')){
+    require_once 'vendor/phpoffice/phpspreadsheet/src/Bootstrap.php';
+    require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Spreadsheet.php';
+    require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xlsx.php';
+    require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xls.php';
+    require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/Xlsx.php';
+}
+
 if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
     try{
+        require_once 'vendor/phpoffice/phpspreadsheet/src/Bootstrap.php';
+        require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Spreadsheet.php';
+        require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xlsx.php';
+        require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xls.php';
+        require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Writer/Xlsx.php';
         $spreadsheet = new Spreadsheet();
         $inventory = $spreadsheet->getActiveSheet();
         $inventory->setTitle('Inventory List');
@@ -122,12 +130,18 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $writer->save('php://output');
         exit;
     }catch(\Throwable $e){
-        error_log('Inventory template generation failed: '.$e->getMessage());
+        error_log('Inventory XLSX template generation failed: '.$e->getMessage());
         if(!headers_sent()){
-            http_response_code(500);
-            header('Content-Type: text/plain; charset=utf-8');
+            while(ob_get_level() > 0){ ob_end_clean(); }
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="stock_catalogue_import.csv"');
+            header('Cache-Control: no-cache, must-revalidate');
+            $output = fopen('php://output','w');
+            fputcsv($output,array('Barcode','StockName','RetailPrice','GroupCode','PartsPerUnit','FullUnitCode','LooseUnitCode','CategoryID','ContainerItemCode'));
+            fclose($output);
+            exit;
         }
-        die('Unable to generate the inventory workbook. Please check the PHP error log.');
+        die('Unable to generate the inventory template. Please check the PHP error log.');
     }
 }
 
