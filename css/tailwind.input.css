@@ -259,7 +259,20 @@
 /* Bank/Cash Account maintenance: balanced two-column form and readable register. */
 #view-panel table.bank-account-form {
     @apply mx-auto w-full max-w-5xl border-separate rounded-xl border border-slate-200 bg-white p-4 shadow-sm;
+    width: 100%;
+    table-layout: fixed;
     border-spacing: 0.5rem 0.4rem;
+}
+
+/* Two label/input pairs: labels use only the space they need; controls get 37%. */
+#view-panel table.bank-account-form tr > td:nth-child(1),
+#view-panel table.bank-account-form tr > td:nth-child(3) {
+    width: 13%;
+}
+
+#view-panel table.bank-account-form tr > td:nth-child(2),
+#view-panel table.bank-account-form tr > td:nth-child(4) {
+    width: 37%;
 }
 
 #view-panel table.bank-account-form td {
@@ -307,4 +320,14 @@
     #view-panel table.bank-account-list {
         @apply block overflow-x-auto whitespace-nowrap;
     }
+}
+
+/* Keep form controls inside their allocated input columns. */
+#view-panel table.bank-account-form input:not([type="submit"]),
+#view-panel table.bank-account-form select {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
 }
