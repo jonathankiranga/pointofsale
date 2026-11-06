@@ -685,7 +685,7 @@ echo '<tr><td>'._('Select the Package for Item if any').'</td><td>';
         echo  '<div class="centre">'
             . '<label>Choose Excel File</label><input type="file" name="importfile"  accept=".xls,.xlsx">'
             . '<input type="submit" name="importexcel"  value="'._('Import New Stock list from Excel').'"/>'
-            . '<a class="btn btn-default" style="margin-left:8px;" href="'.htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8').'?downloadtemplate=1">Download Excel Inventory Template</a>'
+            . '<a class="btn btn-default" style="margin-left:8px;" href="index.php?Stocks=1&amp;downloadtemplate=1">Download Excel Inventory Template</a>'
             . '</div>';
           }
      
