@@ -5,6 +5,7 @@ include('includes/CountriesArray.php');
 require_once 'vendor/phpoffice/phpspreadsheet/src/Bootstrap.php';
 require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Spreadsheet.php';
 require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xlsx.php';
+require_once 'vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Reader/Xls.php';
 $Title = _('Inventory Maintenace');
 include('includes/header.inc');
 
@@ -21,76 +22,221 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 
- if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        // Check if a file was uploaded
-        if (isset($_FILES['importfile']) && $_FILES['importfile']['error'] == UPLOAD_ERR_OK) {
-            $file = $_FILES['importfile'];
-            $file_name = $file['name'];
-            $file_tmp  = $file['tmp_name'];
-           // Check if the file is an Excel file
-            $allowed_extensions = array('xls', 'xlsx');
-            $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-            if (in_array($file_extension, $allowed_extensions)) {
-                // Use a library like PhpSpreadsheet to read the Excel file
-                $reader = new Xlsx();
-                $spreadsheet = $reader->load($file_tmp);
+
+if(isset($_POST['importexcel'])){
+    unset($_SESSION['stock_import_preview']);
+    $importError = '';
+    if(!isset($_FILES['importfile']) || $_FILES['importfile']['error'] !== UPLOAD_ERR_OK){
+        $importError = 'Choose an Excel file before importing.';
+    }else{
+        $fileName = $_FILES['importfile']['name'];
+        $fileTmp = $_FILES['importfile']['tmp_name'];
+        $extension = strtolower(pathinfo($fileName,PATHINFO_EXTENSION));
+        if(!in_array($extension,array('xls','xlsx'),true)){
+            $importError = 'Only .xls and .xlsx files are supported.';
+        }else{
+            try{
+                $reader = ($extension === 'xls') ? new Xls() : new Xlsx();
+                $reader->setReadDataOnly(true);
+                $spreadsheet = $reader->load($fileTmp);
                 $worksheet = $spreadsheet->getActiveSheet();
-               // Get the highest column letter
-                $highestColumn = $worksheet->getHighestColumn();
-        // Convert the highest column letter to a column index number
-                $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
-        // Check if the column index is less than 4 (for 'D' column which is the 4th column)
-                if ($highestColumnIndex < 5) {
-                    echo "The Excel file must have exactly 4 columns. Found only ($highestColumnIndex) columns.";
-                    echo   "</br>A BarCode"
-                         . "</br>B StockName"
-                         . "</br>C RetailPrice"
-                         . "</br>D GroupCode" ;
-                    exit;
+                $highestColumnIndex = \\PhpOffice\\PhpSpreadsheet\\Cell\\Coordinate::columnIndexFromString($worksheet->getHighestDataColumn());
+                if($highestColumnIndex < 4){
+                    $importError = 'The Excel file must contain at least columns A-D: Barcode, StockName, RetailPrice and GroupCode.';
+                }else{
+                    $preview = array();
+                    $seenBarcodes = array();
+                    foreach($worksheet->getRowIterator() as $row){
+                        $rowNumber = $row->getRowIndex();
+                        $values = array();
+                        foreach(range('A','I') as $column){
+                            $values[$column] = trim((string)$worksheet->getCell($column.$rowNumber)->getFormattedValue());
+                        }
+                        if($rowNumber === 1 && (strtolower($values['A']) === 'barcode' || strtolower($values['B']) === 'stockname')){
+                            continue;
+                        }
+                        if(implode('',array_values($values)) === ''){
+                            continue;
+                        }
+
+                        $barcode = $values['A'];
+                        $description = $values['B'];
+                        $priceText = str_replace(',','',$values['C']);
+                        $postingGroup = $values['D'];
+                        $partPerUnitText = ($values['E'] === '') ? '1' : $values['E'];
+                        $fullUnit = ($values['F'] === '') ? '0' : $values['F'];
+                        $looseUnit = ($values['G'] === '') ? '0' : $values['G'];
+                        $category = $values['H'];
+                        $container = ($values['I'] === '') ? '0' : $values['I'];
+                        $errors = array();
+
+                        if($barcode === '' || strlen($barcode) > 20){ $errors[] = 'Barcode is required and must not exceed 20 characters.'; }
+                        if($description === '' || strlen($description) > 100){ $errors[] = 'Stock name is required and must not exceed 100 characters.'; }
+                        if($priceText === '' || !is_numeric($priceText) || (float)$priceText < 0){ $errors[] = 'Retail price must be a valid non-negative number.'; }
+                        if($postingGroup === ''){ $errors[] = 'Inventory posting group is required.'; }
+                        if($partPerUnitText === '' || !is_numeric($partPerUnitText) || (float)$partPerUnitText <= 0){ $errors[] = 'PartsPerUnit must be greater than zero.'; }
+                        if(is_numeric($partPerUnitText) && (float)$partPerUnitText > 1 && ($fullUnit === '0' || $looseUnit === '0')){
+                            $errors[] = 'Pack sizes above 1 require FullUnitCode and LooseUnitCode.';
+                        }
+
+                        if($postingGroup !== ''){
+                            $check = $mysqli->prepare("SELECT code FROM inventorypostinggroup WHERE code=? LIMIT 1");
+                            if($check){
+                                $check->bind_param("s",$postingGroup);
+                                $check->execute();
+                                $check->store_result();
+                                if($check->num_rows < 1){ $errors[] = 'Inventory posting group does not exist.'; }
+                                $check->close();
+                            }else{
+                                $errors[] = 'Could not validate inventory posting group.';
+                            }
+                        }
+                        foreach(array($fullUnit,$looseUnit) as $unitCode){
+                            if($unitCode !== '0'){
+                                $check = $mysqli->prepare("SELECT code FROM unit WHERE code=? LIMIT 1");
+                                if($check){
+                                    $check->bind_param("s",$unitCode);
+                                    $check->execute();
+                                    $check->store_result();
+                                    if($check->num_rows < 1){ $errors[] = 'Unit code '.$unitCode.' does not exist.'; }
+                                    $check->close();
+                                }else{
+                                    $errors[] = 'Could not validate unit codes.';
+                                }
+                            }
+                        }
+                        if($category !== ''){
+                            $check = $mysqli->prepare("SELECT categoryid FROM stockcategory WHERE categoryid=? LIMIT 1");
+                            if($check){
+                                $check->bind_param("s",$category);
+                                $check->execute();
+                                $check->store_result();
+                                if($check->num_rows < 1){ $errors[] = 'Category ID does not exist.'; }
+                                $check->close();
+                            }else{
+                                $errors[] = 'Could not validate category.';
+                            }
+                        }
+                        if($container !== '0'){
+                            $check = $mysqli->prepare("SELECT itemcode FROM stockmaster WHERE itemcode=? AND isstock='6' LIMIT 1");
+                            if($check){
+                                $check->bind_param("s",$container);
+                                $check->execute();
+                                $check->store_result();
+                                if($check->num_rows < 1){ $errors[] = 'Container item code is not a valid container inventory item.'; }
+                                $check->close();
+                            }else{
+                                $errors[] = 'Could not validate container item.';
+                            }
+                        }
+                        if($barcode !== ''){
+                            if(isset($seenBarcodes[$barcode])){
+                                $errors[] = 'Barcode is duplicated in this Excel file.';
+                            }else{
+                                $seenBarcodes[$barcode] = true;
+                                $check = $mysqli->prepare("SELECT itemcode FROM stockmaster WHERE barcode=? LIMIT 1");
+                                if($check){
+                                    $check->bind_param("s",$barcode);
+                                    $check->execute();
+                                    $check->store_result();
+                                    if($check->num_rows > 0){ $errors[] = 'Barcode already exists in the inventory catalogue.'; }
+                                    $check->close();
+                                }else{
+                                    $errors[] = 'Could not check for an existing barcode.';
+                                }
+                            }
+                        }
+
+                        $preview[] = array(
+                            'barcode'=>$barcode,
+                            'description'=>$description,
+                            'price'=>(float)$priceText,
+                            'postinggroup'=>$postingGroup,
+                            'partperunit'=>(float)$partPerUnitText,
+                            'units'=>$fullUnit,
+                            'subunits'=>$looseUnit,
+                            'category'=>$category,
+                            'container'=>$container,
+                            'errors'=>$errors
+                        );
+                    }
+                    if(count($preview) < 1){
+                        $importError = 'No inventory rows were found in the Excel file.';
+                    }else{
+                        $_SESSION['stock_import_preview'] = $preview;
+                    }
                 }
-               // Continue processing the file if the column count is valid (at least 'D')
-               // Process the data from the Excel file
-               
-                foreach ($worksheet->getRowIterator() as $row) {
-                        $rowData = [];
-                        foreach ($row->getCellIterator() as $cell) {
-                            $rowData[] = $cell->getValue();
-                        }
-                    
-                        $barcode =(string) sprintf("%s",$rowData[0]);
-                        $description =(string) sprintf("%s",$rowData[1]);
-                        $unit_price =(int) sprintf("%s",$rowData[2]);
-                        $PostingGroup =(string) sprintf("%s",$rowData[3]);
-                        $ID = Triger_stockmaster($description);
-                     // Prepare SQL Insert statement
-                        $sql = "INSERT INTO stockmaster (barcode, descrip, sellingprice, postinggroup, subunits ,itemcode,isstock) VALUES (?, ?, ?, ?, 1, ? ,1)";
-                        $stmt = $mysqli->prepare($sql);
-                     // Check if statement preparation was successful
-                        if ($stmt === false) {
-                            die("Error preparing statement: " . $mysqli->error);
-                        }
-                     // Bind parameters to the statement
-                        $stmt->bind_param("ssdss", $barcode, $description, $unit_price, $PostingGroup, $ID);
-                     // Execute the statement
-                        if (!$stmt->execute()) {
-                            echo "Error executing statement for barcode $barcode: " . $stmt->error . "<br>";
-                        } else {
-                            echo "Imported barcode $barcode successfully.<br>";
-                        }
-                     // Close the statement
-                        $stmt->close();
-           
-                }
- 
-            } else {
-                echo "Invalid file type. Please upload an Excel file.";
+            }catch(\\Exception $e){
+                $importError = 'The Excel file could not be read: '.$e->getMessage();
             }
-        } else {
-            echo "No file was uploaded.";
         }
-        echo "Data import completed!";
     }
-   
+    if($importError !== ''){
+        prnMsg($importError,'warn');
+    }
+}
+
+if(isset($_POST['confirmimport'])){
+    $preview = isset($_SESSION['stock_import_preview']) ? $_SESSION['stock_import_preview'] : array();
+    if(count($preview) < 1){
+        prnMsg('There is no validated Excel import waiting for confirmation. Upload the file again.','warn');
+    }else{
+        $inserted = 0;
+        $failed = array();
+        $insert = $mysqli->prepare("INSERT INTO stockmaster
+            (barcode,descrip,sellingprice,postinggroup,partperunit,units,subunits,category,container,itemcode,isstock,inactive,nextserialno)
+            VALUES (?,?,?,?,?,?,?,?,?,?,1,0,1)");
+        if(!$insert){
+            prnMsg('The inventory import could not be prepared: '.$mysqli->error,'warn');
+        }else{
+            foreach($preview as $row){
+                if(count($row['errors']) > 0){
+                    $failed[] = $row['barcode'].': '.implode(' ',$row['errors']);
+                    continue;
+                }
+                $check = $mysqli->prepare("SELECT itemcode FROM stockmaster WHERE barcode=? LIMIT 1");
+                if(!$check){
+                    $failed[] = $row['barcode'].': could not re-check duplicate barcode.';
+                    continue;
+                }
+                $check->bind_param("s",$row['barcode']);
+                $check->execute();
+                $check->store_result();
+                $duplicate = ($check->num_rows > 0);
+                $check->close();
+                if($duplicate){
+                    $failed[] = $row['barcode'].': barcode already exists; row was not imported.';
+                    continue;
+                }
+
+                $itemcode = Triger_stockmaster($row['description']);
+                if(!$itemcode){
+                    $failed[] = $row['barcode'].': item code could not be generated.';
+                    continue;
+                }
+                $insert->bind_param("ssdsdsssss",
+                    $row['barcode'],$row['description'],$row['price'],$row['postinggroup'],
+                    $row['partperunit'],$row['units'],$row['subunits'],$row['category'],
+                    $row['container'],$itemcode
+                );
+                if($insert->execute()){
+                    $inserted++;
+                }else{
+                    $failed[] = $row['barcode'].': '.$insert->error;
+                }
+            }
+            $insert->close();
+            if($inserted > 0){
+                prnMsg($inserted.' inventory item(s) imported successfully.');
+            }
+            if(count($failed) > 0){
+                prnMsg('Some rows were not imported: '.htmlspecialchars(implode(' | ',$failed),ENT_QUOTES,'UTF-8'),'warn');
+            }
+            unset($_SESSION['stock_import_preview']);
+        }
+    }
+}
+
 if(isset($_POST['submit'])){
     $requiredFields = [
         'descrip' => 'Enter Desription',
