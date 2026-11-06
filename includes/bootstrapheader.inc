@@ -129,7 +129,7 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
             }
 
             if (table.querySelector(
-                'input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea'
+                "input:not([type=hidden]):not([type=submit]):not([type=button]), select, textarea"
             )) {
                 table.classList.add("bo-compact-form-table");
             }
