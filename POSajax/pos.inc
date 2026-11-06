@@ -55,6 +55,11 @@
                 <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#trash"/></svg>
                 <span>Remove line</span>
             </button>
+            <button type="button" class="pos-action" id="pos-shift-open"><span>Open shift</span></button>
+            <button type="button" class="pos-action" id="pos-x-report"><span>X report</span></button>
+            <button type="button" class="pos-action pos-action-danger" id="pos-z-close"><span>Z close</span></button>
+            <a class="pos-action" href="POSReports.php" id="pos-admin-reports"><span>Admin reports</span></a>
+            <span id="pos-shift-label" class="pos-scan-hint">No open shift</span>
             <div class="pos-scan-hint">
                 <span class="pos-scan-indicator"></span>
                 Scan barcode or use Find product
@@ -211,6 +216,7 @@
     <script src="POSajax/posscript.js"></script>
     <script src="POSajax/searchstock.js"></script>
     <script>
+        window.POS_FORM_ID = <?php echo json_encode($_SESSION['FormID'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINT_URL = <?php echo json_encode($POSPrintUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINT_TOKEN = <?php echo json_encode($POSPrintToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINTER_ID = <?php echo json_encode(isset($POSPrinterId) ? $POSPrinterId : '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
