@@ -58,6 +58,68 @@ $ViewTopic = isset($ViewTopic) ? $ViewTopic : '';
 $BookMark = isset($BookMark) ? $BookMark : '';
 echo '</head><body>';
 echo '<div id="page"></div>';
+echo '<script>
+(function () {
+    var updateBootstrapTableClasses = function (root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        var tables = [];
+
+        if (scope.matches && scope.matches("table")) {
+            tables.push(scope);
+        }
+
+        Array.prototype.forEach.call(scope.querySelectorAll("table"), function (table) {
+            tables.push(table);
+        });
+
+        tables.forEach(function (table) {
+            var isGrid =
+                table.classList.contains("dataTable") ||
+                table.classList.contains("tablesorter") ||
+                table.classList.contains("table-grid") ||
+                table.classList.contains("grid-table") ||
+                table.hasAttribute("data-grid") ||
+                table.getAttribute("role") === "grid" ||
+                !!table.closest(
+                    ".dataTables_wrapper, .tablesorter, .grid-table, .table-grid, " +
+                    "[data-grid], [role=grid]"
+                );
+
+            if (!isGrid && table.classList.contains("table")) {
+                table.classList.remove("table");
+            }
+        });
+    };
+
+    updateBootstrapTableClasses(document);
+
+    if (document.body && typeof MutationObserver !== "undefined") {
+        var tableClassObserver = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.type === "childList") {
+                    Array.prototype.forEach.call(mutation.addedNodes, function (node) {
+                        if (node.nodeType === 1) {
+                            updateBootstrapTableClasses(node);
+                        }
+                    });
+                } else if (mutation.type === "attributes") {
+                    updateBootstrapTableClasses(
+                        mutation.target.matches("table") ?
+                            mutation.target : mutation.target
+                    );
+                }
+            });
+        });
+
+        tableClassObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class", "role", "data-grid"]
+        });
+    }
+})();
+</script>';
 echo '<header id="headerid" class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">';
 echo '<img src="css/xenos/images/company.png" title="'._('Company').'" alt="'._('Company').'"/>' . stripslashes($_SESSION['CompanyRecord']['coyname']);
