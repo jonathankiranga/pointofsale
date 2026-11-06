@@ -38,7 +38,9 @@ if(isset($_GET['link'])){
    $_SESSION['SCRIPT_NAME_BASE']="$getpage.php" ;
 }
 
-if($_SESSION['SCRIPT_NAME_BASE']=='Logout.php'){
+if(isset($_GET['Stocks']) && $_GET['Stocks'] == '1'){
+    include('Stocks.php');
+}elseif($_SESSION['SCRIPT_NAME_BASE']=='Logout.php'){
     session_unset();
     session_destroy();
     $PageSecurity=0;
