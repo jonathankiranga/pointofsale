@@ -38,7 +38,6 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $widths = array('A'=>18,'B'=>34,'C'=>15,'D'=>17,'E'=>15,'F'=>17,'G'=>17,'H'=>14,'I'=>22);
         foreach($widths as $column=>$width){ $inventory->getColumnDimension($column)->setWidth($width); }
         for($row=2;$row<=101;$row++){
-            $inventory->setCellValue('E'.$row,1);
             if($row % 2 === 0){
                 $inventory->getStyle('A'.$row.':I'.$row)->getFill()->setFillType('solid')->getStartColor()->setRGB('F2F6FA');
             }
@@ -50,7 +49,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $inventory->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
         $inventory->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
         $inventory->getPageSetup()->setFitToWidth(1)->setFitToHeight(0);
-        $inventory->getSheetProperties()->setPageSetUpPrFitToPage(true);
+        $inventory->getPageSetup()->setFitToPage(true);
         $inventory->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,1);
         $inventory->getPageMargins()->setTop(0.5)->setBottom(0.5)->setLeft(0.25)->setRight(0.25);
         $inventory->getHeaderFooter()->setOddFooter('&CInventory List - Page &P of &N');
@@ -142,7 +141,7 @@ if(isset($_GET['downloadtemplate']) && $_GET['downloadtemplate'] == '1'){
         $codes->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
         $codes->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
         $codes->getPageSetup()->setFitToWidth(1)->setFitToHeight(0);
-        $codes->getSheetProperties()->setPageSetUpPrFitToPage(true);
+        $codes->getPageSetup()->setFitToPage(true);
         $codes->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,4);
         $codes->getPageMargins()->setTop(0.45)->setBottom(0.45)->setLeft(0.35)->setRight(0.35);
         $codes->getHeaderFooter()->setOddFooter('&CLive ERP Code Reference - Page &P of &N');
