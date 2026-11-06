@@ -1,3 +1,17 @@
+<?php
+$POSVatInclusive = 0;
+if (isset($mysqli) && $mysqli instanceof mysqli) {
+    $posPostingResult = $mysqli->query("SELECT confvalue FROM config WHERE confname='POS_DefaultPostingGroup' LIMIT 1");
+    if ($posPostingResult && ($posPostingRow = $posPostingResult->fetch_assoc())) {
+        $posGroupStmt = $mysqli->prepare("SELECT VATinclusive FROM postinggroups WHERE code=? LIMIT 1");
+        $posGroupStmt->bind_param('s', $posPostingRow['confvalue']);
+        $posGroupStmt->execute();
+        $posGroupRow = $posGroupStmt->get_result()->fetch_assoc();
+        if ($posGroupRow) { $POSVatInclusive = (int)$posGroupRow['VATinclusive']; }
+        $posGroupStmt->close();
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -216,6 +230,7 @@
     <script src="POSajax/posscript.js"></script>
     <script src="POSajax/searchstock.js"></script>
     <script>
+        window.POS_VAT_INCLUSIVE = <?php echo (int)$POSVatInclusive; ?>;
         window.POS_FORM_ID = <?php echo json_encode($_SESSION['FormID'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINT_URL = <?php echo json_encode($POSPrintUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINT_TOKEN = <?php echo json_encode($POSPrintToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
