@@ -1,0 +1,14 @@
+/*
+ * Tailwind CSS v4 entry point.
+ *
+ * Preflight is intentionally omitted during migration so legacy PHP screens,
+ * third-party widgets and existing form controls are not reset unexpectedly.
+ * Once each screen is converted, its Bootstrap-specific styles can be removed.
+ */
+@layer theme, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Scan PHP-rendered views, JavaScript templates and the existing app source. */
+@source "../";
