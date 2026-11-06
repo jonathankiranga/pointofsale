@@ -194,8 +194,8 @@ try {
     $lineStmt = $mysqli->prepare("INSERT INTO SalesLine
         (entryno,documenttype,docdate,documentno,locationcode,code,description,unitofmeasure,
          Quantity,Quantity_toinvoice,Qunatity_delivered,UnitPrice,vatamount,invoiceamount,
-         completed,printed,vatrate,inclusive)
-        VALUES (?,1,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?)");
+         completed,printed,vatrate,inclusive,pos_tax_category)
+        VALUES (?,1,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)");
     if (!$lineStmt) { throw new Exception('Could not prepare sales lines: ' . $mysqli->error); }
     foreach ($items as $saleLine) {
         $lineEntry = $entryNo;
@@ -208,8 +208,9 @@ try {
         $vatAmount = $saleLine['vat_amount'];
         $lineTotal = $saleLine['line_total'];
         $rate = $saleLine['vat_rate'];
-        $lineStmt->bind_param('issssssdddddddi', $lineEntry, $currentDate, $docno, $lineLocation,
-            $code, $description, $unit, $qty, $qty, $qty, $unitPrice, $vatAmount, $lineTotal, $rate, $vatInclusive);
+        $taxCategory = $saleLine['tax_category'];
+        $lineStmt->bind_param('issssssdddddddis', $lineEntry, $currentDate, $docno, $lineLocation,
+            $code, $description, $unit, $qty, $qty, $qty, $unitPrice, $vatAmount, $lineTotal, $rate, $vatInclusive, $taxCategory);
         if (!$lineStmt->execute()) { throw new Exception('Could not save a sales line: ' . $lineStmt->error); }
     }
     $lineStmt->close();
