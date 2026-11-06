@@ -254,3 +254,57 @@
 #view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) > tbody > tr > td {
     @apply border-b border-slate-100;
 }
+
+
+/* Bank/Cash Account maintenance: balanced two-column form and readable register. */
+#view-panel table.bank-account-form {
+    @apply mx-auto w-full max-w-5xl border-separate rounded-xl border border-slate-200 bg-white p-4 shadow-sm;
+    border-spacing: 0.5rem 0.4rem;
+}
+
+#view-panel table.bank-account-form td {
+    @apply px-2 py-2 align-middle;
+}
+
+#view-panel table.bank-account-form td:nth-child(odd) {
+    @apply w-1/5 text-right text-xs font-semibold text-slate-600;
+}
+
+#view-panel table.bank-account-form input:not([type="submit"]),
+#view-panel table.bank-account-form select {
+    @apply w-full;
+}
+
+#view-panel table.bank-account-form input[type="submit"] {
+    @apply min-w-32;
+}
+
+#view-panel table.bank-account-list {
+    @apply my-5 w-full border-collapse overflow-hidden rounded-lg border border-slate-200 bg-white text-sm text-slate-700 shadow-sm;
+}
+
+#view-panel table.bank-account-list th {
+    @apply border border-slate-200 bg-slate-100 px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700;
+}
+
+#view-panel table.bank-account-list td {
+    @apply border-b border-slate-100 px-3 py-2 align-middle;
+}
+
+#view-panel table.bank-account-list tbody tr:nth-child(even) {
+    @apply bg-slate-50;
+}
+
+#view-panel table.bank-account-list tbody tr:hover {
+    @apply bg-blue-50;
+}
+
+@media (max-width: 767px) {
+    #view-panel table.bank-account-form {
+        @apply block overflow-x-auto p-2;
+    }
+
+    #view-panel table.bank-account-list {
+        @apply block overflow-x-auto whitespace-nowrap;
+    }
+}
