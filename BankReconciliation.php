@@ -551,7 +551,8 @@ function UpdateCashbook(){
     $totalDebit = 0.00;
     $totalCredit = 0.00;
 
-    $stmt = $db->prepare("SELECT DocDate,amount,journal,narrative
+    $stmt = $db->prepare("SELECT DocDate,amount,journal,
+            COALESCE(NULLIF(TRIM(narrative),''),CONCAT('Journal ',journal)) AS narrative
         FROM BankTransactions
         WHERE bankcode=? AND cleared IS NULL AND reconciled IS NULL AND DocDate<=?");
     if (!$stmt) { return false; }
