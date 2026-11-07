@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($stockmasterPkey < 1) { throw new Exception('Select an ERP POS item code and barcode.'); }
                 if ($duration < 1 || !is_numeric($price) || (float)$price < 0) { throw new Exception('Enter a positive service duration and valid non-negative salon selling price.'); }
 
-                $mappingStmt = salon_exec($db, "SELECT pkey,itemcode,barcode FROM stockmaster
+                $mappingStmt = salon_exec($db, "SELECT pkey FROM stockmaster
                     WHERE pkey=? AND itemcode IS NOT NULL AND itemcode<>'' AND barcode IS NOT NULL AND barcode<>''
                       AND (inactive IS NULL OR inactive=0) LIMIT 1", 'i', array($stockmasterPkey));
                 $mapping = $mappingStmt->get_result()->fetch_assoc();
@@ -85,14 +85,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $duplicateService = $duplicateMapping->get_result()->fetch_assoc();
                 $duplicateMapping->close();
                 if ($duplicateService) { throw new Exception('This ERP stock item is already linked to another salon service. Select a different item.'); }
-                $posItemcode = trim((string)$mapping['itemcode']);
-                $posBarcode = trim((string)$mapping['barcode']);
-
                 if ($id > 0) {
-                    $stmt = salon_exec($db, "UPDATE salon_services SET service_code=?,service_name=?,service_category=?,description=?,duration_minutes=?,standard_price=?,pos_itemcode=?,pos_barcode=?,stockmaster_pkey=?,is_active=? WHERE service_id=?", 'ssssidssiii', array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$stockmasterPkey,$active,$id));
+                    $stmt = salon_exec($db, "UPDATE salon_services SET service_code=?,service_name=?,service_category=?,description=?,duration_minutes=?,standard_price=?,stockmaster_pkey=?,is_active=? WHERE service_id=?", 'ssssidiii', array($code,$name,$category,$description,$duration,(float)$price,$stockmasterPkey,$active,$id));
                     $stmt->close();
                 } else {
-                    $stmt = salon_exec($db, "INSERT INTO salon_services (service_code,service_name,service_category,description,duration_minutes,standard_price,pos_itemcode,pos_barcode,stockmaster_pkey,is_active) VALUES (?,?,?,?,?,?,?,?,?,?)", 'ssssidssii', array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$stockmasterPkey,$active));
+                    $stmt = salon_exec($db, "INSERT INTO salon_services (service_code,service_name,service_category,description,duration_minutes,standard_price,stockmaster_pkey,is_active) VALUES (?,?,?,?,?,?,?,?)", 'ssssidii', array($code,$name,$category,$description,$duration,(float)$price,$stockmasterPkey,$active));
                     $stmt->close();
                 }
                 $notice = 'Salon service saved.';
