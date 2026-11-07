@@ -89,6 +89,10 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
         (SELECT externalref FROM receiptheader rh WHERE rh.docno=h.documentno LIMIT 1) AS receipt_reference,
         (SELECT COUNT(*) FROM BankTransactions bt
             WHERE bt.DocumentNo=h.documentno AND bt.doctype=12) AS bank_count,
+        (SELECT COUNT(*) FROM BankTransactions bt
+            INNER JOIN BankAccounts ba ON ba.accountcode=bt.bankcode
+            WHERE bt.DocumentNo=h.documentno AND bt.doctype=12
+              AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_account_count,
         (SELECT COALESCE(SUM(bt.amount),0) FROM BankTransactions bt
             WHERE bt.DocumentNo=h.documentno AND bt.doctype=12) AS bank_amount,
         (SELECT COALESCE(SUM(rh.amount),0) FROM receiptheader rh
@@ -132,6 +136,7 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
             (int)$row['receipt_count'] === 1 &&
             $referenceValid &&
             (int)$row['bank_count'] === 1 &&
+            (int)$row['bank_account_count'] === 1 &&
             abs((float)$row['bank_amount'] - $total) < 0.005 &&
             abs((float)$row['receipt_amount'] - $total) < 0.005 &&
             (int)$row['receipt_debtor_count'] === 1 &&
