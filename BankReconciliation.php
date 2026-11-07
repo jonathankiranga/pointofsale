@@ -201,26 +201,22 @@ function constructBanks() {
 }
 
 function CreateRow($D,$N,$M,$M2,$A,$Journal,$cleared){
-    Global $DRamount,$Uncleared,$PostingGroup,$Difference,$db;
-   
-    if($_POST['check'][$Journal]=='on'){
-      $currentStatus = 'checked="checked"';
+    Global $DRamount,$Uncleared;
+
+    // Rendering rows must never modify the cashbook. A missing checkbox in a
+    // submitted form means the user deliberately left that transaction clear.
+    $hasPostedRows = isset($_POST['Cheq']) && is_array($_POST['Cheq']);
+    $isChecked = $hasPostedRows
+        ? (isset($_POST['check'][$Journal]) && $_POST['check'][$Journal] === 'on')
+        : ((int)$cleared === 1);
+    $currentStatus = $isChecked ? 'checked="checked"' : 'unchecked="unchecked"';
+
+    if($isChecked){
+        $DRamount += (float)$A;
     }else{
-      $currentStatus = (($cleared==1)?'checked="checked"':'unchecked="unchecked"');
+        $Uncleared += (float)$A;
     }
-    
-    if($cleared==1 or $_POST['check'][$Journal]=='on'){
-        $DRamount += $A ;
-        $SQL="Update  `BankTransactions` set cleared=1 where `journal`='".$Journal."'  and (`bankcode`='".$_POST['Bank_Code']."' or `bankcode`='".$PostingGroup."')";
-            DB_query($SQL,$db);
-    
-        }else{
-        $Uncleared +=$A ;
-        $SQL="Update  `BankTransactions` set cleared=NULL where `journal`='".$Journal."'  and (`bankcode`='".$_POST['Bank_Code']."' or `bankcode`='".$PostingGroup."')";
-            DB_query($SQL,$db);
-        
-        }
-       
+
     
     
    return SprintF('<tr>'
@@ -234,23 +230,20 @@ function CreateRow($D,$N,$M,$M2,$A,$Journal,$cleared){
 }
 
 function CreateRow2($D,$N,$M,$M2,$A,$Journal,$cleared){
-    Global $CRamount,$Uncleared,$PostingGroup,$db;
-     
-    if($_POST['check2'][$Journal]=='on'){
-      $currentStatus = 'checked="checked"';
+    Global $CRamount,$Uncleared;
+
+    // Keep display rendering read-only; selection is persisted only by SaveRecon.
+    $hasPostedRows = isset($_POST['Cheq']) && is_array($_POST['Cheq']);
+    $isChecked = $hasPostedRows
+        ? (isset($_POST['check2'][$Journal]) && $_POST['check2'][$Journal] === 'on')
+        : ((int)$cleared === 1);
+    $currentStatus = $isChecked ? 'checked="checked"' : 'unchecked="unchecked"';
+
+    if($isChecked){
+        $CRamount += (float)$A;
     }else{
-      $currentStatus = (($cleared==1)?'checked="checked"':'unchecked="unchecked"');
+        $Uncleared += (float)$A;
     }
-    
-    if($cleared==1 or $_POST['check2'][$Journal]=='on'){
-        $CRamount += $A ;
-        $SQL="Update  `BankTransactions` set cleared=1 where `journal`='".$Journal."'  and (`bankcode`='".$_POST['Bank_Code']."' or `bankcode`='".$PostingGroup."')";
-        DB_query($SQL,$db);
-     }else{
-        $Uncleared +=$A ;
-        $SQL="Update  `BankTransactions` set cleared=NULL where `journal`='".$Journal."'  and (`bankcode`='".$_POST['Bank_Code']."' or `bankcode`='".$PostingGroup."')";
-        DB_query($SQL,$db);
-     }
     
     return SprintF('<tr>'
             . '<td>%s</td>'
