@@ -579,7 +579,7 @@ Function GetUnClearedDB(){
     // Apply the same cutoff rule as GetClearedDB().
     $ReconciliationStartDate = trim((string)$statementstartdate);
     if ($ReconciliationStartDate !== '' && $ReconciliationStartDate !== '0000-00-00') {
-        $SQL .= " and `DocDate` <= '" . $ReconciliationStartDate . "'";
+        $SQL .= " and `DocDate` <= '" . mysqli_real_escape_string($db, $ReconciliationStartDate . ' 23:59:59') . "'";
     }
 
     $ResultIndex = DB_query($SQL, $db);
