@@ -18,7 +18,8 @@ if (empty($_SESSION['FormID']) || !hash_equals((string)$_SESSION['FormID'], $tok
 if (!isset($db) || !($db instanceof mysqli)) {
     salonAppointmentResponse(false, 'The company database connection is unavailable.', 500);
 }
-$id = isset($_GET['appointment_id']) ? (int)$_GET['appointment_id'] : 0;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { salonAppointmentResponse(false, 'POST is required.', 405); }
+$id = isset($_POST['appointment_id']) ? (int)$_POST['appointment_id'] : 0;
 if ($id < 1) { salonAppointmentResponse(false, 'A valid appointment ID is required.', 400); }
 
 try {
