@@ -316,7 +316,8 @@ try {
                 (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=10) AS invoice_gl_count,
                 (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=10) AS invoice_debtor_count,
                 (SELECT COUNT(*) FROM receiptheader WHERE docno=?) AS receipt_count,
-                (SELECT COUNT(*) FROM BankTransactions WHERE DocumentNo=? AND doctype=12) AS bank_count,
+                (SELECT COUNT(*) FROM BankTransactions WHERE DocumentNo=? AND doctype=12
+                    AND cleared IS NULL AND reconciled IS NULL) AS bank_count,
                 (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=12) AS debtor_count,
                 (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
                 (SELECT COUNT(*) FROM receiptsallocation WHERE receiptno=?) AS allocation_count";
@@ -506,6 +507,7 @@ try {
         (SELECT COUNT(*) FROM BankTransactions bt
             INNER JOIN BankAccounts ba ON ba.accountcode=bt.bankcode
             WHERE bt.DocumentNo=? AND bt.doctype=12
+              AND bt.cleared IS NULL AND bt.reconciled IS NULL
               AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_count,
         (SELECT COALESCE(SUM(amount),0) FROM BankTransactions
             WHERE DocumentNo=? AND doctype=12) AS bank_amount,
