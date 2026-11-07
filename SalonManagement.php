@@ -115,12 +115,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $hairdresserId = (int)salon_post('hairdresser_id', '0');
                 $notes = salon_post('notes');
                 if ($customer === '' || $start === '' || $serviceId < 1) { throw new Exception('Customer, appointment date/time and service are required.'); }
-                $startDate = str_replace('T', ' ', $start);
-                if (strlen($startDate) === 16) { $startDate .= ':00'; }
+                $parsedStart = DateTime::createFromFormat('Y-m-d\\TH:i', $start);
+                if (!$parsedStart || $parsedStart->format('Y-m-d\\TH:i') !== $start) { throw new Exception('Enter a valid appointment date and time.'); }
+                $startDate = $parsedStart->format('Y-m-d H:i:s');
                 $serviceStmt = salon_exec($db, "SELECT standard_price,duration_minutes FROM salon_services WHERE service_id=? AND is_active=1", 'i', array($serviceId));
                 $service = $serviceStmt->get_result()->fetch_assoc();
                 $serviceStmt->close();
                 if (!$service) { throw new Exception('The selected service is unavailable.'); }
+                if ($hairdresserId > 0) {
+                    $assignmentStmt = salon_exec($db, "SELECT COUNT(*) AS assigned FROM salon_hairdresser_services hs INNER JOIN salon_hairdressers h ON h.hairdresser_id=hs.hairdresser_id WHERE hs.service_id=? AND hs.hairdresser_id=? AND hs.is_active=1 AND h.is_active=1", 'ii', array($serviceId,$hairdresserId));
+                    $assignment = $assignmentStmt->get_result()->fetch_assoc();
+                    $assignmentStmt->close();
+                    if (!$assignment || (int)$assignment['assigned'] !== 1) { throw new Exception('The selected hairdresser is not assigned to this service.'); }
+                }
                 $endDate = date('Y-m-d H:i:s', strtotime($startDate) + ((int)$service['duration_minutes'] * 60));
                 $reference = 'SAL-' . date('ymd') . '-' . strtoupper(substr(sha1(uniqid('', true)), 0, 6));
                 $db->begin_transaction();
