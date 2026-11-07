@@ -46,7 +46,7 @@
         var root = document.getElementById('salon-service-catalogue');
         if (!root) { return; }
         if (!services.length) {
-            root.innerHTML = '<div class="alert alert-warning mb-0">No sellable salon services are configured. Map each service to an ERP POS item and assign at least one active hairdresser.</div>';
+            root.innerHTML = '<div class="alert alert-warning mb-0">No ERP items are enabled for salon operations. Configure an existing stockmaster item and assign at least one active hairdresser.</div>';
             return;
         }
         var html = '';
