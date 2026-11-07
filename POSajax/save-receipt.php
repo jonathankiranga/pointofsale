@@ -542,6 +542,10 @@ try {
         ));
     }
 
+    if (!$existing && $appointmentId > 0 && $appointmentLink) {
+        throw new Exception('The appointment receipt link exists, but its POS receipt is missing. Contact an administrator before retrying checkout.');
+    }
+
     if ($paymentMethod === 'MPESA') {
         $referenceCheck = $db->prepare("SELECT docno FROM receiptheader WHERE externalref=? LIMIT 1 FOR UPDATE");
         if (!$referenceCheck) { throw new Exception('Could not validate the M-Pesa transaction reference: ' . $db->error); }
