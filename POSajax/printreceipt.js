@@ -28,7 +28,9 @@ function collectReceiptData(paymentMethod, mpesaPhone, mpesaReference) {
                 unitPrice: unitPrice,
                 vatRate: vatRate,
                 vatAmount: vatAmount,
-                lineTotal: lineTotal
+                lineTotal: lineTotal,
+                salonServiceId: Number($row.attr('data-salon-service-id')) || 0,
+                hairdresserId: Number($row.attr('data-hairdresser-id')) || 0
             });
         }
     });
