@@ -109,7 +109,10 @@ $groupStmt->bind_param('s', $postingGroup);
 $groupStmt->execute();
 $groupRow = $groupStmt->get_result()->fetch_assoc();
 $groupStmt->close();
-if (!$groupRow) { posSaveResponse(false, 'The configured POS posting group no longer exists.', 409); }
+if (!$groupRow || $groupRow['VATinclusive'] === null ||
+    !in_array((string)$groupRow['VATinclusive'], array('0','1'), true)) {
+    posSaveResponse(false, 'The configured POS posting group has a NULL or invalid VAT-inclusive setting.', 409);
+}
 $vatInclusive = (int)$groupRow['VATinclusive'];
 
 $shiftStmt = $db->prepare("SELECT id FROM pos_shifts WHERE cashier_id=? AND status='OPEN' ORDER BY id DESC LIMIT 1");
@@ -147,7 +150,8 @@ $items = array();
 $calculatedTotal = 0.00;
 $calculatedVat = 0.00;
 $productStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, sm.descrip, sm.units, sm.sellingprice,
-        vc.vat AS vat_rate, ipg.vatcategory AS tax_category, ipg.code AS product_posting_group
+        vc.vat AS vat_rate, ipg.vatcategory AS tax_category, ipg.code AS product_posting_group,
+        ipg.defaultgl_sales AS sales_account, ipg.defaultgl_vat AS vat_account
     FROM stockmaster sm
     LEFT JOIN inventorypostinggroup ipg ON sm.postinggroup=ipg.code
     LEFT JOIN vatcategory vc ON ipg.vatcategory=vc.vatc
@@ -175,7 +179,11 @@ foreach ($receiptData['items'] as $item) {
     if ($product['sellingprice'] === null || !is_numeric($product['sellingprice']) ||
         $product['product_posting_group'] === null || trim((string)$product['product_posting_group']) === '' ||
         $product['tax_category'] === null || trim((string)$product['tax_category']) === '' ||
-        $product['vat_rate'] === null || !is_numeric($product['vat_rate'])) {
+        $product['sales_account'] === null || trim((string)$product['sales_account']) === '' ||
+        $product['vat_account'] === null || trim((string)$product['vat_account']) === '' ||
+        $product['vat_rate'] === null || !is_numeric($product['vat_rate']) ||
+        $product['descrip'] === null || trim((string)$product['descrip']) === '' ||
+        $product['units'] === null || trim((string)$product['units']) === '') {
         $productStmt->close();
         posSaveResponse(false, 'A sale item has a missing selling price, inventory posting group or VAT mapping. Correct the item setup before selling it.', 409);
     }
