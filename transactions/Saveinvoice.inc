@@ -229,7 +229,7 @@ function PostGL($period,$journal,$doc,$discount){
       ,[postinggroups].[debtorsaccount]
       ,[inventorypostinggroup].[defaultgl_sales]
       ,[inventorypostinggroup].[defaultgl_vat]
-      ,SalesLine.invoiceamount * ".$discount."
+      ,COALESCE(SalesLine.invoiceamount,0) * ".$discount."
       ,COALESCE(SalesLine.vatamount,0) * ".$discount." as vatamount
       ,SalesHeader.[currencycode]
       ,[currencies].[rate]
@@ -275,12 +275,12 @@ function VATPostGL($period,$journal,$doc,$discount){
       ,[inventorypostinggroup].[defaultgl_sales]
       ,[inventorypostinggroup].[defaultgl_vat]
       ,''
-      ,SalesLine.vatamount * ".$discount."
+      ,COALESCE(SalesLine.vatamount,0) * ".$discount."
       ,0
       ,SalesHeader.[currencycode]
       ,[currencies].[rate]
       ,SalesHeader.[customercode]
-      ,(rtrim(SalesLine.sampleID))  as narration
+      ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration
       from SalesHeader join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
       join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
      join stockmaster on stockmaster.code=SalesLine.code
@@ -309,7 +309,7 @@ Function CustomerStatemet($journal,$doc,$discount){
              ,SalesHeader.documentno
              ,SalesHeader.documenttype
              ,SalesHeader.customercode
-             ,sum(SalesLine.invoiceamount) * ".$discount."
+             ,sum(COALESCE(SalesLine.invoiceamount,0)) * ".$discount."
              ,'%s'
              ,'".$_POST['DimensionOne']."'
              ,'".$_POST['DimensionTwo']."' 
