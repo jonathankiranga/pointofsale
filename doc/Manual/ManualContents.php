@@ -275,7 +275,7 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Run <code>SQL/20261107_hair_salon_pos_foundation.sql</code> once against that company database.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_operations.sql</code> to create appointment and appointment-line tables and register the salon pages in the ERP security script list.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_item_mapping.sql</code> to add the ERP item code and barcode mapping fields to the salon service catalogue.</li>
-            <li>Run <code>SQL/20261107_hair_salon_pos_master_alignment.sql</code> to backfill existing mapped service names and categories from <code>stockmaster</code> and <code>stockcategory</code>.</li>
+            <li>Run <code>SQL/20261107_hair_salon_pos_master_alignment.sql</code> to regenerate existing service codes from their IDs and backfill mapped service names and categories from <code>stockmaster</code> and <code>stockcategory</code>.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_payout_audit.sql</code> to record which ERP user marks commission payouts as paid.</li>
             <li>Run <code>SQL/20261107_hair_salon_appointment_pos_integration.sql</code> to create the unique appointment-to-POS receipt link and register the appointment loader endpoint.</li>
             <li>Confirm that the salon foundation, appointment, commission and appointment-to-receipt tables exist. The migrations do not alter existing POS sales, inventory, accounting or production employee tables.</li>
