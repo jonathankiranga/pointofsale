@@ -26,7 +26,7 @@ try {
     $db->begin_transaction();
     $lock = $db->prepare("SELECT a.appointment_id,a.appointment_reference,a.customer_name,a.customer_phone,
             a.appointment_start,a.appointment_status,l.appointment_line_id,l.service_id,l.hairdresser_id,
-            l.agreed_price,l.duration_minutes,sm.descrip AS service_name,s.pos_itemcode,s.pos_barcode,s.is_active,sm.units,vc.vat AS vat_rate,
+            l.agreed_price,l.duration_minutes,TRIM(sm.descrip) AS service_name,s.pos_itemcode,s.pos_barcode,s.is_active,sm.units,vc.vat AS vat_rate,
             h.full_name,h.is_active AS hairdresser_active,
             (SELECT COUNT(*) FROM salon_appointment_lines x WHERE x.appointment_id=a.appointment_id) AS line_count
         FROM salon_appointments a
