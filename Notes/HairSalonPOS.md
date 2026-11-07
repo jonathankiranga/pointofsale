@@ -22,9 +22,18 @@ Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company da
 4. The unique source-document/line/hairdresser key prevents duplicate commission creation when a checkout request is retried.
 5. A commission is not recalculated from current rules after posting. Payouts and reversals update the ledger status and retain the original calculation for audit.
 
+## Required migration order
+
+1. `SQL/20261107_hair_salon_pos_foundation.sql`
+2. `SQL/20261107_hair_salon_pos_operations.sql`
+3. `SQL/20261107_hair_salon_pos_item_mapping.sql`
+4. `SQL/20261107_hair_salon_pos_master_alignment.sql`
+5. `SQL/20261107_hair_salon_pos_payout_audit.sql`
+6. `SQL/20261107_hair_salon_appointment_pos_integration.sql`
+
 ## Appointment-to-POS workflow
 
-Apply `SQL/20261107_hair_salon_appointment_pos_operations.sql` and then `SQL/20261107_hair_salon_appointment_pos_integration.sql` after the foundation migration and item-mapping migration.
+Apply `SQL/20261107_hair_salon_pos_operations.sql` and then `SQL/20261107_hair_salon_appointment_pos_integration.sql` after the foundation, item-mapping and ERP master-alignment migrations.
 
 1. Book the customer, date/time, service and an assigned hairdresser in Salon Management.
 2. Mark the appointment Arrived when the customer checks in.
