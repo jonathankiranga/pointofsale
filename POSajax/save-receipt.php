@@ -212,10 +212,10 @@ $salonMappingColumnRow = $salonMappingColumns ? $salonMappingColumns->fetch_asso
 if ($salonMappingColumnRow && (int)$salonMappingColumnRow['column_count'] === 1) {
     $salonMappedItemStmt = $db->prepare("SELECT sm.pkey AS service_id FROM salon_service_settings ss
         INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey
-        WHERE sm.itemcode=? AND sm.barcode=? AND ss.is_active=1 LIMIT 1");
+        WHERE sm.itemcode=? AND sm.barcode=? LIMIT 1");
     if (!$salonMappedItemStmt) {
         $productStmt->close();
-        posSaveResponse(false, 'Could not validate salon service item mappings.', 500);
+        posSaveResponse(false, 'Could not validate salon service item configuration.', 500);
     }
 }
 
