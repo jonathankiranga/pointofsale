@@ -553,7 +553,7 @@ function UpdateCashbook(){
 
     $stmt = $db->prepare("SELECT DocDate,amount,journal,narrative
         FROM BankTransactions
-        WHERE bankcode=? AND cleared IS NULL AND DocDate<=?");
+        WHERE bankcode=? AND cleared IS NULL AND reconciled IS NULL AND DocDate<=?");
     if (!$stmt) { return false; }
     $statementEndDateTime = $statementDate . ' 23:59:59';
     $stmt->bind_param('ss', $bankCode, $statementEndDateTime);
@@ -645,7 +645,8 @@ Function GetUnClearedDB(){
 
     $SQL = "Select COALESCE(sum(`amount`),0) from `BankTransactions`"
          . " where `bankcode`='" . mysqli_real_escape_string($db, (string)$_POST['Bank_Code']) . "'"
-         . " and (`cleared`=0 or `cleared` is null)";
+         . " and (`cleared`=0 or `cleared` is null)"
+         . " and `reconciled` is null";
 
     // Apply the same cutoff rule as GetClearedDB().
     $ReconciliationStartDate = trim((string)$statementstartdate);
