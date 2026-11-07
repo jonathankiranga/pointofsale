@@ -282,7 +282,9 @@ try {
     $currentDate = $dateRow['transaction_date'];
     $_POST['date'] = ConvertSQLDate($currentDate);
     $periodNo = GetPeriod($_POST['date'], $db, true);
-    if (!$periodNo) { throw new Exception('The current financial period could not be determined.'); }
+    if ($periodNo === null || $periodNo === false || !is_numeric($periodNo) || (int)$periodNo < 0) {
+        throw new Exception('The current financial period could not be determined.');
+    }
 
     $lockResult = $db->query("SELECT GET_LOCK('pos_sales_entryno',10) AS lock_ok");
     $lockRow = $lockResult ? $lockResult->fetch_assoc() : null;
