@@ -27,7 +27,8 @@
         row.setAttribute('data-itemcode', service.itemcode);
         row.setAttribute('data-barcode', service.barcode);
         row.setAttribute('data-salon-service-id', service.id);
-        row.setAttribute('data-hairdresser-id', hairdresser.id);\n        if (appointmentLine) { row.setAttribute('data-appointment-line', '1'); }
+        row.setAttribute('data-hairdresser-id', hairdresser.id);
+        if (appointmentLine) { row.setAttribute('data-appointment-line', '1'); }
         row.innerHTML =
             '<td>' + escapeHtml(service.barcode) + '</td>' +
             '<td>' + escapeHtml(service.name) + ' <small>— ' + escapeHtml(hairdresser.name) + '</small></td>' +
