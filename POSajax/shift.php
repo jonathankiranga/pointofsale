@@ -81,6 +81,10 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
             WHERE dl.invref=(SELECT ih.documentno FROM SalesHeader ih
                 WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
               AND dl.systypes_1=10) AS invoice_debtor_count,
+        (SELECT COALESCE(SUM(dl.amount),0) FROM debtorsledger dl
+            WHERE dl.invref=(SELECT ih.documentno FROM SalesHeader ih
+                WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
+              AND dl.systypes_1=10) AS invoice_debtor_amount,
         (SELECT COALESCE(SUM(cs.Grossamount),0) FROM CustomerStatement cs
             WHERE cs.Documentno=(SELECT ih.documentno FROM SalesHeader ih
                 WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
@@ -99,8 +103,12 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
             WHERE rh.docno=h.documentno) AS receipt_amount,
         (SELECT COUNT(*) FROM debtorsledger dl
             WHERE dl.invref=h.documentno AND dl.systypes_1=12) AS receipt_debtor_count,
+        (SELECT COALESCE(SUM(dl.amount),0) FROM debtorsledger dl
+            WHERE dl.invref=h.documentno AND dl.systypes_1=12) AS receipt_debtor_amount,
         (SELECT COUNT(*) FROM GeneralLedger gl
             WHERE gl.DocumentNo=h.documentno AND gl.DocumentType=12) AS receipt_gl_count,
+        (SELECT COALESCE(SUM(gl.amount),0) FROM GeneralLedger gl
+            WHERE gl.DocumentNo=h.documentno AND gl.DocumentType=12) AS receipt_gl_amount,
         (SELECT COUNT(*) FROM receiptsallocation ra
             WHERE ra.receiptno=h.documentno) AS allocation_count,
         (SELECT COALESCE(SUM(ra.amount),0) FROM receiptsallocation ra
@@ -145,6 +153,7 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
             (int)$row['invoice_statement_count'] === 1 &&
             (int)$row['invoice_gl_count'] > 0 &&
             (int)$row['invoice_debtor_count'] > 0 &&
+            abs((float)$row['invoice_debtor_amount'] - $total) < 0.005 &&
             abs((float)$row['invoice_amount'] - $total) < 0.005 &&
             (int)$row['receipt_count'] === 1 &&
             $referenceValid &&
@@ -153,7 +162,9 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
             abs((float)$row['bank_amount'] - $total) < 0.005 &&
             abs((float)$row['receipt_amount'] - $total) < 0.005 &&
             (int)$row['receipt_debtor_count'] === 1 &&
+            abs((float)$row['receipt_debtor_amount'] + $total) < 0.005 &&
             (int)$row['receipt_gl_count'] === 1 &&
+            abs((float)$row['receipt_gl_amount'] - $total) < 0.005 &&
             (int)$row['allocation_count'] === 1 &&
             abs((float)$row['allocation_amount'] + $total) < 0.005 &&
             abs((float)$row['receipt_statement_amount'] + $total) < 0.005;
