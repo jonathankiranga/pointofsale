@@ -470,8 +470,9 @@ try {
     $receipt->CustomerName = mysqli_real_escape_string($db, $customerName);
     $receipt->currencycode = mysqli_real_escape_string($db, $currencyCode);
     $receipt->Receipt_Journal = GetNextTransNo(0, $db);
-    if ($receipt->Receipt_Journal === null || trim((string)$receipt->Receipt_Journal) === '') {
-        throw new Exception('Could not allocate the POS receipt journal number.');
+    if ($receipt->Receipt_Journal === null || trim((string)$receipt->Receipt_Journal) === '' ||
+        !preg_match('/^[A-Za-z0-9._\\/-]+$/', (string)$receipt->Receipt_Journal)) {
+        throw new Exception('Could not allocate a valid POS receipt journal number.');
     }
     $receipt->GetBankDetails($receipt->bankcode);
     $receipt->GetCustomer($receipt->CustomerID);
