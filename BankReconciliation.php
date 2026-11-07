@@ -241,8 +241,10 @@ Function UpdateStatus(){
             $unclearStmt->close();
             return false;
         }
-        $selected = (isset($_POST['check'][$journal]) && $_POST['check'][$journal] === 'on') ||
-                    (isset($_POST['check2'][$journal]) && $_POST['check2'][$journal] === 'on');
+        $selected = (isset($_POST['check']) && is_array($_POST['check']) &&
+                     isset($_POST['check'][$journal]) && $_POST['check'][$journal] === 'on') ||
+                    (isset($_POST['check2']) && is_array($_POST['check2']) &&
+                     isset($_POST['check2'][$journal]) && $_POST['check2'][$journal] === 'on');
         $stmt = $selected ? $clearStmt : $unclearStmt;
         $stmt->bind_param('ss', $journal, $bankCode);
         if (!$stmt->execute()) {
@@ -371,8 +373,10 @@ function Insert($pkey,$StatementNo,$bankcode,$narration,$amount=''){
 }
 
 function IsReconciliationJournalSelected($journal){
-    return (isset($_POST['check'][$journal]) && $_POST['check'][$journal] === 'on') ||
-           (isset($_POST['check2'][$journal]) && $_POST['check2'][$journal] === 'on');
+    return (isset($_POST['check']) && is_array($_POST['check']) &&
+            isset($_POST['check'][$journal]) && $_POST['check'][$journal] === 'on') ||
+           (isset($_POST['check2']) && is_array($_POST['check2']) &&
+            isset($_POST['check2'][$journal]) && $_POST['check2'][$journal] === 'on');
 }
 
 function CalculatePostedReconciliationBalance($bankCode,$openingBalance,$endDateSQL){
