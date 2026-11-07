@@ -15,3 +15,7 @@ CREATE TABLE IF NOT EXISTS salon_appointment_transactions (
         FOREIGN KEY (appointment_id) REFERENCES salon_appointments (appointment_id)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO scripts (script, pagesecurity, description)
+VALUES ('salon-appointment.php', 4, 'Load and start a booked salon appointment in POS')
+ON DUPLICATE KEY UPDATE description=VALUES(description);
