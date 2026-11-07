@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $serviceStmt = salon_exec($db, "SELECT sm.sellingprice AS standard_price,ss.duration_minutes FROM salon_service_settings ss INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey WHERE ss.stockmaster_pkey=? AND ss.is_active=1 AND (sm.inactive IS NULL OR sm.inactive=0)", 'i', array($serviceId));
                 $service = $serviceStmt->get_result()->fetch_assoc();
                 $serviceStmt->close();
-                if (!$service) { throw new Exception('The selected service is unavailable.'); }
+                if (!$service || !is_numeric($service['standard_price']) || (float)$service['standard_price'] < 0) { throw new Exception('The selected ERP item is unavailable or has no valid selling price in stockmaster.'); }
                 if ($hairdresserId > 0) {
                     $assignmentStmt = salon_exec($db, "SELECT COUNT(*) AS assigned FROM salon_hairdresser_services hs INNER JOIN salon_hairdressers h ON h.hairdresser_id=hs.hairdresser_id WHERE hs.stockmaster_pkey=? AND hs.hairdresser_id=? AND hs.is_active=1 AND h.is_active=1", 'ii', array($serviceId,$hairdresserId));
                     $assignment = $assignmentStmt->get_result()->fetch_assoc();
