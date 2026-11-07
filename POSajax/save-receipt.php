@@ -180,8 +180,11 @@ if (!$productStmt) { posSaveResponse(false, 'Could not prepare ERP product valid
 $salonServiceStmt = null;
 $salonAssignmentStmt = null;
 $salonMappedItemStmt = null;
-$salonTablesResult = $db->query("SHOW TABLES LIKE 'salon_services'");
-if ($salonTablesResult && $salonTablesResult->num_rows > 0) {
+$salonMappingColumns = $db->query("SELECT COUNT(*) AS column_count FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='salon_services'
+      AND COLUMN_NAME IN ('pos_itemcode','pos_barcode')");
+$salonMappingColumnRow = $salonMappingColumns ? $salonMappingColumns->fetch_assoc() : null;
+if ($salonMappingColumnRow && (int)$salonMappingColumnRow['column_count'] === 2) {
     $salonMappedItemStmt = $db->prepare("SELECT service_id FROM salon_services
         WHERE pos_itemcode=? AND pos_barcode=? AND is_active=1 LIMIT 1");
     if (!$salonMappedItemStmt) {
