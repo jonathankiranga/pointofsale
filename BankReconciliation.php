@@ -214,6 +214,42 @@ echo '<span id="loadbankdata"></span>';
 
 echo '</div></form>' ;
 
+echo '<script type="text/javascript">
+function bankReconRound2(value) {
+    value = Number(value);
+    return isFinite(value) ? Math.round(value * 100) / 100 : 0;
+}
+function updateBankReconBalance() {
+    var opening = Number(document.getElementById("lastreconbalance").value || 0);
+    var debit = Number(document.getElementById("clearedDB").value || 0);
+    var credit = Number(document.getElementById("clearedCR").value || 0);
+    var statement = Number(document.getElementById("bankendbalance").value || 0);
+    var total = bankReconRound2(opening + debit + credit);
+    var difference = bankReconRound2(statement - total);
+    document.getElementById("cleared").value = total.toFixed(2);
+    document.getElementById("Uncleared").value = difference.toFixed(2);
+}
+function GetDBCleared(amount, checkbox) {
+    var current = Number(document.getElementById("clearedDB").value || 0);
+    var delta = Number(amount);
+    if (!isFinite(delta)) { return; }
+    current += checkbox.checked ? delta : -delta;
+    document.getElementById("clearedDB").value = bankReconRound2(current).toFixed(2);
+    updateBankReconBalance();
+}
+function GetCRCleared(amount, checkbox) {
+    var current = Number(document.getElementById("clearedCR").value || 0);
+    var delta = Number(amount);
+    if (!isFinite(delta)) { return; }
+    current += checkbox.checked ? delta : -delta;
+    document.getElementById("clearedCR").value = bankReconRound2(current).toFixed(2);
+    updateBankReconBalance();
+}
+function GetAllCleared(value) {
+    updateBankReconBalance();
+}
+</script>';
+
 include('includes/footer.inc');
 
 Function UpdateStatus(){
