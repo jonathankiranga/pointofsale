@@ -159,11 +159,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($action === 'appointment_status') {
                 $id = (int)salon_post('appointment_id', '0');
                 $status = salon_post('appointment_status');
-                if ($id < 1 || !in_array($status, array('arrived','in_service','completed','cancelled','no_show'), true)) { throw new Exception('Invalid appointment status.'); }
+                if ($id < 1 || !in_array($status, array('arrived','cancelled','no_show'), true)) {
+                    throw new Exception('Invalid appointment status. Start Service and checkout control the in-service and completed statuses.');
+                }
+                $db->begin_transaction();
+                $lock = salon_exec($db, "SELECT appointment_status FROM salon_appointments WHERE appointment_id=? FOR UPDATE", 'i', array($id));
+                $current = $lock->get_result()->fetch_assoc();
+                $lock->close();
+                if (!$current) { throw new Exception('Appointment not found.'); }
+                $linked = salon_exec($db, "SELECT appointment_id FROM salon_appointment_transactions WHERE appointment_id=? LIMIT 1", 'i', array($id));
+                $hasSale = (bool)$linked->get_result()->fetch_assoc();
+                $linked->close();
+                if ($hasSale || in_array($current['appointment_status'], array('in_service','completed'), true)) {
+                    throw new Exception('An appointment that has started or has a POS transaction cannot be cancelled or marked as a no-show.');
+                }
                 $stmt = salon_exec($db, "UPDATE salon_appointments SET appointment_status=? WHERE appointment_id=?", 'si', array($status,$id));
                 $stmt->close();
-                $stmt = salon_exec($db, "UPDATE salon_appointment_lines SET line_status=? WHERE appointment_id=?", 'si', array($status === 'no_show' ? 'cancelled' : $status,$id));
+                $stmt = salon_exec($db, "UPDATE salon_appointment_lines SET line_status='cancelled' WHERE appointment_id=?", 'i', array($id));
                 $stmt->close();
+                $db->commit();
                 $notice = 'Appointment status updated.';
                 $view = 'appointments';
             } elseif ($action === 'pay_commission') {
@@ -250,14 +264,25 @@ if ($view === 'hairdressers') {
     if (!$rules) echo '<tr><td colspan="7" class="text-muted">No commission rules configured.</td></tr>';
     echo '</tbody></table></div></div>';
 } elseif ($view === 'appointments') {
-    $appointments = salon_rows($db, "SELECT a.appointment_id,a.appointment_reference,a.customer_name,a.customer_phone,a.appointment_start,a.appointment_status,s.service_name,h.full_name FROM salon_appointments a JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id JOIN salon_services s ON s.service_id=l.service_id LEFT JOIN salon_hairdressers h ON h.hairdresser_id=l.hairdresser_id WHERE a.appointment_start >= DATE_SUB(CURDATE(),INTERVAL 1 DAY) ORDER BY a.appointment_start LIMIT 250");
+    $appointments = salon_rows($db, "SELECT a.appointment_id,a.appointment_reference,a.customer_name,a.customer_phone,a.appointment_start,a.appointment_status,s.service_name,h.full_name,t.document_no FROM salon_appointments a JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id JOIN salon_services s ON s.service_id=l.service_id LEFT JOIN salon_hairdressers h ON h.hairdresser_id=l.hairdresser_id LEFT JOIN salon_appointment_transactions t ON t.appointment_id=a.appointment_id WHERE a.appointment_start >= DATE_SUB(CURDATE(),INTERVAL 1 DAY) ORDER BY a.appointment_start LIMIT 250");
     echo '<div class="card mb-3"><div class="card-header">Book appointment</div><div class="card-body"><form method="post" class="row g-2 align-items-end"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="save_appointment"><div class="col-md-3"><label class="form-label">Customer name</label><input class="form-control" name="customer_name" maxlength="100" required></div><div class="col-md-2"><label class="form-label">Phone</label><input class="form-control" name="customer_phone" maxlength="30"></div><div class="col-md-2"><label class="form-label">Date and time</label><input class="form-control" type="datetime-local" name="appointment_start" required></div><div class="col-md-2"><label class="form-label">Service</label><select class="form-select" name="service_id" required><option value="">Select service</option>';
     foreach ($services as $row) if ($row['is_active']) echo '<option value="' . (int)$row['service_id'] . '">' . salon_h($row['service_name']) . '</option>';
     echo '</select></div><div class="col-md-2"><label class="form-label">Hairdresser</label><select class="form-select" name="hairdresser_id"><option value="0">Unassigned</option>';
     foreach ($hairdressers as $row) if ($row['is_active']) echo '<option value="' . (int)$row['hairdresser_id'] . '">' . salon_h($row['full_name']) . '</option>';
     echo '</select></div><div class="col-md-1"><button class="btn btn-primary w-100">Book</button></div><div class="col-12"><label class="form-label">Notes</label><input class="form-control" name="notes" maxlength="1000"></div></form></div></div><div class="card"><div class="card-header">Appointment schedule</div><div class="table-responsive"><table class="table table-striped mb-0"><thead><tr><th>Reference</th><th>Date/time</th><th>Customer</th><th>Phone</th><th>Service</th><th>Hairdresser</th><th>Status</th><th>Update</th></tr></thead><tbody>';
     foreach ($appointments as $row) {
-        echo '<tr><td>' . salon_h($row['appointment_reference']) . '</td><td>' . salon_h($row['appointment_start']) . '</td><td>' . salon_h($row['customer_name']) . '</td><td>' . salon_h($row['customer_phone']) . '</td><td>' . salon_h($row['service_name']) . '</td><td>' . salon_h($row['full_name'] ? $row['full_name'] : 'Unassigned') . '</td><td>' . salon_h($row['appointment_status']) . '</td><td><form method="post" class="d-flex gap-1"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="appointment_status"><input type="hidden" name="appointment_id" value="' . (int)$row['appointment_id'] . '"><select class="form-select form-select-sm" name="appointment_status"><option value="arrived">Arrived</option><option value="in_service">In service</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="no_show">No show</option></select><button class="btn btn-sm btn-outline-primary">Update</button></form></td></tr>';
+        echo '<tr><td>' . salon_h($row['appointment_reference']) . '</td><td>' . salon_h($row['appointment_start']) . '</td><td>' . salon_h($row['customer_name']) . '</td><td>' . salon_h($row['customer_phone']) . '</td><td>' . salon_h($row['service_name']) . '</td><td>' . salon_h($row['full_name'] ? $row['full_name'] : 'Unassigned') . '</td><td>' . salon_h($row['appointment_status']) . '</td><td>';
+        if (!empty($row['document_no'])) {
+            echo 'POS receipt: ' . salon_h($row['document_no']);
+        } elseif (in_array($row['appointment_status'], array('booked','arrived'), true)) {
+            echo '<a class="btn btn-sm btn-primary" href="SalonPOS.php?appointment_id=' . (int)$row['appointment_id'] . '">Start Service</a> ';
+            echo '<form method="post" class="d-inline-flex gap-1"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="appointment_status"><input type="hidden" name="appointment_id" value="' . (int)$row['appointment_id'] . '"><select class="form-select form-select-sm" name="appointment_status"><option value="arrived">Arrived</option><option value="cancelled">Cancelled</option><option value="no_show">No show</option></select><button class="btn btn-sm btn-outline-primary">Update</button></form>';
+        } elseif ($row['appointment_status'] === 'in_service') {
+            echo '<a class="btn btn-sm btn-outline-primary" href="SalonPOS.php?appointment_id=' . (int)$row['appointment_id'] . '">Resume POS</a>';
+        } else {
+            echo '—';
+        }
+        echo '</td></tr>';
     }
     if (!$appointments) echo '<tr><td colspan="8" class="text-muted">No appointments found.</td></tr>';
     echo '</tbody></table></div></div>';
