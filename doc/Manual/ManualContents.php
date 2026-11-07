@@ -264,7 +264,7 @@ $manualTitle = 'POS & Back-office User Manual';
         <h3>What the foundation stores</h3>
         <ul>
             <li><strong>Hairdressers:</strong> A salon-specific roster with a unique staff code, name, contact details and active/inactive status. This is separate from the existing production employee records.</li>
-            <li><strong>Services:</strong> A service catalogue with a unique service code, name, category, description, standard duration and standard price. Examples include haircuts, braiding, washing, colouring and treatments.</li>
+            <li><strong>Services:</strong> A salon service record linked to an ERP stock item. The ERP item description supplies the service name and the ERP stock category supplies its category. The salon service code is generated automatically; duration, salon selling price and operational notes remain salon-specific.</li>
             <li><strong>Hairdresser skills:</strong> A mapping of which active hairdressers are assigned or qualified to perform each service.</li>
             <li><strong>Commission rules:</strong> Percentage or fixed-amount rules. Rules can apply globally, to a service, to a hairdresser, or to a specific hairdresser/service combination. The checkout selects the most specific applicable active rule.</li>
             <li><strong>Commission ledger:</strong> A transaction-level snapshot containing the source sale and line, service, hairdresser, eligible amount, rule type/value, calculated amount and pending/paid/reversed status.</li>
@@ -275,6 +275,7 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Run <code>SQL/20261107_hair_salon_pos_foundation.sql</code> once against that company database.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_operations.sql</code> to create appointment and appointment-line tables and register the salon pages in the ERP security script list.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_item_mapping.sql</code> to add the ERP item code and barcode mapping fields to the salon service catalogue.</li>
+            <li>Run <code>SQL/20261107_hair_salon_pos_master_alignment.sql</code> to backfill existing mapped service names and categories from <code>stockmaster</code> and <code>stockcategory</code>.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_payout_audit.sql</code> to record which ERP user marks commission payouts as paid.</li>
             <li>Run <code>SQL/20261107_hair_salon_appointment_pos_integration.sql</code> to create the unique appointment-to-POS receipt link and register the appointment loader endpoint.</li>
             <li>Confirm that the salon foundation, appointment, commission and appointment-to-receipt tables exist. The migrations do not alter existing POS sales, inventory, accounting or production employee tables.</li>
@@ -282,8 +283,8 @@ $manualTitle = 'POS & Back-office User Manual';
         <h3>Set up a sellable salon service</h3>
         <ol>
             <li>Create the service's ERP item in the Stocks catalogue. Configure the correct sales and VAT posting groups and ensure the item is suitable for service revenue rather than a physical stock item.</li>
-            <li>In Salon setup, add the service code, name, category, duration and salon selling price.</li>
-            <li>Enter the matching ERP POS item code and barcode on the salon service record. The mapping must match an existing stockmaster item exactly.</li>
+            <li>In Salon setup, select the ERP POS item code or barcode. The paired value is populated automatically, and the item description and stock category are displayed from the ERP master. The service code is generated automatically when saved.</li>
+            <li>Enter the salon-specific duration and selling price. Do not create a separate service name or category; maintain those in the ERP stock item master.</li>
             <li>Register the hairdresser and assign the hairdresser to the service under <strong>Staff skills</strong>.</li>
             <li>Create an active commission rule with an effective date. A checkout is rejected if no applicable rule exists for the selected hairdresser and service.</li>
         </ol>
