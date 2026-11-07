@@ -66,7 +66,7 @@ function posShiftItems($mysqli, $shiftId) {
 }
 
 function posShiftAccountingIntegrity($mysqli, $shiftId) {
-    $sql = "SELECT h.documentno,h.total,h.payment_method,
+    $sql = "SELECT h.documentno,h.total,h.payment_method,h.cash,h.change_amount,h.mpesa_phone,
         (SELECT COUNT(*) FROM SalesHeader ih
             WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno) AS invoice_count,
         (SELECT COUNT(*) FROM CustomerStatement cs
@@ -126,8 +126,21 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
         $referenceValid = ($row['payment_method'] === 'MPESA')
             ? (strpos($reference, 'MPESA ') === 0)
             : (($row['payment_method'] === 'CASH') && (strpos($reference, 'POS CASH ') === 0));
+        $cash = ($row['cash'] !== null && is_numeric($row['cash']) && is_finite((float)$row['cash']))
+            ? (float)$row['cash'] : null;
+        $change = ($row['change_amount'] !== null && is_numeric($row['change_amount']) && is_finite((float)$row['change_amount']))
+            ? (float)$row['change_amount'] : null;
+        $paymentAmountsValid = false;
+        if ($row['payment_method'] === 'CASH' && $cash !== null && $change !== null) {
+            $paymentAmountsValid = $cash >= $total && $change >= 0 &&
+                abs(round($cash - $change, 2) - round($total, 2)) < 0.005;
+        } elseif ($row['payment_method'] === 'MPESA' && $cash !== null && $change !== null) {
+            $paymentAmountsValid = abs($cash) < 0.005 && abs($change) < 0.005 &&
+                preg_match('/^254[17][0-9]{8}$/', (string)$row['mpesa_phone']) === 1;
+        }
 
         $valid = $total !== null && is_finite($total) && $total > 0 &&
+            $paymentAmountsValid &&
             (int)$row['invoice_count'] === 1 &&
             (int)$row['invoice_statement_count'] === 1 &&
             (int)$row['invoice_gl_count'] > 0 &&
