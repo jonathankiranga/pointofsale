@@ -186,7 +186,7 @@ $salonMappingColumns = $db->query("SELECT COUNT(*) AS column_count FROM informat
 $salonMappingColumnRow = $salonMappingColumns ? $salonMappingColumns->fetch_assoc() : null;
 if ($salonMappingColumnRow && (int)$salonMappingColumnRow['column_count'] === 2) {
     $salonMappedItemStmt = $db->prepare("SELECT service_id FROM salon_services
-        WHERE pos_itemcode=? AND pos_barcode=? AND is_active=1 LIMIT 1");
+        WHERE pos_itemcode=? AND pos_barcode=? LIMIT 1");
     if (!$salonMappedItemStmt) {
         $productStmt->close();
         posSaveResponse(false, 'Could not validate salon service item mappings.', 500);
