@@ -307,7 +307,8 @@ function CreateRow($D,$N,$M,$M2,$A,$Journal,$cleared){
     // represent an explicit unchecked selection.
     $hasPostedRows = isset($_POST['Cheq']) && is_array($_POST['Cheq']);
     $isChecked = $hasPostedRows
-        ? (isset($_POST['check'][$Journal]) && $_POST['check'][$Journal] === 'on')
+        ? (isset($_POST['check']) && is_array($_POST['check']) &&
+           isset($_POST['check'][$Journal]) && $_POST['check'][$Journal] === 'on')
         : ((int)$cleared === 1);
     $currentStatus = $isChecked ? 'checked="checked"' : 'unchecked="unchecked"';
 
@@ -332,7 +333,8 @@ function CreateRow2($D,$N,$M,$M2,$A,$Journal,$cleared){
 
     $hasPostedRows = isset($_POST['Cheq']) && is_array($_POST['Cheq']);
     $isChecked = $hasPostedRows
-        ? (isset($_POST['check2'][$Journal]) && $_POST['check2'][$Journal] === 'on')
+        ? (isset($_POST['check2']) && is_array($_POST['check2']) &&
+           isset($_POST['check2'][$Journal]) && $_POST['check2'][$Journal] === 'on')
         : ((int)$cleared === 1);
     $currentStatus = $isChecked ? 'checked="checked"' : 'unchecked="unchecked"';
 
