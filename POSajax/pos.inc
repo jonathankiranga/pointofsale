@@ -29,7 +29,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     <link rel="stylesheet" href="POScss/pos-touch.css">
     <script src="javascripts/3.5.1/jquery.min.js"></script>
 </head>
-<body class="pos-touch-mode">
+<body class="pos-touch-mode <?php echo !empty($POSIsSalonTerminal) ? 'salon-pos-mode' : ''; ?>">
     <div class="pos-terminal">
         <header class="pos-topbar">
             <div class="pos-brand">
@@ -83,6 +83,17 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             </div>
         </nav>
 
+        <?php if (!empty($POSIsSalonTerminal)) { ?>
+        <section class="salon-service-picker" aria-label="Salon service catalogue">
+            <div class="salon-service-picker-heading">
+                <div><span class="pos-eyebrow">SALON SERVICE MENU</span><h1>Choose a service and hairdresser</h1></div>
+                <span class="pos-scan-hint">Services are charged through the standard POS payment workflow</span>
+            </div>
+            <div id="salon-service-catalogue" class="salon-service-grid">
+                <div class="pos-empty-hint">Loading salon services...</div>
+            </div>
+        </section>
+        <?php } ?>
         <main class="pos-main">
             <section class="pos-cart-card" aria-label="Current sale">
                 <div class="pos-section-heading">
@@ -235,6 +246,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
 
     <script src="POSajax/posscript.js"></script>
     <script src="POSajax/searchstock.js"></script>
+    <?php if (!empty($POSIsSalonTerminal)) { ?><script src="POSajax/salon-pos.js"></script><?php } ?>
     <script>
         window.POS_VAT_INCLUSIVE = <?php echo (int)$POSVatInclusive; ?>;
         window.POS_FORM_ID = <?php echo json_encode($_SESSION['FormID'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
