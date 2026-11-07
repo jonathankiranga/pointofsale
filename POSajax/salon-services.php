@@ -20,18 +20,17 @@ if (!isset($db) || !($db instanceof mysqli)) {
     exit;
 }
 
-$sql = "SELECT s.service_id,s.service_code,TRIM(sm.descrip) AS service_name,TRIM(sc.categorydescription) AS service_category,
-        s.duration_minutes,s.standard_price,s.pos_itemcode,s.pos_barcode,
+$sql = "SELECT s.service_id,s.service_code,s.service_name,s.service_category,
+        s.duration_minutes,s.standard_price,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode,
         sm.units,vc.vat AS vat_rate,ipg.vatcategory AS tax_category,
         ipg.defaultgl_sales AS sales_account,ipg.defaultgl_vat AS vat_account
     FROM salon_services s
-    INNER JOIN stockmaster sm ON sm.itemcode=s.pos_itemcode AND sm.barcode=s.pos_barcode
-    LEFT JOIN stockcategory sc ON sc.categoryid=sm.category
+    INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey
     INNER JOIN inventorypostinggroup ipg ON ipg.code=sm.postinggroup
     INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
     WHERE s.is_active=1 AND s.pos_itemcode IS NOT NULL AND s.pos_itemcode<>''
       AND s.pos_barcode IS NOT NULL AND s.pos_barcode<>''
-    ORDER BY sc.categorydescription,sm.descrip";
+    ORDER BY s.service_category,s.service_name";
 $result = $db->query($sql);
 if (!$result) {
     http_response_code(500);
