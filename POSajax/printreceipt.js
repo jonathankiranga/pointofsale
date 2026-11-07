@@ -48,6 +48,7 @@ function collectReceiptData(paymentMethod, mpesaPhone, mpesaReference) {
         company: $('#company').text().trim(),
         userlog: $('#userlog').text().trim(),
         docno: $('#cashsaleno').text().trim(),
+        appointmentId: Number($('#sales-table').attr('data-appointment-id')) || 0,
         items: items,
         total: total,
         totalVAT: totalVAT,
