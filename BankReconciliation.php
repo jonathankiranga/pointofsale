@@ -27,41 +27,106 @@ while($row=DB_fetch_array($resultindex)){
     
 if(isset($_POST['SaveRecon'])){
 
-    $ValidBankStatementNo = isset($_POST['bankstno']) && trim((string)$_POST['bankstno']) !== '' && mb_strlen(trim((string)$_POST['bankstno'])) <= 10;
-    $ValidStatementEndDate = isset($_POST['date']) && Is_date($_POST['date']);
-    $ValidBank = isset($_POST['Bank_Code']) && trim((string)$_POST['Bank_Code']) !== '' && isset($banklist[trim((string)$_POST['Bank_Code'])]);
-    $ValidStatementBalance = isset($_POST['bankendbalance']) && trim((string)$_POST['bankendbalance']) !== '' &&
-        is_numeric($_POST['bankendbalance']) && is_finite((float)$_POST['bankendbalance']);
+    $validStatementNo = isset($_POST['bankstno']) &&
+        trim((string)$_POST['bankstno']) !== '' &&
+        ctype_digit(trim((string)$_POST['bankstno'])) &&
+        strlen(trim((string)$_POST['bankstno'])) <= 10;
+    $validStatementDate = isset($_POST['date']) && Is_date($_POST['date']);
+    $validBank = isset($_POST['Bank_Code']) &&
+        trim((string)$_POST['Bank_Code']) !== '' &&
+        isset($banklist[trim((string)$_POST['Bank_Code'])]);
+    $validStatementBalance = isset($_POST['bankendbalance']) &&
+        trim((string)$_POST['bankendbalance']) !== '' &&
+        is_numeric($_POST['bankendbalance']) &&
+        is_finite((float)$_POST['bankendbalance']);
+    $validFormToken = isset($_POST['FormID'], $_SESSION['FormID']) &&
+        hash_equals((string)$_SESSION['FormID'], (string)$_POST['FormID']);
+    $validPageToken = isset($_POST['newreconciliation'], $_SESSION['newreconciliation']) &&
+        (string)$_POST['newreconciliation'] === (string)$_SESSION['newreconciliation'];
 
-    if (!$ValidBankStatementNo) {
-        prnMsg('You need to select a bank statement No','warn');
-    }
-
-    if (!$ValidStatementEndDate) {
+    if (!$validStatementNo) {
+        prnMsg('Enter a valid numeric bank statement number (maximum 10 digits).','warn');
+    } elseif (!$validStatementDate) {
         prnMsg('You need to select a valid bank statement End Date','warn');
-    }
-    if (!$ValidBank) {
+    } elseif (!$validBank) {
         prnMsg('Select a valid bank account before saving the reconciliation','warn');
-    }
-    if (!$ValidStatementBalance) {
+    } elseif (!$validStatementBalance) {
         prnMsg('Enter a valid bank statement closing balance','warn');
-    }
-
-    // Do not continue into reconciliation updates or SQL when required
-    // statement details are missing or invalid.
-    if ($ValidBankStatementNo && $ValidStatementEndDate && $ValidBank && $ValidStatementBalance) {
-        if ($_POST['newreconciliation'] == $_SESSION['newreconciliation']) {
-            if (isset($_POST['Totalcleared']) && trim((string)$_POST['Totalcleared']) !== '' &&
-                is_numeric($_POST['Totalcleared']) && is_finite((float)$_POST['Totalcleared']) &&
-                abs(round((float)$_POST['Totalcleared'], 2) - round((float)$_POST['bankendbalance'], 2)) < 0.005) {
-                UpdateStatus();
-                SaveBankreconciliation();
-                $_GET['new'] = '1';
-            } else {
-                prnMsg('Your Reconciliation does not balance','warn');
+    } elseif (!$validFormToken) {
+        prnMsg('Your security token has expired. Reload the reconciliation page.','warn');
+    } elseif (!$validPageToken) {
+        prnMsg('You cannot resend this page. Reload the reconciliation before saving.','warn');
+    } else {
+        try {
+            if (!$db->begin_transaction()) {
+                throw new Exception('Could not start the bank reconciliation transaction: ' . $db->error);
             }
-        } else {
-            prnMsg('You cannot resend this page. ','warn');
+
+            $bankCode = trim((string)$_POST['Bank_Code']);
+            $bankStmt = $db->prepare("SELECT PostingGroup,lastreconcileddate,lastreconbalance
+                FROM BankAccounts WHERE accountcode=? LIMIT 1 FOR UPDATE");
+            if (!$bankStmt) {
+                throw new Exception('Could not lock the selected bank account: ' . $db->error);
+            }
+            $bankStmt->bind_param('s', $bankCode);
+            if (!$bankStmt->execute()) {
+                throw new Exception('Could not read the selected bank account: ' . $bankStmt->error);
+            }
+            $bankRow = $bankStmt->get_result()->fetch_assoc();
+            $bankStmt->close();
+
+            if (!$bankRow || trim((string)$bankRow['PostingGroup']) === '') {
+                throw new Exception('The selected bank account has no valid posting group.');
+            }
+            if ($bankRow['lastreconbalance'] === null ||
+                trim((string)$bankRow['lastreconbalance']) === '' ||
+                !is_numeric($bankRow['lastreconbalance']) ||
+                !is_finite((float)$bankRow['lastreconbalance'])) {
+                throw new Exception('The bank account opening reconciliation balance is NULL or invalid. Set the correct opening balance before reconciling.');
+            }
+
+            $endDateSQL = FormatDateForSQL($_POST['date']);
+            if ($bankRow['lastreconcileddate'] !== null &&
+                trim((string)$bankRow['lastreconcileddate']) !== '' &&
+                $bankRow['lastreconcileddate'] !== '0000-00-00' &&
+                strtotime($endDateSQL) <= strtotime($bankRow['lastreconcileddate'])) {
+                throw new Exception('The statement end date must be later than the last reconciled date.');
+            }
+
+            $PostingGroup = trim((string)$bankRow['PostingGroup']);
+            $statementstartdate = $bankRow['lastreconcileddate'];
+            $openingBalance = (float)$bankRow['lastreconbalance'];
+
+            // Recalculate the closing balance from locked BankTransactions rows.
+            // The browser's Totalcleared field is display-only and is not trusted.
+            $serverClearedBalance = CalculatePostedReconciliationBalance(
+                $bankCode,
+                $PostingGroup,
+                $openingBalance,
+                $endDateSQL
+            );
+            if (abs(round($serverClearedBalance, 2) - round((float)$_POST['bankendbalance'], 2)) >= 0.005) {
+                throw new Exception('The statement closing balance does not match the selected cashbook transactions. No reconciliation changes were saved.');
+            }
+
+            if (!UpdateStatus()) {
+                throw new Exception('Could not update the cleared status of all selected bank transactions.');
+            }
+            if (!SaveBankreconciliation()) {
+                throw new Exception('Could not save the reconciliation summary and bank account balance.');
+            }
+            if (!$db->commit()) {
+                throw new Exception('Could not commit the bank reconciliation: ' . $db->error);
+            }
+
+            $_SESSION['newreconciliation'] = date('U');
+            $_SESSION['Printreconciliation'] = array();
+            $_GET['new'] = '1';
+            prnMsg('Bank reconciliation saved successfully.','success');
+        } catch (Throwable $e) {
+            $db->rollback();
+            error_log('Bank reconciliation save failed: ' . $e->getMessage());
+            prnMsg($e->getMessage(),'warn');
         }
     }
 
@@ -143,22 +208,45 @@ include('includes/footer.inc');
 
 Function UpdateStatus(){
     Global $db,$PostingGroup;
-    
-    if(isset($_POST['Cheq'])){
-        foreach ($_POST['Cheq'] as $Journal => $value){
-           if($_POST['check'][$Journal]=='on'  ||  $_POST['check2'][$Journal]=='on'){
-                $SQL="Update `BankTransactions` set cleared=1 where `journal`='".$Journal."' and (`bankcode`='".$_POST['Bank_Code']."' or `bankcode`='".$PostingGroup."')";
-                DB_query($SQL,$db);
-            } else {
-               $SQL="Update  `BankTransactions` set cleared=NULL where `journal`='".$Journal."' and (`bankcode`='".$_POST['Bank_Code']."' or `bankcode`='".$PostingGroup."')";
-               DB_query($SQL,$db);
-            }
-       }
+
+    if (!isset($_POST['Cheq']) || !is_array($_POST['Cheq'])) {
+        return true;
     }
-    
-    
+
+    $bankCode = trim((string)$_POST['Bank_Code']);
+    $clearStmt = $db->prepare("UPDATE BankTransactions SET cleared=1
+        WHERE journal=? AND (bankcode=? OR bankcode=?) AND reconciled IS NULL");
+    $unclearStmt = $db->prepare("UPDATE BankTransactions SET cleared=NULL
+        WHERE journal=? AND (bankcode=? OR bankcode=?) AND reconciled IS NULL");
+    if (!$clearStmt || !$unclearStmt) {
+        if ($clearStmt) { $clearStmt->close(); }
+        if ($unclearStmt) { $unclearStmt->close(); }
+        return false;
+    }
+
+    foreach ($_POST['Cheq'] as $journal => $value) {
+        $journal = trim((string)$journal);
+        if ($journal === '') {
+            $clearStmt->close();
+            $unclearStmt->close();
+            return false;
+        }
+        $selected = (isset($_POST['check'][$journal]) && $_POST['check'][$journal] === 'on') ||
+                    (isset($_POST['check2'][$journal]) && $_POST['check2'][$journal] === 'on');
+        $stmt = $selected ? $clearStmt : $unclearStmt;
+        $stmt->bind_param('sss', $journal, $bankCode, $PostingGroup);
+        if (!$stmt->execute()) {
+            $clearStmt->close();
+            $unclearStmt->close();
+            return false;
+        }
+    }
+
+    $clearStmt->close();
+    $unclearStmt->close();
+    return true;
 }
- 
+
 function constructBanks() {
    Global $db,$banklist;
 
@@ -203,8 +291,8 @@ function constructBanks() {
 function CreateRow($D,$N,$M,$M2,$A,$Journal,$cleared){
     Global $DRamount,$Uncleared;
 
-    // Rendering rows must never modify the cashbook. A missing checkbox in a
-    // submitted form means the user deliberately left that transaction clear.
+    // Rendering rows is read-only. Missing checkboxes on a submitted form
+    // represent an explicit unchecked selection.
     $hasPostedRows = isset($_POST['Cheq']) && is_array($_POST['Cheq']);
     $isChecked = $hasPostedRows
         ? (isset($_POST['check'][$Journal]) && $_POST['check'][$Journal] === 'on')
@@ -217,22 +305,19 @@ function CreateRow($D,$N,$M,$M2,$A,$Journal,$cleared){
         $Uncleared += (float)$A;
     }
 
-    
-    
-   return SprintF('<tr>'
+    return SprintF('<tr>'
             . '<td>%s</td>'
-            . '<td>%s<input type="hidden" name="Cheq[%s]" value="%s"/></td>' 
+            . '<td>%s<input type="hidden" name="Cheq[%s]" value="%s"/></td>'
             . '<td>%s</td>'
             . '<td>%s</td>'
             . '<td class="number"><input type="text" class="number" name="Amount[%s]" value="%s" size="10" readonly="readonly"/></td>'
-            . '<td><input type="checkbox" name="check[%s]" %s  onchange="GetDBCleared(%s,this)"/></td>'
-            . '</tr>',$D,$N,$Journal,$N,$M,$M2, $Journal,number_format(abs($A),2),$Journal,$currentStatus,$A);
+            . '<td><input type="checkbox" name="check[%s]" %s onchange="GetDBCleared(%s,this)"/></td>'
+            . '</tr>',$D,$N,$Journal,$N,$M,$M2,$Journal,number_format(abs($A),2),$Journal,$currentStatus,$A);
 }
 
 function CreateRow2($D,$N,$M,$M2,$A,$Journal,$cleared){
     Global $CRamount,$Uncleared;
 
-    // Keep display rendering read-only; selection is persisted only by SaveRecon.
     $hasPostedRows = isset($_POST['Cheq']) && is_array($_POST['Cheq']);
     $isChecked = $hasPostedRows
         ? (isset($_POST['check2'][$Journal]) && $_POST['check2'][$Journal] === 'on')
@@ -244,14 +329,14 @@ function CreateRow2($D,$N,$M,$M2,$A,$Journal,$cleared){
     }else{
         $Uncleared += (float)$A;
     }
-    
+
     return SprintF('<tr>'
             . '<td>%s</td>'
-            . '<td>%s<input type="hidden"  name="Cheq[%s]" value="%s"/></td>' 
+            . '<td>%s<input type="hidden" name="Cheq[%s]" value="%s"/></td>'
             . '<td>%s</td>'
             . '<td>%s</td>'
             . '<td class="number"><input type="text" class="number" name="Amount[%s]" value="%s" size="10" readonly="readonly"/></td>'
-            . '<td><input type="checkbox" name="check2[%s]" %s  onchange="GetCRCleared(%s,this)" /></td>'
+            . '<td><input type="checkbox" name="check2[%s]" %s onchange="GetCRCleared(%s,this)"/></td>'
             . '</tr>', $D,$N,$Journal,$N,$M,$M2,$Journal,number_format(abs($A),2),$Journal,$currentStatus,$A);
 }
 
@@ -366,7 +451,194 @@ function UpdateCashbook($SQLREC=array()){
     
     
    }
-    
+    function Insert($StatementNo,$bankcode,$narration,$amount=''){
+    global $db;
+
+    $StatementNo = mysqli_real_escape_string($db, (string)$StatementNo);
+    $bankcode = mysqli_real_escape_string($db, (string)$bankcode);
+    $narration = mysqli_real_escape_string($db, (string)$narration);
+
+    if ($amount !== '' && is_numeric($amount) && is_finite((float)$amount)) {
+        return sprintf("INSERT INTO BankReconciliation (StatementNo,bankcode,narration,amount)
+            VALUES ('%s','%s','%s',%.2f)", $StatementNo, $bankcode, $narration, (float)$amount);
+    }
+
+    return sprintf("INSERT INTO BankReconciliation (StatementNo,bankcode,narration)
+        VALUES ('%s','%s','%s')", $StatementNo, $bankcode, $narration);
+}
+
+function IsReconciliationJournalSelected($journal){
+    return (isset($_POST['check'][$journal]) && $_POST['check'][$journal] === 'on') ||
+           (isset($_POST['check2'][$journal]) && $_POST['check2'][$journal] === 'on');
+}
+
+function CalculatePostedReconciliationBalance($bankCode,$postingGroup,$openingBalance,$endDateSQL){
+    global $db;
+
+    if (!isset($_POST['Cheq']) || !is_array($_POST['Cheq'])) {
+        return round((float)$openingBalance, 2);
+    }
+
+    $stmt = $db->prepare("SELECT amount,DocDate,reconciled FROM BankTransactions
+        WHERE journal=? AND (bankcode=? OR bankcode=?) FOR UPDATE");
+    if (!$stmt) {
+        throw new Exception('Could not prepare bank transaction verification: ' . $db->error);
+    }
+
+    $balance = (float)$openingBalance;
+    foreach ($_POST['Cheq'] as $journal => $documentNo) {
+        $journal = trim((string)$journal);
+        if ($journal === '') {
+            $stmt->close();
+            throw new Exception('A bank transaction has an empty journal number.');
+        }
+
+        $stmt->bind_param('sss', $journal, $bankCode, $postingGroup);
+        if (!$stmt->execute()) {
+            $error = $stmt->error;
+            $stmt->close();
+            throw new Exception('Could not verify a selected bank transaction: ' . $error);
+        }
+        $result = $stmt->get_result();
+        if ($result->num_rows !== 1) {
+            $stmt->close();
+            throw new Exception('A displayed bank transaction is missing or has an ambiguous journal number. Refresh the reconciliation before saving.');
+        }
+        $row = $result->fetch_assoc();
+        if ($row['reconciled'] !== null && trim((string)$row['reconciled']) !== '') {
+            $stmt->close();
+            throw new Exception('A transaction in this statement has already been reconciled. Refresh the reconciliation.');
+        }
+        if ($row['amount'] === null || !is_numeric($row['amount']) ||
+            !is_finite((float)$row['amount']) || $row['DocDate'] === null ||
+            strtotime($row['DocDate']) === false || strtotime($row['DocDate']) > strtotime($endDateSQL . ' 23:59:59')) {
+            $stmt->close();
+            throw new Exception('A bank transaction contains a NULL or invalid amount/date, or falls after the statement end date.');
+        }
+
+        if (IsReconciliationJournalSelected($journal)) {
+            $balance += (float)$row['amount'];
+        }
+    }
+
+    $stmt->close();
+    return round($balance, 2);
+}
+
+function SaveBankreconciliation(){
+    global $db,$PostingGroup;
+
+    $bankCode = trim((string)$_POST['Bank_Code']);
+    $statementNo = (int)$_POST['bankstno'] + 1;
+    $statementDate = FormatDateForSQL($_POST['date']);
+    $statementBalance = round((float)$_POST['bankendbalance'], 2);
+
+    if (isset($_POST['Cheq']) && is_array($_POST['Cheq'])) {
+        $stmt = $db->prepare("UPDATE BankTransactions SET reconciled='R'
+            WHERE journal=? AND (bankcode=? OR bankcode=?) AND reconciled IS NULL");
+        if (!$stmt) { return false; }
+
+        foreach ($_POST['Cheq'] as $journal => $documentNo) {
+            $journal = trim((string)$journal);
+            if (IsReconciliationJournalSelected($journal)) {
+                $stmt->bind_param('sss', $journal, $bankCode, $PostingGroup);
+                if (!$stmt->execute() || $stmt->affected_rows !== 1) {
+                    $stmt->close();
+                    return false;
+                }
+            }
+        }
+        $stmt->close();
+    }
+
+    $bankUpdate = $db->prepare("UPDATE BankAccounts
+        SET StatementNo=?,lastreconcileddate=?,lastreconbalance=?
+        WHERE accountcode=?");
+    if (!$bankUpdate) { return false; }
+    $bankUpdate->bind_param('isds', $statementNo, $statementDate, $statementBalance, $bankCode);
+    if (!$bankUpdate->execute() || $bankUpdate->affected_rows !== 1) {
+        $bankUpdate->close();
+        return false;
+    }
+    $bankUpdate->close();
+
+    return UpdateCashbook();
+}
+
+function UpdateCashbook(){
+    global $db,$PostingGroup;
+
+    $bankCode = trim((string)$_POST['Bank_Code']);
+    $statementNo = trim((string)$_POST['bankstno']);
+    $statementDate = FormatDateForSQL($_POST['date']);
+    $statementBalance = round((float)$_POST['bankendbalance'], 2);
+
+    $date = array();
+    $date2 = array();
+    $amount = array();
+    $amount2 = array();
+    $narration = array();
+    $narration2 = array();
+    $totalDebit = 0.00;
+    $totalCredit = 0.00;
+
+    $stmt = $db->prepare("SELECT DocDate,amount,journal,narrative
+        FROM BankTransactions
+        WHERE (bankcode=? OR bankcode=?)
+          AND cleared IS NULL AND DocDate<=?");
+    if (!$stmt) { return false; }
+    $stmt->bind_param('sss', $bankCode, $PostingGroup, $statementDate);
+    if (!$stmt->execute()) { $stmt->close(); return false; }
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        if ($row['amount'] === null || !is_numeric($row['amount']) ||
+            !is_finite((float)$row['amount']) || $row['DocDate'] === null) {
+            $stmt->close();
+            return false;
+        }
+        $journal = (string)$row['journal'];
+        if ((float)$row['amount'] > 0) {
+            $date[$journal] = $row['DocDate'];
+            $amount[$journal] = abs((float)$row['amount']);
+            $narration[$journal] = trim((string)$row['narrative']);
+            $totalDebit += (float)$row['amount'];
+        } elseif ((float)$row['amount'] < 0) {
+            $date2[$journal] = $row['DocDate'];
+            $amount2[$journal] = abs((float)$row['amount']);
+            $narration2[$journal] = trim((string)$row['narrative']);
+            $totalCredit += (float)$row['amount'];
+        }
+    }
+    $stmt->close();
+
+    $sql = array();
+    $sql[] = Insert($statementNo,$bankCode,'Reconciliation As at '.$_POST['date']);
+    $sql[] = Insert($statementNo,$bankCode,'Bank Statement Balance',$statementBalance);
+    $sql[] = Insert($statementNo,$bankCode,'ADD: Uncredited Cheques');
+    foreach ($date as $journal => $docDate) {
+        $sql[] = Insert($statementNo,$bankCode,$date[$journal].' '.$narration[$journal],$amount[$journal]);
+    }
+    $sql[] = Insert($statementNo,$bankCode,'Total Uncredited Cheques',$totalDebit);
+    $sql[] = Insert($statementNo,$bankCode,'LESS: Unpresented Cheques');
+    foreach ($date2 as $journal => $docDate) {
+        $sql[] = Insert($statementNo,$bankCode,$date2[$journal].' '.$narration2[$journal],$amount2[$journal]);
+    }
+    $sql[] = Insert($statementNo,$bankCode,'Total Unpresented Cheques',$totalCredit);
+    $sql[] = Insert($statementNo,$bankCode,'Balance as Per Cash Book',
+        $statementBalance + $totalDebit + $totalCredit);
+
+    foreach ($sql as $query) {
+        $result = DB_query($query,$db,'','',false,false);
+        if (!$result || $db->errno !== 0 || $db->affected_rows !== 1) {
+            return false;
+        }
+    }
+
+    $_SESSION['newreconciliation'] = date('U');
+    return true;
+}
+
 Function GetClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
 
