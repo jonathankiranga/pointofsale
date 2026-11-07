@@ -11,6 +11,7 @@ include('includes/budgetbalance.php');
 include('includes/chartbalancing.inc');
 
 Global $statementstartdate, $DRamount, $CRamount,$tableObject, $PostingGroup,$Uncleared;
+$bankReconSequenceLockAcquired = false;
 
 $_POST['date'] = isset($_POST['date']) ? trim($_POST['date']) : '';
 
@@ -117,6 +118,10 @@ if(isset($_POST['SaveRecon'])){
             if (!$db->commit()) {
                 throw new Exception('Could not commit the bank reconciliation: ' . $db->error);
             }
+            if ($bankReconSequenceLockAcquired) {
+                $db->query("SELECT RELEASE_LOCK('bankreconciliation_pkey')");
+                $bankReconSequenceLockAcquired = false;
+            }
 
             $_SESSION['newreconciliation'] = date('U');
             $_SESSION['Printreconciliation'] = array();
@@ -124,6 +129,10 @@ if(isset($_POST['SaveRecon'])){
             prnMsg('Bank reconciliation saved successfully.','success');
         } catch (Throwable $e) {
             $db->rollback();
+            if ($bankReconSequenceLockAcquired) {
+                $db->query("SELECT RELEASE_LOCK('bankreconciliation_pkey')");
+                $bankReconSequenceLockAcquired = false;
+            }
             error_log('Bank reconciliation save failed: ' . $e->getMessage());
             prnMsg($e->getMessage(),'warn');
         }
@@ -339,20 +348,24 @@ function CreateRow2($D,$N,$M,$M2,$A,$Journal,$cleared){
             . '</tr>', $D,$N,$Journal,$N,$M,$M2,$Journal,number_format(abs($A),2),$Journal,$currentStatus,$A);
 }
 
-function Insert($StatementNo,$bankcode,$narration,$amount=''){
+function Insert($pkey,$StatementNo,$bankcode,$narration,$amount=''){
     global $db;
 
+    $pkey = (int)$pkey;
+    if ($pkey < 1) {
+        throw new Exception('Could not allocate a valid bank reconciliation detail ID.');
+    }
     $StatementNo = mysqli_real_escape_string($db, (string)$StatementNo);
     $bankcode = mysqli_real_escape_string($db, (string)$bankcode);
     $narration = mysqli_real_escape_string($db, (string)$narration);
 
     if ($amount !== '' && is_numeric($amount) && is_finite((float)$amount)) {
-        return sprintf("INSERT INTO BankReconciliation (StatementNo,bankcode,narration,amount)
-            VALUES ('%s','%s','%s',%.2f)", $StatementNo, $bankcode, $narration, (float)$amount);
+        return sprintf("INSERT INTO BankReconciliation (pkey,StatementNo,bankcode,narration,amount)
+            VALUES (%d,'%s','%s','%s',%.2f)", $pkey, $StatementNo, $bankcode, $narration, (float)$amount);
     }
 
-    return sprintf("INSERT INTO BankReconciliation (StatementNo,bankcode,narration)
-        VALUES ('%s','%s','%s')", $StatementNo, $bankcode, $narration);
+    return sprintf("INSERT INTO BankReconciliation (pkey,StatementNo,bankcode,narration)
+        VALUES (%d,'%s','%s','%s')", $pkey, $StatementNo, $bankcode, $narration);
 }
 
 function IsReconciliationJournalSelected($journal){
@@ -478,7 +491,7 @@ function SaveBankreconciliation(){
 }
 
 function UpdateCashbook(){
-    global $db;
+    global $db,$bankReconSequenceLockAcquired;
 
     $bankCode = trim((string)$_POST['Bank_Code']);
     $statementNo = trim((string)$_POST['bankstno']);
@@ -524,9 +537,23 @@ function UpdateCashbook(){
     }
     $stmt->close();
 
+    $lockResult = $db->query("SELECT GET_LOCK('bankreconciliation_pkey',10) AS lock_ok");
+    $lockRow = $lockResult ? $lockResult->fetch_assoc() : null;
+    if (!$lockRow || (int)$lockRow['lock_ok'] !== 1) {
+        return false;
+    }
+    $bankReconSequenceLockAcquired = true;
+
+    $maxResult = $db->query("SELECT COALESCE(MAX(pkey),0) AS max_id FROM BankReconciliation");
+    $maxRow = $maxResult ? $maxResult->fetch_assoc() : null;
+    if (!$maxRow || !is_numeric($maxRow['max_id'])) {
+        return false;
+    }
+    $nextPkey = (int)$maxRow['max_id'] + 1;
+
     $sql = array();
-    $sql[] = Insert($statementNo,$bankCode,'Reconciliation As at '.$_POST['date']);
-    $sql[] = Insert($statementNo,$bankCode,'Bank Statement Balance',$statementBalance);
+    $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'Reconciliation As at '.$_POST['date']);
+    $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'Bank Statement Balance',$statementBalance);
     $sql[] = Insert($statementNo,$bankCode,'ADD: Uncredited Cheques');
     foreach ($date as $journal => $docDate) {
         $sql[] = Insert($statementNo,$bankCode,$date[$journal].' '.$narration[$journal],$amount[$journal]);
