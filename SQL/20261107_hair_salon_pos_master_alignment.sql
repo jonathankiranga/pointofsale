@@ -1,5 +1,5 @@
 -- Enforce a real database relationship between each salon service and
--- the ERP stockmaster record that supplies its POS item code and barcode.
+-- the ERP stockmaster record identified by its POS item code.
 --
 -- Apply after SQL/20261107_hair_salon_pos_item_mapping.sql.
 --
@@ -20,23 +20,20 @@ ALTER TABLE stockmaster
 ALTER TABLE salon_services
     ADD COLUMN stockmaster_pkey BIGINT DEFAULT NULL AFTER pos_barcode;
 
--- Link existing service mappings to the exact stockmaster row. Only
--- unambiguous legacy itemcode/barcode pairs are backfilled. If a pair
--- identifies multiple stockmaster rows, it remains unlinked for manual selection.
+-- Link existing service mappings to the exact stockmaster row by itemcode.
+-- Barcode is optional for salon services. Only unambiguous itemcodes are
+-- backfilled; duplicate itemcodes remain unlinked for manual selection.
 UPDATE salon_services s
 INNER JOIN (
-    SELECT itemcode, barcode, MIN(pkey) AS stockmaster_pkey
+    SELECT itemcode, MIN(pkey) AS stockmaster_pkey
     FROM stockmaster
     WHERE itemcode IS NOT NULL AND itemcode <> ''
-      AND barcode IS NOT NULL AND barcode <> ''
-    GROUP BY itemcode, barcode
+    GROUP BY itemcode
     HAVING COUNT(*) = 1
 ) sm
     ON sm.itemcode = s.pos_itemcode
-   AND sm.barcode = s.pos_barcode
 SET s.stockmaster_pkey = sm.stockmaster_pkey
-WHERE s.pos_itemcode IS NOT NULL AND s.pos_itemcode <> ''
-  AND s.pos_barcode IS NOT NULL AND s.pos_barcode <> '';
+WHERE s.pos_itemcode IS NOT NULL AND s.pos_itemcode <> '';
 
 -- Remove the copied item-code/barcode columns. The stockmaster row is now
 -- the sole source of those identifiers, so they cannot drift out of sync.
