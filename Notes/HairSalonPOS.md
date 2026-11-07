@@ -4,12 +4,12 @@ The salon-specific work is isolated on `feature/hair-salon-pos`. The standard PO
 
 ## Database setup
 
-Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company database. Then apply the item-mapping and master-alignment migrations. The alignment migration regenerates existing service codes from their IDs and backfills mapped salon service names and categories from ERP stockmaster data.
+Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company database. Then apply the item-mapping and master-alignment migrations. The alignment migration adds a database foreign key from each salon service to its ERP stockmaster row; it does not overwrite the manually maintained service code, name or category.
 
 ## Foundation tables
 
 - `salon_hairdressers`: salon staff roster and active/inactive status.
-- `salon_services`: salon-specific duration, salon selling price, description/notes, ERP item mapping and generated internal service reference. The service name is read from `stockmaster.descrip`; its category is read from `stockcategory.categorydescription`.
+- `salon_services`: manually maintained service code, service name and category, salon-specific duration and selling price, description/notes, plus a foreign-key reference to the selected ERP stockmaster row.
 - `salon_hairdresser_services`: which services each hairdresser is qualified/assigned to perform.
 - `salon_commission_rules`: percentage or fixed commission rules. A rule may be global, service-specific, hairdresser-specific, or specific to one hairdresser/service combination.
 - `salon_service_commissions`: transaction-level commission snapshot and payout/reversal status.
@@ -49,10 +49,12 @@ Cancelled and no-show appointments cannot be started. Appointments that have sta
 
 ## ERP item master and salon service setup
 
-Create the service as an ERP stock item first. The ERP stock item is the POS transaction identity: its item code is written to the POS sales line and its posting group/VAT configuration drives accounting. The stock item description supplies the salon service name, and its `stockmaster.category` is resolved through `stockcategory` to supply the category description.
+The salon service form keeps its service code, service name and category editable. These are salon-facing business fields and may differ from the ERP stock item description or stock category.
 
-In Salon Management, select the ERP item code or barcode; the paired selector and read-only description/category fields are populated from the same stock item. Do not manually enter a separate service name or category. The salon service code is generated from the new `service_id` when the service is saved. Duration, salon selling price, salon notes, staff assignments and commission rules remain salon-specific.
+Select the ERP item code or barcode to link the salon service to an existing stockmaster record. The paired selector follows the selected stock item. The POS uses the ERP stock item code for the sales line and obtains its units, VAT and posting configuration from that stockmaster record. The salon service name is used as the service description on the POS sales line.
 
-Apply `SQL/20261107_hair_salon_pos_master_alignment.sql` once after `SQL/20261107_hair_salon_pos_item_mapping.sql` to regenerate existing service codes and synchronise mapped service names and categories from the ERP master.
+The database relationship is stored using `stockmaster.pkey`, not a copied item-code string. The master-alignment migration adds a unique key to `stockmaster.pkey`, adds `salon_services.stockmaster_pkey`, backfills existing mappings, and creates a foreign key with `ON DELETE RESTRICT` and `ON UPDATE RESTRICT`. A unique key on the salon service reference prevents one ERP stock item from being assigned to multiple salon services. This prevents deletion or identity-key changes to a stock item while a salon service references it.
+
+Apply `SQL/20261107_hair_salon_pos_master_alignment.sql` once after `SQL/20261107_hair_salon_pos_item_mapping.sql`. The migration preserves service codes, names and categories. It requires existing `stockmaster.pkey` values to be unique; resolve any duplicate pkey values before running it.
 
 Appointment customer names are recorded on the POS sales header while the existing configured POS debtor/customer account remains the accounting customer. If individual debtor-account posting is required per salon customer, the appointment booking form must later be connected to the ERP debtor master rather than using free-text customer names.
