@@ -101,7 +101,6 @@ if(isset($_POST['SaveRecon'])){
             // The browser's Totalcleared field is display-only and is not trusted.
             $serverClearedBalance = CalculatePostedReconciliationBalance(
                 $bankCode,
-                $PostingGroup,
                 $openingBalance,
                 $endDateSQL
             );
@@ -207,7 +206,7 @@ echo '</div></form>' ;
 include('includes/footer.inc');
 
 Function UpdateStatus(){
-    Global $db,$PostingGroup;
+    Global $db;
 
     if (!isset($_POST['Cheq']) || !is_array($_POST['Cheq'])) {
         return true;
@@ -215,9 +214,9 @@ Function UpdateStatus(){
 
     $bankCode = trim((string)$_POST['Bank_Code']);
     $clearStmt = $db->prepare("UPDATE BankTransactions SET cleared=1
-        WHERE journal=? AND (bankcode=? OR bankcode=?) AND reconciled IS NULL");
+        WHERE journal=? AND bankcode=? AND reconciled IS NULL");
     $unclearStmt = $db->prepare("UPDATE BankTransactions SET cleared=NULL
-        WHERE journal=? AND (bankcode=? OR bankcode=?) AND reconciled IS NULL");
+        WHERE journal=? AND bankcode=? AND reconciled IS NULL");
     if (!$clearStmt || !$unclearStmt) {
         if ($clearStmt) { $clearStmt->close(); }
         if ($unclearStmt) { $unclearStmt->close(); }
@@ -234,7 +233,7 @@ Function UpdateStatus(){
         $selected = (isset($_POST['check'][$journal]) && $_POST['check'][$journal] === 'on') ||
                     (isset($_POST['check2'][$journal]) && $_POST['check2'][$journal] === 'on');
         $stmt = $selected ? $clearStmt : $unclearStmt;
-        $stmt->bind_param('sss', $journal, $bankCode, $PostingGroup);
+        $stmt->bind_param('ss', $journal, $bankCode);
         if (!$stmt->execute()) {
             $clearStmt->close();
             $unclearStmt->close();
@@ -361,7 +360,7 @@ function IsReconciliationJournalSelected($journal){
            (isset($_POST['check2'][$journal]) && $_POST['check2'][$journal] === 'on');
 }
 
-function CalculatePostedReconciliationBalance($bankCode,$postingGroup,$openingBalance,$endDateSQL){
+function CalculatePostedReconciliationBalance($bankCode,$openingBalance,$endDateSQL){
     global $db;
 
     if (!isset($_POST['Cheq']) || !is_array($_POST['Cheq'])) {
@@ -369,7 +368,7 @@ function CalculatePostedReconciliationBalance($bankCode,$postingGroup,$openingBa
     }
 
     $stmt = $db->prepare("SELECT amount,DocDate,reconciled FROM BankTransactions
-        WHERE journal=? AND (bankcode=? OR bankcode=?) FOR UPDATE");
+        WHERE journal=? AND bankcode=? FOR UPDATE");
     if (!$stmt) {
         throw new Exception('Could not prepare bank transaction verification: ' . $db->error);
     }
@@ -382,7 +381,7 @@ function CalculatePostedReconciliationBalance($bankCode,$postingGroup,$openingBa
             throw new Exception('A bank transaction has an empty journal number.');
         }
 
-        $stmt->bind_param('sss', $journal, $bankCode, $postingGroup);
+        $stmt->bind_param('ss', $journal, $bankCode);
         if (!$stmt->execute()) {
             $error = $stmt->error;
             $stmt->close();
@@ -415,7 +414,7 @@ function CalculatePostedReconciliationBalance($bankCode,$postingGroup,$openingBa
 }
 
 function SaveBankreconciliation(){
-    global $db,$PostingGroup;
+    global $db;
 
     $bankCode = trim((string)$_POST['Bank_Code']);
     $statementNo = (int)$_POST['bankstno'] + 1;
@@ -424,13 +423,13 @@ function SaveBankreconciliation(){
 
     if (isset($_POST['Cheq']) && is_array($_POST['Cheq'])) {
         $stmt = $db->prepare("UPDATE BankTransactions SET reconciled='R'
-            WHERE journal=? AND (bankcode=? OR bankcode=?) AND reconciled IS NULL");
+            WHERE journal=? AND bankcode=? AND reconciled IS NULL");
         if (!$stmt) { return false; }
 
         foreach ($_POST['Cheq'] as $journal => $documentNo) {
             $journal = trim((string)$journal);
             if (IsReconciliationJournalSelected($journal)) {
-                $stmt->bind_param('sss', $journal, $bankCode, $PostingGroup);
+                $stmt->bind_param('ss', $journal, $bankCode);
                 if (!$stmt->execute() || $stmt->affected_rows !== 1) {
                     $stmt->close();
                     return false;
@@ -455,7 +454,7 @@ function SaveBankreconciliation(){
 }
 
 function UpdateCashbook(){
-    global $db,$PostingGroup;
+    global $db;
 
     $bankCode = trim((string)$_POST['Bank_Code']);
     $statementNo = trim((string)$_POST['bankstno']);
@@ -473,10 +472,9 @@ function UpdateCashbook(){
 
     $stmt = $db->prepare("SELECT DocDate,amount,journal,narrative
         FROM BankTransactions
-        WHERE (bankcode=? OR bankcode=?)
-          AND cleared IS NULL AND DocDate<=?");
+        WHERE bankcode=? AND cleared IS NULL AND DocDate<=?");
     if (!$stmt) { return false; }
-    $stmt->bind_param('sss', $bankCode, $PostingGroup, $statementDate);
+    $stmt->bind_param('ss', $bankCode, $statementDate);
     if (!$stmt->execute()) { $stmt->close(); return false; }
     $result = $stmt->get_result();
 
@@ -531,7 +529,7 @@ Function GetClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
 
     $SQL = "Select COALESCE(sum(`amount`),0) from `BankTransactions`"
-         . " where (`bankcode`='" . $_POST['Bank_Code'] . "' or `bankcode`='" . $PostingGroup . "')"
+         . " where `bankcode`='" . mysqli_real_escape_string($db, (string)$_POST['Bank_Code']) . "'"
          . " and `cleared`=1";
 
     // A bank account may not have been reconciled before. In that case
@@ -550,7 +548,7 @@ Function GetUnClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
 
     $SQL = "Select COALESCE(sum(`amount`),0) from `BankTransactions`"
-         . " where (`bankcode`='" . $_POST['Bank_Code'] . "' or `bankcode`='" . $PostingGroup . "')"
+         . " where `bankcode`='" . mysqli_real_escape_string($db, (string)$_POST['Bank_Code']) . "'"
          . " and (`cleared`=0 or `cleared` is null)";
 
     // Apply the same cutoff rule as GetClearedDB().
