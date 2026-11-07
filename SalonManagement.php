@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = salon_exec($db, "UPDATE salon_services SET service_code=?,service_name=?,service_category=?,description=?,duration_minutes=?,standard_price=?,stockmaster_pkey=?,is_active=? WHERE service_id=?", 'ssssidiii', array($code,$name,$category,$description,$duration,(float)$price,$stockmasterPkey,$active,$id));
                     $stmt->close();
                 } else {
-                    $stmt = salon_exec($db, "INSERT INTO salon_services (service_code,service_name,service_category,description,duration_minutes,standard_price,stockmaster_pkey,is_active) VALUES (?,?,?,?,?,?,?,?)", 'ssssidis', array($code,$name,$category,$description,$duration,(float)$price,$stockmasterPkey,$active));
+                    $stmt = salon_exec($db, "INSERT INTO salon_services (service_code,service_name,service_category,description,duration_minutes,standard_price,stockmaster_pkey,is_active) VALUES (?,?,?,?,?,?,?,?)", 'ssssidii', array($code,$name,$category,$description,$duration,(float)$price,$stockmasterPkey,$active));
                     $stmt->close();
                 }
                 $notice = 'Salon service saved.';
