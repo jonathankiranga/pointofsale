@@ -515,6 +515,9 @@ try {
                 throw new Exception('Could not resolve the salon commission rule: ' . $commissionRuleStmt->error);
             }
             $commissionRule = $commissionRuleStmt->get_result()->fetch_assoc();
+            if (!$commissionRule) {
+                throw new Exception('No active commission rule applies to ' . $saleLine['description'] . ' for the selected hairdresser. Configure a rule before completing this service sale.');
+            }
             if ($commissionRule) {
                 $commissionType = $commissionRule['commission_type'];
                 $commissionValue = (float)$commissionRule['commission_value'];
@@ -522,7 +525,7 @@ try {
                     ? round($eligibleAmount * $commissionValue / 100, 2)
                     : round($commissionValue * $quantity, 2);
                 $commissionLineSequence = $saleLineSequence;
-                $commissionInsertStmt->bind_param('siiiidsdd', $docno, $commissionLineSequence,
+                $commissionInsertStmt->bind_param('siiiddsdd', $docno, $commissionLineSequence,
                     $serviceId, $hairdresserId, $quantity, $eligibleAmount, $commissionType,
                     $commissionValue, $commissionAmount);
                 if (!$commissionInsertStmt->execute()) {
