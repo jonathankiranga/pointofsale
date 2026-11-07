@@ -27,8 +27,11 @@ while($row=DB_fetch_array($resultindex)){
     
 if(isset($_POST['SaveRecon'])){
 
-    $ValidBankStatementNo = isset($_POST['bankstno']) && mb_strlen(trim($_POST['bankstno'])) > 0;
+    $ValidBankStatementNo = isset($_POST['bankstno']) && trim((string)$_POST['bankstno']) !== '' && mb_strlen(trim((string)$_POST['bankstno'])) <= 10;
     $ValidStatementEndDate = isset($_POST['date']) && Is_date($_POST['date']);
+    $ValidBank = isset($_POST['Bank_Code']) && trim((string)$_POST['Bank_Code']) !== '' && isset($banklist[trim((string)$_POST['Bank_Code'])]);
+    $ValidStatementBalance = isset($_POST['bankendbalance']) && trim((string)$_POST['bankendbalance']) !== '' &&
+        is_numeric($_POST['bankendbalance']) && is_finite((float)$_POST['bankendbalance']);
 
     if (!$ValidBankStatementNo) {
         prnMsg('You need to select a bank statement No','warn');
@@ -37,13 +40,20 @@ if(isset($_POST['SaveRecon'])){
     if (!$ValidStatementEndDate) {
         prnMsg('You need to select a valid bank statement End Date','warn');
     }
+    if (!$ValidBank) {
+        prnMsg('Select a valid bank account before saving the reconciliation','warn');
+    }
+    if (!$ValidStatementBalance) {
+        prnMsg('Enter a valid bank statement closing balance','warn');
+    }
 
     // Do not continue into reconciliation updates or SQL when required
-    // statement details are missing or the supplied date is invalid.
-    if ($ValidBankStatementNo && $ValidStatementEndDate) {
+    // statement details are missing or invalid.
+    if ($ValidBankStatementNo && $ValidStatementEndDate && $ValidBank && $ValidStatementBalance) {
         if ($_POST['newreconciliation'] == $_SESSION['newreconciliation']) {
-            if (isset($_POST['Totalcleared'], $_POST['bankendbalance']) &&
-                (float)$_POST['Totalcleared'] == (float)$_POST['bankendbalance']) {
+            if (isset($_POST['Totalcleared']) && trim((string)$_POST['Totalcleared']) !== '' &&
+                is_numeric($_POST['Totalcleared']) && is_finite((float)$_POST['Totalcleared']) &&
+                abs(round((float)$_POST['Totalcleared'], 2) - round((float)$_POST['bankendbalance'], 2)) < 0.005) {
                 UpdateStatus();
                 SaveBankreconciliation();
                 $_GET['new'] = '1';
@@ -367,7 +377,7 @@ function UpdateCashbook($SQLREC=array()){
 Function GetClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
 
-    $SQL = "Select sum(`amount`) from `BankTransactions`"
+    $SQL = "Select COALESCE(sum(`amount`),0) from `BankTransactions`"
          . " where (`bankcode`='" . $_POST['Bank_Code'] . "' or `bankcode`='" . $PostingGroup . "')"
          . " and `cleared`=1";
 
@@ -386,7 +396,7 @@ Function GetClearedDB(){
 Function GetUnClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
 
-    $SQL = "Select sum(`amount`) from `BankTransactions`"
+    $SQL = "Select COALESCE(sum(`amount`),0) from `BankTransactions`"
          . " where (`bankcode`='" . $_POST['Bank_Code'] . "' or `bankcode`='" . $PostingGroup . "')"
          . " and (`cleared`=0 or `cleared` is null)";
 
