@@ -57,12 +57,12 @@ if(isset($_POST['importexcel'])){
         }else{
             try{
                 $reader = ($extension === 'xls')
-                    ? new \PhpOffice\\PhpSpreadsheet\\Reader\\Xls()
-                    : new \PhpOffice\\PhpSpreadsheet\\Reader\\Xlsx();
+                    ? new \PhpOffice\PhpSpreadsheet\Reader\Xls()
+                    : new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
                 $reader->setReadDataOnly(true);
                 $spreadsheet = $reader->load($fileTmp);
                 $worksheet = $spreadsheet->getActiveSheet();
-                $highestColumnIndex = \PhpOffice\\PhpSpreadsheet\\Cell\\Coordinate::columnIndexFromString($worksheet->getHighestDataColumn());
+                $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($worksheet->getHighestDataColumn());
                 if($highestColumnIndex < 4){
                     $importError = 'The Excel file must contain at least columns A-D: Barcode, StockName, RetailPrice and GroupCode.';
                 }else{
