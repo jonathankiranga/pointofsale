@@ -185,7 +185,7 @@ function PostDebtors($period,$journal,$doc,$discount){
   FROM [SalesHeader] join SalesLine 
         on SalesHeader.documentno=SalesLine.documentno 
         and SalesHeader.documenttype=SalesLine.documenttype 
-        where SalesHeader.documentno='%s' 
+        where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10 
         group by
        SalesHeader.[documenttype]
       ,SalesHeader.[documentno]
@@ -240,10 +240,11 @@ function PostGL($period,$journal,$doc,$discount){
       from SalesHeader 
       join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
       join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
+        and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
       join stockmaster on stockmaster.code=SalesLine.code
       join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
       join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
-      where SalesHeader.documentno='%s'
+      where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
       )",$journal,$period,$doc);
     
     return $sql;
@@ -316,7 +317,7 @@ Function CustomerStatemet($journal,$doc,$discount){
              ,SalesHeader.[currencycode]    
              from SalesHeader
              join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-           where SalesHeader.documentno='%s' 
+           where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
            Group by 
              SalesHeader.[docdate]
              ,SalesHeader.documentno
