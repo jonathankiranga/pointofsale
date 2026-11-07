@@ -275,6 +275,7 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Run <code>SQL/20261107_hair_salon_pos_foundation.sql</code> once against that company database.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_operations.sql</code> to create appointment and appointment-line tables and register the salon pages in the ERP security script list.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_item_mapping.sql</code> to add the ERP item code and barcode mapping fields to the salon service catalogue.</li>
+            <li>Run <code>SQL/20261107_hair_salon_pos_payout_audit.sql</code> to record which ERP user marks commission payouts as paid.</li>
             <li>Confirm that the five foundation tables and the two appointment tables exist. The migrations do not alter existing POS sales, inventory, accounting or production employee tables.</li>
         </ol>
         <h3>Set up a sellable salon service</h3>
