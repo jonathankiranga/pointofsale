@@ -20,29 +20,31 @@ if (!isset($db) || !($db instanceof mysqli)) {
     exit;
 }
 
-$sql = "SELECT s.service_id,s.service_code,s.service_name,s.service_category,
-        s.duration_minutes,s.standard_price,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode,
-        sm.units,vc.vat AS vat_rate,ipg.vatcategory AS tax_category,
-        ipg.defaultgl_sales AS sales_account,ipg.defaultgl_vat AS vat_account
-    FROM salon_services s
-    INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey
+$sql = "SELECT sm.pkey AS service_id,sm.itemcode AS service_code,sm.descrip AS service_name,
+        sc.categorydescription AS service_category,ss.duration_minutes,sm.sellingprice AS standard_price,
+        sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode,sm.units,vc.vat AS vat_rate,
+        ipg.vatcategory AS tax_category,ipg.defaultgl_sales AS sales_account,ipg.defaultgl_vat AS vat_account
+    FROM salon_service_settings ss
+    INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey
+    LEFT JOIN stockcategory sc ON sc.categoryid=sm.category
     INNER JOIN inventorypostinggroup ipg ON ipg.code=sm.postinggroup
     INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
-    WHERE s.is_active=1 AND sm.itemcode IS NOT NULL AND sm.itemcode<>''
+    WHERE ss.is_active=1 AND sm.itemcode IS NOT NULL AND sm.itemcode<>''
       AND sm.barcode IS NOT NULL AND sm.barcode<>''
+      AND sm.sellingprice IS NOT NULL
       AND (sm.inactive IS NULL OR sm.inactive=0)
-    ORDER BY s.service_category,s.service_name";
+    ORDER BY sc.categorydescription,sm.descrip";
 $result = $db->query($sql);
 if (!$result) {
     http_response_code(500);
-    echo json_encode(array('success'=>false,'message'=>'Could not load salon services. Apply the salon POS item mapping and stockmaster referential-integrity migrations and verify ERP item setup.'));
+    echo json_encode(array('success'=>false,'message'=>'Could not load salon services. Apply the salon stockmaster-direct migration and verify ERP item setup.'));
     exit;
 }
 $services = array();
 $staffStmt = $db->prepare("SELECT h.hairdresser_id,h.hairdresser_code,h.full_name
     FROM salon_hairdresser_services hs
     INNER JOIN salon_hairdressers h ON h.hairdresser_id=hs.hairdresser_id
-    WHERE hs.service_id=? AND hs.is_active=1 AND h.is_active=1
+    WHERE hs.stockmaster_pkey=? AND hs.is_active=1 AND h.is_active=1
     ORDER BY h.full_name");
 if (!$staffStmt) {
     http_response_code(500);
