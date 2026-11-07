@@ -65,6 +65,119 @@ function posShiftItems($mysqli, $shiftId) {
     return $items;
 }
 
+function posShiftAccountingIntegrity($mysqli, $shiftId) {
+    $sql = "SELECT h.documentno,h.total,h.payment_method,h.cash,h.change_amount,h.mpesa_phone,
+        (SELECT COUNT(*) FROM SalesHeader ih
+            WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno) AS invoice_count,
+        (SELECT COUNT(*) FROM CustomerStatement cs
+            WHERE cs.Documentno=(SELECT ih.documentno FROM SalesHeader ih
+                WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
+              AND cs.Documenttype=10) AS invoice_statement_count,
+        (SELECT COUNT(*) FROM GeneralLedger gl
+            WHERE gl.DocumentNo=(SELECT ih.documentno FROM SalesHeader ih
+                WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
+              AND gl.DocumentType=10) AS invoice_gl_count,
+        (SELECT COUNT(*) FROM debtorsledger dl
+            WHERE dl.invref=(SELECT ih.documentno FROM SalesHeader ih
+                WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
+              AND dl.systypes_1=10) AS invoice_debtor_count,
+        (SELECT COALESCE(SUM(dl.amount),0) FROM debtorsledger dl
+            WHERE dl.invref=(SELECT ih.documentno FROM SalesHeader ih
+                WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
+              AND dl.systypes_1=10) AS invoice_debtor_amount,
+        (SELECT COALESCE(SUM(cs.Grossamount),0) FROM CustomerStatement cs
+            WHERE cs.Documentno=(SELECT ih.documentno FROM SalesHeader ih
+                WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
+              AND cs.Documenttype=10) AS invoice_amount,
+        (SELECT COUNT(*) FROM receiptheader rh WHERE rh.docno=h.documentno) AS receipt_count,
+        (SELECT externalref FROM receiptheader rh WHERE rh.docno=h.documentno LIMIT 1) AS receipt_reference,
+        (SELECT COUNT(*) FROM BankTransactions bt
+            WHERE bt.DocumentNo=h.documentno AND bt.doctype=12) AS bank_count,
+        (SELECT COUNT(*) FROM BankTransactions bt
+            INNER JOIN BankAccounts ba ON ba.accountcode=bt.bankcode
+            WHERE bt.DocumentNo=h.documentno AND bt.doctype=12
+              AND bt.cleared IS NULL AND bt.reconciled IS NULL
+              AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_account_count,
+        (SELECT COALESCE(SUM(bt.amount),0) FROM BankTransactions bt
+            WHERE bt.DocumentNo=h.documentno AND bt.doctype=12) AS bank_amount,
+        (SELECT COALESCE(SUM(rh.amount),0) FROM receiptheader rh
+            WHERE rh.docno=h.documentno) AS receipt_amount,
+        (SELECT COUNT(*) FROM debtorsledger dl
+            WHERE dl.invref=h.documentno AND dl.systypes_1=12) AS receipt_debtor_count,
+        (SELECT COALESCE(SUM(dl.amount),0) FROM debtorsledger dl
+            WHERE dl.invref=h.documentno AND dl.systypes_1=12) AS receipt_debtor_amount,
+        (SELECT COUNT(*) FROM GeneralLedger gl
+            WHERE gl.DocumentNo=h.documentno AND gl.DocumentType=12) AS receipt_gl_count,
+        (SELECT COALESCE(SUM(gl.amount),0) FROM GeneralLedger gl
+            WHERE gl.DocumentNo=h.documentno AND gl.DocumentType=12) AS receipt_gl_amount,
+        (SELECT COUNT(*) FROM receiptsallocation ra
+            WHERE ra.receiptno=h.documentno) AS allocation_count,
+        (SELECT COALESCE(SUM(ra.amount),0) FROM receiptsallocation ra
+            WHERE ra.receiptno=h.documentno) AS allocation_amount,
+        (SELECT COALESCE(SUM(cs.Grossamount),0) FROM CustomerStatement cs
+            WHERE cs.Documentno=h.documentno AND cs.Documenttype=12) AS receipt_statement_amount
+        FROM SalesHeader h
+        WHERE h.pos_shift_id=? AND h.documenttype=1 AND COALESCE(h.status,1)=1";
+    $stmt = $mysqli->prepare($sql);
+    if (!$stmt) { throw new Exception('Could not prepare POS accounting integrity check: ' . $mysqli->error); }
+    $stmt->bind_param('i', $shiftId);
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        throw new Exception('Could not verify POS accounting records: ' . $error);
+    }
+
+    $incomplete = array();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $total = ($row['total'] !== null && is_numeric($row['total'])) ? (float)$row['total'] : null;
+        $reference = trim((string)$row['receipt_reference']);
+        $referenceValid = ($row['payment_method'] === 'MPESA')
+            ? (strpos($reference, 'MPESA ') === 0)
+            : (($row['payment_method'] === 'CASH') && (strpos($reference, 'POS CASH ') === 0));
+        $cash = ($row['cash'] !== null && is_numeric($row['cash']) && is_finite((float)$row['cash']))
+            ? (float)$row['cash'] : null;
+        $change = ($row['change_amount'] !== null && is_numeric($row['change_amount']) && is_finite((float)$row['change_amount']))
+            ? (float)$row['change_amount'] : null;
+        $paymentAmountsValid = false;
+        if ($row['payment_method'] === 'CASH' && $cash !== null && $change !== null) {
+            $paymentAmountsValid = $cash >= $total && $change >= 0 &&
+                abs(round($cash - $change, 2) - round($total, 2)) < 0.005;
+        } elseif ($row['payment_method'] === 'MPESA' && $cash !== null && $change !== null) {
+            $paymentAmountsValid = abs($cash) < 0.005 && abs($change) < 0.005 &&
+                preg_match('/^254[17][0-9]{8}$/', (string)$row['mpesa_phone']) === 1;
+        }
+
+        $valid = $total !== null && is_finite($total) && $total > 0 &&
+            $paymentAmountsValid &&
+            (int)$row['invoice_count'] === 1 &&
+            (int)$row['invoice_statement_count'] === 1 &&
+            (int)$row['invoice_gl_count'] > 0 &&
+            (int)$row['invoice_debtor_count'] > 0 &&
+            abs((float)$row['invoice_debtor_amount'] - $total) < 0.005 &&
+            abs((float)$row['invoice_amount'] - $total) < 0.005 &&
+            (int)$row['receipt_count'] === 1 &&
+            $referenceValid &&
+            (int)$row['bank_count'] === 1 &&
+            (int)$row['bank_account_count'] === 1 &&
+            abs((float)$row['bank_amount'] - $total) < 0.005 &&
+            abs((float)$row['receipt_amount'] - $total) < 0.005 &&
+            (int)$row['receipt_debtor_count'] === 1 &&
+            abs((float)$row['receipt_debtor_amount'] + $total) < 0.005 &&
+            (int)$row['receipt_gl_count'] === 1 &&
+            abs((float)$row['receipt_gl_amount'] - $total) < 0.005 &&
+            (int)$row['allocation_count'] === 1 &&
+            abs((float)$row['allocation_amount'] + $total) < 0.005 &&
+            abs((float)$row['receipt_statement_amount'] + $total) < 0.005;
+
+        if (!$valid) {
+            $incomplete[] = (string)$row['documentno'];
+        }
+    }
+    $stmt->close();
+    return $incomplete;
+}
+
 try {
     if ($action === 'status' || $action === 'x-report') {
         $stmt = $mysqli->prepare("SELECT * FROM pos_shifts WHERE cashier_id=? AND status='OPEN' ORDER BY id DESC LIMIT 1");
@@ -126,6 +239,16 @@ try {
             posShiftResponse(false, 'There is no open shift to close.', 409);
         }
         $totals = posShiftTotals($mysqli, (int)$shift['id']);
+        $incompleteReceipts = posShiftAccountingIntegrity($mysqli, (int)$shift['id']);
+        if ($incompleteReceipts) {
+            $mysqli->rollback();
+            $displayReceipts = array_slice($incompleteReceipts, 0, 8);
+            posShiftResponse(false,
+                'Shift cannot close because these POS receipts are missing or have unbalanced accounting postings: ' . implode(', ', $displayReceipts),
+                409,
+                array('incomplete_receipts' => $incompleteReceipts)
+            );
+        }
         $expected = round((float)$shift['opening_float'] + (float)$totals['cash_sales'], 2);
         $items = posShiftItems($mysqli, (int)$shift['id']);
         $variance = round($counted - $expected, 2);
