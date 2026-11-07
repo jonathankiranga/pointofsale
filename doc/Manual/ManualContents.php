@@ -260,7 +260,7 @@ $manualTitle = 'POS & Back-office User Manual';
 
         <h2 id="salon-foundation">17. Hair salon operations — foundation and rollout status</h2>
         <p>The <code>feature/hair-salon-pos</code> branch adds a dedicated salon service terminal alongside the standard retail POS. The salon terminal uses the existing POS receipt, payment and accounting workflow; each salon service is mapped to an ERP POS item so its revenue and VAT use the configured ERP posting setup.</p>
-        <div class="note"><strong>Current operational scope:</strong> Salon staff and service setup, staff-to-service assignments, commission rules, appointment booking/status tracking, service checkout and commission payout tracking are available on this branch. The appointment schedule is a list-based operational view, not a drag-and-drop calendar. Appointment bookings are not yet automatically converted into a checkout basket. Commission payout marking records a payout reference in the salon commission ledger; it does not create a bank payment voucher or GL posting.</div>
+        <div class="note"><strong>Current operational scope:</strong> Salon staff and service setup, staff-to-service assignments, appointment booking, appointment-to-POS checkout, commission recording and payout tracking are available on this branch. The appointment schedule is a list-based operational view, not a drag-and-drop calendar. Commission payout marking records a payout reference in the salon commission ledger; it does not create a bank payment voucher or GL posting.</div>
         <h3>What the foundation stores</h3>
         <ul>
             <li><strong>Hairdressers:</strong> A salon-specific roster with a unique staff code, name, contact details and active/inactive status. This is separate from the existing production employee records.</li>
@@ -276,7 +276,8 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Run <code>SQL/20261107_hair_salon_pos_operations.sql</code> to create appointment and appointment-line tables and register the salon pages in the ERP security script list.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_item_mapping.sql</code> to add the ERP item code and barcode mapping fields to the salon service catalogue.</li>
             <li>Run <code>SQL/20261107_hair_salon_pos_payout_audit.sql</code> to record which ERP user marks commission payouts as paid.</li>
-            <li>Confirm that the five foundation tables and the two appointment tables exist. The migrations do not alter existing POS sales, inventory, accounting or production employee tables.</li>
+            <li>Run <code>SQL/20261107_hair_salon_appointment_pos_integration.sql</code> to create the unique appointment-to-POS receipt link and register the appointment loader endpoint.</li>
+            <li>Confirm that the salon foundation, appointment, commission and appointment-to-receipt tables exist. The migrations do not alter existing POS sales, inventory, accounting or production employee tables.</li>
         </ol>
         <h3>Set up a sellable salon service</h3>
         <ol>
@@ -286,14 +287,18 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Register the hairdresser and assign the hairdresser to the service under <strong>Staff skills</strong>.</li>
             <li>Create an active commission rule with an effective date. A checkout is rejected if no applicable rule exists for the selected hairdresser and service.</li>
         </ol>
-        <h3>Run a salon service sale</h3>
+        <h3>Appointment booking and checkout</h3>
         <ol>
-            <li>Open <code>SalonPOS.php</code> from the POS terminal using <strong>Salon POS</strong>.</li>
-            <li>Choose a service card, select an assigned hairdresser and tap <strong>Add service</strong>. The service appears in the sale basket with its mapped ERP item and salon price.</li>
-            <li>Add further services as required. Each service line retains its selected hairdresser.</li>
-            <li>Proceed to payment and complete the normal POS cash or verified M-Pesa workflow. The backend revalidates the service, ERP item mapping, hairdresser assignment and commission rule; browser-supplied prices are not trusted.</li>
-            <li>After the POS receipt, invoice, receipt allocation and accounting postings commit successfully, the system records the commission snapshot as pending. A failed or uncommitted payment does not earn commission.</li>
+            <li>Open <strong>Salon setup → Appointments</strong>. Enter the customer name and phone, appointment date/time, service and assigned hairdresser. A hairdresser is required for a bookable appointment.</li>
+            <li>When the customer arrives, change the appointment status to <strong>Arrived</strong>.</li>
+            <li>Select <strong>Start Service</strong>. The system validates the active service, mapped ERP item and hairdresser assignment, then changes the appointment to <strong>In Service</strong>.</li>
+            <li>Salon POS opens with the customer and appointment reference displayed. The booked service, agreed booking price and hairdresser are automatically inserted into the Sale Items grid. The booked line cannot be removed or have its quantity edited.</li>
+            <li>Add any extra services and retail products to the same transaction. Extra salon services require their own assigned hairdresser.</li>
+            <li>Complete payment using the normal POS cash or manually verified M-Pesa workflow. The POS revalidates the appointment, service, ERP item mapping, hairdresser assignment and commission rule.</li>
+            <li>On successful database commit, the receipt is linked to the appointment, the appointment and service line become <strong>Completed</strong>, and eligible commissions are recorded. If checkout fails, the sale and appointment completion are rolled back and the appointment remains <strong>In Service</strong> so the cashier can resume it.</li>
         </ol>
+        <h3>Walk-in salon sales</h3>
+        <p>For a customer without an appointment, open <code>SalonPOS.php</code>, choose a service card, select the hairdresser and tap <strong>Add service</strong>. The same checkout and commission controls apply, but no appointment is linked.</p>
         <h3>Commission calculation and payout tracking</h3>
         <ul>
             <li>The most specific active rule is selected: hairdresser plus service, then a single-scope rule, then a global rule. The eligible service amount excludes VAT; percentage rules apply to that amount and fixed rules apply per service quantity.</li>
@@ -301,7 +306,7 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Use <strong>Commission payouts</strong> to review pending balances by hairdresser. Enter the actual payment/voucher reference to mark that hairdresser's pending commission records as paid.</li>
             <li>The payout screen is a commission ledger control and report. It does not itself create a cashbook payment, bank transaction or general-ledger voucher. Those accounting payment steps remain separate.</li>
         </ul>
-        <div class="note warning"><strong>Operational controls:</strong> Do not map a salon service to a physical stock item that should be decremented on sale. Configure its ERP item, VAT and sales posting setup correctly before checkout. The salon appointment schedule currently records bookings and status changes; it does not automatically create service sales or enforce appointment capacity.</div>
+        <div class="note warning"><strong>Operational controls:</strong> Do not map a salon service to a physical stock item that should be decremented on sale. Configure its ERP item, VAT and sales posting setup correctly before checkout. A booking marked cancelled or no-show cannot be started. Once a service has started, it cannot be cancelled or marked no-show through the appointment status controls. The appointment-to-receipt link is unique, so one appointment cannot be checked out twice. The appointment customer name is printed on the POS sales header, while the configured POS default debtor remains the accounting customer until the booking form is connected to the ERP debtor master.</div>
 
         <h2 id="security">18. Security and good practice</h2>
         <ul>
