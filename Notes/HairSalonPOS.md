@@ -4,7 +4,7 @@ The salon-specific work is isolated on `feature/hair-salon-pos`. The standard PO
 
 ## Database setup
 
-Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company database. Then apply the item-mapping and master-alignment migrations. The alignment migration backfills existing mapped salon services from ERP stockmaster data.
+Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company database. Then apply the item-mapping and master-alignment migrations. The alignment migration regenerates existing service codes from their IDs and backfills mapped salon service names and categories from ERP stockmaster data.
 
 ## Foundation tables
 
@@ -53,6 +53,6 @@ Create the service as an ERP stock item first. The ERP stock item is the POS tra
 
 In Salon Management, select the ERP item code or barcode; the paired selector and read-only description/category fields are populated from the same stock item. Do not manually enter a separate service name or category. The salon service code is generated from the new `service_id` when the service is saved. Duration, salon selling price, salon notes, staff assignments and commission rules remain salon-specific.
 
-Apply `SQL/20261107_hair_salon_pos_master_alignment.sql` once after `SQL/20261107_hair_salon_pos_item_mapping.sql` to synchronise existing mapped service names and categories from the ERP master.
+Apply `SQL/20261107_hair_salon_pos_master_alignment.sql` once after `SQL/20261107_hair_salon_pos_item_mapping.sql` to regenerate existing service codes and synchronise mapped service names and categories from the ERP master.
 
 Appointment customer names are recorded on the POS sales header while the existing configured POS debtor/customer account remains the accounting customer. If individual debtor-account posting is required per salon customer, the appointment booking form must later be connected to the ERP debtor master rather than using free-text customer names.
