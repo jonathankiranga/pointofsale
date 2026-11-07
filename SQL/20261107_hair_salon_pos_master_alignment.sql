@@ -1,20 +1,44 @@
--- Align salon service identity with the ERP stock item master.
+-- Enforce a real database relationship between each salon service and
+-- the ERP stockmaster record that supplies its POS item code and barcode.
+--
 -- Apply after SQL/20261107_hair_salon_pos_item_mapping.sql.
--- Existing salon service records retain their service_id and service_code.
--- Their displayed name/category are refreshed from the mapped ERP item.
+--
+-- stockmaster.pkey is the stable ERP row identity. The repository's stockmaster
+-- definition does not declare it as a primary/unique key, so add a unique key
+-- before it can be referenced by a foreign key.
+--
+-- If the first ALTER fails because pkey contains duplicates, resolve those
+-- duplicate stockmaster.pkey values before re-running this migration.
 
-UPDATE salon_services SET service_code = CONCAT('TMP', UUID_SHORT());
-UPDATE salon_services SET service_code = CONCAT('SRV', LPAD(service_id, 6, '0'));
+ALTER TABLE stockmaster
+    ADD UNIQUE KEY uq_stockmaster_pkey (pkey);
 
+ALTER TABLE salon_services
+    ADD COLUMN stockmaster_pkey BIGINT DEFAULT NULL AFTER pos_barcode;
+
+-- Link existing service mappings to the exact stockmaster row. The MIN()
+-- selection is deterministic if legacy data contains duplicate itemcode /
+-- barcode pairs; the new relationship itself is always to one unique pkey.
 UPDATE salon_services s
-INNER JOIN stockmaster sm
+INNER JOIN (
+    SELECT itemcode, barcode, MIN(pkey) AS stockmaster_pkey
+    FROM stockmaster
+    WHERE itemcode IS NOT NULL AND itemcode <> ''
+      AND barcode IS NOT NULL AND barcode <> ''
+    GROUP BY itemcode, barcode
+) sm
     ON sm.itemcode = s.pos_itemcode
    AND sm.barcode = s.pos_barcode
-LEFT JOIN stockcategory sc
-    ON sc.categoryid = sm.category
-SET s.service_name = sm.descrip,
-    s.service_category = sc.categorydescription
-WHERE s.pos_itemcode IS NOT NULL
-  AND s.pos_itemcode <> ''
-  AND s.pos_barcode IS NOT NULL
-  AND s.pos_barcode <> '';
+SET s.stockmaster_pkey = sm.stockmaster_pkey
+WHERE s.pos_itemcode IS NOT NULL AND s.pos_itemcode <> ''
+  AND s.pos_barcode IS NOT NULL AND s.pos_barcode <> '';
+
+-- One ERP stock item can be mapped to only one salon service.
+-- Multiple NULL values are permitted for legacy/unmapped service rows.
+ALTER TABLE salon_services
+    ADD UNIQUE KEY uq_salon_service_stockmaster (stockmaster_pkey),
+    ADD CONSTRAINT fk_salon_service_stockmaster
+        FOREIGN KEY (stockmaster_pkey)
+        REFERENCES stockmaster (pkey)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT;
