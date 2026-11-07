@@ -179,6 +179,16 @@ $productStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, sm.descrip, sm.unit
 if (!$productStmt) { posSaveResponse(false, 'Could not prepare ERP product validation.', 500); }
 $salonServiceStmt = null;
 $salonAssignmentStmt = null;
+$salonMappedItemStmt = null;
+$salonTablesResult = $db->query("SHOW TABLES LIKE 'salon_services'");
+if ($salonTablesResult && $salonTablesResult->num_rows > 0) {
+    $salonMappedItemStmt = $db->prepare("SELECT service_id FROM salon_services
+        WHERE pos_itemcode=? AND pos_barcode=? AND is_active=1 LIMIT 1");
+    if (!$salonMappedItemStmt) {
+        $productStmt->close();
+        posSaveResponse(false, 'Could not validate salon service item mappings.', 500);
+    }
+}
 
 foreach ($receiptData['items'] as $item) {
     $barcode = isset($item['barcode']) ? trim((string)$item['barcode']) : '';
@@ -218,6 +228,20 @@ foreach ($receiptData['items'] as $item) {
     }
     $salonServiceId = isset($item['salonServiceId']) ? (int)$item['salonServiceId'] : 0;
     $hairdresserId = isset($item['hairdresserId']) ? (int)$item['hairdresserId'] : 0;
+    if ($salonMappedItemStmt) {
+        $salonMappedItemStmt->bind_param('ss', $itemcode, $barcode);
+        if (!$salonMappedItemStmt->execute()) {
+            $productStmt->close();
+            $salonMappedItemStmt->close();
+            posSaveResponse(false, 'Could not verify whether this item is a salon service.', 500);
+        }
+        $mappedSalonService = $salonMappedItemStmt->get_result()->fetch_assoc();
+        if ($mappedSalonService && ((int)$mappedSalonService['service_id'] !== $salonServiceId || $hairdresserId < 1)) {
+            $productStmt->close();
+            $salonMappedItemStmt->close();
+            posSaveResponse(false, 'This item is configured as a salon service. Add it through the Salon POS and assign a hairdresser.', 409);
+        }
+    }
     $unitPrice = (float)$product['sellingprice'];
     $saleDescription = $product['descrip'];
     if ($salonServiceId > 0 || $hairdresserId > 0) {
@@ -302,6 +326,7 @@ foreach ($receiptData['items'] as $item) {
 $productStmt->close();
 if ($salonServiceStmt) { $salonServiceStmt->close(); }
 if ($salonAssignmentStmt) { $salonAssignmentStmt->close(); }
+if ($salonMappedItemStmt) { $salonMappedItemStmt->close(); }
 $calculatedTotal = round($calculatedTotal, 2);
 $calculatedVat = round($calculatedVat, 2);
 if ($calculatedTotal <= 0) {
