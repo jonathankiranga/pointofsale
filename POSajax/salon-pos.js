@@ -97,7 +97,10 @@
                 vat_rate: appointment.vatRate
             };
                         var hairdresser = {id: appointment.hairdresserId, name: appointment.hairdresser};
-            addSalonService(service, hairdresser, true);
+            var restoredAppointmentLine = $('#sales-table tbody tr.appointment-service-line').length > 0;
+            if (!restoredAppointmentLine) {
+                addSalonService(service, hairdresser, true);
+            }
             $('#sales-table').attr('data-appointment-id', appointment.id);
             $('.salon-add-service[data-service-id="' + appointment.serviceId + '"]').prop('disabled', true).text('Booked in appointment');
             $('#salon-service-catalogue').prepend('<div class="alert alert-info w-100">The booked service is already in the Sale Items grid. Add only extra services or retail products below.</div>');
