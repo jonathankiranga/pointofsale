@@ -16,8 +16,8 @@ ALTER TABLE stockmaster
 ALTER TABLE salon_services
     ADD COLUMN stockmaster_pkey BIGINT DEFAULT NULL AFTER pos_barcode;
 
--- Link existing service mappings to the exact stockmaster row. The MIN()
--- only unambiguous legacy itemcode/barcode pairs are backfilled. If a pair
+-- Link existing service mappings to the exact stockmaster row. Only
+-- unambiguous legacy itemcode/barcode pairs are backfilled. If a pair
 -- identifies multiple stockmaster rows, it remains unlinked for manual selection.
 UPDATE salon_services s
 INNER JOIN (
