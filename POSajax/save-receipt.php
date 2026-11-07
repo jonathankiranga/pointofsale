@@ -177,16 +177,8 @@ $productStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, sm.descrip, sm.unit
     LEFT JOIN vatcategory vc ON ipg.vatcategory=vc.vatc
     WHERE sm.barcode=? AND sm.itemcode=? LIMIT 1");
 if (!$productStmt) { posSaveResponse(false, 'Could not prepare ERP product validation.', 500); }
-$salonServiceStmt = $db->prepare("SELECT service_id,standard_price,pos_itemcode,pos_barcode
-    FROM salon_services WHERE service_id=? AND is_active=1 LIMIT 1");
-$salonAssignmentStmt = $db->prepare("SELECT COUNT(*) AS assigned
-    FROM salon_hairdresser_services hs
-    INNER JOIN salon_hairdressers h ON h.hairdresser_id=hs.hairdresser_id
-    WHERE hs.service_id=? AND hs.hairdresser_id=? AND hs.is_active=1 AND h.is_active=1");
-if (!$salonServiceStmt || !$salonAssignmentStmt) {
-    $productStmt->close();
-    posSaveResponse(false, 'Salon POS setup is incomplete. Apply the salon operations and item mapping migrations.', 409);
-}
+$salonServiceStmt = null;
+$salonAssignmentStmt = null;
 
 foreach ($receiptData['items'] as $item) {
     $barcode = isset($item['barcode']) ? trim((string)$item['barcode']) : '';
@@ -233,6 +225,18 @@ foreach ($receiptData['items'] as $item) {
             $salonServiceStmt->close();
             $salonAssignmentStmt->close();
             posSaveResponse(false, 'Every salon service line must have an assigned active hairdresser.', 400);
+        }
+        if (!$salonServiceStmt) {
+            $salonServiceStmt = $db->prepare("SELECT service_id,standard_price,pos_itemcode,pos_barcode
+                FROM salon_services WHERE service_id=? AND is_active=1 LIMIT 1");
+            $salonAssignmentStmt = $db->prepare("SELECT COUNT(*) AS assigned
+                FROM salon_hairdresser_services hs
+                INNER JOIN salon_hairdressers h ON h.hairdresser_id=hs.hairdresser_id
+                WHERE hs.service_id=? AND hs.hairdresser_id=? AND hs.is_active=1 AND h.is_active=1");
+            if (!$salonServiceStmt || !$salonAssignmentStmt) {
+                $productStmt->close();
+                posSaveResponse(false, 'Salon POS setup is incomplete. Apply the salon operations and item mapping migrations.', 409);
+            }
         }
         $salonServiceStmt->bind_param('i', $salonServiceId);
         if (!$salonServiceStmt->execute()) {
@@ -294,8 +298,8 @@ foreach ($receiptData['items'] as $item) {
     $calculatedVat += $vatAmount;
 }
 $productStmt->close();
-$salonServiceStmt->close();
-$salonAssignmentStmt->close();
+if ($salonServiceStmt) { $salonServiceStmt->close(); }
+if ($salonAssignmentStmt) { $salonAssignmentStmt->close(); }
 $calculatedTotal = round($calculatedTotal, 2);
 $calculatedVat = round($calculatedVat, 2);
 if ($calculatedTotal <= 0) {
@@ -472,22 +476,8 @@ try {
         VALUES (?,1,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)");
     if (!$lineStmt) { throw new Exception('Could not prepare sales lines: ' . $db->error); }
     $saleLineSequence = 0;
-    $commissionRuleStmt = $db->prepare("SELECT commission_type,commission_value
-        FROM salon_commission_rules
-        WHERE is_active=1 AND effective_from<=CURDATE()
-          AND (effective_to IS NULL OR effective_to>=CURDATE())
-          AND (hairdresser_id=? OR hairdresser_id IS NULL)
-          AND (service_id=? OR service_id IS NULL)
-        ORDER BY ((hairdresser_id IS NOT NULL) + (service_id IS NOT NULL)) DESC,
-                 effective_from DESC,commission_rule_id DESC
-        LIMIT 1");
-    $commissionInsertStmt = $db->prepare("INSERT INTO salon_service_commissions
-        (source_document_type,source_document_no,source_line_entry_no,service_id,hairdresser_id,
-         quantity,eligible_service_amount,commission_type,commission_value,commission_amount,commission_status)
-        VALUES (1,?,?,?,?,?,?,?,?,?,'pending')");
-    if (!$commissionRuleStmt || !$commissionInsertStmt) {
-        throw new Exception('Could not prepare salon commission calculation.');
-    }
+    $commissionRuleStmt = null;
+    $commissionInsertStmt = null;
     foreach ($items as $saleLine) {
         $saleLineSequence++;
         $lineEntry = $entryNo;
@@ -508,6 +498,24 @@ try {
         if (!empty($saleLine['salon_service_id']) && !empty($saleLine['hairdresser_id'])) {
             $serviceId = (int)$saleLine['salon_service_id'];
             $hairdresserId = (int)$saleLine['hairdresser_id'];
+            if (!$commissionRuleStmt) {
+                $commissionRuleStmt = $db->prepare("SELECT commission_type,commission_value
+                    FROM salon_commission_rules
+                    WHERE is_active=1 AND effective_from<=CURDATE()
+                      AND (effective_to IS NULL OR effective_to>=CURDATE())
+                      AND (hairdresser_id=? OR hairdresser_id IS NULL)
+                      AND (service_id=? OR service_id IS NULL)
+                    ORDER BY ((hairdresser_id IS NOT NULL) + (service_id IS NOT NULL)) DESC,
+                             effective_from DESC,commission_rule_id DESC
+                    LIMIT 1");
+                $commissionInsertStmt = $db->prepare("INSERT INTO salon_service_commissions
+                    (source_document_type,source_document_no,source_line_entry_no,service_id,hairdresser_id,
+                     quantity,eligible_service_amount,commission_type,commission_value,commission_amount,commission_status)
+                    VALUES (1,?,?,?,?,?,?,?,?,?,'pending')");
+                if (!$commissionRuleStmt || !$commissionInsertStmt) {
+                    throw new Exception('Could not prepare salon commission calculation. Apply the salon foundation migration.');
+                }
+            }
             $eligibleAmount = round(max(0, (float)$saleLine['line_total'] - (float)$saleLine['vat_amount']), 2);
             $quantity = (float)$saleLine['quantity'];
             $commissionRuleStmt->bind_param('ii', $hairdresserId, $serviceId);
@@ -534,8 +542,8 @@ try {
             }
         }
     }
-    $commissionRuleStmt->close();
-    $commissionInsertStmt->close();
+    if ($commissionRuleStmt) { $commissionRuleStmt->close(); }
+    if ($commissionInsertStmt) { $commissionInsertStmt->close(); }
     $lineStmt->close();
 
     // The sales order, sales invoice, receipt, allocation, bank transaction
