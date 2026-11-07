@@ -46,12 +46,11 @@ $appointmentId = isset($receiptData['appointmentId']) ? (int)$receiptData['appoi
 if ($appointmentId < 0) { posSaveResponse(false, 'Invalid appointment reference.', 400); }
 $appointmentContext = null;
 if ($appointmentId > 0) {
-    $appointmentContextStmt = $db->prepare("SELECT a.appointment_id,a.appointment_status,a.customer_name,l.service_id,l.hairdresser_id,l.agreed_price,
+    $appointmentContextStmt = $db->prepare("SELECT a.appointment_id,a.appointment_status,a.customer_name,l.stockmaster_pkey AS service_id,l.hairdresser_id,l.agreed_price,
             sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode
         FROM salon_appointments a
         INNER JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id
-        INNER JOIN salon_services s ON s.service_id=l.service_id
-        INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
+        INNER JOIN stockmaster sm ON sm.pkey=l.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
         WHERE a.appointment_id=?");
     if (!$appointmentContextStmt) { posSaveResponse(false, 'Could not validate the linked appointment.', 500); }
     $appointmentContextStmt->bind_param('i', $appointmentId);
@@ -207,14 +206,13 @@ if (!$productStmt) { posSaveResponse(false, 'Could not prepare ERP product valid
 $salonServiceStmt = null;
 $salonAssignmentStmt = null;
 $salonMappedItemStmt = null;
-$salonMappingColumns = $db->query("SELECT COUNT(*) AS column_count FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='salon_services'
-      AND COLUMN_NAME='stockmaster_pkey'");
+$salonMappingColumns = $db->query("SELECT COUNT(*) AS column_count FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='salon_service_settings'");
 $salonMappingColumnRow = $salonMappingColumns ? $salonMappingColumns->fetch_assoc() : null;
 if ($salonMappingColumnRow && (int)$salonMappingColumnRow['column_count'] === 1) {
-    $salonMappedItemStmt = $db->prepare("SELECT s.service_id FROM salon_services s
-        INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey
-        WHERE sm.itemcode=? AND sm.barcode=? LIMIT 1");
+    $salonMappedItemStmt = $db->prepare("SELECT sm.pkey AS service_id FROM salon_service_settings ss
+        INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey
+        WHERE sm.itemcode=? AND sm.barcode=? AND ss.is_active=1 LIMIT 1");
     if (!$salonMappedItemStmt) {
         $productStmt->close();
         posSaveResponse(false, 'Could not validate salon service item mappings.', 500);
@@ -283,17 +281,17 @@ foreach ($receiptData['items'] as $item) {
             posSaveResponse(false, 'Every salon service line must have an assigned active hairdresser.', 400);
         }
         if (!$salonServiceStmt) {
-            $salonServiceStmt = $db->prepare("SELECT s.service_id,s.service_name,s.standard_price,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode
-                FROM salon_services s
-                INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
-                WHERE s.service_id=? AND s.is_active=1 LIMIT 1");
+            $salonServiceStmt = $db->prepare("SELECT sm.pkey AS service_id,sm.descrip AS service_name,sm.sellingprice AS standard_price,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode
+                FROM salon_service_settings ss
+                INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
+                WHERE ss.stockmaster_pkey=? AND ss.is_active=1 LIMIT 1");
             $salonAssignmentStmt = $db->prepare("SELECT COUNT(*) AS assigned
                 FROM salon_hairdresser_services hs
                 INNER JOIN salon_hairdressers h ON h.hairdresser_id=hs.hairdresser_id
-                WHERE hs.service_id=? AND hs.hairdresser_id=? AND hs.is_active=1 AND h.is_active=1");
+                WHERE hs.stockmaster_pkey=? AND hs.hairdresser_id=? AND hs.is_active=1 AND h.is_active=1");
             if (!$salonServiceStmt || !$salonAssignmentStmt) {
                 $productStmt->close();
-                posSaveResponse(false, 'Salon POS setup is incomplete. Apply the salon operations, item mapping and stockmaster referential-integrity migrations.', 409);
+                posSaveResponse(false, 'Salon POS setup is incomplete. Apply the salon operations and stockmaster-direct migration.', 409);
             }
         }
         $salonServiceStmt->bind_param('i', $salonServiceId);
@@ -622,12 +620,12 @@ try {
                     WHERE is_active=1 AND effective_from<=CURDATE()
                       AND (effective_to IS NULL OR effective_to>=CURDATE())
                       AND (hairdresser_id=? OR hairdresser_id IS NULL)
-                      AND (service_id=? OR service_id IS NULL)
-                    ORDER BY ((hairdresser_id IS NOT NULL) + (service_id IS NOT NULL)) DESC,
+                      AND (stockmaster_pkey=? OR stockmaster_pkey IS NULL)
+                    ORDER BY ((hairdresser_id IS NOT NULL) + (stockmaster_pkey IS NOT NULL)) DESC,
                              effective_from DESC,commission_rule_id DESC
                     LIMIT 1");
                 $commissionInsertStmt = $db->prepare("INSERT INTO salon_service_commissions
-                    (source_document_type,source_document_no,source_line_entry_no,service_id,hairdresser_id,
+                    (source_document_type,source_document_no,source_line_entry_no,stockmaster_pkey,hairdresser_id,
                      quantity,eligible_service_amount,commission_type,commission_value,commission_amount,commission_status)
                     VALUES (1,?,?,?,?,?,?,?,?,?,'pending')");
                 if (!$commissionRuleStmt || !$commissionInsertStmt) {
