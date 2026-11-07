@@ -20,7 +20,7 @@ if (!isset($db) || !($db instanceof mysqli)) {
     exit;
 }
 
-$sql = "SELECT s.service_id,s.service_code,sm.descrip AS service_name,sc.categorydescription AS service_category,
+$sql = "SELECT s.service_id,s.service_code,TRIM(sm.descrip) AS service_name,TRIM(sc.categorydescription) AS service_category,
         s.duration_minutes,s.standard_price,s.pos_itemcode,s.pos_barcode,
         sm.units,vc.vat AS vat_rate,ipg.vatcategory AS tax_category,
         ipg.defaultgl_sales AS sales_account,ipg.defaultgl_vat AS vat_account
@@ -31,7 +31,7 @@ $sql = "SELECT s.service_id,s.service_code,sm.descrip AS service_name,sc.categor
     INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
     WHERE s.is_active=1 AND s.pos_itemcode IS NOT NULL AND s.pos_itemcode<>''
       AND s.pos_barcode IS NOT NULL AND s.pos_barcode<>''
-    ORDER BY s.service_category,s.service_name";
+    ORDER BY sc.categorydescription,sm.descrip";
 $result = $db->query($sql);
 if (!$result) {
     http_response_code(500);
