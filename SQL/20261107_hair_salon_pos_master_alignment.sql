@@ -7,8 +7,12 @@
 -- definition does not declare it as a primary/unique key, so add a unique key
 -- before it can be referenced by a foreign key.
 --
--- If the first ALTER fails because pkey contains duplicates, resolve those
--- duplicate stockmaster.pkey values before re-running this migration.
+-- Check for duplicate pkey values first. This query must return no rows.
+SELECT pkey, COUNT(*) AS duplicate_count
+FROM stockmaster
+GROUP BY pkey
+HAVING COUNT(*) > 1;
+-- If rows are returned, resolve those duplicates before continuing.
 
 ALTER TABLE stockmaster
     ADD UNIQUE KEY uq_stockmaster_pkey (pkey);
