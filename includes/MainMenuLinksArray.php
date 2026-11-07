@@ -171,7 +171,7 @@ $MenuItems['Approval']['Maintenance']['URL'] = array('/DimensionTypes.php',
                                                      '/Budgets.php');
 
 /***********************************************/
-$MenuItems['Sales']['Transactions']['Caption'] = array(_('Salon Point of Sale'),
+$MenuItems['Sales']['Transactions']['Caption'] = array(_('Point of Sale (Touch)'),
                                                        _('Lab Sample Registration'),
                                                        _('Lab Data Entry'),
                                                        _('Lab First Review'),
