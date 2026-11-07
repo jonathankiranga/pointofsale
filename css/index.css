@@ -726,8 +726,8 @@ select.selecterror{ /*AccountGroups.php, BankAccounts.php, BOMs.php, Stocks.php 
     background-image: url('magnifier.png'); /* Add a search icon to input */
     background-position: 5px 1px; /* Position the search icon */
     background-repeat: no-repeat; /* Do not repeat the icon image */
-    width:auto;
-    max-width:100%;
+    width: auto;
+    max-width: 100%;
     padding: 10px 2px 2px 2px; /* Add some padding */
     border: 2px solid #ddd; /* Add a grey border */
 }
@@ -1636,16 +1636,21 @@ main#view-panel form table.table-bordered > tr:last-child > td {
 }
 main#view-panel form table.table-bordered > tbody > tr > td:first-child:not([colspan]),
 main#view-panel form table.table-bordered > tr > td:first-child:not([colspan]) {
+    width: 36%;
     color: #4b5d73;
     font-size: 12px;
     font-weight: 600;
     text-align: right;
 }
+main#view-panel form table.table-bordered > tbody > tr > td:nth-child(2),
+main#view-panel form table.table-bordered > tr > td:nth-child(2) {
+    width: 64%;
+}
 main#view-panel form table.table-bordered input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]),
 main#view-panel form table.table-bordered select,
 main#view-panel form table.table-bordered textarea {
-    display: inline-block;
-    width: auto;
+    display: block;
+    width: 100%;
     max-width: 100%;
     min-width: 0;
 }
@@ -1740,7 +1745,12 @@ main#view-panel form .table-responsive {
     }
     main#view-panel form table.table-bordered > tbody > tr > td:first-child:not([colspan]),
     main#view-panel form table.table-bordered > tr > td:first-child:not([colspan]) {
+        width: 38%;
         text-align: left;
+    }
+    main#view-panel form table.table-bordered > tbody > tr > td:nth-child(2),
+    main#view-panel form table.table-bordered > tr > td:nth-child(2) {
+        width: 62%;
     }
 }
 
@@ -1780,8 +1790,9 @@ main#view-panel table.bo-compact-form-table input:not([type="checkbox"]):not([ty
 main#view-panel table.bo-compact-form-table select {
     display: inline-block;
     width: auto !important;
-    min-width: 0;
-    max-width: 100%;
+    min-width: 8ch;
+    max-width: min(32ch, 100%);
+    field-sizing: content;
     vertical-align: middle;
 }
 
@@ -1804,9 +1815,9 @@ main#view-panel table.bo-compact-form-table select {
 }
 
 main#view-panel table.bo-compact-form-table textarea {
-    display: inline-block;
-    width: auto !important;
-    min-width: 0;
+    display: block;
+    width: min(34rem, 100%) !important;
+    min-width: 18ch;
     max-width: 100%;
 }
 
