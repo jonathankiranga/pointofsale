@@ -222,8 +222,8 @@ foreach ($receiptData['items'] as $item) {
     if ($salonServiceId > 0 || $hairdresserId > 0) {
         if ($salonServiceId < 1 || $hairdresserId < 1) {
             $productStmt->close();
-            $salonServiceStmt->close();
-            $salonAssignmentStmt->close();
+            if ($salonServiceStmt) { $salonServiceStmt->close(); }
+            if ($salonAssignmentStmt) { $salonAssignmentStmt->close(); }
             posSaveResponse(false, 'Every salon service line must have an assigned active hairdresser.', 400);
         }
         if (!$salonServiceStmt) {
