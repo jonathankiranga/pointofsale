@@ -293,7 +293,7 @@ foreach ($receiptData['items'] as $item) {
                 WHERE hs.service_id=? AND hs.hairdresser_id=? AND hs.is_active=1 AND h.is_active=1");
             if (!$salonServiceStmt || !$salonAssignmentStmt) {
                 $productStmt->close();
-                posSaveResponse(false, 'Salon POS setup is incomplete. Apply the salon operations and item mapping migrations.', 409);
+                posSaveResponse(false, 'Salon POS setup is incomplete. Apply the salon operations, item mapping and stockmaster referential-integrity migrations.', 409);
             }
         }
         $salonServiceStmt->bind_param('i', $salonServiceId);
