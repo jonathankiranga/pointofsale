@@ -363,7 +363,30 @@ function IsReconciliationJournalSelected($journal){
 function CalculatePostedReconciliationBalance($bankCode,$openingBalance,$endDateSQL){
     global $db;
 
-    if (!isset($_POST['Cheq']) || !is_array($_POST['Cheq'])) {
+    $postedRows = (isset($_POST['Cheq']) && is_array($_POST['Cheq'])) ? $_POST['Cheq'] : array();
+    $countStmt = $db->prepare("SELECT COUNT(*) AS row_count,
+            COALESCE(SUM(CASE WHEN amount IS NULL OR DocDate IS NULL THEN 1 ELSE 0 END),0) AS invalid_count
+        FROM BankTransactions
+        WHERE bankcode=? AND reconciled IS NULL
+          AND (DocDate IS NULL OR DocDate<=?)");
+    if (!$countStmt) {
+        throw new Exception('Could not verify the complete set of unreconciled bank transactions: ' . $db->error);
+    }
+    $countStmt->bind_param('ss', $bankCode, $endDateSQL);
+    if (!$countStmt->execute()) {
+        $error = $countStmt->error;
+        $countStmt->close();
+        throw new Exception('Could not verify the complete set of unreconciled bank transactions: ' . $error);
+    }
+    $countRow = $countStmt->get_result()->fetch_assoc();
+    $countStmt->close();
+    if (!$countRow || (int)$countRow['invalid_count'] > 0) {
+        throw new Exception('An unreconciled bank transaction contains a NULL amount or transaction date. Correct it before reconciling.');
+    }
+    if ((int)$countRow['row_count'] !== count($postedRows)) {
+        throw new Exception('The reconciliation list is incomplete or out of date. Reload the bank transactions before saving.');
+    }
+    if (!$postedRows) {
         return round((float)$openingBalance, 2);
     }
 
@@ -374,7 +397,7 @@ function CalculatePostedReconciliationBalance($bankCode,$openingBalance,$endDate
     }
 
     $balance = (float)$openingBalance;
-    foreach ($_POST['Cheq'] as $journal => $documentNo) {
+    foreach ($postedRows as $journal => $documentNo) {
         $journal = trim((string)$journal);
         if ($journal === '') {
             $stmt->close();
