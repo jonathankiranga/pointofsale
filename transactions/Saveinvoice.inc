@@ -352,8 +352,9 @@ function PostPOSInvoice($sourceDocumentNo, $periodNo) {
     $invoiceNo = GetNextTransNo(31, $db);
     $invoiceJournal = GetNextTransNo(0, $db);
     if ($invoiceNo === null || trim((string)$invoiceNo) === '' ||
+        !preg_match('/^[A-Za-z0-9._\\/-]+$/', (string)$invoiceNo) ||
         $invoiceJournal === null || trim((string)$invoiceJournal) === '') {
-        throw new Exception('Could not allocate the POS invoice number or journal number.');
+        throw new Exception('Could not allocate a valid POS invoice number or journal number.');
     }
 
     $headerSql = "INSERT INTO SalesHeader
