@@ -37,7 +37,7 @@ $sql = "SELECT sm.pkey AS service_id,sm.itemcode AS service_code,sm.descrip AS s
 $result = $db->query($sql);
 if (!$result) {
     http_response_code(500);
-    echo json_encode(array('success'=>false,'message'=>'Could not load salon services. Apply the salon stockmaster-direct migration and verify ERP item setup.'));
+    echo json_encode(array('success'=>false,'message'=>'Could not load salon services. Apply the stockmaster-direct salon migration and verify ERP item setup.'));
     exit;
 }
 $services = array();
