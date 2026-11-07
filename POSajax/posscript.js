@@ -92,6 +92,10 @@ $(document).ready(function() {
 
    
 $(document).on('click', '#delete-selected-link', function() {
+    if ($('#sales-table tbody tr.selected').hasClass('appointment-service-line')) {
+        showCustomDialog('The booked appointment service cannot be removed from its linked checkout.');
+        return;
+    }
     $('#sales-table tbody tr.selected').remove();
     updateLineTotal(); // Update the total after item is removed
 });
