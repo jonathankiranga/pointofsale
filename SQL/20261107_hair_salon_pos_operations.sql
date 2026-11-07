@@ -42,5 +42,8 @@ CREATE TABLE IF NOT EXISTS salon_appointment_lines (
 
 -- Register the operational maintenance page with the POS security framework.
 INSERT INTO scripts (script, pagesecurity, description)
-VALUES ('SalonManagement.php', 4, 'Salon staff, services, appointments and commissions')
+VALUES
+    ('SalonManagement.php', 4, 'Salon staff, services, appointments and commissions'),
+    ('SalonPOS.php', 4, 'Hair salon touchscreen point of sale'),
+    ('salon-services.php', 4, 'Salon POS service catalogue endpoint')
 ON DUPLICATE KEY UPDATE description=VALUES(description);
