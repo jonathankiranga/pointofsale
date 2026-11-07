@@ -52,7 +52,7 @@ try {
     }
     if (empty($appointment['is_active']) || empty($appointment['hairdresser_id']) ||
         empty($appointment['hairdresser_active']) || empty($appointment['pos_itemcode']) ||
-        empty($appointment['pos_barcode']) || !is_numeric($appointment['agreed_price']) || !is_numeric($appointment['vat_rate'])) {
+        !is_numeric($appointment['agreed_price']) || !is_numeric($appointment['vat_rate'])) {
         throw new Exception('The booked ERP item must be enabled for salon operations and assigned to an active hairdresser.');
     }
     $linked = $db->prepare("SELECT document_no FROM salon_appointment_transactions WHERE appointment_id=? LIMIT 1");
