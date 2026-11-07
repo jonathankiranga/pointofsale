@@ -62,7 +62,7 @@ if ($appointmentId > 0) {
     $appointmentContextRows = array();
     while ($appointmentContextRow = $appointmentContextResult->fetch_assoc()) { $appointmentContextRows[] = $appointmentContextRow; }
     $appointmentContextStmt->close();
-    if (count($appointmentContextRows) !== 1 || $appointmentContextRows[0]['appointment_status'] !== 'in_service') {
+    if (count($appointmentContextRows) !== 1 || !in_array($appointmentContextRows[0]['appointment_status'], array('in_service','completed'), true)) {
         posSaveResponse(false, 'The linked appointment is not in service or does not contain exactly one booked service.', 409);
     }
     $appointmentContext = $appointmentContextRows[0];
@@ -414,8 +414,8 @@ try {
         if (!$appointmentLock->execute()) { throw new Exception('Could not lock the linked salon appointment: '.$appointmentLock->error); }
         $lockedAppointment = $appointmentLock->get_result()->fetch_assoc();
         $appointmentLock->close();
-        if (!$lockedAppointment || $lockedAppointment['appointment_status'] !== 'in_service') {
-            throw new Exception('The linked appointment is no longer in service. The sale was not posted.');
+        if (!$lockedAppointment || !in_array($lockedAppointment['appointment_status'], array('in_service','completed'), true)) {
+            throw new Exception('The linked appointment is not available for checkout.');
         }
         $appointmentLinkCheck = $db->prepare("SELECT document_no FROM salon_appointment_transactions WHERE appointment_id=? LIMIT 1");
         if (!$appointmentLinkCheck) { throw new Exception('Could not check the appointment checkout lock: '.$db->error); }
@@ -423,8 +423,11 @@ try {
         if (!$appointmentLinkCheck->execute()) { throw new Exception('Could not check the appointment checkout lock: '.$appointmentLinkCheck->error); }
         $appointmentLink = $appointmentLinkCheck->get_result()->fetch_assoc();
         $appointmentLinkCheck->close();
-        if ($appointmentLink) {
+        if ($appointmentLink && $appointmentLink['document_no'] !== $docno) {
             throw new Exception('This appointment has already been checked out on POS receipt '.$appointmentLink['document_no'].'.');
+        }
+        if ($lockedAppointment['appointment_status'] === 'completed' && !$appointmentLink) {
+            throw new Exception('The appointment is completed but has no matching POS receipt link. Contact an administrator.');
         }
     }
 
@@ -777,7 +780,7 @@ try {
             'vatAmount' => $saleLine['vat_amount'], 'lineTotal' => $saleLine['line_total']
         );
     }
-    if ($appointmentId > 0) {
+    if ($appointmentId > 0 && !$appointmentLink) {
         $appointmentLinkInsert = $db->prepare("INSERT INTO salon_appointment_transactions
             (appointment_id,document_type,document_no,sales_entry_no) VALUES (?,1,?,?)");
         if (!$appointmentLinkInsert) { throw new Exception('Could not prepare the appointment receipt link: '.$db->error); }
