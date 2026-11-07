@@ -283,11 +283,12 @@ function VATPostGL($period,$journal,$doc,$discount){
       ,SalesHeader.[customercode]
       ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration
       from SalesHeader join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
-      join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
+      join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno]
+        and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
      join stockmaster on stockmaster.code=SalesLine.code
      join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
        join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
-      where SalesHeader.documentno='%s'
+      where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
       )",$journal,$period,$doc);
     
     return $sql;
@@ -316,7 +317,8 @@ Function CustomerStatemet($journal,$doc,$discount){
              ,'".$_POST['DimensionTwo']."' 
              ,SalesHeader.[currencycode]    
              from SalesHeader
-             join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
+             join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno]
+               and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
            where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
            Group by 
              SalesHeader.[docdate]
