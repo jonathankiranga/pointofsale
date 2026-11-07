@@ -85,10 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $posBarcode = trim((string)$mapping['barcode']);
 
                 if ($id > 0) {
-                    $stmt = salon_exec($db, "UPDATE salon_services SET service_code=?,service_name=?,service_category=?,description=?,duration_minutes=?,standard_price=?,pos_itemcode=?,pos_barcode=?,stockmaster_pkey=?,is_active=? WHERE service_id=?", 'ssss idssiii'.replace(/ /g,''), array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$stockmasterPkey,$active,$id));
+                    $stmt = salon_exec($db, "UPDATE salon_services SET service_code=?,service_name=?,service_category=?,description=?,duration_minutes=?,standard_price=?,pos_itemcode=?,pos_barcode=?,stockmaster_pkey=?,is_active=? WHERE service_id=?", 'ssssidssiii', array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$stockmasterPkey,$active,$id));
                     $stmt->close();
                 } else {
-                    $stmt = salon_exec($db, "INSERT INTO salon_services (service_code,service_name,service_category,description,duration_minutes,standard_price,pos_itemcode,pos_barcode,stockmaster_pkey,is_active) VALUES (?,?,?,?,?,?,?,?,?,?)", 'ssss idssii'.replace(/ /g,''), array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$stockmasterPkey,$active));
+                    $stmt = salon_exec($db, "INSERT INTO salon_services (service_code,service_name,service_category,description,duration_minutes,standard_price,pos_itemcode,pos_barcode,stockmaster_pkey,is_active) VALUES (?,?,?,?,?,?,?,?,?,?)", 'ssssidssii', array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$stockmasterPkey,$active));
                     $stmt->close();
                 }
                 $notice = 'Salon service saved.';
