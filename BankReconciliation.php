@@ -171,7 +171,7 @@ $statementstartdate = $ArrayBanks['lastreconcileddate'];
 $Openbalance        = $ArrayBanks['lastreconbalance'];
 
  $ReconciliationEndDate = Is_date($_POST['date']) ? FormatDateForSQL($_POST['date']) : '';
- echo '<input type="hidden" id="statementstartdate" value="' . $statementstartdate . '"/><input type="hidden" id="bankrecondate" value="' . $ReconciliationEndDate . '"/>';
+ echo '<input type="hidden" id="statementstartdate" value="' . $statementstartdate . '"/><input type="hidden" id="bankrecondate_sql" value="' . $ReconciliationEndDate . '"/>';
    
 if(!isset($_POST['bankendbalance'])){
     $_POST['bankendbalance']=$ArrayBanks['lastreconbalance'];
