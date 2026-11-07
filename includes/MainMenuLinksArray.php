@@ -171,7 +171,7 @@ $MenuItems['Approval']['Maintenance']['URL'] = array('/DimensionTypes.php',
                                                      '/Budgets.php');
 
 /***********************************************/
-$MenuItems['Sales']['Transactions']['Caption'] = array(_('Point of Sale (Touch)'),
+$MenuItems['Sales']['Transactions']['Caption'] = array(_('Salon Point of Sale'),
                                                        _('Lab Sample Registration'),
                                                        _('Lab Data Entry'),
                                                        _('Lab First Review'),
@@ -179,7 +179,7 @@ $MenuItems['Sales']['Transactions']['Caption'] = array(_('Point of Sale (Touch)'
                                                        _('Sales Invoice'),
                                                        _('Sales Quotation'));
 
-$MenuItems['Sales']['Transactions']['URL'] = array('/posindex.php',
+$MenuItems['Sales']['Transactions']['URL'] = array('/SalonPOS.php',
                                                    '/Laboratory.php',
                                                    '/LaboratoryDataEntry.php',
                                                    '/LaboratoryReview.php',
