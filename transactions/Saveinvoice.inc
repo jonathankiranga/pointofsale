@@ -203,6 +203,11 @@ function PostDebtors($period,$journal,$doc,$discount){
 }
 
 function PostGL($period,$journal,$doc,$discount){
+    global $db;
+    $dimensionOne = isset($_POST['DimensionOne'])
+        ? mysqli_real_escape_string($db, (string)$_POST['DimensionOne']) : '';
+    $dimensionTwo = isset($_POST['DimensionTwo'])
+        ? mysqli_real_escape_string($db, (string)$_POST['DimensionTwo']) : '';
     $sql=SPRINTF("Insert into [Generalledger]
       ([journalno]
       ,[Docdate]
@@ -235,8 +240,8 @@ function PostGL($period,$journal,$doc,$discount){
       ,[currencies].[rate]
       ,SalesHeader.[customercode]
       ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration
-       ,'".$_POST['DimensionOne']."' 
-       ,'".$_POST['DimensionTwo']."'
+       ,'".$dimensionOne."' 
+       ,'".$dimensionTwo."'
       from SalesHeader 
       join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
       join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
@@ -296,6 +301,11 @@ function VATPostGL($period,$journal,$doc,$discount){
 }
 
 Function CustomerStatemet($journal,$doc,$discount){
+    global $db;
+    $dimensionOne = isset($_POST['DimensionOne'])
+        ? mysqli_real_escape_string($db, (string)$_POST['DimensionOne']) : '';
+    $dimensionTwo = isset($_POST['DimensionTwo'])
+        ? mysqli_real_escape_string($db, (string)$_POST['DimensionTwo']) : '';
     $sql=sprintf("INSERT INTO [CustomerStatement]
            ([Date]
            ,[Documentno]
@@ -313,8 +323,8 @@ Function CustomerStatemet($journal,$doc,$discount){
              ,SalesHeader.customercode
              ,sum(COALESCE(SalesLine.invoiceamount,0)) * ".$discount."
              ,'%s'
-             ,'".$_POST['DimensionOne']."'
-             ,'".$_POST['DimensionTwo']."' 
+             ,'".$dimensionOne."'
+             ,'".$dimensionTwo."' 
              ,SalesHeader.[currencycode]    
              from SalesHeader
              join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno]
