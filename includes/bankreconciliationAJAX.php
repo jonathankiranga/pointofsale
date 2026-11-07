@@ -342,7 +342,7 @@ function autoallocatevendors($accountno){
 
   $statementEnd = isset($_POST['enddate']) ? trim((string)$_POST['enddate']) : '';
   if ($statementEnd !== '') {
-      $statementEnd = FormatDateForSQL($statementEnd);
+      $statementEnd = FormatDateForSQL($statementEnd) . ' 23:59:59';
       $SQL .= " and [BankTransactions].[DocDate] <= '".mysqli_real_escape_string($db, $statementEnd)."'";
   }
 
