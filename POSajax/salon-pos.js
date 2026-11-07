@@ -71,7 +71,7 @@
         $('#salon-appointment-summary').show().html('<strong>Loading appointment...</strong>');
         $.ajax({
             url: 'POSajax/salon-appointment.php',
-            type: 'GET',
+            type: 'POST',
             dataType: 'json',
             data: {appointment_id: appointmentId},
             headers: {'X-POS-FormID': window.POS_FORM_ID || ''}
