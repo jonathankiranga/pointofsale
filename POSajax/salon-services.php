@@ -28,13 +28,13 @@ $sql = "SELECT s.service_id,s.service_code,s.service_name,s.service_category,
     INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey
     INNER JOIN inventorypostinggroup ipg ON ipg.code=sm.postinggroup
     INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
-    WHERE s.is_active=1 AND s.pos_itemcode IS NOT NULL AND s.pos_itemcode<>''
-      AND s.pos_barcode IS NOT NULL AND s.pos_barcode<>''
+    WHERE s.is_active=1 AND sm.itemcode IS NOT NULL AND sm.itemcode<>''
+      AND sm.barcode IS NOT NULL AND sm.barcode<>''
     ORDER BY s.service_category,s.service_name";
 $result = $db->query($sql);
 if (!$result) {
     http_response_code(500);
-    echo json_encode(array('success'=>false,'message'=>'Could not load salon services. Apply the salon POS item mapping migration and verify ERP item setup.'));
+    echo json_encode(array('success'=>false,'message'=>'Could not load salon services. Apply the salon POS item mapping and stockmaster referential-integrity migrations and verify ERP item setup.'));
     exit;
 }
 $services = array();
