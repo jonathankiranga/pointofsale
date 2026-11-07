@@ -284,18 +284,23 @@ try {
         if ($invoiceRow) {
             $completeSql = "SELECT
                 (SELECT COUNT(*) FROM CustomerStatement WHERE Documentno=? AND Documenttype=10) AS invoice_statement_count,
+                (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=10) AS invoice_gl_count,
+                (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=10) AS invoice_debtor_count,
                 (SELECT COUNT(*) FROM receiptheader WHERE docno=?) AS receipt_count,
                 (SELECT COUNT(*) FROM BankTransactions WHERE DocumentNo=? AND doctype=12) AS bank_count,
                 (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=12) AS debtor_count,
                 (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
                 (SELECT COUNT(*) FROM receiptsallocation WHERE receiptno=?) AS allocation_count";
             $completeStmt = $db->prepare($completeSql);
-            $completeStmt->bind_param('ssssss', $invoiceRow['documentno'], $docno, $docno, $docno, $docno, $docno);
+            $completeStmt->bind_param('ssssssss', $invoiceRow['documentno'], $invoiceRow['documentno'],
+                $invoiceRow['documentno'], $docno, $docno, $docno, $docno, $docno);
             $completeStmt->execute();
             $completeRow = $completeStmt->get_result()->fetch_assoc();
             $completeStmt->close();
             $complete = $completeRow &&
                 (int)$completeRow['invoice_statement_count'] > 0 &&
+                (int)$completeRow['invoice_gl_count'] > 0 &&
+                (int)$completeRow['invoice_debtor_count'] > 0 &&
                 (int)$completeRow['receipt_count'] > 0 &&
                 (int)$completeRow['bank_count'] > 0 &&
                 (int)$completeRow['debtor_count'] > 0 &&
