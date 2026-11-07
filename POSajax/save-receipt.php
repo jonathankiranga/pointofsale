@@ -204,6 +204,9 @@ foreach ($receiptData['items'] as $item) {
 $productStmt->close();
 $calculatedTotal = round($calculatedTotal, 2);
 $calculatedVat = round($calculatedVat, 2);
+if ($calculatedTotal <= 0) {
+    posSaveResponse(false, 'The sale total must be greater than zero before payment can be posted.', 400);
+}
 if ($paymentMethod === 'CASH') {
     $expectedChange = round($cash - $calculatedTotal, 2);
     if ($cash < $calculatedTotal || $cash < 0 || $change < 0 ||
@@ -241,6 +244,20 @@ try {
     $lockRow = $lockResult ? $lockResult->fetch_assoc() : null;
     if (!$lockRow || (int)$lockRow['lock_ok'] !== 1) { throw new Exception('Could not lock the sales entry sequence.'); }
     $entryLockAcquired = true;
+
+    if ($paymentMethod === 'MPESA') {
+        $referenceCheck = $db->prepare("SELECT docno FROM receiptheader WHERE externalref=? LIMIT 1 FOR UPDATE");
+        if (!$referenceCheck) { throw new Exception('Could not validate the M-Pesa transaction reference: ' . $db->error); }
+        $referenceCheck->bind_param('s', $receiptReference);
+        if (!$referenceCheck->execute()) { throw new Exception('Could not validate the M-Pesa transaction reference: ' . $referenceCheck->error); }
+        $usedReference = $referenceCheck->get_result()->fetch_assoc();
+        $referenceCheck->close();
+        if ($usedReference) {
+            $db->rollback();
+            if ($entryLockAcquired) { $db->query("SELECT RELEASE_LOCK('pos_sales_entryno')"); $entryLockAcquired = false; }
+            posSaveResponse(false, 'This M-Pesa transaction code has already been used for another receipt.', 409);
+        }
+    }
 
     // Serialize the duplicate check with the entry-number allocation. A retry
     // after a committed request must not create a second invoice or receipt.
@@ -374,9 +391,6 @@ try {
     $receipt->date = ConvertSQLDate($currentDate);
     $receipt->periodNo = $periodNo;
     $receipt->documentno = mysqli_real_escape_string($db, $docno);
-    $receiptReference = ($paymentMethod === 'MPESA')
-        ? 'MPESA ' . $mpesaReference
-        : 'POS CASH ' . $docno;
     $receipt->reference = mysqli_real_escape_string($db, $receiptReference);
     $receipt->CustomerID = mysqli_real_escape_string($db, $customerCode);
     $receipt->CustomerName = mysqli_real_escape_string($db, $customerName);
