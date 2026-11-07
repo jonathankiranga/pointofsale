@@ -24,8 +24,10 @@ while($row=DB_fetch_array($resultindex)){
     $banklist[trim($row['accountcode'])]=$row['bankName'].' '.$row['BranchName'].' '.$row['currency'];
 }
 
- 
-    
+if (!isset($_SESSION['newreconciliation'])) {
+    $_SESSION['newreconciliation'] = date('U');
+}
+
 if(isset($_POST['SaveRecon'])){
 
     $validStatementNo = isset($_POST['bankstno']) &&
