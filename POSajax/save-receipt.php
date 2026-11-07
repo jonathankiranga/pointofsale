@@ -471,7 +471,25 @@ try {
          completed,printed,vatrate,inclusive,pos_tax_category)
         VALUES (?,1,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)");
     if (!$lineStmt) { throw new Exception('Could not prepare sales lines: ' . $db->error); }
+    $saleLineSequence = 0;
+    $commissionRuleStmt = $db->prepare("SELECT commission_type,commission_value
+        FROM salon_commission_rules
+        WHERE is_active=1 AND effective_from<=CURDATE()
+          AND (effective_to IS NULL OR effective_to>=CURDATE())
+          AND (hairdresser_id=? OR hairdresser_id IS NULL)
+          AND (service_id=? OR service_id IS NULL)
+        ORDER BY ((hairdresser_id IS NOT NULL) + (service_id IS NOT NULL)) DESC,
+                 effective_from DESC,commission_rule_id DESC
+        LIMIT 1");
+    $commissionInsertStmt = $db->prepare("INSERT INTO salon_service_commissions
+        (source_document_type,source_document_no,source_line_entry_no,service_id,hairdresser_id,
+         quantity,eligible_service_amount,commission_type,commission_value,commission_amount,commission_status)
+        VALUES (1,?,?,?,?,?,?,?,?,?,'pending')");
+    if (!$commissionRuleStmt || !$commissionInsertStmt) {
+        throw new Exception('Could not prepare salon commission calculation.');
+    }
     foreach ($items as $saleLine) {
+        $saleLineSequence++;
         $lineEntry = $entryNo;
         $lineLocation = $storeCode;
         $code = $saleLine['itemcode'];
@@ -486,7 +504,35 @@ try {
         $lineStmt->bind_param('issssssdddddddis', $lineEntry, $currentDate, $docno, $lineLocation,
             $code, $description, $unit, $qty, $qty, $qty, $unitPrice, $vatAmount, $lineTotal, $rate, $vatInclusive, $taxCategory);
         if (!$lineStmt->execute()) { throw new Exception('Could not save a sales line: ' . $lineStmt->error); }
+
+        if (!empty($saleLine['salon_service_id']) && !empty($saleLine['hairdresser_id'])) {
+            $serviceId = (int)$saleLine['salon_service_id'];
+            $hairdresserId = (int)$saleLine['hairdresser_id'];
+            $eligibleAmount = round(max(0, (float)$saleLine['line_total'] - (float)$saleLine['vat_amount']), 2);
+            $quantity = (float)$saleLine['quantity'];
+            $commissionRuleStmt->bind_param('ii', $hairdresserId, $serviceId);
+            if (!$commissionRuleStmt->execute()) {
+                throw new Exception('Could not resolve the salon commission rule: ' . $commissionRuleStmt->error);
+            }
+            $commissionRule = $commissionRuleStmt->get_result()->fetch_assoc();
+            if ($commissionRule) {
+                $commissionType = $commissionRule['commission_type'];
+                $commissionValue = (float)$commissionRule['commission_value'];
+                $commissionAmount = $commissionType === 'percentage'
+                    ? round($eligibleAmount * $commissionValue / 100, 2)
+                    : round($commissionValue * $quantity, 2);
+                $commissionLineSequence = $saleLineSequence;
+                $commissionInsertStmt->bind_param('siiiidsdd', $docno, $commissionLineSequence,
+                    $serviceId, $hairdresserId, $quantity, $eligibleAmount, $commissionType,
+                    $commissionValue, $commissionAmount);
+                if (!$commissionInsertStmt->execute()) {
+                    throw new Exception('Could not record salon commission: ' . $commissionInsertStmt->error);
+                }
+            }
+        }
     }
+    $commissionRuleStmt->close();
+    $commissionInsertStmt->close();
     $lineStmt->close();
 
     // The sales order, sales invoice, receipt, allocation, bank transaction
