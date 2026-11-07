@@ -1217,13 +1217,15 @@ while($row=DB_fetch_array($resultindex)){
       ,[BankTransactions].[reconciled]
   FROM [BankTransactions] 
   left join [systypes_1] on [BankTransactions].[doctype]=[systypes_1].typeid 
-  where ([bankcode]='".$_POST['Bank_Code']."')";
+  where ([bankcode]='".mysqli_real_escape_string($db, trim((string)$_POST['Bank_Code']))."')";
    
-  if(mb_strlen($_POST['statementstartdate'])>6 and mb_strlen($_POST['enddate'])>6){
-        $SQL .= " and ([BankTransactions].[DocDate] between '".$_POST['statementstartdate']."' and '".$_POST['enddate']."')"
-           . " or ([BankTransactions].[reconciled] is NULL)";
-  }elseif(mb_strlen($_POST['statementstartdate'])>6){
-        $SQL .= " and ([BankTransactions].[DocDate] > '".$_POST['statementstartdate']."') or ([BankTransactions].[reconciled] is NULL)";
+  $statementStart = isset($_POST['statementstartdate']) ? trim((string)$_POST['statementstartdate']) : '';
+  $statementEnd = isset($_POST['enddate']) ? trim((string)$_POST['enddate']) : '';
+  if ($statementStart !== '' && $statementEnd !== '') {
+        $SQL .= " and (([BankTransactions].[DocDate] between '".mysqli_real_escape_string($db, $statementStart)."' and '".mysqli_real_escape_string($db, $statementEnd)."')"
+           . " or ([BankTransactions].[reconciled] is NULL))";
+  } elseif ($statementStart !== '') {
+        $SQL .= " and (([BankTransactions].[DocDate] > '".mysqli_real_escape_string($db, $statementStart)."') or ([BankTransactions].[reconciled] is NULL))";
   }
     
 $SQL .=" order by [DocDate] Asc" ;
