@@ -266,7 +266,7 @@ $manualTitle = 'POS & Back-office User Manual';
             <li><strong>Hairdressers:</strong> A salon-specific roster with a unique staff code, name, contact details and active/inactive status. This is separate from the existing production employee records.</li>
             <li><strong>Services:</strong> A service catalogue with a unique service code, name, category, description, standard duration and standard price. Examples include haircuts, braiding, washing, colouring and treatments.</li>
             <li><strong>Hairdresser skills:</strong> A mapping of which active hairdressers are assigned or qualified to perform each service.</li>
-            <li><strong>Commission rules:</strong> Percentage or fixed-amount rules. Rules can apply globally, to a service, to a hairdresser, or to a specific hairdresser/service combination. The future checkout integration must select the most specific applicable active rule.</li>
+            <li><strong>Commission rules:</strong> Percentage or fixed-amount rules. Rules can apply globally, to a service, to a hairdresser, or to a specific hairdresser/service combination. The checkout selects the most specific applicable active rule.</li>
             <li><strong>Commission ledger:</strong> A transaction-level snapshot containing the source sale and line, service, hairdresser, eligible amount, rule type/value, calculated amount and pending/paid/reversed status.</li>
         </ul>
         <h3>Database installation</h3>
