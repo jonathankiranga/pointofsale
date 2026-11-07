@@ -36,7 +36,7 @@ if (!isset($_SESSION)) {
 if(isset($_GET['link'])){
    $getpage =  $_GET['link'];
    $_SESSION['SCRIPT_NAME_BASE']="$getpage.php" ;
-} elseif ((!isset($_GET['Stocks']) || $_GET['Stocks'] != '1') && $_SESSION['SCRIPT_NAME_BASE'] != 'Logout.php') {
+} elseif ((!isset($_GET['Stocks']) || $_GET['Stocks'] != '1') && (!isset($_SESSION['SCRIPT_NAME_BASE']) || $_SESSION['SCRIPT_NAME_BASE'] != 'Logout.php')) {
    // A direct visit to the application root always opens the salon terminal.
    $_SESSION['SCRIPT_NAME_BASE'] = 'SalonPOS.php';
 }
