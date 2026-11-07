@@ -554,17 +554,17 @@ function UpdateCashbook(){
     $sql = array();
     $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'Reconciliation As at '.$_POST['date']);
     $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'Bank Statement Balance',$statementBalance);
-    $sql[] = Insert($statementNo,$bankCode,'ADD: Uncredited Cheques');
+    $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'ADD: Uncredited Cheques');
     foreach ($date as $journal => $docDate) {
-        $sql[] = Insert($statementNo,$bankCode,$date[$journal].' '.$narration[$journal],$amount[$journal]);
+        $sql[] = Insert($nextPkey++,$statementNo,$bankCode,$date[$journal].' '.$narration[$journal],$amount[$journal]);
     }
-    $sql[] = Insert($statementNo,$bankCode,'Total Uncredited Cheques',$totalDebit);
-    $sql[] = Insert($statementNo,$bankCode,'LESS: Unpresented Cheques');
+    $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'Total Uncredited Cheques',$totalDebit);
+    $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'LESS: Unpresented Cheques');
     foreach ($date2 as $journal => $docDate) {
-        $sql[] = Insert($statementNo,$bankCode,$date2[$journal].' '.$narration2[$journal],$amount2[$journal]);
+        $sql[] = Insert($nextPkey++,$statementNo,$bankCode,$date2[$journal].' '.$narration2[$journal],$amount2[$journal]);
     }
-    $sql[] = Insert($statementNo,$bankCode,'Total Unpresented Cheques',$totalCredit);
-    $sql[] = Insert($statementNo,$bankCode,'Balance as Per Cash Book',
+    $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'Total Unpresented Cheques',$totalCredit);
+    $sql[] = Insert($nextPkey++,$statementNo,$bankCode,'Balance as Per Cash Book',
         $statementBalance + $totalDebit + $totalCredit);
 
     foreach ($sql as $query) {
