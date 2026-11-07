@@ -30,6 +30,7 @@ $sql = "SELECT s.service_id,s.service_code,s.service_name,s.service_category,
     INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
     WHERE s.is_active=1 AND sm.itemcode IS NOT NULL AND sm.itemcode<>''
       AND sm.barcode IS NOT NULL AND sm.barcode<>''
+      AND (sm.inactive IS NULL OR sm.inactive=0)
     ORDER BY s.service_category,s.service_name";
 $result = $db->query($sql);
 if (!$result) {
