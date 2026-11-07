@@ -22,11 +22,20 @@ Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company da
 4. The unique source-document/line/hairdresser key prevents duplicate commission creation when a checkout request is retried.
 5. A commission is not recalculated from current rules after posting. Payouts and reversals update the ledger status and retain the original calculation for audit.
 
-## Implementation sequence
+## Appointment-to-POS workflow
 
-1. Hairdresser, service, and commission-rule maintenance screens.
-2. Appointment and walk-in service workflow.
-3. Touch POS service checkout with one or more assigned hairdressers per service line.
-4. Paid/completed commission posting, payout controls, and commission reports.
+Apply `SQL/20261107_hair_salon_appointment_pos_operations.sql` and then `SQL/20261107_hair_salon_appointment_pos_integration.sql` after the foundation migration and item-mapping migration.
 
-The migration is the schema foundation only. It does not yet change the existing POS checkout or automatically post commissions.
+1. Book the customer, date/time, service and an assigned hairdresser in Salon Management.
+2. Mark the appointment Arrived when the customer checks in.
+3. Select **Start Service**. The appointment loader locks the booking, validates its service mapping and hairdresser assignment, and changes the appointment and line to `in_service`.
+4. Salon POS preloads the customer, appointment reference, booked service, agreed booking price and assigned hairdresser. The booked service cannot be removed from the basket. Additional services and retail products may be added.
+5. Complete payment through the existing POS cash or M-Pesa workflow.
+6. The receipt transaction creates the normal ERP sale and accounting postings, snapshots eligible hairdresser commissions, inserts the unique appointment-to-receipt link, and changes the appointment and service line to `completed` in the same database transaction.
+7. If checkout fails, all sale, accounting, commission, appointment-link and completion changes roll back. The appointment remains `in_service` and can be resumed from the schedule.
+
+The unique appointment key in `salon_appointment_transactions` prevents a second receipt from being linked to the same booking. A repeated request using the same receipt number remains subject to the existing POS idempotency checks.
+
+Cancelled and no-show appointments cannot be started. Appointments that have started cannot be cancelled or marked no-show. No commission is created for cancelled, no-show or unfinished appointments because commission rows are written only inside a successfully committed paid POS sale.
+
+Appointment customer names are recorded on the POS sales header while the existing configured POS debtor/customer account remains the accounting customer. If individual debtor-account posting is required per salon customer, the appointment booking form must later be connected to the ERP debtor master rather than using free-text customer names.
