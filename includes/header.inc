@@ -11,14 +11,9 @@ echo '<meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge
    . '<meta name="viewport" content="width=device-width,initial-scale=1"/>';
 echo '<link rel="shortcut icon" href="favicon.ico" /><link rel="icon" href="favicon.ico" />';
 echo '<input type="hidden" name="Lang" id="Lang" value="'.$Lang.'" />';
-echo '<link rel="stylesheet" href="javascripts/dist/css/tabulator.min.css">
-      <link rel="stylesheet" href="css/assets/dist/css/bootstrap.min.css" type="text/css"/>
-<?php
-if (file_exists('css/tailwind.css')) {
-    echo '<link rel="stylesheet" href="css/tailwind.css" type="text/css"/>';
-}
-?>
-';
+echo '<link rel="stylesheet" href="javascripts/dist/css/tabulator.min.css">';
+echo '<link rel="stylesheet" href="css/assets/dist/css/bootstrap.min.css" type="text/css"/>';
+echo '<link rel="stylesheet" href="css/tailwind.css" type="text/css"/>';
 echo '<link rel="stylesheet" href="css/assets/DataTables/datatables.min.css" type="text/css"/>';
 echo '<link rel="stylesheet" href="css/trumbowyg.min.css" type="text/css"/>'
    . '<link rel="stylesheet" href="css/assets/css/style.css" type="text/css"/>';
