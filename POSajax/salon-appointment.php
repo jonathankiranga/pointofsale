@@ -25,14 +25,14 @@ if ($id < 1) { salonAppointmentResponse(false, 'A valid appointment ID is requir
 try {
     $db->begin_transaction();
     $lock = $db->prepare("SELECT a.appointment_id,a.appointment_reference,a.customer_name,a.customer_phone,
-            a.appointment_start,a.appointment_status,l.appointment_line_id,l.service_id,l.hairdresser_id,
-            l.agreed_price,l.duration_minutes,s.service_name,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode,s.is_active,sm.units,vc.vat AS vat_rate,
+            a.appointment_start,a.appointment_status,l.appointment_line_id,l.stockmaster_pkey AS service_id,l.hairdresser_id,
+            l.agreed_price,l.duration_minutes,sm.descrip AS service_name,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode,ss.is_active,sm.units,vc.vat AS vat_rate,
             h.full_name,h.is_active AS hairdresser_active,
             (SELECT COUNT(*) FROM salon_appointment_lines x WHERE x.appointment_id=a.appointment_id) AS line_count
         FROM salon_appointments a
         INNER JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id
-        INNER JOIN salon_services s ON s.service_id=l.service_id
-        INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
+        INNER JOIN salon_service_settings ss ON ss.stockmaster_pkey=l.stockmaster_pkey
+        INNER JOIN stockmaster sm ON sm.pkey=l.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
         INNER JOIN inventorypostinggroup ipg ON ipg.code=sm.postinggroup
         INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
         LEFT JOIN salon_hairdressers h ON h.hairdresser_id=l.hairdresser_id
@@ -53,7 +53,7 @@ try {
     if (empty($appointment['is_active']) || empty($appointment['hairdresser_id']) ||
         empty($appointment['hairdresser_active']) || empty($appointment['pos_itemcode']) ||
         empty($appointment['pos_barcode']) || !is_numeric($appointment['agreed_price']) || !is_numeric($appointment['vat_rate'])) {
-        throw new Exception('The booked service needs an active service, mapped ERP POS item and assigned active hairdresser.');
+        throw new Exception('The booked ERP item must be enabled for salon operations and assigned to an active hairdresser.');
     }
     $linked = $db->prepare("SELECT document_no FROM salon_appointment_transactions WHERE appointment_id=? LIMIT 1");
     if (!$linked) { throw new Exception('Could not check for an existing POS sale: '.$db->error); }
@@ -64,7 +64,7 @@ try {
     if ($existing) { throw new Exception('This appointment has already been checked out on POS receipt '.$existing['document_no'].'.'); }
 
     $assignment = $db->prepare("SELECT COUNT(*) AS assigned FROM salon_hairdresser_services
-        WHERE service_id=? AND hairdresser_id=? AND is_active=1");
+        WHERE stockmaster_pkey=? AND hairdresser_id=? AND is_active=1");
     if (!$assignment) { throw new Exception('Could not validate the hairdresser service assignment: '.$db->error); }
     $serviceId = (int)$appointment['service_id'];
     $hairdresserId = (int)$appointment['hairdresser_id'];
