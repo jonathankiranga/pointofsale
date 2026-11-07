@@ -442,7 +442,8 @@ try {
     if (!$invoiceStatementStmt) {
         throw new Exception('Could not verify the posted POS invoice customer statement: ' . $db->error);
     }
-    $invoiceStatementStmt->bind_param('ss', $invoicePosting['journal'], $customerCode);
+    $invoiceJournal = (string)$invoicePosting['journal'];
+    $invoiceStatementStmt->bind_param('ss', $invoiceJournal, $customerCode);
     if (!$invoiceStatementStmt->execute()) {
         $invoiceStatementError = $invoiceStatementStmt->error;
         $invoiceStatementStmt->close();
