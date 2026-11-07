@@ -25,12 +25,15 @@ try {
     $db->begin_transaction();
     $lock = $db->prepare("SELECT a.appointment_id,a.appointment_reference,a.customer_name,a.customer_phone,
             a.appointment_start,a.appointment_status,l.appointment_line_id,l.service_id,l.hairdresser_id,
-            l.agreed_price,l.duration_minutes,s.service_name,s.pos_itemcode,s.pos_barcode,s.is_active,
+            l.agreed_price,l.duration_minutes,s.service_name,s.pos_itemcode,s.pos_barcode,s.is_active,sm.units,vc.vat AS vat_rate,
             h.full_name,h.is_active AS hairdresser_active,
             (SELECT COUNT(*) FROM salon_appointment_lines x WHERE x.appointment_id=a.appointment_id) AS line_count
         FROM salon_appointments a
         INNER JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id
         INNER JOIN salon_services s ON s.service_id=l.service_id
+        INNER JOIN stockmaster sm ON sm.itemcode=s.pos_itemcode AND sm.barcode=s.pos_barcode
+        INNER JOIN inventorypostinggroup ipg ON ipg.code=sm.postinggroup
+        INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
         LEFT JOIN salon_hairdressers h ON h.hairdresser_id=l.hairdresser_id
         WHERE a.appointment_id=? FOR UPDATE");
     if (!$lock) { throw new Exception('Could not prepare appointment lookup: '.$db->error); }
@@ -48,7 +51,7 @@ try {
     }
     if (empty($appointment['is_active']) || empty($appointment['hairdresser_id']) ||
         empty($appointment['hairdresser_active']) || empty($appointment['pos_itemcode']) ||
-        empty($appointment['pos_barcode']) || !is_numeric($appointment['agreed_price'])) {
+        empty($appointment['pos_barcode']) || !is_numeric($appointment['agreed_price']) || !is_numeric($appointment['vat_rate'])) {
         throw new Exception('The booked service needs an active service, mapped ERP POS item and assigned active hairdresser.');
     }
     $linked = $db->prepare("SELECT document_no FROM salon_appointment_transactions WHERE appointment_id=? LIMIT 1");
@@ -94,6 +97,7 @@ try {
             'hairdresserId'=>(int)$appointment['hairdresser_id'],
             'hairdresser'=>$appointment['full_name'],
             'price'=>(float)$appointment['agreed_price'],
+            'vatRate'=>(float)$appointment['vat_rate'],
             'itemcode'=>$appointment['pos_itemcode'],
             'barcode'=>$appointment['pos_barcode']
         )
