@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('POS_ACCOUNTING_HELPERS_ONLY')) {
+
 $_SESSION['DocumentNo']=$_POST['documentno'] ;
 if($_SESSION['DocumentPosted']==true){
     prnMsg('You cannot repost this invoice','warn');
@@ -146,6 +148,8 @@ if($_SESSION['DocumentPosted']==true){
     
 }
 
+}
+
 function PostDebtors($period,$journal,$doc,$discount){
    $SQL= sprintf("Insert into [debtorsledger]
        ([date]
@@ -165,23 +169,23 @@ function PostDebtors($period,$journal,$doc,$discount){
       ,period)
   (SELECT 
       SalesHeader.[docdate]
-      ,rtrim(SalesLine.sampleID)  as narration,'I'
+      ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration,'I'
       ,SalesHeader.[documentno]
       ,SalesHeader.[customercode]
-      ,SUM(SalesLine.invoiceamount) * ".$discount." as Value
+      ,SUM(COALESCE(SalesLine.invoiceamount,0)) * ".$discount." as Value
       ,0.00
       ,SalesHeader.[currencycode]
       ,'I'
       ,'%s'
       ,'r'
-      ,SUM(SalesLine.vatamount) * ".$discount." as VAT
+      ,SUM(COALESCE(SalesLine.vatamount,0)) * ".$discount." as VAT
       ,SalesHeader.[documenttype]
       ,SalesHeader.[postinggroup]
       ,'%s'
   FROM [SalesHeader] join SalesLine 
         on SalesHeader.documentno=SalesLine.documentno 
         and SalesHeader.documenttype=SalesLine.documenttype 
-        where SalesHeader.documentno='%s' 
+        where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10 
         group by
        SalesHeader.[documenttype]
       ,SalesHeader.[documentno]
@@ -199,6 +203,11 @@ function PostDebtors($period,$journal,$doc,$discount){
 }
 
 function PostGL($period,$journal,$doc,$discount){
+    global $db;
+    $dimensionOne = isset($_POST['DimensionOne'])
+        ? mysqli_real_escape_string($db, (string)$_POST['DimensionOne']) : '';
+    $dimensionTwo = isset($_POST['DimensionTwo'])
+        ? mysqli_real_escape_string($db, (string)$_POST['DimensionTwo']) : '';
     $sql=SPRINTF("Insert into [Generalledger]
       ([journalno]
       ,[Docdate]
@@ -225,21 +234,22 @@ function PostGL($period,$journal,$doc,$discount){
       ,[postinggroups].[debtorsaccount]
       ,[inventorypostinggroup].[defaultgl_sales]
       ,[inventorypostinggroup].[defaultgl_vat]
-      ,SalesLine.invoiceamount * ".$discount."
-      ,IFNULL(SalesLine.vatamount * ".$discount.",0) as vatamount
+      ,COALESCE(SalesLine.invoiceamount,0) * ".$discount."
+      ,COALESCE(SalesLine.vatamount,0) * ".$discount." as vatamount
       ,SalesHeader.[currencycode]
       ,[currencies].[rate]
       ,SalesHeader.[customercode]
-      ,(rtrim(SalesLine.sampleID))  as narration
-       ,'".$_POST['DimensionOne']."' 
-       ,'".$_POST['DimensionTwo']."'
+      ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration
+       ,'".$dimensionOne."' 
+       ,'".$dimensionTwo."'
       from SalesHeader 
       join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
       join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
+        and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
       join stockmaster on stockmaster.code=SalesLine.code
       join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
       join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
-      where SalesHeader.documentno='%s'
+      where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
       )",$journal,$period,$doc);
     
     return $sql;
@@ -271,18 +281,19 @@ function VATPostGL($period,$journal,$doc,$discount){
       ,[inventorypostinggroup].[defaultgl_sales]
       ,[inventorypostinggroup].[defaultgl_vat]
       ,''
-      ,SalesLine.vatamount * ".$discount."
+      ,COALESCE(SalesLine.vatamount,0) * ".$discount."
       ,0
       ,SalesHeader.[currencycode]
       ,[currencies].[rate]
       ,SalesHeader.[customercode]
-      ,(rtrim(SalesLine.sampleID))  as narration
+      ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration
       from SalesHeader join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
-      join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
+      join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno]
+        and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
      join stockmaster on stockmaster.code=SalesLine.code
      join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
        join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
-      where SalesHeader.documentno='%s'
+      where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
       )",$journal,$period,$doc);
     
     return $sql;
@@ -290,6 +301,11 @@ function VATPostGL($period,$journal,$doc,$discount){
 }
 
 Function CustomerStatemet($journal,$doc,$discount){
+    global $db;
+    $dimensionOne = isset($_POST['DimensionOne'])
+        ? mysqli_real_escape_string($db, (string)$_POST['DimensionOne']) : '';
+    $dimensionTwo = isset($_POST['DimensionTwo'])
+        ? mysqli_real_escape_string($db, (string)$_POST['DimensionTwo']) : '';
     $sql=sprintf("INSERT INTO [CustomerStatement]
            ([Date]
            ,[Documentno]
@@ -305,14 +321,15 @@ Function CustomerStatemet($journal,$doc,$discount){
              ,SalesHeader.documentno
              ,SalesHeader.documenttype
              ,SalesHeader.customercode
-             ,sum(SalesLine.invoiceamount) * ".$discount."
+             ,sum(COALESCE(SalesLine.invoiceamount,0)) * ".$discount."
              ,'%s'
-             ,'".$_POST['DimensionOne']."'
-             ,'".$_POST['DimensionTwo']."' 
+             ,'".$dimensionOne."'
+             ,'".$dimensionTwo."' 
              ,SalesHeader.[currencycode]    
              from SalesHeader
-             join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-           where SalesHeader.documentno='%s' 
+             join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno]
+               and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
+           where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
            Group by 
              SalesHeader.[docdate]
              ,SalesHeader.documentno
@@ -323,6 +340,103 @@ Function CustomerStatemet($journal,$doc,$discount){
             $journal,$doc);
     
     return $sql;
+}
+
+/**
+ * Post a POS order as a normal ERP sales invoice using the existing ledger
+ * posting builders above. The caller owns the database transaction.
+ */
+function PostPOSInvoice($sourceDocumentNo, $periodNo) {
+    global $db;
+
+    $invoiceNo = GetNextTransNo(31, $db);
+    $invoiceJournal = GetNextTransNo(0, $db);
+    if ($invoiceNo === null || trim((string)$invoiceNo) === '' ||
+        !preg_match('/^[A-Za-z0-9._\\/-]+$/', (string)$invoiceNo) ||
+        $invoiceJournal === null || trim((string)$invoiceJournal) === '' ||
+        !preg_match('/^[A-Za-z0-9._\\/-]+$/', (string)$invoiceJournal)) {
+        throw new Exception('Could not allocate a valid POS invoice number or journal number.');
+    }
+
+    $headerSql = "INSERT INTO SalesHeader
+        (documenttype,documentno,docdate,postingdate,customercode,customername,
+         lpo,externaldocumentno,postinggroup,currencycode,salespersoncode,
+         printed,released,status,userid,period,vatinclusive,discount,
+         BatchNO,Bybatch,paymentterms)
+        SELECT 10,?,src.docdate,NOW(),src.customercode,src.customername,
+               'POS',src.documentno,src.postinggroup,src.currencycode,
+               COALESCE((SELECT d.salesman FROM debtors d
+                         WHERE d.itemcode=src.customercode LIMIT 1),''),
+               0,0,1,src.userid,?,src.vatinclusive,0,
+               COALESCE(src.BatchNO,'POS'),COALESCE(src.Bybatch,'false'),
+               COALESCE(NULLIF(src.paymentterms,''),src.payment_method,'CASH')
+        FROM SalesHeader src
+        WHERE src.documenttype=1 AND src.documentno=?";
+    $headerStmt = $db->prepare($headerSql);
+    if (!$headerStmt) {
+        throw new Exception('Could not prepare the POS invoice header: ' . $db->error);
+    }
+    $periodValue = (int)$periodNo;
+    $headerStmt->bind_param('sis', $invoiceNo, $periodValue, $sourceDocumentNo);
+    if (!$headerStmt->execute() || $headerStmt->affected_rows !== 1) {
+        $error = $headerStmt->error ? $headerStmt->error : 'The source POS sale was not found.';
+        $headerStmt->close();
+        throw new Exception('Could not create the POS invoice header: ' . $error);
+    }
+    $headerStmt->close();
+
+    $lineSql = "INSERT INTO SalesLine
+        (documenttype,docdate,documentno,code,description,unitofmeasure,
+         Quantity,UnitPrice,vatamount,invoiceamount,vatrate,inclusive,
+         locationcode,UOM,shipping,BatchNO,Itemlist,sampleID)
+        SELECT 10,l.docdate,?,l.code,l.description,l.unitofmeasure,
+               l.Qunatity_delivered,l.UnitPrice,l.vatamount,l.invoiceamount,
+               l.vatrate,l.inclusive,l.locationcode,'fulqty',
+               COALESCE(l.shipping,0),COALESCE(l.BatchNO,'POS'),
+               l.Itemlist,COALESCE(NULLIF(l.sampleID,''),l.description)
+        FROM SalesLine l
+        WHERE l.documenttype=1 AND l.documentno=?";
+    $lineStmt = $db->prepare($lineSql);
+    if (!$lineStmt) {
+        throw new Exception('Could not prepare POS invoice lines: ' . $db->error);
+    }
+    $lineStmt->bind_param('ss', $invoiceNo, $sourceDocumentNo);
+    if (!$lineStmt->execute() || $lineStmt->affected_rows < 1) {
+        $error = $lineStmt->error ? $lineStmt->error : 'The POS sale has no invoice lines.';
+        $lineStmt->close();
+        throw new Exception('Could not create POS invoice lines: ' . $error);
+    }
+    $lineStmt->close();
+
+    // POS has no line/header discount. A multiplier of 1 preserves the
+    // validated POS amounts exactly.
+    $postingSql = array(
+        PostGL($periodNo, $invoiceJournal, $invoiceNo, 1),
+        PostDebtors($periodNo, $invoiceJournal, $invoiceNo, 1),
+        VATPostGL($periodNo, $invoiceJournal, $invoiceNo, 1),
+        CustomerStatemet($invoiceJournal, $invoiceNo, 1)
+    );
+
+    foreach ($postingSql as $index => $sql) {
+        $result = DB_query($sql, $db, '', '', false, false);
+        if (!$result || $db->errno !== 0 || $db->affected_rows < 1) {
+            throw new Exception('A POS invoice accounting posting failed (posting step ' . ($index + 1) . '): ' . $db->error);
+        }
+    }
+
+    $releaseStmt = $db->prepare("UPDATE SalesHeader SET released=2 WHERE documenttype=10 AND documentno=?");
+    if (!$releaseStmt) {
+        throw new Exception('Could not prepare POS invoice release: ' . $db->error);
+    }
+    $releaseStmt->bind_param('s', $invoiceNo);
+    if (!$releaseStmt->execute() || $releaseStmt->affected_rows !== 1) {
+        $error = $releaseStmt->error ? $releaseStmt->error : 'The POS invoice could not be released.';
+        $releaseStmt->close();
+        throw new Exception($error);
+    }
+    $releaseStmt->close();
+
+    return array('documentno' => $invoiceNo, 'journal' => $invoiceJournal);
 }
 
 ?>
