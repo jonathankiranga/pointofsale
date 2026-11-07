@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $active = salon_post('is_active', '1') === '1' ? 1 : 0;
                 if ($stockmasterPkey < 1) { throw new Exception('Select an ERP stock item.'); }
                 if ($duration < 1) { throw new Exception('Enter a positive service duration.'); }
-                $itemStmt = salon_exec($db, "SELECT pkey FROM stockmaster WHERE pkey=? AND itemcode IS NOT NULL AND itemcode<>'' AND barcode IS NOT NULL AND barcode<>'' AND (inactive IS NULL OR inactive=0) LIMIT 1", 'i', array($stockmasterPkey));
+                $itemStmt = salon_exec($db, "SELECT pkey FROM stockmaster WHERE pkey=? AND itemcode IS NOT NULL AND itemcode<>'' AND barcode IS NOT NULL AND barcode<>'' AND sellingprice IS NOT NULL AND sellingprice>=0 AND (inactive IS NULL OR inactive=0) LIMIT 1", 'i', array($stockmasterPkey));
                 $item = $itemStmt->get_result()->fetch_assoc();
                 $itemStmt->close();
                 if (!$item) { throw new Exception('The selected ERP stock item is no longer active or available. Refresh and select it again.'); }
@@ -219,8 +219,8 @@ function salon_rows($db, $sql) {
     return $rows;
 }
 $hairdressers = salon_rows($db, "SELECT hairdresser_id,hairdresser_code,full_name,phone,email,is_active,notes FROM salon_hairdressers ORDER BY full_name");
-$services = salon_rows($db, "SELECT sm.pkey AS service_id,sm.itemcode AS service_code,sm.descrip AS service_name,sc.categorydescription AS service_category,ss.notes AS description,ss.duration_minutes,sm.sellingprice AS standard_price,sm.pkey AS stockmaster_pkey,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode,ss.is_active FROM salon_service_settings ss INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey LEFT JOIN stockcategory sc ON sc.categoryid=sm.category ORDER BY sm.descrip");
-$stockItems = salon_rows($db, "SELECT sm.pkey,sm.itemcode,sm.barcode,sm.descrip,sm.sellingprice,sc.categorydescription FROM stockmaster sm LEFT JOIN stockcategory sc ON sc.categoryid=sm.category WHERE sm.barcode IS NOT NULL AND sm.barcode <> '' AND sm.itemcode IS NOT NULL AND sm.itemcode <> '' AND (sm.inactive IS NULL OR sm.inactive=0) ORDER BY sm.itemcode");
+$services = salon_rows($db, "SELECT sm.pkey AS service_id,sm.itemcode AS service_code,sm.descrip AS service_name,sc.categorydescription AS service_category,ss.notes AS description,ss.duration_minutes,sm.sellingprice AS standard_price,sm.pkey AS stockmaster_pkey,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode,ss.is_active FROM salon_service_settings ss INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey LEFT JOIN stockcategory sc ON sc.categoryid=sm.category AND sm.sellingprice IS NOT NULL AND sm.sellingprice>=0 ORDER BY sm.descrip");
+$stockItems = salon_rows($db, "SELECT sm.pkey,sm.itemcode,sm.barcode,sm.descrip,sm.sellingprice,sc.categorydescription FROM stockmaster sm LEFT JOIN stockcategory sc ON sc.categoryid=sm.category WHERE sm.barcode IS NOT NULL AND sm.barcode <> '' AND sm.itemcode IS NOT NULL AND sm.itemcode <> '' AND sm.sellingprice IS NOT NULL AND sm.sellingprice>=0 AND (sm.inactive IS NULL OR sm.inactive=0) ORDER BY sm.itemcode");
 $editingHairdresser = null;
 if (isset($_GET['edit_hairdresser'])) {
     foreach ($hairdressers as $candidate) { if ((int)$candidate['hairdresser_id'] === (int)$_GET['edit_hairdresser']) { $editingHairdresser = $candidate; break; } }
