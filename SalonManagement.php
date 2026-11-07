@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $reference = strtoupper(salon_post('payout_reference'));
                 if ($hairdresserId < 1 || $reference === '') { throw new Exception('Select a hairdresser and enter the payout reference.'); }
                 $db->begin_transaction();
-                $stmt = salon_exec($db, "UPDATE salon_service_commissions SET commission_status='paid',payout_reference=?,payout_date=NOW() WHERE hairdresser_id=? AND commission_status='pending'", 'si', array($reference,$hairdresserId));
+                $stmt = salon_exec($db, "UPDATE salon_service_commissions SET commission_status='paid',payout_reference=?,payout_by=?,payout_date=NOW() WHERE hairdresser_id=? AND commission_status='pending'", 'ssi', array($reference,(string)$_SESSION['UserID'],$hairdresserId));
                 $count = $stmt->affected_rows;
                 $stmt->close();
                 $db->commit();
@@ -252,13 +252,13 @@ if ($view === 'hairdressers') {
     echo '</tbody></table></div></div>';
 } elseif ($view === 'payouts') {
     $pending = salon_rows($db, "SELECT h.hairdresser_id,h.hairdresser_code,h.full_name,COUNT(c.commission_id) AS records,SUM(c.commission_amount) AS amount FROM salon_hairdressers h JOIN salon_service_commissions c ON c.hairdresser_id=h.hairdresser_id WHERE c.commission_status='pending' GROUP BY h.hairdresser_id,h.hairdresser_code,h.full_name ORDER BY h.full_name");
-    $history = salon_rows($db, "SELECT h.full_name,c.payout_reference,c.payout_date,COUNT(*) AS records,SUM(c.commission_amount) AS amount FROM salon_service_commissions c JOIN salon_hairdressers h ON h.hairdresser_id=c.hairdresser_id WHERE c.commission_status='paid' GROUP BY h.full_name,c.payout_reference,c.payout_date ORDER BY c.payout_date DESC LIMIT 100");
+    $history = salon_rows($db, "SELECT h.full_name,c.payout_reference,c.payout_by,c.payout_date,COUNT(*) AS records,SUM(c.commission_amount) AS amount FROM salon_service_commissions c JOIN salon_hairdressers h ON h.hairdresser_id=c.hairdresser_id WHERE c.commission_status='paid' GROUP BY h.full_name,c.payout_reference,c.payout_date ORDER BY c.payout_date DESC LIMIT 100");
     echo '<div class="card mb-3"><div class="card-header">Pending commission balances</div><div class="table-responsive"><table class="table table-striped mb-0"><thead><tr><th>Hairdresser</th><th>Entries</th><th>Amount due (KES)</th><th>Record payout</th></tr></thead><tbody>';
     foreach ($pending as $row) echo '<tr><td>' . salon_h($row['hairdresser_code'] . ' — ' . $row['full_name']) . '</td><td>' . (int)$row['records'] . '</td><td>' . number_format((float)$row['amount'],2) . '</td><td><form method="post" class="d-flex gap-1"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="pay_commission"><input type="hidden" name="hairdresser_id" value="' . (int)$row['hairdresser_id'] . '"><input class="form-control form-control-sm" name="payout_reference" placeholder="M-Pesa / voucher ref" required><button class="btn btn-sm btn-primary">Mark paid</button></form></td></tr>';
     if (!$pending) echo '<tr><td colspan="4" class="text-muted">No pending commission balances.</td></tr>';
-    echo '</tbody></table></div></div><div class="card"><div class="card-header">Payout history</div><div class="table-responsive"><table class="table table-striped mb-0"><thead><tr><th>Hairdresser</th><th>Reference</th><th>Paid date</th><th>Entries</th><th>Total (KES)</th></tr></thead><tbody>';
-    foreach ($history as $row) echo '<tr><td>' . salon_h($row['full_name']) . '</td><td>' . salon_h($row['payout_reference']) . '</td><td>' . salon_h($row['payout_date']) . '</td><td>' . (int)$row['records'] . '</td><td>' . number_format((float)$row['amount'],2) . '</td></tr>';
-    if (!$history) echo '<tr><td colspan="5" class="text-muted">No payouts have been recorded.</td></tr>';
+    echo '</tbody></table></div></div><div class="card"><div class="card-header">Payout history</div><div class="table-responsive"><table class="table table-striped mb-0"><thead><tr><th>Hairdresser</th><th>Reference</th><th>Recorded by</th><th>Paid date</th><th>Entries</th><th>Total (KES)</th></tr></thead><tbody>';
+    foreach ($history as $row) echo '<tr><td>' . salon_h($row['full_name']) . '</td><td>' . salon_h($row['payout_reference']) . '</td><td>' . salon_h($row['payout_by']) . '</td><td>' . salon_h($row['payout_date']) . '</td><td>' . (int)$row['records'] . '</td><td>' . number_format((float)$row['amount'],2) . '</td></tr>';
+    if (!$history) echo '<tr><td colspan="6" class="text-muted">No payouts have been recorded.</td></tr>';
     echo '</tbody></table></div></div>';
 }
 echo '</div>';
