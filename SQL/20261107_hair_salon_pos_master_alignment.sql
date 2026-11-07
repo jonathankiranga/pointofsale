@@ -33,6 +33,13 @@ SET s.stockmaster_pkey = sm.stockmaster_pkey
 WHERE s.pos_itemcode IS NOT NULL AND s.pos_itemcode <> ''
   AND s.pos_barcode IS NOT NULL AND s.pos_barcode <> '';
 
+-- Remove the copied item-code/barcode columns. The stockmaster row is now
+-- the sole source of those identifiers, so they cannot drift out of sync.
+ALTER TABLE salon_services
+    DROP INDEX uq_salon_service_pos_itemcode,
+    DROP COLUMN pos_itemcode,
+    DROP COLUMN pos_barcode;
+
 -- One ERP stock item can be mapped to only one salon service.
 -- Multiple NULL values are permitted for legacy/unmapped service rows.
 ALTER TABLE salon_services
