@@ -267,7 +267,7 @@ function saveSalesData() {
         const hairdresserId = Number($(this).attr('data-hairdresser-id')) || 0;
         const appointmentLine = $(this).hasClass('appointment-service-line');
 
-        if (barcode !== '' && description !== '') {
+        if ((barcode !== '' || salonServiceId > 0) && description !== '') {
             items.push({
                 barcode: barcode,
                 itemcode: itemcode,
@@ -317,7 +317,7 @@ function saveSalesDataWithReference() {
         const hairdresserId = Number($(this).attr('data-hairdresser-id')) || 0;
         const appointmentLine = $(this).hasClass('appointment-service-line');
 
-        if (barcode !== '' && description !== '') {
+        if ((barcode !== '' || salonServiceId > 0) && description !== '') {
             items.push({
                 barcode: barcode,
                 itemcode: itemcode,
