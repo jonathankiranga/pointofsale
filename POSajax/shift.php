@@ -96,6 +96,7 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
         (SELECT COUNT(*) FROM BankTransactions bt
             INNER JOIN BankAccounts ba ON ba.accountcode=bt.bankcode
             WHERE bt.DocumentNo=h.documentno AND bt.doctype=12
+              AND bt.cleared IS NULL AND bt.reconciled IS NULL
               AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_account_count,
         (SELECT COALESCE(SUM(bt.amount),0) FROM BankTransactions bt
             WHERE bt.DocumentNo=h.documentno AND bt.doctype=12) AS bank_amount,
