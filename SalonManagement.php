@@ -81,6 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mapping = $mappingStmt->get_result()->fetch_assoc();
                 $mappingStmt->close();
                 if (!$mapping) { throw new Exception('The selected ERP stock item is no longer active or available. Refresh the service form and select it again.'); }
+                $duplicateMapping = salon_exec($db, "SELECT service_id FROM salon_services WHERE stockmaster_pkey=? AND service_id<>? LIMIT 1", 'ii', array($stockmasterPkey,$id));
+                $duplicateService = $duplicateMapping->get_result()->fetch_assoc();
+                $duplicateMapping->close();
+                if ($duplicateService) { throw new Exception('This ERP stock item is already linked to another salon service. Select a different item.'); }
                 $posItemcode = trim((string)$mapping['itemcode']);
                 $posBarcode = trim((string)$mapping['barcode']);
 
