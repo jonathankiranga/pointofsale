@@ -1135,7 +1135,7 @@ function myjavascript($DEBIT='DEBIT',$amount=0){
             TotalCleared = Math.round((Balbfwd + DebitAmount + CRamount)*100)/100;
             Difference = Math.round((bankendbalance - TotalCleared)*100)/100;
             document.getElementById('cleared').value = TotalCleared.toFixed(2);
-            document.getElementById('Uncleared').value = Difference.toFixed(2);
+            document.getElementById('Uncleared').value = Difference.toFixed(2);";
         echo '</script>';
     }else{
         echo '<script type="text/javascript">';
