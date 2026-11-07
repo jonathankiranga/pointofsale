@@ -219,6 +219,7 @@ foreach ($receiptData['items'] as $item) {
     $salonServiceId = isset($item['salonServiceId']) ? (int)$item['salonServiceId'] : 0;
     $hairdresserId = isset($item['hairdresserId']) ? (int)$item['hairdresserId'] : 0;
     $unitPrice = (float)$product['sellingprice'];
+    $saleDescription = $product['descrip'];
     if ($salonServiceId > 0 || $hairdresserId > 0) {
         if ($salonServiceId < 1 || $hairdresserId < 1) {
             $productStmt->close();
@@ -227,7 +228,7 @@ foreach ($receiptData['items'] as $item) {
             posSaveResponse(false, 'Every salon service line must have an assigned active hairdresser.', 400);
         }
         if (!$salonServiceStmt) {
-            $salonServiceStmt = $db->prepare("SELECT service_id,standard_price,pos_itemcode,pos_barcode
+            $salonServiceStmt = $db->prepare("SELECT service_id,service_name,standard_price,pos_itemcode,pos_barcode
                 FROM salon_services WHERE service_id=? AND is_active=1 LIMIT 1");
             $salonAssignmentStmt = $db->prepare("SELECT COUNT(*) AS assigned
                 FROM salon_hairdresser_services hs
@@ -269,6 +270,7 @@ foreach ($receiptData['items'] as $item) {
             posSaveResponse(false, 'The selected hairdresser is not actively assigned to this service.', 409);
         }
         $unitPrice = (float)$salonService['standard_price'];
+        $saleDescription = mb_substr((string)$salonService['service_name'], 0, 100, 'UTF-8');
     }
     $vatRate = (float)$product['vat_rate'];
     if (!is_finite($unitPrice) || $unitPrice < 0 || !is_finite($vatRate) || $vatRate < 0) {
@@ -283,7 +285,7 @@ foreach ($receiptData['items'] as $item) {
     $items[] = array(
         'barcode' => $product['barcode'],
         'itemcode' => $product['itemcode'],
-        'description' => $product['descrip'],
+        'description' => $saleDescription,
         'units' => $product['units'],
         'quantity' => $quantity,
         'unit_price' => $unitPrice,
