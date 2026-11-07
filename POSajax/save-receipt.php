@@ -211,7 +211,7 @@ $salonMappingColumns = $db->query("SELECT COUNT(*) AS column_count FROM informat
     WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='salon_services'
       AND COLUMN_NAME='stockmaster_pkey'");
 $salonMappingColumnRow = $salonMappingColumns ? $salonMappingColumns->fetch_assoc() : null;
-if ($salonMappingColumnRow && (int)$salonMappingColumnRow['column_count'] === 2) {
+if ($salonMappingColumnRow && (int)$salonMappingColumnRow['column_count'] === 1) {
     $salonMappedItemStmt = $db->prepare("SELECT s.service_id FROM salon_services s
         INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey
         WHERE sm.itemcode=? AND sm.barcode=? LIMIT 1");
