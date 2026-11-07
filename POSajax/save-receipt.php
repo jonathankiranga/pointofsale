@@ -208,8 +208,8 @@ $salonProductStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, TRIM(sm.descri
     FROM stockmaster sm
     LEFT JOIN inventorypostinggroup ipg ON sm.postinggroup=ipg.code
     LEFT JOIN vatcategory vc ON ipg.vatcategory=vc.vatc
-    WHERE sm.itemcode=? LIMIT 1");
-if (!$productStmt) { posSaveResponse(false, 'Could not prepare ERP product validation.', 500); }
+    WHERE sm.pkey=? AND sm.itemcode=? LIMIT 1");
+if (!$productStmt || !$salonProductStmt) { posSaveResponse(false, 'Could not prepare ERP product validation.', 500); }
 $salonServiceStmt = null;
 $salonAssignmentStmt = null;
 $salonMappedItemStmt = null;
@@ -231,13 +231,15 @@ foreach ($receiptData['items'] as $item) {
     $itemcode = isset($item['itemcode']) ? trim((string)$item['itemcode']) : '';
     $quantityValue = isset($item['quantity']) ? $item['quantity'] : null;
     $quantity = is_numeric($quantityValue) ? (float)$quantityValue : 0;
+    $salonServiceId = isset($item['salonServiceId']) ? (int)$item['salonServiceId'] : 0;
+    $hairdresserId = isset($item['hairdresserId']) ? (int)$item['hairdresserId'] : 0;
     if (($salonServiceId < 1 && $barcode === '') || $itemcode === '' || !is_numeric($quantityValue) ||
         !is_finite($quantity) || $quantity <= 0) {
         $productStmt->close();
         posSaveResponse(false, 'A sale line contains an invalid product or quantity.', 400);
     }
     if ($salonServiceId > 0) {
-        $salonProductStmt->bind_param('s', $itemcode);
+        $salonProductStmt->bind_param('is', $salonServiceId, $itemcode);
         $productLookupOk = $salonProductStmt->execute();
         $productResult = $productLookupOk ? $salonProductStmt->get_result() : false;
     } else {
@@ -269,10 +271,8 @@ foreach ($receiptData['items'] as $item) {
         $productStmt->close();
         posSaveResponse(false, 'A sale item has a missing selling price, inventory posting group or VAT mapping. Correct the item setup before selling it.', 409);
     }
-    $salonServiceId = isset($item['salonServiceId']) ? (int)$item['salonServiceId'] : 0;
-    $hairdresserId = isset($item['hairdresserId']) ? (int)$item['hairdresserId'] : 0;
     if ($salonMappedItemStmt) {
-        $salonMappedItemStmt->bind_param('ss', $itemcode, $barcode);
+        $salonMappedItemStmt->bind_param('s', $itemcode);
         if (!$salonMappedItemStmt->execute()) {
             $productStmt->close();
             $salonMappedItemStmt->close();
