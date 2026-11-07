@@ -28,6 +28,36 @@ FROM salon_commission_rules r
 LEFT JOIN salon_services s ON s.service_id=r.service_id
 WHERE r.service_id IS NOT NULL AND s.stockmaster_pkey IS NULL;
 
+-- Abort before any schema changes if a referenced legacy service cannot be
+-- translated to one ERP stockmaster key. The duplicate-key insert is a
+-- deliberate migration guard and works without stored-procedure delimiters.
+CREATE TEMPORARY TABLE salon_migration_guard (guard_id TINYINT NOT NULL PRIMARY KEY);
+INSERT INTO salon_migration_guard VALUES (1);
+INSERT INTO salon_migration_guard
+SELECT IF(SUM(affected)=0,0,1)
+FROM (
+    SELECT COUNT(*) AS affected
+    FROM salon_appointment_lines l
+    LEFT JOIN salon_services s ON s.service_id=l.service_id
+    WHERE s.stockmaster_pkey IS NULL
+    UNION ALL
+    SELECT COUNT(*)
+    FROM salon_service_commissions c
+    LEFT JOIN salon_services s ON s.service_id=c.service_id
+    WHERE s.stockmaster_pkey IS NULL
+    UNION ALL
+    SELECT COUNT(*)
+    FROM salon_hairdresser_services hs
+    LEFT JOIN salon_services s ON s.service_id=hs.service_id
+    WHERE s.stockmaster_pkey IS NULL
+    UNION ALL
+    SELECT COUNT(*)
+    FROM salon_commission_rules r
+    LEFT JOIN salon_services s ON s.service_id=r.service_id
+    WHERE r.service_id IS NOT NULL AND s.stockmaster_pkey IS NULL
+) unmapped;
+DROP TEMPORARY TABLE salon_migration_guard;
+
 CREATE TABLE IF NOT EXISTS salon_service_settings (
     stockmaster_pkey BIGINT NOT NULL,
     duration_minutes SMALLINT UNSIGNED NOT NULL DEFAULT 30,
