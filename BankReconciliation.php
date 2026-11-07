@@ -66,7 +66,7 @@ if(isset($_POST['SaveRecon'])){
             }
 
             $bankCode = trim((string)$_POST['Bank_Code']);
-            $bankStmt = $db->prepare("SELECT PostingGroup,lastreconcileddate,lastreconbalance
+            $bankStmt = $db->prepare("SELECT PostingGroup,lastreconcileddate,lastreconbalance,StatementNo
                 FROM BankAccounts WHERE accountcode=? LIMIT 1 FOR UPDATE");
             if (!$bankStmt) {
                 throw new Exception('Could not lock the selected bank account: ' . $db->error);
@@ -80,6 +80,11 @@ if(isset($_POST['SaveRecon'])){
 
             if (!$bankRow || trim((string)$bankRow['PostingGroup']) === '') {
                 throw new Exception('The selected bank account has no valid posting group.');
+            }
+            $currentStatementNo = trim((string)$bankRow['StatementNo']);
+            if ($currentStatementNo !== '' &&
+                (int)$_POST['bankstno'] !== (int)$currentStatementNo) {
+                throw new Exception('The bank reconciliation number has changed since this page was loaded. Reload the bank account before saving.');
             }
             if ($bankRow['lastreconbalance'] === null ||
                 trim((string)$bankRow['lastreconbalance']) === '' ||
