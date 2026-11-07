@@ -74,7 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $active = salon_post('is_active', '1') === '1' ? 1 : 0;
                 if ($code === '' || $name === '' || $duration < 1 || !is_numeric($price) || (float)$price < 0) { throw new Exception('Enter a service code, name, positive duration and valid non-negative price.'); }
                 if (($posItemcode === '') !== ($posBarcode === '')) { throw new Exception('Enter both the ERP POS item code and barcode, or leave both blank until the item is configured.'); }
-                if ($posItemcode !== '') {
+                if ($posItemcode === '') { $posItemcode = null; $posBarcode = null; }
+                if ($posItemcode !== null) {
                     $mappingStmt = salon_exec($db, "SELECT COUNT(*) AS matched FROM stockmaster WHERE itemcode=? AND barcode=?", 'ss', array($posItemcode,$posBarcode));
                     $mapping = $mappingStmt->get_result()->fetch_assoc();
                     $mappingStmt->close();
