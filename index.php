@@ -54,11 +54,9 @@ if(isset($_GET['Stocks']) && $_GET['Stocks'] == '1'){
 }elseif(isset($_SESSION['SCRIPT_NAME_BASE'])){
     include $_SESSION['SCRIPT_NAME_BASE'] ;
 }else{
-    $PageSecurity=0;
-    include('includes/session.inc');
-    $Title =_('index');
-    include('includes/bootstrapheader.inc');
-    echo '<main id="view-panel" class="container">';
-    include('includes/boostrapfooter.inc');
+    // The hair-salon product opens directly in its salon POS terminal.
+    // SalonPOS.php performs the normal session, login and page-security checks.
+    $_SESSION['SCRIPT_NAME_BASE'] = 'SalonPOS.php';
+    include('SalonPOS.php');
    
 }
