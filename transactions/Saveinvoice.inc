@@ -169,16 +169,16 @@ function PostDebtors($period,$journal,$doc,$discount){
       ,period)
   (SELECT 
       SalesHeader.[docdate]
-      ,rtrim(SalesLine.sampleID)  as narration,'I'
+      ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration,'I'
       ,SalesHeader.[documentno]
       ,SalesHeader.[customercode]
-      ,SUM(SalesLine.invoiceamount) * ".$discount." as Value
+      ,SUM(COALESCE(SalesLine.invoiceamount,0)) * ".$discount." as Value
       ,0.00
       ,SalesHeader.[currencycode]
       ,'I'
       ,'%s'
       ,'r'
-      ,SUM(SalesLine.vatamount) * ".$discount." as VAT
+      ,SUM(COALESCE(SalesLine.vatamount,0)) * ".$discount." as VAT
       ,SalesHeader.[documenttype]
       ,SalesHeader.[postinggroup]
       ,'%s'
@@ -230,11 +230,11 @@ function PostGL($period,$journal,$doc,$discount){
       ,[inventorypostinggroup].[defaultgl_sales]
       ,[inventorypostinggroup].[defaultgl_vat]
       ,SalesLine.invoiceamount * ".$discount."
-      ,IFNULL(SalesLine.vatamount * ".$discount.",0) as vatamount
+      ,COALESCE(SalesLine.vatamount,0) * ".$discount.",0) as vatamount
       ,SalesHeader.[currencycode]
       ,[currencies].[rate]
       ,SalesHeader.[customercode]
-      ,(rtrim(SalesLine.sampleID))  as narration
+      ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration
        ,'".$_POST['DimensionOne']."' 
        ,'".$_POST['DimensionTwo']."'
       from SalesHeader 
