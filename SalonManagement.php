@@ -73,6 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $posBarcode = salon_post('pos_barcode');
                 $active = salon_post('is_active', '1') === '1' ? 1 : 0;
                 if ($code === '' || $name === '' || $duration < 1 || !is_numeric($price) || (float)$price < 0) { throw new Exception('Enter a service code, name, positive duration and valid non-negative price.'); }
+                if (($posItemcode === '') !== ($posBarcode === '')) { throw new Exception('Enter both the ERP POS item code and barcode, or leave both blank until the item is configured.'); }
+                if ($posItemcode !== '') {
+                    $mappingStmt = salon_exec($db, "SELECT COUNT(*) AS matched FROM stockmaster WHERE itemcode=? AND barcode=?", 'ss', array($posItemcode,$posBarcode));
+                    $mapping = $mappingStmt->get_result()->fetch_assoc();
+                    $mappingStmt->close();
+                    if (!$mapping || (int)$mapping['matched'] !== 1) { throw new Exception('The ERP POS item code and barcode do not identify one existing stock item.'); }
+                }
                 if ($id > 0) {
                     $stmt = salon_exec($db, "UPDATE salon_services SET service_code=?,service_name=?,service_category=?,description=?,duration_minutes=?,standard_price=?,pos_itemcode=?,pos_barcode=?,is_active=? WHERE service_id=?", 'ssssidssii', array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$active,$id));
                 } else {
