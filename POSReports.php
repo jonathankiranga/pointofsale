@@ -206,8 +206,6 @@ if (isset($_GET['output']) && $_GET['output'] === 'pdf') {
         $pdf->addText($left, $y, 10, $title);
         $y -= 17;
         $headerHeight = 18;
-        $pdf->SetFillColor(226, 235, 245);
-        $pdf->Rect($left, $y - 4, $usableWidth, $headerHeight, 'F');
         $x = $left + 5;
         $pdf->SetFont('helvetica', 'B', 7);
         foreach ($headers as $i => $heading) {
@@ -222,8 +220,6 @@ if (isset($_GET['output']) && $_GET['output'] === 'pdf') {
                 $pdf->SetFont('helvetica', 'B', 10);
                 $pdf->addText($left, $y, 10, $title . ' (continued)');
                 $y -= 17;
-                $pdf->SetFillColor(226, 235, 245);
-                $pdf->Rect($left, $y - 4, $usableWidth, $headerHeight, 'F');
                 $x = $left + 5;
                 $pdf->SetFont('helvetica', 'B', 7);
                 foreach ($headers as $i => $heading) {
