@@ -2936,7 +2936,9 @@ class SaveReceipt extends Showbankaccounts {
                                     ,[journal]
                                     ,[amount]
                                     ,[narrative]
-                                    ,[exchangerate])
+                                    ,[exchangerate]
+                                    ,[cleared]
+                                    ,[reconciled])
                               VALUES
                                     ('%s'
                                     ,'%s'
@@ -2948,6 +2950,8 @@ class SaveReceipt extends Showbankaccounts {
                                     ,%f
                                     ,'%s'
                                     ,%f
+                                    ,NULL
+                                    ,NULL
                                     ) ",$this->bankcode,
                                         $this->date,
                                         $this->documentno,
