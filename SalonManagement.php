@@ -63,30 +63,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $view = 'hairdressers';
             } elseif ($action === 'save_service') {
                 $id = (int)salon_post('service_id', '0');
-                $code = strtoupper(salon_post('service_code'));
-                $name = salon_post('service_name');
-                $category = salon_post('service_category');
                 $description = salon_post('description');
                 $duration = (int)salon_post('duration_minutes', '30');
                 $price = salon_post('standard_price', '0');
                 $posItemcode = salon_post('pos_itemcode');
                 $posBarcode = salon_post('pos_barcode');
                 $active = salon_post('is_active', '1') === '1' ? 1 : 0;
-                if ($code === '' || $name === '' || $duration < 1 || !is_numeric($price) || (float)$price < 0) { throw new Exception('Enter a service code, name, positive duration and valid non-negative price.'); }
-                if (($posItemcode === '') !== ($posBarcode === '')) { throw new Exception('Enter both the ERP POS item code and barcode, or leave both blank until the item is configured.'); }
-                if ($posItemcode === '') { $posItemcode = null; $posBarcode = null; }
-                if ($posItemcode !== null) {
-                    $mappingStmt = salon_exec($db, "SELECT COUNT(*) AS matched FROM stockmaster WHERE itemcode=? AND barcode=?", 'ss', array($posItemcode,$posBarcode));
-                    $mapping = $mappingStmt->get_result()->fetch_assoc();
-                    $mappingStmt->close();
-                    if (!$mapping || (int)$mapping['matched'] !== 1) { throw new Exception('The ERP POS item code and barcode do not identify one existing stock item.'); }
-                }
+                if ($posItemcode === '' || $posBarcode === '') { throw new Exception('Select an ERP POS item. The service description and category are taken from that item.'); }
+                if ($duration < 1 || !is_numeric($price) || (float)$price < 0) { throw new Exception('Enter a positive service duration and valid non-negative salon selling price.'); }
+
+                $mappingStmt = salon_exec($db, "SELECT sm.descrip,sc.categorydescription
+                    FROM stockmaster sm
+                    LEFT JOIN stockcategory sc ON sc.categoryid=sm.category
+                    WHERE sm.itemcode=? AND sm.barcode=? AND (sm.inactive IS NULL OR sm.inactive=0)
+                    LIMIT 2", 'ss', array($posItemcode,$posBarcode));
+                $mappingResult = $mappingStmt->get_result();
+                $mappingRows = array();
+                while ($mappingRow = $mappingResult->fetch_assoc()) { $mappingRows[] = $mappingRow; }
+                $mappingStmt->close();
+                if (count($mappingRows) !== 1) { throw new Exception('The selected ERP item and barcode must identify exactly one active stock item.'); }
+                $name = trim((string)$mappingRows[0]['descrip']);
+                $category = trim((string)$mappingRows[0]['categorydescription']);
+                if ($name === '') { throw new Exception('The selected ERP stock item has no description.'); }
+
                 if ($id > 0) {
-                    $stmt = salon_exec($db, "UPDATE salon_services SET service_code=?,service_name=?,service_category=?,description=?,duration_minutes=?,standard_price=?,pos_itemcode=?,pos_barcode=?,is_active=? WHERE service_id=?", 'ssssidssii', array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$active,$id));
+                    $stmt = salon_exec($db, "UPDATE salon_services SET service_name=?,service_category=?,description=?,duration_minutes=?,standard_price=?,pos_itemcode=?,pos_barcode=?,is_active=? WHERE service_id=?", 'sssidssii', array($name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$active,$id));
+                    $stmt->close();
                 } else {
-                    $stmt = salon_exec($db, "INSERT INTO salon_services (service_code,service_name,service_category,description,duration_minutes,standard_price,pos_itemcode,pos_barcode,is_active) VALUES (?,?,?,?,?,?,?,?,?)", 'ssssidssi', array($code,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$active));
+                    $db->begin_transaction();
+                    $temporaryCode = 'TMP' . str_replace('.', '', uniqid('', true));
+                    $stmt = salon_exec($db, "INSERT INTO salon_services (service_code,service_name,service_category,description,duration_minutes,standard_price,pos_itemcode,pos_barcode,is_active) VALUES (?,?,?,?,?,?,?,?,?)", 'sssssdssi', array($temporaryCode,$name,$category,$description,$duration,(float)$price,$posItemcode,$posBarcode,$active));
+                    $newServiceId = (int)$stmt->insert_id;
+                    $stmt->close();
+                    $generatedCode = 'SRV' . str_pad((string)$newServiceId, 6, '0', STR_PAD_LEFT);
+                    $stmt = salon_exec($db, "UPDATE salon_services SET service_code=? WHERE service_id=?", 'si', array($generatedCode,$newServiceId));
+                    $stmt->close();
+                    if (!$db->commit()) { throw new Exception('Could not commit the new salon service.'); }
                 }
-                $stmt->close();
                 $notice = 'Salon service saved.';
                 $view = 'services';
             } elseif ($action === 'save_assignment') {
@@ -226,7 +239,7 @@ function salon_rows($db, $sql) {
 }
 $hairdressers = salon_rows($db, "SELECT hairdresser_id,hairdresser_code,full_name,phone,email,is_active,notes FROM salon_hairdressers ORDER BY full_name");
 $services = salon_rows($db, "SELECT service_id,service_code,service_name,service_category,description,duration_minutes,standard_price,pos_itemcode,pos_barcode,is_active FROM salon_services ORDER BY service_name");
-$stockItems = salon_rows($db, "SELECT itemcode,barcode FROM stockmaster WHERE barcode IS NOT NULL AND barcode <> '' ORDER BY itemcode");
+$stockItems = salon_rows($db, "SELECT sm.itemcode,sm.barcode,sm.descrip,sc.categorydescription FROM stockmaster sm LEFT JOIN stockcategory sc ON sc.categoryid=sm.category WHERE sm.barcode IS NOT NULL AND sm.barcode <> '' AND sm.itemcode IS NOT NULL AND sm.itemcode <> '' AND (sm.inactive IS NULL OR sm.inactive=0) ORDER BY sm.itemcode");
 $editingHairdresser = null;
 if (isset($_GET['edit_hairdresser'])) {
     foreach ($hairdressers as $candidate) { if ((int)$candidate['hairdresser_id'] === (int)$_GET['edit_hairdresser']) { $editingHairdresser = $candidate; break; } }
@@ -242,11 +255,11 @@ if ($view === 'hairdressers') {
     if (!$hairdressers) { echo '<tr><td colspan="6" class="text-muted">No hairdressers registered.</td></tr>'; }
     echo '</tbody></table></div></div></div></div>';
 } elseif ($view === 'services') {
-    echo '<div class="row g-3"><div class="col-lg-4"><div class="card"><div class="card-header">Add salon service</div><div class="card-body"><form method="post"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="save_service"><input type="hidden" name="service_id" value="' . (int)($editingService ? $editingService['service_id'] : 0) . '"><div class="mb-2"><label class="form-label">Service code</label><input class="form-control" name="service_code" maxlength="30" value="' . salon_h($editingService ? $editingService['service_code'] : '') . '" required></div><div class="mb-2"><label class="form-label">Service name</label><input class="form-control" name="service_name" maxlength="120" value="' . salon_h($editingService ? $editingService['service_name'] : '') . '" required></div><div class="mb-2"><label class="form-label">Category</label><input class="form-control" name="service_category" maxlength="60" value="' . salon_h($editingService ? $editingService['service_category'] : '') . '" placeholder="Hair, nails, treatment..."></div><div class="mb-2"><label class="form-label">Duration (minutes)</label><input class="form-control" type="number" name="duration_minutes" min="1" value="' . (int)($editingService ? $editingService['duration_minutes'] : 30) . '" required></div><div class="mb-2"><label class="form-label">Standard price (KES)</label><input class="form-control" type="number" name="standard_price" min="0" step="0.01" value="' . number_format((float)($editingService ? $editingService['standard_price'] : 0),2,'.','') . '" required></div><div class="mb-2"><label class="form-label">ERP POS item code</label><select class="form-select" id="salon-pos-itemcode" name="pos_itemcode" onchange="salonSyncPosMapping(this)"><option value="">Select ERP POS item</option>'; 
+    echo '<div class="row g-3"><div class="col-lg-4"><div class="card"><div class="card-header">Add salon service</div><div class="card-body"><form method="post"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="save_service"><input type="hidden" name="service_id" value="' . (int)($editingService ? $editingService['service_id'] : 0) . '"><div class="mb-2"><label class="form-label">Service code</label><input class="form-control" value="' . salon_h($editingService ? $editingService['service_code'] : 'Generated automatically when saved') . '" readonly></div><div class="mb-2"><label class="form-label">ERP item description / service name</label><input class="form-control" id="salon-erp-description" value="' . salon_h($editingService ? $editingService['service_name'] : '') . '" readonly></div><div class="mb-2"><label class="form-label">ERP item category</label><input class="form-control" id="salon-erp-category" value="' . salon_h($editingService ? $editingService['service_category'] : '') . '" readonly></div><div class="mb-2"><label class="form-label">Duration (minutes)</label><input class="form-control" type="number" name="duration_minutes" min="1" value="' . (int)($editingService ? $editingService['duration_minutes'] : 30) . '" required></div><div class="mb-2"><label class="form-label">Standard price (KES)</label><input class="form-control" type="number" name="standard_price" min="0" step="0.01" value="' . number_format((float)($editingService ? $editingService['standard_price'] : 0),2,'.','') . '" required></div><div class="mb-2"><label class="form-label">ERP POS item code</label><select class="form-select" id="salon-pos-itemcode" name="pos_itemcode" onchange="salonSyncPosMapping(this)"><option value="">Select ERP POS item</option>'; 
     foreach ($stockItems as $item) { echo '<option value="' . salon_h($item['itemcode']) . '" data-barcode="' . salon_h($item['barcode']) . '" ' . ($editingService && $editingService['pos_itemcode'] === $item['itemcode'] ? 'selected' : '') . '>' . salon_h($item['itemcode'] . ' — ' . $item['barcode']) . '</option>'; }
     echo '</select></div><div class="mb-2"><label class="form-label">ERP POS barcode</label><select class="form-select" id="salon-pos-barcode" name="pos_barcode" onchange="salonSyncPosMapping(this)"><option value="">Select ERP POS barcode</option>'; 
     foreach ($stockItems as $item) { echo '<option value="' . salon_h($item['barcode']) . '" data-itemcode="' . salon_h($item['itemcode']) . '" ' . ($editingService && $editingService['pos_barcode'] === $item['barcode'] ? 'selected' : '') . '>' . salon_h($item['barcode'] . ' — ' . $item['itemcode']) . '</option>'; }
-    echo '</select></div><script>function salonSyncPosMapping(control){var item=document.getElementById("salon-pos-itemcode");var barcode=document.getElementById("salon-pos-barcode");if(!item||!barcode||!control)return;if(control.id==="salon-pos-itemcode"){var selected=item.options[item.selectedIndex];barcode.value=selected&&selected.getAttribute("data-barcode")?selected.getAttribute("data-barcode"):"";}else{var selected=barcode.options[barcode.selectedIndex];item.value=selected&&selected.getAttribute("data-itemcode")?selected.getAttribute("data-itemcode"):"";}}</script><div class="mb-2"><label class="form-label">Status</label><select class="form-select" name="is_active"><option value="1" ' . (!$editingService || $editingService['is_active'] ? 'selected' : '') . '>Active</option><option value="0" ' . ($editingService && !$editingService['is_active'] ? 'selected' : '') . '>Inactive</option></select></div><div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2">' . salon_h($editingService ? $editingService['description'] : '') . '</textarea></div><button class="btn btn-primary">' . ($editingService ? 'Update service' : 'Save service') . '</button></form></div></div></div><div class="col-lg-8"><div class="card"><div class="card-header">Service catalogue</div><div class="table-responsive"><table class="table table-striped mb-0"><thead><tr><th>Code</th><th>Service</th><th>Category</th><th>Duration</th><th>Price (KES)</th><th>ERP item</th><th>Barcode</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+    echo '</select></div><script>function salonSyncPosMapping(control){var item=document.getElementById("salon-pos-itemcode");var barcode=document.getElementById("salon-pos-barcode");var description=document.getElementById("salon-erp-description");var category=document.getElementById("salon-erp-category");if(!item||!barcode||!control)return;var selected;if(control.id==="salon-pos-itemcode"){selected=item.options[item.selectedIndex];barcode.value=selected&&selected.getAttribute("data-barcode")?selected.getAttribute("data-barcode"):"";}else{selected=barcode.options[barcode.selectedIndex];item.value=selected&&selected.getAttribute("data-itemcode")?selected.getAttribute("data-itemcode"):"";}if(description)description.value=selected?selected.getAttribute("data-description")||"":"";if(category)category.value=selected?selected.getAttribute("data-category")||"":"";}document.addEventListener("DOMContentLoaded",function(){var item=document.getElementById("salon-pos-itemcode");if(item&&item.value){salonSyncPosMapping(item);}});</script><div class="mb-2"><label class="form-label">Status</label><select class="form-select" name="is_active"><option value="1" ' . (!$editingService || $editingService['is_active'] ? 'selected' : '') . '>Active</option><option value="0" ' . ($editingService && !$editingService['is_active'] ? 'selected' : '') . '>Inactive</option></select></div><div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2">' . salon_h($editingService ? $editingService['description'] : '') . '</textarea></div><button class="btn btn-primary">' . ($editingService ? 'Update service' : 'Save service') . '</button></form></div></div></div><div class="col-lg-8"><div class="card"><div class="card-header">Service catalogue</div><div class="table-responsive"><table class="table table-striped mb-0"><thead><tr><th>Code</th><th>Service</th><th>Category</th><th>Duration</th><th>Price (KES)</th><th>ERP item</th><th>Barcode</th><th>Status</th><th>Action</th></tr></thead><tbody>';
     foreach ($services as $row) { echo '<tr><td>' . salon_h($row['service_code']) . '</td><td>' . salon_h($row['service_name']) . '</td><td>' . salon_h($row['service_category']) . '</td><td>' . (int)$row['duration_minutes'] . ' min</td><td>' . number_format((float)$row['standard_price'],2) . '</td><td>' . salon_h($row['pos_itemcode']) . '</td><td>' . salon_h($row['pos_barcode']) . '</td><td>' . ($row['is_active'] ? 'Active' : 'Inactive') . '</td><td><a href="index.php?link=SalonManagement&view=services&edit_service=' . (int)$row['service_id'] . '">Edit</a></td></tr>'; }
     if (!$services) { echo '<tr><td colspan="9" class="text-muted">No services configured.</td></tr>'; }
     echo '</tbody></table></div></div></div></div>';
