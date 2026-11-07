@@ -94,13 +94,9 @@
                 price: appointment.price,
                 itemcode: appointment.itemcode,
                 barcode: appointment.barcode,
-                vat_rate: 0
+                vat_rate: appointment.vatRate
             };
-            var root = document.getElementById('salon-service-catalogue');
-            var services = root && root._salonServices ? root._salonServices : [];
-            var configured = services.find(function (item) { return Number(item.id) === Number(appointment.serviceId); });
-            if (configured) { service.vat_rate = configured.vat_rate; }
-            var hairdresser = {id: appointment.hairdresserId, name: appointment.hairdresser};
+                        var hairdresser = {id: appointment.hairdresserId, name: appointment.hairdresser};
             addSalonService(service, hairdresser, true);
             $('#sales-table').attr('data-appointment-id', appointment.id);
             $('.salon-add-service[data-service-id="' + appointment.serviceId + '"]').prop('disabled', true).text('Booked in appointment');
