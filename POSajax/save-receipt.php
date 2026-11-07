@@ -386,6 +386,7 @@ if ($appointmentContext && $appointmentServiceLineCount !== 1) {
     posSaveResponse(false, 'The linked appointment service must appear exactly once in the checkout basket.', 409);
 }
 $productStmt->close();
+$salonProductStmt->close();
 if ($salonServiceStmt) { $salonServiceStmt->close(); }
 if ($salonAssignmentStmt) { $salonAssignmentStmt->close(); }
 if ($salonMappedItemStmt) { $salonMappedItemStmt->close(); }
