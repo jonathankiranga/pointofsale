@@ -1804,9 +1804,9 @@ main#view-panel table.bo-compact-form-table select {
 }
 
 main#view-panel table.bo-compact-form-table textarea {
-    display: block;
-    width: min(34rem, 100%) !important;
-    min-width: 18ch;
+    display: inline-block;
+    width: auto !important;
+    min-width: 0;
     max-width: 100%;
 }
 
