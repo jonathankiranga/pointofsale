@@ -71,3 +71,36 @@
 .salon-pos-mode #recall-transaction-link {
     display: none;
 }
+
+.salon-pos-mode .salon-appointment-summary {
+    margin: 18px 24px 0;
+}
+.salon-pos-mode .salon-appointment-banner {
+    display: grid;
+    grid-template-columns: 1.2fr 1.2fr .6fr;
+    gap: 16px;
+    padding: 15px 18px;
+    border: 1px solid #b9d4ed;
+    border-radius: 12px;
+    background: #f2f7fc;
+}
+.salon-pos-mode .salon-appointment-banner > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.salon-pos-mode .salon-appointment-banner strong {
+    color: #17365d;
+    font-size: 16px;
+}
+.salon-pos-mode .salon-appointment-banner small {
+    color: #64748b;
+}
+.salon-pos-mode .appointment-service-line {
+    background: #f2f7fc;
+}
+@media (max-width: 700px) {
+    .salon-pos-mode .salon-appointment-summary { margin: 12px; }
+    .salon-pos-mode .salon-appointment-banner { grid-template-columns: 1fr; gap: 10px; }
+}
