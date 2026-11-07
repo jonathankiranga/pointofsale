@@ -86,6 +86,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         </nav>
 
         <?php if (!empty($POSIsSalonTerminal)) { ?>
+        <section id="salon-appointment-summary" class="salon-appointment-summary" style="display:none;" aria-live="polite"></section>
         <section class="salon-service-picker" aria-label="Salon service catalogue">
             <div class="salon-service-picker-heading">
                 <div><span class="pos-eyebrow">SALON SERVICE MENU</span><h1>Choose a service and hairdresser</h1></div>
@@ -251,6 +252,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     <?php if (!empty($POSIsSalonTerminal)) { ?><script src="POSajax/salon-pos.js"></script><?php } ?>
     <script>
         window.POS_VAT_INCLUSIVE = <?php echo (int)$POSVatInclusive; ?>;
+        window.POS_APPOINTMENT_ID = <?php echo isset($_GET['appointment_id']) ? (int)$_GET['appointment_id'] : 0; ?>;
         window.POS_FORM_ID = <?php echo json_encode($_SESSION['FormID'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINT_URL = <?php echo json_encode($POSPrintUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINT_TOKEN = <?php echo json_encode($POSPrintToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
