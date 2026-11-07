@@ -353,7 +353,8 @@ function PostPOSInvoice($sourceDocumentNo, $periodNo) {
     $invoiceJournal = GetNextTransNo(0, $db);
     if ($invoiceNo === null || trim((string)$invoiceNo) === '' ||
         !preg_match('/^[A-Za-z0-9._\\/-]+$/', (string)$invoiceNo) ||
-        $invoiceJournal === null || trim((string)$invoiceJournal) === '') {
+        $invoiceJournal === null || trim((string)$invoiceJournal) === '' ||
+        !preg_match('/^[A-Za-z0-9._\\/-]+$/', (string)$invoiceJournal)) {
         throw new Exception('Could not allocate a valid POS invoice number or journal number.');
     }
 
