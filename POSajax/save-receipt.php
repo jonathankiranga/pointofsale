@@ -249,20 +249,6 @@ try {
     if (!$lockRow || (int)$lockRow['lock_ok'] !== 1) { throw new Exception('Could not lock the sales entry sequence.'); }
     $entryLockAcquired = true;
 
-    if ($paymentMethod === 'MPESA') {
-        $referenceCheck = $db->prepare("SELECT docno FROM receiptheader WHERE externalref=? LIMIT 1 FOR UPDATE");
-        if (!$referenceCheck) { throw new Exception('Could not validate the M-Pesa transaction reference: ' . $db->error); }
-        $referenceCheck->bind_param('s', $receiptReference);
-        if (!$referenceCheck->execute()) { throw new Exception('Could not validate the M-Pesa transaction reference: ' . $referenceCheck->error); }
-        $usedReference = $referenceCheck->get_result()->fetch_assoc();
-        $referenceCheck->close();
-        if ($usedReference) {
-            $db->rollback();
-            if ($entryLockAcquired) { $db->query("SELECT RELEASE_LOCK('pos_sales_entryno')"); $entryLockAcquired = false; }
-            posSaveResponse(false, 'This M-Pesa transaction code has already been used for another receipt.', 409);
-        }
-    }
-
     // Serialize the duplicate check with the entry-number allocation. A retry
     // after a committed request must not create a second invoice or receipt.
     $check = $db->prepare("SELECT documentno,total,total_vat FROM SalesHeader
@@ -283,6 +269,7 @@ try {
         $complete = false;
         if ($invoiceRow) {
             $completeSql = "SELECT
+                (SELECT COUNT(*) FROM SalesHeader WHERE documenttype=10 AND externaldocumentno=?) AS invoice_count,
                 (SELECT COUNT(*) FROM CustomerStatement WHERE Documentno=? AND Documenttype=10) AS invoice_statement_count,
                 (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=10) AS invoice_gl_count,
                 (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=10) AS invoice_debtor_count,
@@ -292,20 +279,21 @@ try {
                 (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
                 (SELECT COUNT(*) FROM receiptsallocation WHERE receiptno=?) AS allocation_count";
             $completeStmt = $db->prepare($completeSql);
-            $completeStmt->bind_param('ssssssss', $invoiceRow['documentno'], $invoiceRow['documentno'],
+            $completeStmt->bind_param('sssssssss', $docno, $invoiceRow['documentno'], $invoiceRow['documentno'],
                 $invoiceRow['documentno'], $docno, $docno, $docno, $docno, $docno);
             $completeStmt->execute();
             $completeRow = $completeStmt->get_result()->fetch_assoc();
             $completeStmt->close();
             $complete = $completeRow &&
-                (int)$completeRow['invoice_statement_count'] > 0 &&
+                (int)$completeRow['invoice_count'] === 1 &&
+                (int)$completeRow['invoice_statement_count'] === 1 &&
                 (int)$completeRow['invoice_gl_count'] > 0 &&
                 (int)$completeRow['invoice_debtor_count'] > 0 &&
-                (int)$completeRow['receipt_count'] > 0 &&
-                (int)$completeRow['bank_count'] > 0 &&
-                (int)$completeRow['debtor_count'] > 0 &&
-                (int)$completeRow['gl_count'] > 0 &&
-                (int)$completeRow['allocation_count'] > 0;
+                (int)$completeRow['receipt_count'] === 1 &&
+                (int)$completeRow['bank_count'] === 1 &&
+                (int)$completeRow['debtor_count'] === 1 &&
+                (int)$completeRow['gl_count'] === 1 &&
+                (int)$completeRow['allocation_count'] === 1;
         }
 
         if (!$complete) {
@@ -340,6 +328,20 @@ try {
             'total' => (float)$existing['total'], 'total_vat' => (float)$existing['total_vat'],
             'items' => $savedItems
         ));
+    }
+
+    if ($paymentMethod === 'MPESA') {
+        $referenceCheck = $db->prepare("SELECT docno FROM receiptheader WHERE externalref=? LIMIT 1 FOR UPDATE");
+        if (!$referenceCheck) { throw new Exception('Could not validate the M-Pesa transaction reference: ' . $db->error); }
+        $referenceCheck->bind_param('s', $receiptReference);
+        if (!$referenceCheck->execute()) { throw new Exception('Could not validate the M-Pesa transaction reference: ' . $referenceCheck->error); }
+        $usedReference = $referenceCheck->get_result()->fetch_assoc();
+        $referenceCheck->close();
+        if ($usedReference) {
+            $db->rollback();
+            if ($entryLockAcquired) { $db->query("SELECT RELEASE_LOCK('pos_sales_entryno')"); $entryLockAcquired = false; }
+            posSaveResponse(false, 'This M-Pesa transaction code has already been used for another receipt.', 409);
+        }
     }
 
     $entryResult = $db->query("SELECT COALESCE(MAX(entryno),0)+1 AS next_entry FROM SalesHeader");
