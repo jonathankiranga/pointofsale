@@ -27,6 +27,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     <link rel="stylesheet" href="POScss/completecss.css">
     <link rel="stylesheet" href="POScss/posstyle.css">
     <link rel="stylesheet" href="POScss/pos-touch.css">
+    <?php if (!empty($POSIsSalonTerminal)) { ?><link rel="stylesheet" href="POScss/salon-pos.css"><?php } ?>
     <script src="javascripts/3.5.1/jquery.min.js"></script>
 </head>
 <body class="pos-touch-mode <?php echo !empty($POSIsSalonTerminal) ? 'salon-pos-mode' : ''; ?>">
