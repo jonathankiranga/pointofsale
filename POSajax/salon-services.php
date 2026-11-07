@@ -31,7 +31,7 @@ $sql = "SELECT sm.pkey AS service_id,sm.itemcode AS service_code,sm.descrip AS s
     INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
     WHERE ss.is_active=1 AND sm.itemcode IS NOT NULL AND sm.itemcode<>''
       AND sm.barcode IS NOT NULL AND sm.barcode<>''
-      AND sm.sellingprice IS NOT NULL
+      AND sm.sellingprice IS NOT NULL AND sm.sellingprice>=0
       AND (sm.inactive IS NULL OR sm.inactive=0)
     ORDER BY sc.categorydescription,sm.descrip";
 $result = $db->query($sql);
