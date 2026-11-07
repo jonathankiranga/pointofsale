@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     posSaveResponse(false, 'POST is required.', 405);
 }
 $receiptData = json_decode(file_get_contents('php://input'), true);
-if (!is_array($receiptData) || empty($receiptData['items']) || empty($receiptData['docno'])) {
+if (!is_array($receiptData) || !isset($receiptData['items']) || !is_array($receiptData['items']) || count($receiptData['items']) < 1 || !isset($receiptData['docno'])) {
     posSaveResponse(false, 'Receipt number and at least one sale item are required.', 400);
 }
 
@@ -34,19 +34,29 @@ if (empty($_SESSION['FormID']) || !hash_equals((string)$_SESSION['FormID'], $tok
 }
 
 $docno = trim((string)$receiptData['docno']);
-$paymentMethod = isset($receiptData['paymentMethod']) ? strtoupper(trim((string)$receiptData['paymentMethod'])) : 'CASH';
-if (!in_array($paymentMethod, array('CASH', 'MPESA'), true)) {
-    posSaveResponse(false, 'Unsupported POS payment method.', 400);
+if ($docno === '' || strlen($docno) > 20) {
+    posSaveResponse(false, 'The receipt number is missing or exceeds the allowed length.', 400);
 }
-$cash = isset($receiptData['cash']) ? (float)$receiptData['cash'] : 0;
-$change = isset($receiptData['change']) ? (float)$receiptData['change'] : 0;
+$paymentMethod = isset($receiptData['paymentMethod']) ? strtoupper(trim((string)$receiptData['paymentMethod'])) : '';
+if (!in_array($paymentMethod, array('CASH', 'MPESA'), true)) {
+    posSaveResponse(false, 'A valid POS payment method is required.', 400);
+}
 $mpesaPhone = isset($receiptData['mpesaPhone']) ? trim((string)$receiptData['mpesaPhone']) : '';
 if ($paymentMethod === 'MPESA') {
     $cash = 0;
     $change = 0;
     if (!preg_match('/^254[17][0-9]{8}$/', $mpesaPhone)) {
-        posSaveResponse(false, 'A verified M-Pesa phone number is required.', 400);
+        posSaveResponse(false, 'A valid M-Pesa phone number is required.', 400);
     }
+} else {
+    $cashValue = isset($receiptData['cash']) ? $receiptData['cash'] : null;
+    $changeValue = isset($receiptData['change']) ? $receiptData['change'] : null;
+    if (!is_numeric($cashValue) || !is_numeric($changeValue) ||
+        !is_finite((float)$cashValue) || !is_finite((float)$changeValue)) {
+        posSaveResponse(false, 'Cash received and change must both be valid amounts.', 400);
+    }
+    $cash = round((float)$cashValue, 2);
+    $change = round((float)$changeValue, 2);
 }
 
 $config = array();
@@ -95,7 +105,7 @@ $items = array();
 $calculatedTotal = 0.00;
 $calculatedVat = 0.00;
 $productStmt = $mysqli->prepare("SELECT sm.barcode, sm.itemcode, sm.descrip, sm.units, sm.sellingprice,
-        IFNULL(vc.vat,0) AS vat_rate, ipg.vatcategory AS tax_category
+        vc.vat AS vat_rate, ipg.vatcategory AS tax_category, ipg.code AS product_posting_group
     FROM stockmaster sm
     LEFT JOIN inventorypostinggroup ipg ON sm.postinggroup=ipg.code
     LEFT JOIN vatcategory vc ON ipg.vatcategory=vc.vatc
@@ -120,8 +130,19 @@ foreach ($receiptData['items'] as $item) {
         $productStmt->close();
         posSaveResponse(false, 'A product in this sale is no longer available in the ERP item master. Refresh the basket.', 409);
     }
+    if ($product['sellingprice'] === null || !is_numeric($product['sellingprice']) ||
+        $product['product_posting_group'] === null || trim((string)$product['product_posting_group']) === '' ||
+        $product['tax_category'] === null || trim((string)$product['tax_category']) === '' ||
+        $product['vat_rate'] === null || !is_numeric($product['vat_rate'])) {
+        $productStmt->close();
+        posSaveResponse(false, 'A sale item has a missing selling price, inventory posting group or VAT mapping. Correct the item setup before selling it.', 409);
+    }
     $unitPrice = (float)$product['sellingprice'];
     $vatRate = (float)$product['vat_rate'];
+    if (!is_finite($unitPrice) || $unitPrice < 0 || !is_finite($vatRate) || $vatRate < 0) {
+        $productStmt->close();
+        posSaveResponse(false, 'A sale item has an invalid selling price or VAT rate.', 409);
+    }
     $lineTotal = round($unitPrice * $quantity, 2);
     $vatAmount = $vatInclusive && $vatRate > 0
         ? round($lineTotal - ($lineTotal / (1 + ($vatRate / 100))), 2)
@@ -145,13 +166,19 @@ foreach ($receiptData['items'] as $item) {
 $productStmt->close();
 $calculatedTotal = round($calculatedTotal, 2);
 $calculatedVat = round($calculatedVat, 2);
-if ($paymentMethod === 'CASH' && ($cash < $calculatedTotal || $change < 0 || $cash < 0)) {
-    posSaveResponse(false, 'Cash received is insufficient or invalid.', 400);
+if ($paymentMethod === 'CASH') {
+    $expectedChange = round($cash - $calculatedTotal, 2);
+    if ($cash < $calculatedTotal || $cash < 0 || $change < 0 ||
+        $change > $cash || abs($change - $expectedChange) > 0.001) {
+        posSaveResponse(false, 'Cash received and change do not balance to the sale total.', 400);
+    }
 }
-if ($paymentMethod === 'MPESA') { $cash = $calculatedTotal; }
 
+$entryLockAcquired = false;
 try {
-    $mysqli->begin_transaction();
+    if (!$mysqli->begin_transaction()) {
+        throw new Exception('Could not start the POS sale transaction: ' . $mysqli->error);
+    }
 
     // Lock the cashier shift while posting this receipt so it cannot be
     // closed between validation and insertion.
@@ -185,8 +212,13 @@ try {
     $lockResult = $mysqli->query("SELECT GET_LOCK('pos_sales_entryno',10) AS lock_ok");
     $lockRow = $lockResult ? $lockResult->fetch_assoc() : null;
     if (!$lockRow || (int)$lockRow['lock_ok'] !== 1) { throw new Exception('Could not lock the sales entry sequence.'); }
+    $entryLockAcquired = true;
     $entryResult = $mysqli->query("SELECT COALESCE(MAX(entryno),0)+1 AS next_entry FROM SalesHeader");
+    if (!$entryResult) { throw new Exception('Could not determine the next sales entry number: ' . $mysqli->error); }
     $entryRow = $entryResult->fetch_assoc();
+    if (!$entryRow || !isset($entryRow['next_entry']) || (int)$entryRow['next_entry'] < 1) {
+        throw new Exception('The next sales entry number is invalid.');
+    }
     $entryNo = (int)$entryRow['next_entry'];
 
     $header = $mysqli->prepare("INSERT INTO SalesHeader
@@ -227,7 +259,6 @@ try {
         if (!$lineStmt->execute()) { throw new Exception('Could not save a sales line: ' . $lineStmt->error); }
     }
     $lineStmt->close();
-    $mysqli->query("SELECT RELEASE_LOCK('pos_sales_entryno')");
 
     $printItems = array();
     foreach ($items as $saleLine) {
@@ -238,14 +269,22 @@ try {
             'vatAmount' => $saleLine['vat_amount'], 'lineTotal' => $saleLine['line_total']
         );
     }
-    $mysqli->commit();
+    if (!$mysqli->commit()) {
+        throw new Exception('Could not commit the POS sale: ' . $mysqli->error);
+    }
+    if ($entryLockAcquired) {
+        $mysqli->query("SELECT RELEASE_LOCK('pos_sales_entryno')");
+        $entryLockAcquired = false;
+    }
     posSaveResponse(true, 'Receipt saved successfully.', 200, array(
         'documentno' => $docno, 'total' => $calculatedTotal, 'total_vat' => $calculatedVat,
         'items' => $printItems
     ));
-} catch (Exception $e) {
+} catch (Throwable $e) {
     $mysqli->rollback();
-    $mysqli->query("SELECT RELEASE_LOCK('pos_sales_entryno')");
+    if ($entryLockAcquired) {
+        $mysqli->query("SELECT RELEASE_LOCK('pos_sales_entryno')");
+    }
     error_log('POS receipt save failed: ' . $e->getMessage());
     posSaveResponse(false, 'The receipt could not be saved. Check the server error log.', 500);
 }
