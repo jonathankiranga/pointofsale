@@ -72,7 +72,8 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                 <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#trash"/></svg>
                 <span>Remove line</span>
             </button>
-            <a class="pos-action" href="index.php?link=SalonManagement" id="salon-management-link"><span>Salon operations</span></a>
+            <a class="pos-action" href="SalonPOS.php" id="salon-terminal-link"><span>Salon POS</span></a>
+            <a class="pos-action" href="index.php?link=SalonManagement" id="salon-management-link"><span>Salon setup</span></a>
             <button type="button" class="pos-action" id="pos-shift-open"><span>Open shift</span></button>
             <button type="button" class="pos-action" id="pos-x-report"><span>X report</span></button>
             <button type="button" class="pos-action pos-action-danger" id="pos-z-close"><span>Z close</span></button>
