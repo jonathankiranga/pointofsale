@@ -51,7 +51,7 @@ if ($appointmentId > 0) {
         FROM salon_appointments a
         INNER JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id
         INNER JOIN salon_services s ON s.service_id=l.service_id
-        INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey
+        INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
         WHERE a.appointment_id=?");
     if (!$appointmentContextStmt) { posSaveResponse(false, 'Could not validate the linked appointment.', 500); }
     $appointmentContextStmt->bind_param('i', $appointmentId);
@@ -285,7 +285,7 @@ foreach ($receiptData['items'] as $item) {
         if (!$salonServiceStmt) {
             $salonServiceStmt = $db->prepare("SELECT s.service_id,s.service_name,s.standard_price,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode
                 FROM salon_services s
-                INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey
+                INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
                 WHERE s.service_id=? AND s.is_active=1 LIMIT 1");
             $salonAssignmentStmt = $db->prepare("SELECT COUNT(*) AS assigned
                 FROM salon_hairdresser_services hs
