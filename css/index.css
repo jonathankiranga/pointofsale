@@ -835,8 +835,9 @@ overflow: hidden;
 
 .form-input,
 .form-textarea {
-  width: 100%;
-  min-width: 400px;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
   padding: 8px 12px;
   font-size: 14px;
   border: 1px solid #ccc;
@@ -1109,6 +1110,7 @@ main#view-panel input:not([type="checkbox"]):not([type="radio"]):not([type="subm
 main#view-panel select,
 main#view-panel textarea,
 main#view-panel .form-control {
+    width: auto;
     max-width: 100%;
     min-height: 34px;
     padding: 6px 9px;
@@ -1641,8 +1643,8 @@ main#view-panel form table.table-bordered > tr > td:first-child:not([colspan]) {
 main#view-panel form table.table-bordered input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]),
 main#view-panel form table.table-bordered select,
 main#view-panel form table.table-bordered textarea {
-    display: block;
-    width: 100%;
+    display: inline-block;
+    width: auto;
     max-width: 100%;
     min-width: 0;
 }
