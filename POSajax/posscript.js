@@ -214,7 +214,8 @@ function restoreSalesData() {
     if (savedData) {
         const receiptData = JSON.parse(savedData);
 
-        // Restore total, cash, and change
+        // Restore total, cash, change and appointment context
+        if (Number(receiptData.appointmentId) > 0) { $('#sales-table').attr('data-appointment-id', receiptData.appointmentId); }
         $('#total-amount').text(receiptData.total);
         $('#customer-cash').val(receiptData.cash);
         $('#customer-change').text(receiptData.change);
@@ -224,10 +225,10 @@ function restoreSalesData() {
           
         // Restore each item row
         receiptData.items.forEach(function(item) {
-            const newRow = `<tr class="selectable" data-barcode="${item.barcode}" data-itemcode="${item.itemcode || ''}">
+            const newRow = `<tr class="selectable ${item.appointmentLine ? 'appointment-service-line' : ''}" data-barcode="${item.barcode}" data-itemcode="${item.itemcode || ''}" data-salon-service-id="${item.salonServiceId || 0}" data-hairdresser-id="${item.hairdresserId || 0}" ${item.appointmentLine ? 'data-appointment-line="1"' : ''}>
                     <td>${item.barcode}</td>
                     <td>${item.description}</td>
-                    <td contenteditable="true" class="quantity">${item.quantity}</td>
+                    <td ${item.appointmentLine ? '' : 'contenteditable="true"'} class="quantity">${item.quantity}</td>
                     <td class="unit-price">${item.unitPrice}</td>
                     <td class="vat-per">${item.vatper}</td>
                     <td class="VAT-total">${item.VATtotal}</td>
@@ -262,8 +263,10 @@ function saveSalesData() {
         const vatper = $(this).find('.vat-per').text().trim();
         const VATtotal = $(this).find('.VAT-total').text().trim();
         const lineTotal = $(this).find('.line-total').text().trim();
+        const salonServiceId = Number($(this).attr('data-salon-service-id')) || 0;
+        const hairdresserId = Number($(this).attr('data-hairdresser-id')) || 0;
+        const appointmentLine = $(this).hasClass('appointment-service-line');
 
- 
         if (barcode !== '' && description !== '') {
             items.push({
                 barcode: barcode,
@@ -273,13 +276,17 @@ function saveSalesData() {
                 unitPrice: unitPrice,
                 vatper: vatper,
                 VATtotal: VATtotal,
-                lineTotal: lineTotal
+                lineTotal: lineTotal,
+                salonServiceId: salonServiceId,
+                hairdresserId: hairdresserId,
+                appointmentLine: appointmentLine
             });
         }
         
     });
 
     const receiptData = {
+        appointmentId: Number($('#sales-table').attr('data-appointment-id')) || 0,
         items: items,
         total: total,
         cash: cash,
@@ -350,7 +357,8 @@ function recallSalesDataByReference(referenceNumber) {
     const receiptData = savedTransactions[referenceNumber];
 
     if (receiptData) {
-        // Restore total, cash, and change
+        // Restore total, cash, change and appointment context
+        if (Number(receiptData.appointmentId) > 0) { $('#sales-table').attr('data-appointment-id', receiptData.appointmentId); }
         $('#total-amount').text(receiptData.total);
         $('#customer-cash').val(receiptData.cash);
         $('#customer-change').text(receiptData.change);
@@ -362,10 +370,10 @@ function recallSalesDataByReference(referenceNumber) {
         // Restore each item row
         receiptData.items.forEach(function(item) {
             const newRow = `
-                <tr class="selectable" data-barcode="${item.barcode}" data-itemcode="${item.itemcode || ''}">
+                <tr class="selectable ${item.appointmentLine ? 'appointment-service-line' : ''}" data-barcode="${item.barcode}" data-itemcode="${item.itemcode || ''}" data-salon-service-id="${item.salonServiceId || 0}" data-hairdresser-id="${item.hairdresserId || 0}" ${item.appointmentLine ? 'data-appointment-line="1"' : ''}>
                     <td>${item.barcode}</td>
                     <td>${item.description}</td>
-                    <td contenteditable="true" class="quantity">${item.quantity}</td>
+                    <td ${item.appointmentLine ? '' : 'contenteditable="true"'} class="quantity">${item.quantity}</td>
                     <td class="unit-price">${item.unitPrice}</td>
                     <td class="vat-per">${item.vatper}</td>
                     <td class="VAT-total">${item.VATtotal}</td>
