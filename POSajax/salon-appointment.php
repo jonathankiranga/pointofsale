@@ -32,7 +32,7 @@ try {
         FROM salon_appointments a
         INNER JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id
         INNER JOIN salon_services s ON s.service_id=l.service_id
-        INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey
+        INNER JOIN stockmaster sm ON sm.pkey=s.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
         INNER JOIN inventorypostinggroup ipg ON ipg.code=sm.postinggroup
         INNER JOIN vatcategory vc ON vc.vatc=ipg.vatcategory
         LEFT JOIN salon_hairdressers h ON h.hairdresser_id=l.hairdresser_id
