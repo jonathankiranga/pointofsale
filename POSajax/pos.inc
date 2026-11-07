@@ -202,6 +202,8 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             </div>
             <label for="customer-mpesa-no">M-Pesa phone number</label>
             <input type="tel" inputmode="numeric" id="customer-mpesa-no" placeholder="2547XXXXXXXX" autocomplete="tel">
+            <label for="customer-mpesa-reference">M-Pesa transaction code</label>
+            <input type="text" id="customer-mpesa-reference" placeholder="Enter the code from the confirmation SMS" maxlength="20" autocomplete="off">
             <button type="button" id="process-mpesa-btn" class="pos-primary-button">Confirm and print receipt</button>
         </div>
     </div>
