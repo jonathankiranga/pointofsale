@@ -195,7 +195,7 @@ $items = array();
 $appointmentServiceLineCount = 0;
 $calculatedTotal = 0.00;
 $calculatedVat = 0.00;
-$productStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, sm.descrip, sm.units, sm.sellingprice,
+$productStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, TRIM(sm.descrip) AS descrip, sm.units, sm.sellingprice,
         vc.vat AS vat_rate, ipg.vatcategory AS tax_category, ipg.code AS product_posting_group,
         ipg.defaultgl_sales AS sales_account, ipg.defaultgl_vat AS vat_account
     FROM stockmaster sm
@@ -281,8 +281,10 @@ foreach ($receiptData['items'] as $item) {
             posSaveResponse(false, 'Every salon service line must have an assigned active hairdresser.', 400);
         }
         if (!$salonServiceStmt) {
-            $salonServiceStmt = $db->prepare("SELECT service_id,service_name,standard_price,pos_itemcode,pos_barcode
-                FROM salon_services WHERE service_id=? AND is_active=1 LIMIT 1");
+            $salonServiceStmt = $db->prepare("SELECT s.service_id,TRIM(sm.descrip) AS service_name,s.standard_price,s.pos_itemcode,s.pos_barcode
+                FROM salon_services s
+                INNER JOIN stockmaster sm ON sm.itemcode=s.pos_itemcode AND sm.barcode=s.pos_barcode
+                WHERE s.service_id=? AND s.is_active=1 LIMIT 1");
             $salonAssignmentStmt = $db->prepare("SELECT COUNT(*) AS assigned
                 FROM salon_hairdresser_services hs
                 INNER JOIN salon_hairdressers h ON h.hairdresser_id=hs.hairdresser_id
