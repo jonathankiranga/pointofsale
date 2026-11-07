@@ -94,19 +94,30 @@ $customerStmt = $db->prepare("SELECT d.customer,d.customerposting,p.debtorsaccou
     FROM debtors d
     INNER JOIN postinggroups p ON p.code=d.customerposting
     WHERE d.itemcode=? LIMIT 1");
+if (!$customerStmt) { posSaveResponse(false, 'Could not prepare the POS customer validation query.', 500); }
 $customerStmt->bind_param('s', $customerCode);
-$customerStmt->execute();
+if (!$customerStmt->execute()) {
+    $customerError = $customerStmt->error;
+    $customerStmt->close();
+    posSaveResponse(false, 'Could not validate the configured POS customer: ' . $customerError, 500);
+}
 $customerRow = $customerStmt->get_result()->fetch_assoc();
 $customerStmt->close();
-if (!$customerRow || empty($customerRow['customerposting']) || empty($customerRow['debtorsaccount'])) {
+if (!$customerRow || empty($customerRow['customer']) || trim((string)$customerRow['customer']) === '' ||
+    empty($customerRow['customerposting']) || empty($customerRow['debtorsaccount'])) {
     posSaveResponse(false, 'The configured POS customer has no valid debtor posting group/account. Correct the debtor master before selling.', 409);
 }
 if (trim((string)$customerRow['customerposting']) !== trim((string)$postingGroup)) {
     posSaveResponse(false, 'The POS default posting group must match the configured POS customer posting group.', 409);
 }
 $groupStmt = $db->prepare("SELECT VATinclusive FROM postinggroups WHERE code=? LIMIT 1");
+if (!$groupStmt) { posSaveResponse(false, 'Could not prepare the POS posting group validation query.', 500); }
 $groupStmt->bind_param('s', $postingGroup);
-$groupStmt->execute();
+if (!$groupStmt->execute()) {
+    $groupError = $groupStmt->error;
+    $groupStmt->close();
+    posSaveResponse(false, 'Could not validate the POS posting group: ' . $groupError, 500);
+}
 $groupRow = $groupStmt->get_result()->fetch_assoc();
 $groupStmt->close();
 if (!$groupRow || $groupRow['VATinclusive'] === null ||
@@ -116,9 +127,14 @@ if (!$groupRow || $groupRow['VATinclusive'] === null ||
 $vatInclusive = (int)$groupRow['VATinclusive'];
 
 $shiftStmt = $db->prepare("SELECT id FROM pos_shifts WHERE cashier_id=? AND status='OPEN' ORDER BY id DESC LIMIT 1");
+if (!$shiftStmt) { posSaveResponse(false, 'Could not prepare the cashier shift validation query.', 500); }
 $userId = (string)$_SESSION['UserID'];
 $shiftStmt->bind_param('s', $userId);
-$shiftStmt->execute();
+if (!$shiftStmt->execute()) {
+    $shiftError = $shiftStmt->error;
+    $shiftStmt->close();
+    posSaveResponse(false, 'Could not validate the cashier shift: ' . $shiftError, 500);
+}
 $shiftRow = $shiftStmt->get_result()->fetch_assoc();
 $shiftStmt->close();
 if (!$shiftRow) {
@@ -137,7 +153,11 @@ $bankStmt = $db->prepare("SELECT ba.accountcode,ba.currency,ba.PostingGroup,c.ra
     WHERE ba.accountcode=? LIMIT 1");
 if (!$bankStmt) { posSaveResponse(false, 'Could not validate the POS payment bank account.', 500); }
 $bankStmt->bind_param('s', $bankAccountCode);
-$bankStmt->execute();
+if (!$bankStmt->execute()) {
+    $bankError = $bankStmt->error;
+    $bankStmt->close();
+    posSaveResponse(false, 'Could not validate the POS payment bank account: ' . $bankError, 500);
+}
 $bankRow = $bankStmt->get_result()->fetch_assoc();
 $bankStmt->close();
 if (!$bankRow || trim((string)$bankRow['currency']) !== trim((string)$currencyCode) ||
@@ -171,7 +191,12 @@ foreach ($receiptData['items'] as $item) {
         $productStmt->close();
         posSaveResponse(false, 'Could not validate a sale item against the ERP product master.', 500);
     }
-    $product = $productStmt->get_result()->fetch_assoc();
+    $productResult = $productStmt->get_result();
+    if (!$productResult) {
+        $productStmt->close();
+        posSaveResponse(false, 'Could not read the ERP product validation result.', 500);
+    }
+    $product = $productResult->fetch_assoc();
     if (!$product) {
         $productStmt->close();
         posSaveResponse(false, 'A product in this sale is no longer available in the ERP item master. Refresh the basket.', 409);
@@ -236,8 +261,9 @@ try {
     // Lock the cashier shift while posting this receipt so it cannot be
     // closed between validation and insertion.
     $lockedShift = $db->prepare("SELECT id FROM pos_shifts WHERE id=? AND cashier_id=? AND status='OPEN' FOR UPDATE");
+    if (!$lockedShift) { throw new Exception('Could not lock the cashier shift: ' . $db->error); }
     $lockedShift->bind_param('is', $shiftId, $userId);
-    $lockedShift->execute();
+    if (!$lockedShift->execute()) { throw new Exception('Could not verify the cashier shift: ' . $lockedShift->error); }
     $stillOpen = $lockedShift->get_result()->fetch_assoc();
     $lockedShift->close();
     if (!$stillOpen) {
@@ -246,7 +272,11 @@ try {
     }
 
     $dateResult = $db->query("SELECT NOW() AS transaction_date");
+    if (!$dateResult) { throw new Exception('Could not obtain the POS transaction date: ' . $db->error); }
     $dateRow = $dateResult->fetch_assoc();
+    if (!$dateRow || empty($dateRow['transaction_date'])) {
+        throw new Exception('The database returned a NULL POS transaction date.');
+    }
     $currentDate = $dateRow['transaction_date'];
     $_POST['date'] = ConvertSQLDate($currentDate);
     $periodNo = GetPeriod($_POST['date'], $db, true);
