@@ -3,6 +3,9 @@
 -- Existing salon service records retain their service_id and service_code.
 -- Their displayed name/category are refreshed from the mapped ERP item.
 
+UPDATE salon_services SET service_code = CONCAT('TMP', UUID_SHORT());
+UPDATE salon_services SET service_code = CONCAT('SRV', LPAD(service_id, 6, '0'));
+
 UPDATE salon_services s
 INNER JOIN stockmaster sm
     ON sm.itemcode = s.pos_itemcode
