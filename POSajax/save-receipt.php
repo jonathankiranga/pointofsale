@@ -46,7 +46,7 @@ $appointmentId = isset($receiptData['appointmentId']) ? (int)$receiptData['appoi
 if ($appointmentId < 0) { posSaveResponse(false, 'Invalid appointment reference.', 400); }
 $appointmentContext = null;
 if ($appointmentId > 0) {
-    $appointmentContextStmt = $db->prepare("SELECT a.appointment_id,a.appointment_status,l.service_id,l.hairdresser_id,l.agreed_price,
+    $appointmentContextStmt = $db->prepare("SELECT a.appointment_id,a.appointment_status,a.customer_name,l.service_id,l.hairdresser_id,l.agreed_price,
             s.pos_itemcode,s.pos_barcode
         FROM salon_appointments a
         INNER JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id
@@ -566,7 +566,7 @@ try {
          status,userid,period,entryno,vatinclusive,total,cash,change_amount,pos_shift_id,payment_method,mpesa_phone,total_vat)
         VALUES (1,?,?,?,?,?,?,?,1,?,?,?,?,?,?,?,?,?,?,?)");
     if (!$header) { throw new Exception('Could not prepare sales header: ' . $db->error); }
-    $customerName = (string)$customerRow['customer'];
+    $customerName = $appointmentContext ? (string)$appointmentContext['customer_name'] : (string)$customerRow['customer'];
     $userName = isset($_SESSION['UsersRealName']) ? (string)$_SESSION['UsersRealName'] : $userId;
     $periodString = (int)$periodNo;
     $header->bind_param('ssssssssiiidddissd',
