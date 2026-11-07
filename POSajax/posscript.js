@@ -47,14 +47,19 @@ $(document).ready(function() {
     $('#process-mpesa-btn').click(function(event) {
         event.preventDefault();
         const phone = $('#customer-mpesa-no').val().trim();
+        const reference = $('#customer-mpesa-reference').val().trim().toUpperCase();
         if (!/^254[17][0-9]{8}$/.test(phone)) {
             showCustomDialog('Enter a valid Kenyan M-Pesa number in 2547XXXXXXXX or 2541XXXXXXXX format.');
+            return;
+        }
+        if (!/^[A-Z0-9]{8,20}$/.test(reference)) {
+            showCustomDialog('Enter the M-Pesa transaction code from the payment confirmation message.');
             return;
         }
         if (!window.confirm('Have you received and verified this M-Pesa payment in your M-Pesa confirmation message or statement?')) {
             return;
         }
-        printReceipt('MPESA', phone);
+        printReceipt('MPESA', phone, reference);
     });
     
     $('#show-bill-link').on('click', function(event) {
