@@ -111,11 +111,11 @@ echo '<input type="hidden" name="FormID" value="'. $_SESSION['FormID'] .'" />';
     }
     
 
-echo '<div class="card">'
-    . '<table class="table-striped table-bordered"><caption>Invoice Header Details</caption>';
-echo '<tr><td>Date</td><td><input tabindex="1" type="text" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" name="date" size="11" maxlength="10" autofocus="autofocus" required="required" value="' .$_POST['date']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td></tr>';
-echo '<tr><td>Document No</td><td><input tabindex="4" type="text" name="documentno" value="'.$_POST['documentno'].'"  size="10" maxlength="10" required="required" readonly="readonly"/></td></tr>'
-   . '<tr><td>Supplier Reference</td><td><input tabindex="5" type="text" name="reference" value="'.$_POST['reference'].'"  size="10"  maxlength="10"/></td></tr>';
+echo '<div class="card"><div class="card-body"><div class="table-responsive">'
+    . '<table class="table table-bordered enter-bills-header"><caption>Invoice Header Details</caption><tbody>';
+echo '<tr><td>Date</td><td><input tabindex="1" type="text" class="date form-control" alt="'.$_SESSION['DefaultDateFormat'].'" name="date" size="11" maxlength="10" autofocus="autofocus" required="required" value="' .$_POST['date']. '" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')"/></td></tr>';
+echo '<tr><td>Document No</td><td><input class="form-control" tabindex="4" type="text" name="documentno" value="'.$_POST['documentno'].'"  size="10" maxlength="10" required="required" readonly="readonly"/></td></tr>'
+   . '<tr><td>Supplier Reference</td><td><input class="form-control" tabindex="5" type="text" name="reference" value="'.$_POST['reference'].'"  size="10"  maxlength="10"/></td></tr>';
 
 if(isset($_GET['SupplierID'])){
       $ResultIndex = DB_query("SELECT itemcode,customer,[curr_cod] "
@@ -127,25 +127,25 @@ if(isset($_GET['SupplierID'])){
 }
 
 echo '<tr><td><input tabindex="4" type="hidden" name="VendorID" id="VendorID" value="'.$_POST['VendorID'].'"  size="5"/>'
-   . '<input type="button" id="searchvendor" value="Search for Vendor"/></td></tr>';
+   . '<input type="button" id="searchvendor" class="btn btn-outline-secondary" value="Search for Vendor"/></td></tr>';
 
 echo '<tr><td>Supplier Name</td>'
-     . '<td><input tabindex="5" type="text" name="VendorName" id="VendorName" value="'.$_POST['VendorName'].'"  size="50"  required="required"/></td></tr>';
+     . '<td><input class="form-control" tabindex="5" type="text" name="VendorName" id="VendorName" value="'.$_POST['VendorName'].'"  size="50"  required="required"/></td></tr>';
 
 echo '<tr><td>Currency Code</td><td>'
-    . '<input tabindex="6" type="text"  size="5" name="currencycode" id="currencycode" value="'.$_POST['currencycode'].'" readonly="readonly"/></td></tr>';
+    . '<input class="form-control" tabindex="6" type="text"  size="5" name="currencycode" id="currencycode" value="'.$_POST['currencycode'].'" readonly="readonly"/></td></tr>';
 
 echo $_SESSION['SelectObject']['dimensionone'];
 echo $_SESSION['SelectObject']['dimensiontwo'];
 
-echo '<tr><td>Auto Calculate VAT</td><td><select name="calculatevat">'
+echo '<tr><td>Auto Calculate VAT</td><td><select class="form-select" name="calculatevat">'
     . '<option value="1" '; 
  echo $_POST['calculatevat']==1?'selected="selected"':""; 
  echo '>Yes</option>'
     . '<option value="0" '; 
  echo $_POST['calculatevat']==0?'selected="selected"':"";
     echo '>No</option>'
-    . '</select></td><td>Withhold Tax</td><td colspan="2"><select name="withholdtax">'
+    . '</select></td><td>Withhold Tax</td><td colspan="2"><select class="form-select" name="withholdtax">'
     . '<option value="1" '; 
  echo $_POST['withholdtax']==1?'selected="selected"':""; 
  echo '>Yes</option>'
@@ -154,25 +154,20 @@ echo '<tr><td>Auto Calculate VAT</td><td><select name="calculatevat">'
     echo '>No</option>'
     . '</select></td></tr>';
 echo '<tr><td>Narration:</td>'
-    . '<td colspan="4"><input type="text" name="comments" size="50" value="'.$_POST['comments'].'" maxlenth="200" /></td>'
+    . '<td colspan="4"><input class="form-control" type="text" name="comments" size="50" value="'.$_POST['comments'].'" maxlenth="200" /></td>'
     . '</tr>';
 
-echo '</table><table class="table-striped table-bordered">'
-   . '<tr><th>Index</th><th>Code</th><th>Account Description</th><th>Net Amount</th><th>VAT Amount</th><th>Total Amount</th></tr>';
+echo '</tbody></table></div><div class="table-responsive">'
+   . '<table class="table table-bordered table-hover enter-bills-lines"><thead><tr><th>Index</th><th>Code</th><th>Account Description</th><th class="number">Net Amount</th><th class="number">VAT Amount</th><th class="number">Total Amount</th></tr></thead><tbody>';
 $JouClass->ShowTable();
-echo  '<tr><td colspan="3">Totals</td><td class="number">'.number_format($_SESSION['amounttotal'],2).'</td><td  class="number">'.number_format($_SESSION['Vatamounttotal'],2).'</td><td class="number">'.number_format($_SESSION['Grossamounttotal'],2).'</td></tr>'
-        . '<tr><td></td><td></td><td colspan="5">';
-echo '<input type="submit" id="update" name="update" value="Update"/>  '
-. '  <input type="submit" name="addline" value="Add Line"  onclick="return confirm(\''._('Do you want to add a new line ?').'\');" />'
-. '  <input type="submit" name="cancel" value="Cancel Entries"  onclick="return confirm(\''._('Do you want to cancel these entries ?').'\');" />'
-. '  <input type="submit" name="Savebill" value="Save Bill"  onclick="return confirm(\''._('Do you want to save this Bill ?').'\');" />';
-  
-echo '</td></tr>';
-
-echo '</table></div>';
-   
-echo '</td></tr></table>'
-        . '</div></form>';
+echo '<tr><td colspan="3">Totals</td><td class="number">'.number_format($_SESSION['amounttotal'],2).'</td><td class="number">'.number_format($_SESSION['Vatamounttotal'],2).'</td><td class="number">'.number_format($_SESSION['Grossamounttotal'],2).'</td></tr>';
+echo '</tbody></table></div>';
+echo '<div class="rightside enter-bills-actions">'
+. '<input type="submit" id="update" name="update" class="btn btn-outline-secondary" value="Update"/>'
+. '<input type="submit" name="addline" class="btn btn-outline-primary" value="Add Line" onclick="return confirm(\''._('Do you want to add a new line ?').'\');" />'
+. '<input type="submit" name="cancel" class="btn btn-outline-danger" value="Cancel Entries" onclick="return confirm(\''._('Do you want to cancel these entries ?').'\');" />'
+. '<input type="submit" name="Savebill" class="btn btn-primary" value="Save Bill" onclick="return confirm(\''._('Do you want to save this Bill ?').'\');" />'
+. '</div></div></div></form>';
 
 
 
@@ -329,7 +324,7 @@ class journalentries {
     $BalanceSheet[0]="Balance Sheet";
     $BalanceSheet[1]="Profit and Loss";
     
-        $array='<select name="'.$objname.'" onchange="ReloadForm(Journal.update)"><option></option>';
+        $array='<select class="form-select" name="'.$objname.'" onchange="ReloadForm(Journal.update)"><option></option>';
                
         $ResultIndex = DB_query("Select accno,accdesc,ReportCode,ReportStyle,[balance_income] FROM [acct] "
                 . " where [ReportStyle]=0 and [direct]=1 and [inactive]=0"
