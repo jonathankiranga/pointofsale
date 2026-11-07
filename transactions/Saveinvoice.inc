@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('POS_ACCOUNTING_HELPERS_ONLY')) {
+
 $_SESSION['DocumentNo']=$_POST['documentno'] ;
 if($_SESSION['DocumentPosted']==true){
     prnMsg('You cannot repost this invoice','warn');
@@ -144,6 +146,8 @@ if($_SESSION['DocumentPosted']==true){
         unset($_POST);
     }
     
+}
+
 }
 
 function PostDebtors($period,$journal,$doc,$discount){
@@ -323,6 +327,101 @@ Function CustomerStatemet($journal,$doc,$discount){
             $journal,$doc);
     
     return $sql;
+}
+
+/**
+ * Post a POS order as a normal ERP sales invoice using the existing ledger
+ * posting builders above. The caller owns the database transaction.
+ */
+function PostPOSInvoice($sourceDocumentNo, $periodNo) {
+    global $db;
+
+    $invoiceNo = GetNextTransNo(31, $db);
+    $invoiceJournal = GetNextTransNo(0, $db);
+    if ($invoiceNo === null || trim((string)$invoiceNo) === '' ||
+        $invoiceJournal === null || trim((string)$invoiceJournal) === '') {
+        throw new Exception('Could not allocate the POS invoice number or journal number.');
+    }
+
+    $headerSql = "INSERT INTO SalesHeader
+        (documenttype,documentno,docdate,postingdate,customercode,customername,
+         lpo,externaldocumentno,postinggroup,currencycode,salespersoncode,
+         printed,released,status,userid,period,vatinclusive,discount,
+         BatchNO,Bybatch,paymentterms)
+        SELECT 10,?,src.docdate,NOW(),src.customercode,src.customername,
+               'POS',src.documentno,src.postinggroup,src.currencycode,
+               COALESCE((SELECT d.salesman FROM debtors d
+                         WHERE d.itemcode=src.customercode LIMIT 1),''),
+               0,0,1,src.userid,?,src.vatinclusive,0,
+               COALESCE(src.BatchNO,'POS'),COALESCE(src.Bybatch,'false'),
+               COALESCE(src.paymentterms,'CASH')
+        FROM SalesHeader src
+        WHERE src.documenttype=1 AND src.documentno=?";
+    $headerStmt = $db->prepare($headerSql);
+    if (!$headerStmt) {
+        throw new Exception('Could not prepare the POS invoice header: ' . $db->error);
+    }
+    $periodValue = (int)$periodNo;
+    $headerStmt->bind_param('sis', $invoiceNo, $periodValue, $sourceDocumentNo);
+    if (!$headerStmt->execute() || $headerStmt->affected_rows !== 1) {
+        $error = $headerStmt->error ? $headerStmt->error : 'The source POS sale was not found.';
+        $headerStmt->close();
+        throw new Exception('Could not create the POS invoice header: ' . $error);
+    }
+    $headerStmt->close();
+
+    $lineSql = "INSERT INTO SalesLine
+        (documenttype,docdate,documentno,code,description,unitofmeasure,
+         Quantity,UnitPrice,vatamount,invoiceamount,vatrate,inclusive,
+         locationcode,UOM,shipping,BatchNO,Itemlist,sampleID)
+        SELECT 10,l.docdate,?,l.code,l.description,l.unitofmeasure,
+               l.Qunatity_delivered,l.UnitPrice,l.vatamount,l.invoiceamount,
+               l.vatrate,l.inclusive,l.locationcode,'fulqty',
+               COALESCE(l.shipping,0),COALESCE(l.BatchNO,'POS'),
+               l.Itemlist,l.sampleID
+        FROM SalesLine l
+        WHERE l.documenttype=1 AND l.documentno=?";
+    $lineStmt = $db->prepare($lineSql);
+    if (!$lineStmt) {
+        throw new Exception('Could not prepare POS invoice lines: ' . $db->error);
+    }
+    $lineStmt->bind_param('ss', $invoiceNo, $sourceDocumentNo);
+    if (!$lineStmt->execute() || $lineStmt->affected_rows < 1) {
+        $error = $lineStmt->error ? $lineStmt->error : 'The POS sale has no invoice lines.';
+        $lineStmt->close();
+        throw new Exception('Could not create POS invoice lines: ' . $error);
+    }
+    $lineStmt->close();
+
+    // POS has no line/header discount. A multiplier of 1 preserves the
+    // validated POS amounts exactly.
+    $postingSql = array(
+        PostGL($periodNo, $invoiceJournal, $invoiceNo, 1),
+        PostDebtors($periodNo, $invoiceJournal, $invoiceNo, 1),
+        VATPostGL($periodNo, $invoiceJournal, $invoiceNo, 1),
+        CustomerStatemet($invoiceJournal, $invoiceNo, 1)
+    );
+
+    foreach ($postingSql as $index => $sql) {
+        $result = DB_query($sql, $db, '', '', false, false);
+        if (!$result || $db->errno !== 0 || $db->affected_rows < 1) {
+            throw new Exception('A POS invoice accounting posting failed (posting step ' . ($index + 1) . '): ' . $db->error);
+        }
+    }
+
+    $releaseStmt = $db->prepare("UPDATE SalesHeader SET released=2 WHERE documenttype=10 AND documentno=?");
+    if (!$releaseStmt) {
+        throw new Exception('Could not prepare POS invoice release: ' . $db->error);
+    }
+    $releaseStmt->bind_param('s', $invoiceNo);
+    if (!$releaseStmt->execute() || $releaseStmt->affected_rows !== 1) {
+        $error = $releaseStmt->error ? $releaseStmt->error : 'The POS invoice could not be released.';
+        $releaseStmt->close();
+        throw new Exception($error);
+    }
+    $releaseStmt->close();
+
+    return array('documentno' => $invoiceNo, 'journal' => $invoiceJournal);
 }
 
 ?>
