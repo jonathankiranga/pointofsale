@@ -1,60 +1,69 @@
-# Hair Salon POS foundation
+# Hair Salon POS
 
-The salon-specific work is isolated on `feature/hair-salon-pos`. The standard POS and the general touchscreen POS are not changed by this foundation.
+The salon terminal uses the existing ERP POS receipt, payment, VAT and accounting workflow. ERP `stockmaster` is the single item master for both retail products and salon services.
 
-## Database setup
+## Data ownership
 
-Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company database. Then apply the item-mapping and master-alignment migrations. The alignment migration adds a database foreign key from each salon service to its ERP stockmaster row; it does not overwrite the manually maintained service code, name or category.
+- `stockmaster` owns the item code, description, category, barcode, selling price, units, VAT and accounting posting configuration.
+- `salon_service_settings` stores only salon-specific operational settings, keyed directly by `stockmaster.pkey`: service duration, active/inactive status and optional salon notes.
+- `salon_hairdressers` stores the salon staff roster.
+- `salon_hairdresser_services` assigns ERP stock items to hairdressers.
+- `salon_commission_rules` stores percentage/fixed commission rules. A rule may be global, stock-item-specific, hairdresser-specific, or specific to a hairdresser and stock item.
+- `salon_service_commissions` stores immutable transaction-level commission snapshots and payout/reversal status.
+- `salon_appointment_lines` stores the ERP stock item selected for the booking, together with the agreed price and duration snapshot.
 
-## Foundation tables
-
-- `salon_hairdressers`: salon staff roster and active/inactive status.
-- `salon_services`: manually maintained service code, service name and category, salon-specific duration and selling price, description/notes, plus a foreign-key reference to the selected ERP stockmaster row.
-- `salon_hairdresser_services`: which services each hairdresser is qualified/assigned to perform.
-- `salon_commission_rules`: percentage or fixed commission rules. A rule may be global, service-specific, hairdresser-specific, or specific to one hairdresser/service combination.
-- `salon_service_commissions`: transaction-level commission snapshot and payout/reversal status.
+There is no second salon service catalogue. Salon item identity and commercial values are always read from ERP stockmaster. The salon settings table is not an item master.
 
 ## Commission controls
 
-1. Commission is intended to be earned only when the service line is completed and its sale is paid.
-2. The eligible service amount is the service amount after line discounts; product sales are not included in the service commission base.
-3. The checkout integration must resolve the most specific active rule for the hairdresser/service and snapshot the rule type, value, eligible amount, and calculated commission.
-4. The unique source-document/line/hairdresser key prevents duplicate commission creation when a checkout request is retried.
-5. A commission is not recalculated from current rules after posting. Payouts and reversals update the ledger status and retain the original calculation for audit.
+1. Commission is earned only when the service line is completed and its sale is paid.
+2. The eligible service amount is the service amount after line discounts and excluding VAT; retail product sales are not included.
+3. Checkout resolves the most specific active rule for the hairdresser and `stockmaster.pkey`, then snapshots the rule type, value, eligible amount and calculated commission.
+4. A unique source-document/line/hairdresser key prevents duplicate commission creation when checkout is retried.
+5. Historic commission entries retain their original calculation. Later changes to item prices or commission rules do not recalculate posted entries.
 
 ## Required migration order
+
+Back up the company database before applying schema changes. Apply the migrations once, in this order:
 
 1. `SQL/20261107_hair_salon_pos_foundation.sql`
 2. `SQL/20261107_hair_salon_pos_operations.sql`
 3. `SQL/20261107_hair_salon_pos_item_mapping.sql`
 4. `SQL/20261107_hair_salon_pos_master_alignment.sql`
-5. `SQL/20261107_hair_salon_pos_payout_audit.sql`
-6. `SQL/20261107_hair_salon_appointment_pos_integration.sql`
+5. `SQL/20261107_hair_salon_stockmaster_direct.sql`
+6. `SQL/20261107_hair_salon_pos_payout_audit.sql`
+7. `SQL/20261107_hair_salon_appointment_pos_integration.sql`
 
-## Appointment-to-POS workflow
+The stockmaster-direct migration converts staff assignments, commission rules, commission history and appointment lines from the old salon service IDs to direct `stockmaster.pkey` references. It then removes the duplicate `salon_services` catalogue. Its diagnostic query must report zero unmapped references before continuing. It requires the unique `stockmaster.pkey` key created by the preceding master-alignment migration.
 
-Apply `SQL/20261107_hair_salon_pos_operations.sql` and then `SQL/20261107_hair_salon_appointment_pos_integration.sql` after the foundation, item-mapping and ERP master-alignment migrations.
+## Configure a salon service
 
-1. Book the customer, date/time, service and an assigned hairdresser in Salon Management.
-2. Mark the appointment Arrived when the customer checks in.
-3. Select **Start Service**. The appointment loader locks the booking, validates its service mapping and hairdresser assignment, and changes the appointment and line to `in_service`.
-4. Salon POS preloads the customer, appointment reference, booked service, agreed booking price and assigned hairdresser. The booked service cannot be removed from the basket. Additional services and retail products may be added.
-5. Complete payment through the existing POS cash or M-Pesa workflow.
-6. The receipt transaction creates the normal ERP sale and accounting postings, snapshots eligible hairdresser commissions, inserts the unique appointment-to-receipt link, and changes the appointment and service line to `completed` in the same database transaction.
-7. If checkout fails, all sale, accounting, commission, appointment-link and completion changes roll back. The appointment remains `in_service` and can be resumed from the schedule.
+1. Create the item once in the ERP Stocks catalogue. Use an item description/category suitable for a salon service and configure its selling price, units, VAT and sales posting group correctly.
+2. In Salon Management → Services, select that existing ERP stock item and configure only its salon duration, active status and optional notes.
+3. Assign eligible hairdressers under Staff skills.
+4. Configure an active commission rule with an effective date. Checkout is rejected if no applicable rule exists for the selected hairdresser and stock item.
 
-The unique appointment key in `salon_appointment_transactions` prevents a second receipt from being linked to the same booking. A repeated request using the same receipt number remains subject to the existing POS idempotency checks.
+Do not create a second service code, service name, category or price in Salon Management. Changes to the ERP item description, category or selling price are reflected automatically by salon operations.
 
-Cancelled and no-show appointments cannot be started. Appointments that have started cannot be cancelled or marked no-show. No commission is created for cancelled, no-show or unfinished appointments because commission rows are written only inside a successfully committed paid POS sale.
+## Appointment booking and checkout
 
-## ERP item master and salon service setup
+1. Book the customer, date/time, ERP stock item and assigned hairdresser in Salon Management → Appointments.
+2. The booking snapshots the ERP selling price and configured salon duration. Later price or duration changes do not silently rewrite an existing booking.
+3. Mark the appointment Arrived, then select Start Service.
+4. Salon POS loads the booked item, agreed price and hairdresser. The booked line cannot be removed or have its quantity edited.
+5. Add extra salon services and retail products to the same transaction. Each additional salon service requires an assigned hairdresser.
+6. Complete payment using the normal POS cash or manually verified M-Pesa workflow.
+7. The POS revalidates the stock item, staff assignment and commission rule. On successful commit, it links the receipt, completes the appointment and records eligible commissions in the same transaction.
 
-The salon service form keeps its service code, service name and category editable. These are salon-facing business fields and may differ from the ERP stock item description or stock category.
+If checkout fails, the sale, accounting, commission, appointment-link and completion changes roll back. The appointment remains In Service and can be resumed.
 
-Select the ERP item code or barcode to link the salon service to an existing stockmaster record. The paired selector follows the selected stock item. The POS uses the ERP stock item code for the sales line and obtains its units, VAT and posting configuration from that stockmaster record. The salon service name is used as the service description on the POS sales line.
+## Commission payout tracking
 
-The database relationship is stored using `stockmaster.pkey`, not a copied item-code string. The master-alignment migration adds a unique key to `stockmaster.pkey`, adds `salon_services.stockmaster_pkey`, backfills existing mappings, removes the copied item-code/barcode columns and creates a foreign key with `ON DELETE RESTRICT` and `ON UPDATE RESTRICT`. A unique key on the salon service reference prevents one ERP stock item from being assigned to multiple salon services. This prevents deletion or identity-key changes to a stock item while a salon service references it.
+The most specific active rule is selected: hairdresser plus stock item, then a single-scope rule, then a global rule. Percentage commission applies to the eligible amount excluding VAT; fixed commission applies per service quantity. The payout screen records the payment/voucher reference against pending commission records. It does not itself create a cashbook payment, bank transaction or general-ledger voucher.
 
-Apply `SQL/20261107_hair_salon_pos_master_alignment.sql` once after `SQL/20261107_hair_salon_pos_item_mapping.sql`. The migration preserves service codes, names and categories. It requires existing `stockmaster.pkey` values to be unique; resolve any duplicate pkey values before running it. The migration removes the temporary `pos_itemcode` and `pos_barcode` columns after converting existing mappings to the foreign-key reference. Legacy mappings that do not resolve to exactly one stockmaster row (no match or multiple matches) are deliberately left unlinked and must be selected again in Salon Management.
+## Operational cautions
 
-Appointment customer names are recorded on the POS sales header while the existing configured POS debtor/customer account remains the accounting customer. If individual debtor-account posting is required per salon customer, the appointment booking form must later be connected to the ERP debtor master rather than using free-text customer names.
+- Do not enable a physical inventory item as a salon service if selling it should decrement inventory as an ordinary retail product.
+- A salon item must have a valid ERP selling price, units, VAT category and sales/VAT accounts before checkout.
+- Deactivating a salon setting removes the item from the salon service picker but does not deactivate the underlying ERP item in retail POS.
+- Appointment customer names remain free-text on the appointment. The configured POS debtor remains the accounting customer unless the booking workflow is separately connected to the ERP debtor master.
