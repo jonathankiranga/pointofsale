@@ -726,7 +726,8 @@ select.selecterror{ /*AccountGroups.php, BankAccounts.php, BOMs.php, Stocks.php 
     background-image: url('magnifier.png'); /* Add a search icon to input */
     background-position: 5px 1px; /* Position the search icon */
     background-repeat: no-repeat; /* Do not repeat the icon image */
-    width:400px; /* Full-width */
+    width: auto;
+    max-width: 100%;
     padding: 10px 2px 2px 2px; /* Add some padding */
     border: 2px solid #ddd; /* Add a grey border */
 }
@@ -835,8 +836,9 @@ overflow: hidden;
 
 .form-input,
 .form-textarea {
-  width: 100%;
-  min-width: 400px;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
   padding: 8px 12px;
   font-size: 14px;
   border: 1px solid #ccc;
@@ -1109,6 +1111,7 @@ main#view-panel input:not([type="checkbox"]):not([type="radio"]):not([type="subm
 main#view-panel select,
 main#view-panel textarea,
 main#view-panel .form-control {
+    width: auto;
     max-width: 100%;
     min-height: 34px;
     padding: 6px 9px;
