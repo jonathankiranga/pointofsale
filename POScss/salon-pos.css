@@ -64,3 +64,10 @@
     .salon-pos-mode .salon-service-picker-heading { align-items: flex-start; flex-direction: column; }
     .salon-pos-mode .salon-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Salon service assignments are transaction metadata; do not offer the
+   retail terminal's local-only save/recall actions on the salon terminal. */
+.salon-pos-mode #save-transaction-link,
+.salon-pos-mode #recall-transaction-link {
+    display: none;
+}
