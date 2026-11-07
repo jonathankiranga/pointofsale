@@ -313,8 +313,10 @@ function saveSalesDataWithReference() {
         const vatper = $(this).find('.vat-per').text().trim();
         const VATtotal = $(this).find('.VAT-total').text().trim();
         const lineTotal = $(this).find('.line-total').text().trim();
+        const salonServiceId = Number($(this).attr('data-salon-service-id')) || 0;
+        const hairdresserId = Number($(this).attr('data-hairdresser-id')) || 0;
+        const appointmentLine = $(this).hasClass('appointment-service-line');
 
- 
         if (barcode !== '' && description !== '') {
             items.push({
                 barcode: barcode,
@@ -324,12 +326,16 @@ function saveSalesDataWithReference() {
                 unitPrice: unitPrice,
                 vatper: vatper,
                 VATtotal: VATtotal,
-                lineTotal: lineTotal
+                lineTotal: lineTotal,
+                salonServiceId: salonServiceId,
+                hairdresserId: hairdresserId,
+                appointmentLine: appointmentLine
             });
         }
     });
 
     const receiptData = {
+        appointmentId: Number($('#sales-table').attr('data-appointment-id')) || 0,
         items: items,
         total: total,
         cash: cash,
