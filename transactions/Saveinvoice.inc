@@ -378,7 +378,7 @@ function PostPOSInvoice($sourceDocumentNo, $periodNo) {
                l.Qunatity_delivered,l.UnitPrice,l.vatamount,l.invoiceamount,
                l.vatrate,l.inclusive,l.locationcode,'fulqty',
                COALESCE(l.shipping,0),COALESCE(l.BatchNO,'POS'),
-               l.Itemlist,l.sampleID
+               l.Itemlist,COALESCE(NULLIF(l.sampleID,''),l.description)
         FROM SalesLine l
         WHERE l.documenttype=1 AND l.documentno=?";
     $lineStmt = $db->prepare($lineSql);
