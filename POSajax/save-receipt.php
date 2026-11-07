@@ -181,8 +181,10 @@ if (!$productStmt) { posSaveResponse(false, 'Could not prepare ERP product valid
 foreach ($receiptData['items'] as $item) {
     $barcode = isset($item['barcode']) ? trim((string)$item['barcode']) : '';
     $itemcode = isset($item['itemcode']) ? trim((string)$item['itemcode']) : '';
-    $quantity = isset($item['quantity']) ? (float)$item['quantity'] : 0;
-    if ($barcode === '' || $itemcode === '' || !is_finite($quantity) || $quantity <= 0) {
+    $quantityValue = isset($item['quantity']) ? $item['quantity'] : null;
+    $quantity = is_numeric($quantityValue) ? (float)$quantityValue : 0;
+    if ($barcode === '' || $itemcode === '' || !is_numeric($quantityValue) ||
+        !is_finite($quantity) || $quantity <= 0) {
         $productStmt->close();
         posSaveResponse(false, 'A sale line contains an invalid product or quantity.', 400);
     }
