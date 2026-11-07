@@ -14,9 +14,7 @@ echo '<input type="hidden" name="Lang" id="Lang" value="'.$Lang.'" />';
 echo '<link rel="stylesheet" href="javascripts/dist/css/tabulator.min.css">
       <link rel="stylesheet" href="css/assets/dist/css/bootstrap.min.css" type="text/css"/>
 <?php
-if (file_exists('css/tailwind.css')) {
-    echo '<link rel="stylesheet" href="css/tailwind.css" type="text/css"/>';
-}
+echo '<link rel="stylesheet" href="css/tailwind.css" type="text/css"/>';
 ?>
 ';
 echo '<link rel="stylesheet" href="css/assets/DataTables/datatables.min.css" type="text/css"/>';
