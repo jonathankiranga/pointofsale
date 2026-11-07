@@ -177,6 +177,16 @@ $productStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, sm.descrip, sm.unit
     LEFT JOIN vatcategory vc ON ipg.vatcategory=vc.vatc
     WHERE sm.barcode=? AND sm.itemcode=? LIMIT 1");
 if (!$productStmt) { posSaveResponse(false, 'Could not prepare ERP product validation.', 500); }
+$salonServiceStmt = $db->prepare("SELECT service_id,standard_price,pos_itemcode,pos_barcode
+    FROM salon_services WHERE service_id=? AND is_active=1 LIMIT 1");
+$salonAssignmentStmt = $db->prepare("SELECT COUNT(*) AS assigned
+    FROM salon_hairdresser_services hs
+    INNER JOIN salon_hairdressers h ON h.hairdresser_id=hs.hairdresser_id
+    WHERE hs.service_id=? AND hs.hairdresser_id=? AND hs.is_active=1 AND h.is_active=1");
+if (!$salonServiceStmt || !$salonAssignmentStmt) {
+    $productStmt->close();
+    posSaveResponse(false, 'Salon POS setup is incomplete. Apply the salon operations and item mapping migrations.', 409);
+}
 
 foreach ($receiptData['items'] as $item) {
     $barcode = isset($item['barcode']) ? trim((string)$item['barcode']) : '';
@@ -214,7 +224,48 @@ foreach ($receiptData['items'] as $item) {
         $productStmt->close();
         posSaveResponse(false, 'A sale item has a missing selling price, inventory posting group or VAT mapping. Correct the item setup before selling it.', 409);
     }
+    $salonServiceId = isset($item['salonServiceId']) ? (int)$item['salonServiceId'] : 0;
+    $hairdresserId = isset($item['hairdresserId']) ? (int)$item['hairdresserId'] : 0;
     $unitPrice = (float)$product['sellingprice'];
+    if ($salonServiceId > 0 || $hairdresserId > 0) {
+        if ($salonServiceId < 1 || $hairdresserId < 1) {
+            $productStmt->close();
+            $salonServiceStmt->close();
+            $salonAssignmentStmt->close();
+            posSaveResponse(false, 'Every salon service line must have an assigned active hairdresser.', 400);
+        }
+        $salonServiceStmt->bind_param('i', $salonServiceId);
+        if (!$salonServiceStmt->execute()) {
+            $productStmt->close();
+            $salonServiceStmt->close();
+            $salonAssignmentStmt->close();
+            posSaveResponse(false, 'Could not validate the salon service.', 500);
+        }
+        $salonService = $salonServiceStmt->get_result()->fetch_assoc();
+        if (!$salonService || trim((string)$salonService['pos_itemcode']) !== $itemcode ||
+            trim((string)$salonService['pos_barcode']) !== $barcode ||
+            !is_numeric($salonService['standard_price']) || (float)$salonService['standard_price'] < 0) {
+            $productStmt->close();
+            $salonServiceStmt->close();
+            $salonAssignmentStmt->close();
+            posSaveResponse(false, 'The salon service is no longer mapped to this ERP POS item. Refresh the salon terminal.', 409);
+        }
+        $salonAssignmentStmt->bind_param('ii', $salonServiceId, $hairdresserId);
+        if (!$salonAssignmentStmt->execute()) {
+            $productStmt->close();
+            $salonServiceStmt->close();
+            $salonAssignmentStmt->close();
+            posSaveResponse(false, 'Could not validate the hairdresser assignment.', 500);
+        }
+        $assignment = $salonAssignmentStmt->get_result()->fetch_assoc();
+        if (!$assignment || (int)$assignment['assigned'] !== 1) {
+            $productStmt->close();
+            $salonServiceStmt->close();
+            $salonAssignmentStmt->close();
+            posSaveResponse(false, 'The selected hairdresser is not actively assigned to this service.', 409);
+        }
+        $unitPrice = (float)$salonService['standard_price'];
+    }
     $vatRate = (float)$product['vat_rate'];
     if (!is_finite($unitPrice) || $unitPrice < 0 || !is_finite($vatRate) || $vatRate < 0) {
         $productStmt->close();
@@ -235,12 +286,16 @@ foreach ($receiptData['items'] as $item) {
         'vat_rate' => $vatRate,
         'vat_amount' => $vatAmount,
         'line_total' => $lineTotal,
-        'tax_category' => $product['tax_category']
+        'tax_category' => $product['tax_category'],
+        'salon_service_id' => $salonServiceId,
+        'hairdresser_id' => $hairdresserId
     );
     $calculatedTotal += $lineTotal;
     $calculatedVat += $vatAmount;
 }
 $productStmt->close();
+$salonServiceStmt->close();
+$salonAssignmentStmt->close();
 $calculatedTotal = round($calculatedTotal, 2);
 $calculatedVat = round($calculatedVat, 2);
 if ($calculatedTotal <= 0) {
