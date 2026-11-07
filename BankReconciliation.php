@@ -372,7 +372,8 @@ function CalculatePostedReconciliationBalance($bankCode,$openingBalance,$endDate
     if (!$countStmt) {
         throw new Exception('Could not verify the complete set of unreconciled bank transactions: ' . $db->error);
     }
-    $countStmt->bind_param('ss', $bankCode, $endDateSQL);
+    $endDateTime = $endDateSQL . ' 23:59:59';
+    $countStmt->bind_param('ss', $bankCode, $endDateTime);
     if (!$countStmt->execute()) {
         $error = $countStmt->error;
         $countStmt->close();
@@ -497,7 +498,8 @@ function UpdateCashbook(){
         FROM BankTransactions
         WHERE bankcode=? AND cleared IS NULL AND DocDate<=?");
     if (!$stmt) { return false; }
-    $stmt->bind_param('ss', $bankCode, $statementDate);
+    $statementEndDateTime = $statementDate . ' 23:59:59';
+    $stmt->bind_param('ss', $bankCode, $statementEndDateTime);
     if (!$stmt->execute()) { $stmt->close(); return false; }
     $result = $stmt->get_result();
 
@@ -559,7 +561,7 @@ Function GetClearedDB(){
     // lastreconcileddate is NULL and there is no cutoff date to apply.
     $ReconciliationStartDate = trim((string)$statementstartdate);
     if ($ReconciliationStartDate !== '' && $ReconciliationStartDate !== '0000-00-00') {
-        $SQL .= " and `DocDate` <= '" . $ReconciliationStartDate . "'";
+        $SQL .= " and `DocDate` <= '" . mysqli_real_escape_string($db, $ReconciliationStartDate . ' 23:59:59') . "'";
     }
 
     $ResultIndex = DB_query($SQL, $db);
