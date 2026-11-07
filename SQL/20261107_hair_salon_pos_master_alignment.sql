@@ -17,8 +17,8 @@ ALTER TABLE salon_services
     ADD COLUMN stockmaster_pkey BIGINT DEFAULT NULL AFTER pos_barcode;
 
 -- Link existing service mappings to the exact stockmaster row. The MIN()
--- selection is deterministic if legacy data contains duplicate itemcode /
--- barcode pairs; the new relationship itself is always to one unique pkey.
+-- only unambiguous legacy itemcode/barcode pairs are backfilled. If a pair
+-- identifies multiple stockmaster rows, it remains unlinked for manual selection.
 UPDATE salon_services s
 INNER JOIN (
     SELECT itemcode, barcode, MIN(pkey) AS stockmaster_pkey
@@ -26,6 +26,7 @@ INNER JOIN (
     WHERE itemcode IS NOT NULL AND itemcode <> ''
       AND barcode IS NOT NULL AND barcode <> ''
     GROUP BY itemcode, barcode
+    HAVING COUNT(*) = 1
 ) sm
     ON sm.itemcode = s.pos_itemcode
    AND sm.barcode = s.pos_barcode
