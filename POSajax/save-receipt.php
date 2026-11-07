@@ -202,6 +202,13 @@ $productStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, TRIM(sm.descrip) AS
     LEFT JOIN inventorypostinggroup ipg ON sm.postinggroup=ipg.code
     LEFT JOIN vatcategory vc ON ipg.vatcategory=vc.vatc
     WHERE sm.barcode=? AND sm.itemcode=? LIMIT 1");
+$salonProductStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, TRIM(sm.descrip) AS descrip, sm.units, sm.sellingprice,
+        vc.vat AS vat_rate, ipg.vatcategory AS tax_category, ipg.code AS product_posting_group,
+        ipg.defaultgl_sales AS sales_account, ipg.defaultgl_vat AS vat_account
+    FROM stockmaster sm
+    LEFT JOIN inventorypostinggroup ipg ON sm.postinggroup=ipg.code
+    LEFT JOIN vatcategory vc ON ipg.vatcategory=vc.vatc
+    WHERE sm.itemcode=? LIMIT 1");
 if (!$productStmt) { posSaveResponse(false, 'Could not prepare ERP product validation.', 500); }
 $salonServiceStmt = null;
 $salonAssignmentStmt = null;
@@ -212,7 +219,7 @@ $salonMappingColumnRow = $salonMappingColumns ? $salonMappingColumns->fetch_asso
 if ($salonMappingColumnRow && (int)$salonMappingColumnRow['column_count'] === 1) {
     $salonMappedItemStmt = $db->prepare("SELECT sm.pkey AS service_id FROM salon_service_settings ss
         INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey
-        WHERE sm.itemcode=? AND sm.barcode=? LIMIT 1");
+        WHERE sm.itemcode=? LIMIT 1");
     if (!$salonMappedItemStmt) {
         $productStmt->close();
         posSaveResponse(false, 'Could not validate salon service item configuration.', 500);
@@ -224,17 +231,24 @@ foreach ($receiptData['items'] as $item) {
     $itemcode = isset($item['itemcode']) ? trim((string)$item['itemcode']) : '';
     $quantityValue = isset($item['quantity']) ? $item['quantity'] : null;
     $quantity = is_numeric($quantityValue) ? (float)$quantityValue : 0;
-    if ($barcode === '' || $itemcode === '' || !is_numeric($quantityValue) ||
+    if (($salonServiceId < 1 && $barcode === '') || $itemcode === '' || !is_numeric($quantityValue) ||
         !is_finite($quantity) || $quantity <= 0) {
         $productStmt->close();
         posSaveResponse(false, 'A sale line contains an invalid product or quantity.', 400);
     }
-    $productStmt->bind_param('ss', $barcode, $itemcode);
-    if (!$productStmt->execute()) {
+    if ($salonServiceId > 0) {
+        $salonProductStmt->bind_param('s', $itemcode);
+        $productLookupOk = $salonProductStmt->execute();
+        $productResult = $productLookupOk ? $salonProductStmt->get_result() : false;
+    } else {
+        $productStmt->bind_param('ss', $barcode, $itemcode);
+        $productLookupOk = $productStmt->execute();
+        $productResult = $productLookupOk ? $productStmt->get_result() : false;
+    }
+    if (!$productLookupOk) {
         $productStmt->close();
         posSaveResponse(false, 'Could not validate a sale item against the ERP product master.', 500);
     }
-    $productResult = $productStmt->get_result();
     if (!$productResult) {
         $productStmt->close();
         posSaveResponse(false, 'Could not read the ERP product validation result.', 500);
@@ -281,7 +295,7 @@ foreach ($receiptData['items'] as $item) {
             posSaveResponse(false, 'Every salon service line must have an assigned active hairdresser.', 400);
         }
         if (!$salonServiceStmt) {
-            $salonServiceStmt = $db->prepare("SELECT sm.pkey AS service_id,sm.descrip AS service_name,sm.sellingprice AS standard_price,sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode
+            $salonServiceStmt = $db->prepare("SELECT sm.pkey AS service_id,sm.descrip AS service_name,sm.sellingprice AS standard_price,sm.itemcode AS pos_itemcode
                 FROM salon_service_settings ss
                 INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey AND (sm.inactive IS NULL OR sm.inactive=0)
                 WHERE ss.stockmaster_pkey=? AND ss.is_active=1 LIMIT 1");
@@ -303,7 +317,6 @@ foreach ($receiptData['items'] as $item) {
         }
         $salonService = $salonServiceStmt->get_result()->fetch_assoc();
         if (!$salonService || trim((string)$salonService['pos_itemcode']) !== $itemcode ||
-            trim((string)$salonService['pos_barcode']) !== $barcode ||
             !is_numeric($salonService['standard_price']) || (float)$salonService['standard_price'] < 0) {
             $productStmt->close();
             $salonServiceStmt->close();
@@ -327,8 +340,7 @@ foreach ($receiptData['items'] as $item) {
         $unitPrice = (float)$salonService['standard_price'];
         if ($appointmentContext && $salonServiceId === (int)$appointmentContext['service_id']) {
             if ($hairdresserId !== (int)$appointmentContext['hairdresser_id'] ||
-                $itemcode !== trim((string)$appointmentContext['pos_itemcode']) ||
-                $barcode !== trim((string)$appointmentContext['pos_barcode'])) {
+                $itemcode !== trim((string)$appointmentContext['pos_itemcode'])) {
                 $productStmt->close();
                 $salonServiceStmt->close();
                 $salonAssignmentStmt->close();
