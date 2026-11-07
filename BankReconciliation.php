@@ -635,7 +635,6 @@ function UpdateCashbook(){
         }
     }
 
-    $_SESSION['newreconciliation'] = date('U');
     return true;
 }
 
