@@ -44,7 +44,7 @@ try {
     $appointment = $result->fetch_assoc();
     $lock->close();
     if (!$appointment) { throw new Exception('Appointment not found or it has no service line.'); }
-    if (!in_array($appointment['appointment_status'], array('booked','arrived','in_service'), true)) {
+    if (!in_array($appointment['appointment_status'], array('arrived','in_service'), true)) {
         throw new Exception('This appointment is '.$appointment['appointment_status'].' and cannot be started.');
     }
     if ((int)$appointment['line_count'] !== 1) {
