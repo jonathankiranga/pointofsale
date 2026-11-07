@@ -42,6 +42,31 @@ $docno = trim((string)$receiptData['docno']);
 if ($docno === '' || strlen($docno) > 20 || !preg_match('/^[A-Za-z0-9._-]+$/', $docno)) {
     posSaveResponse(false, 'The receipt number is missing or exceeds the allowed length.', 400);
 }
+$appointmentId = isset($receiptData['appointmentId']) ? (int)$receiptData['appointmentId'] : 0;
+if ($appointmentId < 0) { posSaveResponse(false, 'Invalid appointment reference.', 400); }
+$appointmentContext = null;
+if ($appointmentId > 0) {
+    $appointmentContextStmt = $db->prepare("SELECT a.appointment_id,a.appointment_status,l.service_id,l.hairdresser_id,l.agreed_price,
+            s.pos_itemcode,s.pos_barcode
+        FROM salon_appointments a
+        INNER JOIN salon_appointment_lines l ON l.appointment_id=a.appointment_id
+        INNER JOIN salon_services s ON s.service_id=l.service_id
+        WHERE a.appointment_id=?");
+    if (!$appointmentContextStmt) { posSaveResponse(false, 'Could not validate the linked appointment.', 500); }
+    $appointmentContextStmt->bind_param('i', $appointmentId);
+    if (!$appointmentContextStmt->execute()) {
+        $appointmentContextStmt->close();
+        posSaveResponse(false, 'Could not validate the linked appointment.', 500);
+    }
+    $appointmentContextResult = $appointmentContextStmt->get_result();
+    $appointmentContextRows = array();
+    while ($appointmentContextRow = $appointmentContextResult->fetch_assoc()) { $appointmentContextRows[] = $appointmentContextRow; }
+    $appointmentContextStmt->close();
+    if (count($appointmentContextRows) !== 1 || $appointmentContextRows[0]['appointment_status'] !== 'in_service') {
+        posSaveResponse(false, 'The linked appointment is not in service or does not contain exactly one booked service.', 409);
+    }
+    $appointmentContext = $appointmentContextRows[0];
+}
 $paymentMethod = isset($receiptData['paymentMethod']) ? strtoupper(trim((string)$receiptData['paymentMethod'])) : '';
 if (!in_array($paymentMethod, array('CASH', 'MPESA'), true)) {
     posSaveResponse(false, 'A valid POS payment method is required.', 400);
@@ -167,6 +192,7 @@ if (!$bankRow || trim((string)$bankRow['currency']) !== trim((string)$currencyCo
 }
 
 $items = array();
+$appointmentServiceLineCount = 0;
 $calculatedTotal = 0.00;
 $calculatedVat = 0.00;
 $productStmt = $db->prepare("SELECT sm.barcode, sm.itemcode, sm.descrip, sm.units, sm.sellingprice,
@@ -297,6 +323,18 @@ foreach ($receiptData['items'] as $item) {
             posSaveResponse(false, 'The selected hairdresser is not actively assigned to this service.', 409);
         }
         $unitPrice = (float)$salonService['standard_price'];
+        if ($appointmentContext && $salonServiceId === (int)$appointmentContext['service_id']) {
+            if ($hairdresserId !== (int)$appointmentContext['hairdresser_id'] ||
+                $itemcode !== trim((string)$appointmentContext['pos_itemcode']) ||
+                $barcode !== trim((string)$appointmentContext['pos_barcode'])) {
+                $productStmt->close();
+                $salonServiceStmt->close();
+                $salonAssignmentStmt->close();
+                posSaveResponse(false, 'The booked appointment service and hairdresser must remain unchanged in its POS transaction.', 409);
+            }
+            $unitPrice = (float)$appointmentContext['agreed_price'];
+            $appointmentServiceLineCount++;
+        }
         $saleDescription = mb_substr((string)$salonService['service_name'], 0, 100, 'UTF-8');
     }
     $vatRate = (float)$product['vat_rate'];
@@ -325,6 +363,13 @@ foreach ($receiptData['items'] as $item) {
     );
     $calculatedTotal += $lineTotal;
     $calculatedVat += $vatAmount;
+}
+if ($appointmentContext && $appointmentServiceLineCount !== 1) {
+    $productStmt->close();
+    if ($salonServiceStmt) { $salonServiceStmt->close(); }
+    if ($salonAssignmentStmt) { $salonAssignmentStmt->close(); }
+    if ($salonMappedItemStmt) { $salonMappedItemStmt->close(); }
+    posSaveResponse(false, 'The linked appointment service must appear exactly once in the checkout basket.', 409);
 }
 $productStmt->close();
 if ($salonServiceStmt) { $salonServiceStmt->close(); }
@@ -362,6 +407,27 @@ try {
         posSaveResponse(false, 'This cashier shift has been closed. Open a new shift before completing the sale.', 409);
     }
 
+    if ($appointmentId > 0) {
+        $appointmentLock = $db->prepare("SELECT appointment_status FROM salon_appointments WHERE appointment_id=? FOR UPDATE");
+        if (!$appointmentLock) { throw new Exception('Could not lock the linked salon appointment: '.$db->error); }
+        $appointmentLock->bind_param('i', $appointmentId);
+        if (!$appointmentLock->execute()) { throw new Exception('Could not lock the linked salon appointment: '.$appointmentLock->error); }
+        $lockedAppointment = $appointmentLock->get_result()->fetch_assoc();
+        $appointmentLock->close();
+        if (!$lockedAppointment || $lockedAppointment['appointment_status'] !== 'in_service') {
+            throw new Exception('The linked appointment is no longer in service. The sale was not posted.');
+        }
+        $appointmentLinkCheck = $db->prepare("SELECT document_no FROM salon_appointment_transactions WHERE appointment_id=? LIMIT 1");
+        if (!$appointmentLinkCheck) { throw new Exception('Could not check the appointment checkout lock: '.$db->error); }
+        $appointmentLinkCheck->bind_param('i', $appointmentId);
+        if (!$appointmentLinkCheck->execute()) { throw new Exception('Could not check the appointment checkout lock: '.$appointmentLinkCheck->error); }
+        $appointmentLink = $appointmentLinkCheck->get_result()->fetch_assoc();
+        $appointmentLinkCheck->close();
+        if ($appointmentLink) {
+            throw new Exception('This appointment has already been checked out on POS receipt '.$appointmentLink['document_no'].'.');
+        }
+    }
+
     $dateResult = $db->query("SELECT NOW() AS transaction_date");
     if (!$dateResult) { throw new Exception('Could not obtain the POS transaction date: ' . $db->error); }
     $dateRow = $dateResult->fetch_assoc();
@@ -390,6 +456,17 @@ try {
     $existing = $check->get_result()->fetch_assoc();
     $check->close();
     if ($existing) {
+        if ($appointmentId > 0) {
+            $existingAppointment = $db->prepare("SELECT document_no FROM salon_appointment_transactions WHERE appointment_id=? AND document_no=? LIMIT 1");
+            if (!$existingAppointment) { throw new Exception('Could not verify the existing appointment receipt link: '.$db->error); }
+            $existingAppointment->bind_param('is', $appointmentId, $docno);
+            if (!$existingAppointment->execute()) { throw new Exception('Could not verify the existing appointment receipt link: '.$existingAppointment->error); }
+            $existingAppointmentRow = $existingAppointment->get_result()->fetch_assoc();
+            $existingAppointment->close();
+            if (!$existingAppointmentRow) {
+                throw new Exception('This receipt number already belongs to another transaction and cannot be linked to this appointment.');
+            }
+        }
         $invoiceCheck = $db->prepare("SELECT documentno FROM SalesHeader
             WHERE documenttype=10 AND externaldocumentno=? LIMIT 1");
         $invoiceCheck->bind_param('s', $docno);
@@ -700,6 +777,34 @@ try {
             'vatAmount' => $saleLine['vat_amount'], 'lineTotal' => $saleLine['line_total']
         );
     }
+    if ($appointmentId > 0) {
+        $appointmentLinkInsert = $db->prepare("INSERT INTO salon_appointment_transactions
+            (appointment_id,document_type,document_no,sales_entry_no) VALUES (?,1,?,?)");
+        if (!$appointmentLinkInsert) { throw new Exception('Could not prepare the appointment receipt link: '.$db->error); }
+        $appointmentLinkInsert->bind_param('isi', $appointmentId, $docno, $entryNo);
+        if (!$appointmentLinkInsert->execute()) {
+            $linkError = $appointmentLinkInsert->error;
+            $appointmentLinkInsert->close();
+            throw new Exception('Could not link the POS receipt to the appointment: '.$linkError);
+        }
+        $appointmentLinkInsert->close();
+        $appointmentComplete = $db->prepare("UPDATE salon_appointments SET appointment_status='completed' WHERE appointment_id=? AND appointment_status='in_service'");
+        if (!$appointmentComplete) { throw new Exception('Could not prepare appointment completion: '.$db->error); }
+        $appointmentComplete->bind_param('i', $appointmentId);
+        if (!$appointmentComplete->execute() || $appointmentComplete->affected_rows !== 1) {
+            $appointmentComplete->close();
+            throw new Exception('The appointment could not be marked completed. The POS transaction was rolled back.');
+        }
+        $appointmentComplete->close();
+        $appointmentLineComplete = $db->prepare("UPDATE salon_appointment_lines SET line_status='completed' WHERE appointment_id=? AND line_status='in_service'");
+        if (!$appointmentLineComplete) { throw new Exception('Could not prepare appointment service completion: '.$db->error); }
+        $appointmentLineComplete->bind_param('i', $appointmentId);
+        if (!$appointmentLineComplete->execute() || $appointmentLineComplete->affected_rows < 1) {
+            $appointmentLineComplete->close();
+            throw new Exception('The appointment service line could not be marked completed. The POS transaction was rolled back.');
+        }
+        $appointmentLineComplete->close();
+    }
     if (!$db->commit()) {
         throw new Exception('Could not commit the POS sale: ' . $db->error);
     }
@@ -709,7 +814,7 @@ try {
     }
     posSaveResponse(true, 'Receipt saved successfully.', 200, array(
         'documentno' => $docno, 'total' => $calculatedTotal, 'total_vat' => $calculatedVat,
-        'items' => $printItems
+        'appointment_id' => $appointmentId, 'items' => $printItems
     ));
 } catch (Throwable $e) {
     $db->rollback();
