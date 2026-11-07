@@ -435,6 +435,26 @@ try {
     $_POST['DimensionTwo'] = '';
     $invoicePosting = PostPOSInvoice($docno, $periodNo);
 
+    $invoiceStatementStmt = $db->prepare("SELECT COUNT(*) AS row_count,
+            COALESCE(SUM(Grossamount),0) AS invoice_amount
+        FROM CustomerStatement
+        WHERE JournalNo=? AND Documenttype=10 AND Accountno=?");
+    if (!$invoiceStatementStmt) {
+        throw new Exception('Could not verify the posted POS invoice customer statement: ' . $db->error);
+    }
+    $invoiceStatementStmt->bind_param('ss', $invoicePosting['journal'], $customerCode);
+    if (!$invoiceStatementStmt->execute()) {
+        $invoiceStatementError = $invoiceStatementStmt->error;
+        $invoiceStatementStmt->close();
+        throw new Exception('Could not verify the posted POS invoice customer statement: ' . $invoiceStatementError);
+    }
+    $invoiceStatementRow = $invoiceStatementStmt->get_result()->fetch_assoc();
+    $invoiceStatementStmt->close();
+    if (!$invoiceStatementRow || (int)$invoiceStatementRow['row_count'] !== 1 ||
+        abs((float)$invoiceStatementRow['invoice_amount'] - $calculatedTotal) > 0.005) {
+        throw new Exception('The posted POS invoice customer statement does not equal the POS sale total.');
+    }
+
     $receipt = new SaveReceipt();
     $receipt->bankcode = mysqli_real_escape_string($db, $bankAccountCode);
     $receipt->date = ConvertSQLDate($currentDate);
@@ -469,6 +489,48 @@ try {
         if (!$result || $db->errno !== 0 || $db->affected_rows < 1) {
             throw new Exception('A POS receipt accounting posting failed (posting step ' . ($index + 1) . '): ' . $db->error);
         }
+    }
+
+    $receiptVerifySql = "SELECT
+        (SELECT COUNT(*) FROM receiptheader WHERE docno=?) AS receipt_count,
+        (SELECT COUNT(*) FROM BankTransactions bt
+            INNER JOIN BankAccounts ba ON ba.accountcode=bt.bankcode
+            WHERE bt.DocumentNo=? AND bt.doctype=12
+              AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_count,
+        (SELECT COALESCE(SUM(amount),0) FROM BankTransactions
+            WHERE DocumentNo=? AND doctype=12) AS bank_amount,
+        (SELECT COALESCE(SUM(amount),0) FROM receiptheader WHERE docno=?) AS receipt_amount,
+        (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=12) AS debtor_count,
+        (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
+        (SELECT COUNT(*) FROM receiptsallocation WHERE receiptno=?) AS allocation_count,
+        (SELECT COALESCE(SUM(amount),0) FROM receiptsallocation WHERE receiptno=?) AS allocation_amount,
+        (SELECT COUNT(*) FROM CustomerStatement WHERE Documentno=? AND Documenttype=12) AS statement_count,
+        (SELECT COALESCE(SUM(Grossamount),0) FROM CustomerStatement WHERE Documentno=? AND Documenttype=12) AS statement_amount";
+    $receiptVerifyStmt = $db->prepare($receiptVerifySql);
+    if (!$receiptVerifyStmt) {
+        throw new Exception('Could not prepare the POS receipt posting verification: ' . $db->error);
+    }
+    $receiptVerifyStmt->bind_param('ssssssssss',
+        $docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno);
+    if (!$receiptVerifyStmt->execute()) {
+        $receiptVerifyError = $receiptVerifyStmt->error;
+        $receiptVerifyStmt->close();
+        throw new Exception('Could not verify the POS receipt postings: ' . $receiptVerifyError);
+    }
+    $receiptVerify = $receiptVerifyStmt->get_result()->fetch_assoc();
+    $receiptVerifyStmt->close();
+    if (!$receiptVerify ||
+        (int)$receiptVerify['receipt_count'] !== 1 ||
+        (int)$receiptVerify['bank_count'] !== 1 ||
+        abs((float)$receiptVerify['bank_amount'] - $calculatedTotal) > 0.005 ||
+        abs((float)$receiptVerify['receipt_amount'] - $calculatedTotal) > 0.005 ||
+        (int)$receiptVerify['debtor_count'] !== 1 ||
+        (int)$receiptVerify['gl_count'] !== 1 ||
+        (int)$receiptVerify['allocation_count'] !== 1 ||
+        abs((float)$receiptVerify['allocation_amount'] + $calculatedTotal) > 0.005 ||
+        (int)$receiptVerify['statement_count'] !== 1 ||
+        abs((float)$receiptVerify['statement_amount'] + $calculatedTotal) > 0.005) {
+        throw new Exception('The POS receipt, bank, debtor, general ledger or allocation postings failed their amount and record-count verification.');
     }
 
     $printItems = array();
