@@ -156,6 +156,10 @@ function completeSaleSave(receiptData) {
     // Reset the terminal immediately after the database confirms the sale.
     // Printer availability is deliberately not part of this completion step.
     clearTable();
+    $('#sales-table').removeAttr('data-appointment-id');
+    if (receiptData.appointmentId > 0) {
+        $('#salon-appointment-summary .salon-appointment-banner > div:last-child strong').text('Completed');
+    }
     $('#customer-cash').val('');
     $('#customer-change').text('0.00');
     $('#customer-mpesa-no').val('');
