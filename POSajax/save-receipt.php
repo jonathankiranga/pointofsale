@@ -464,7 +464,7 @@ try {
 
     $receipt = new SaveReceipt();
     $receipt->bankcode = mysqli_real_escape_string($db, $bankAccountCode);
-    $receipt->date = ConvertSQLDate($currentDate);
+    $receipt->date = substr($currentDate, 0, 10);
     $receipt->periodNo = $periodNo;
     $receipt->documentno = mysqli_real_escape_string($db, $docno);
     $receipt->reference = mysqli_real_escape_string($db, $receiptReference);
