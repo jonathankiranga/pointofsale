@@ -77,8 +77,9 @@ $manualTitle = 'POS & Back-office User Manual';
         <a href="#units">14. Full units and loose units</a>
         <a href="#stock-control">15. Stock control</a>
         <a href="#back-office">16. Back-office operations</a>
-        <a href="#security">17. Security and good practice</a>
-        <a href="#troubleshooting">18. Troubleshooting</a>
+        <a href="#salon-foundation">17. Hair salon operations (foundation)</a>
+        <a href="#security">18. Security and good practice</a>
+        <a href="#troubleshooting">19. Troubleshooting</a>
     </nav>
 
     <main class="manual-content">
@@ -257,7 +258,35 @@ $manualTitle = 'POS & Back-office User Manual';
         </ul>
         <p>Use the dedicated transaction page for each business process. Do not edit posted database records directly to correct an operational transaction; use the supported reversal, credit, adjustment or correction workflow.</p>
 
-        <h2 id="security">17. Security and good practice</h2>
+        <h2 id="salon-foundation">17. Hair salon operations — foundation and rollout status</h2>
+        <p>The <code>feature/hair-salon-pos</code> branch contains a separate database foundation for salon staff, services and commission rules. It is built on the touchscreen POS branch so the standard POS and general touchscreen POS remain separate from salon-specific work.</p>
+        <div class="note warning"><strong>Implementation status:</strong> The current salon work is a database foundation only. The hairdresser and service maintenance screens, appointment calendar, walk-in workflow, salon checkout integration, automatic commission posting, payouts and salon reports are not yet implemented. Do not treat the foundation tables as an operational commission system or use them to calculate payroll until those workflows are completed and tested.</div>
+        <h3>What the foundation stores</h3>
+        <ul>
+            <li><strong>Hairdressers:</strong> A salon-specific roster with a unique staff code, name, contact details and active/inactive status. This is separate from the existing production employee records.</li>
+            <li><strong>Services:</strong> A service catalogue with a unique service code, name, category, description, standard duration and standard price. Examples include haircuts, braiding, washing, colouring and treatments.</li>
+            <li><strong>Hairdresser skills:</strong> A mapping of which active hairdressers are assigned or qualified to perform each service.</li>
+            <li><strong>Commission rules:</strong> Percentage or fixed-amount rules. Rules can apply globally, to a service, to a hairdresser, or to a specific hairdresser/service combination. The future checkout integration must select the most specific applicable active rule.</li>
+            <li><strong>Commission ledger:</strong> A transaction-level snapshot containing the source sale and line, service, hairdresser, eligible amount, rule type/value, calculated amount and pending/paid/reversed status.</li>
+        </ul>
+        <h3>Database installation</h3>
+        <ol>
+            <li>Back up the relevant POS company database before applying a schema migration.</li>
+            <li>Run <code>SQL/20261107_hair_salon_pos_foundation.sql</code> once against that company database.</li>
+            <li>Confirm that the five <code>salon_*</code> tables were created successfully: <code>salon_hairdressers</code>, <code>salon_services</code>, <code>salon_hairdresser_services</code>, <code>salon_commission_rules</code> and <code>salon_service_commissions</code>.</li>
+            <li>The migration uses <code>CREATE TABLE IF NOT EXISTS</code>. It creates the salon tables and does not alter the existing POS sales, inventory, accounting or production employee tables.</li>
+        </ol>
+        <h3>Commission policy planned for checkout integration</h3>
+        <ul>
+            <li>Commission should be earned only after the assigned service line is completed and the related sale is paid.</li>
+            <li>The commission base is the service-line amount after line discounts. Retail product sales are excluded from service commission.</li>
+            <li>The calculation must snapshot the applicable rule, eligible amount and commission amount when posted. Later rule changes must not recalculate historic commissions.</li>
+            <li>A unique source-document, source-line and hairdresser key is provided to prevent duplicate commission records when a checkout request is retried.</li>
+            <li>Payouts and reversals must retain the original calculation for audit. A reversal should carry a reason.</li>
+        </ul>
+        <p>After the maintenance screens and checkout workflow are delivered, the salon user guide should be extended with the actual steps for registering hairdressers, configuring services and rates, assigning staff to services, handling appointments and walk-ins, completing a service sale, and paying commissions.</p>
+
+        <h2 id="security">18. Security and good practice</h2>
         <ul>
             <li>Use your own ERP login. Never share cashier credentials or leave an active terminal unattended.</li>
             <li>Open and close shifts under the correct cashier account.</li>
@@ -269,7 +298,7 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Log out when finished, especially on shared tills and back-office computers.</li>
         </ul>
 
-        <h2 id="troubleshooting">18. Troubleshooting</h2>
+        <h2 id="troubleshooting">19. Troubleshooting</h2>
         <table>
             <thead><tr><th>Problem</th><th>What to check</th></tr></thead>
             <tbody>
