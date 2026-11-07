@@ -357,7 +357,7 @@ function PostPOSInvoice($sourceDocumentNo, $periodNo) {
                          WHERE d.itemcode=src.customercode LIMIT 1),''),
                0,0,1,src.userid,?,src.vatinclusive,0,
                COALESCE(src.BatchNO,'POS'),COALESCE(src.Bybatch,'false'),
-               COALESCE(src.paymentterms,'CASH')
+               COALESCE(NULLIF(src.paymentterms,''),src.payment_method,'CASH')
         FROM SalesHeader src
         WHERE src.documenttype=1 AND src.documentno=?";
     $headerStmt = $db->prepare($headerSql);
