@@ -16,22 +16,22 @@
         return {vat: Math.round(vat * 100) / 100, gross: Math.round(gross * 100) / 100};
     }
 
-    function addSalonService(service, hairdresser) {
+    function addSalonService(service, hairdresser, appointmentLine) {
         var table = document.querySelector('#sales-table tbody');
         if (!table) { return; }
         var empty = table.querySelector('.blank-row');
         if (empty) { empty.remove(); }
         var line = calculateLine(service.price, 1, service.vat_rate);
         var row = document.createElement('tr');
-        row.className = 'selectable salon-service-line';
+        row.className = 'selectable salon-service-line' + (appointmentLine ? ' appointment-service-line' : '');
         row.setAttribute('data-itemcode', service.itemcode);
         row.setAttribute('data-barcode', service.barcode);
         row.setAttribute('data-salon-service-id', service.id);
-        row.setAttribute('data-hairdresser-id', hairdresser.id);
+        row.setAttribute('data-hairdresser-id', hairdresser.id);\n        if (appointmentLine) { row.setAttribute('data-appointment-line', '1'); }
         row.innerHTML =
             '<td>' + escapeHtml(service.barcode) + '</td>' +
             '<td>' + escapeHtml(service.name) + ' <small>— ' + escapeHtml(hairdresser.name) + '</small></td>' +
-            '<td contenteditable="true" class="quantity">1</td>' +
+            '<td ' + (appointmentLine ? '' : 'contenteditable="true"') + ' class="quantity">1</td>' +
             '<td class="unit-price">' + Number(service.price).toFixed(2) + '</td>' +
             '<td class="vat-per">' + Number(service.vat_rate).toFixed(2) + '</td>' +
             '<td class="VAT-total">' + line.vat.toFixed(2) + '</td>' +
@@ -65,6 +65,52 @@
         root._salonServices = services;
     }
 
+    function loadAppointment(appointmentId) {
+        if (!appointmentId) { return; }
+        $('#salon-appointment-summary').show().html('<strong>Loading appointment...</strong>');
+        $.ajax({
+            url: 'POSajax/salon-appointment.php',
+            type: 'GET',
+            dataType: 'json',
+            data: {appointment_id: appointmentId},
+            headers: {'X-POS-FormID': window.POS_FORM_ID || ''}
+        }).done(function (response) {
+            if (!response || !response.success || !response.appointment) {
+                $('#salon-appointment-summary').html('<div class="alert alert-danger mb-0">' + escapeHtml(response && response.message ? response.message : 'Appointment could not be loaded.') + '</div>');
+                $('.salon-service-picker').hide();
+                return;
+            }
+            var appointment = response.appointment;
+            $('#salon-appointment-summary').html(
+                '<div class="salon-appointment-banner"><div><span class="pos-eyebrow">APPOINTMENT ' + escapeHtml(appointment.reference) + '</span>' +
+                '<strong>' + escapeHtml(appointment.customer) + '</strong><small>' + escapeHtml(appointment.phone || '') + '</small></div>' +
+                '<div><span class="pos-eyebrow">BOOKED SERVICE</span><strong>' + escapeHtml(appointment.service) + '</strong><small>' +
+                escapeHtml(appointment.hairdresser) + '</small></div><div><span class="pos-eyebrow">STATUS</span><strong>In Service</strong></div></div>'
+            );
+            var service = {
+                id: appointment.serviceId,
+                name: appointment.service,
+                price: appointment.price,
+                itemcode: appointment.itemcode,
+                barcode: appointment.barcode,
+                vat_rate: 0
+            };
+            var root = document.getElementById('salon-service-catalogue');
+            var services = root && root._salonServices ? root._salonServices : [];
+            var configured = services.find(function (item) { return Number(item.id) === Number(appointment.serviceId); });
+            if (configured) { service.vat_rate = configured.vat_rate; }
+            var hairdresser = {id: appointment.hairdresserId, name: appointment.hairdresser};
+            addSalonService(service, hairdresser, true);
+            $('#sales-table').attr('data-appointment-id', appointment.id);
+            $('.salon-add-service[data-service-id="' + appointment.serviceId + '"]').prop('disabled', true).text('Booked in appointment');
+            $('#salon-service-catalogue').prepend('<div class="alert alert-info w-100">The booked service is already in the Sale Items grid. Add only extra services or retail products below.</div>');
+        }).fail(function (xhr) {
+            var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Appointment could not be loaded.';
+            $('#salon-appointment-summary').html('<div class="alert alert-danger mb-0">' + escapeHtml(message) + '</div>');
+            $('.salon-service-picker').hide();
+        });
+    }
+
     $(function () {
         if (!document.body.classList.contains('salon-pos-mode')) { return; }
         $.ajax({
@@ -80,6 +126,8 @@
             }
         }).fail(function () {
             $('#salon-service-catalogue').html('<div class="alert alert-danger">Salon services could not be loaded. Check the database migration and page permissions.</div>');
+        }).always(function () {
+            if (Number(window.POS_APPOINTMENT_ID) > 0) { loadAppointment(Number(window.POS_APPOINTMENT_ID)); }
         });
 
         $(document).on('click', '.salon-add-service', function () {
