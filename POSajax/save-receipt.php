@@ -69,6 +69,10 @@ if ($paymentMethod === 'MPESA') {
     $change = round((float)$changeValue, 2);
 }
 
+$receiptReference = ($paymentMethod === 'MPESA')
+    ? 'MPESA ' . $mpesaReference
+    : 'POS CASH ' . $docno;
+
 $config = array();
 $configResult = $db->query("SELECT confname, confvalue FROM config WHERE confname IN
     ('POS_DefaultCustomer','POS_DefaultStore','POS_DefaultCurrency','POS_DefaultPostingGroup','POS_CashBankAccount','POS_MPesaBankAccount')");
