@@ -4,12 +4,12 @@ The salon-specific work is isolated on `feature/hair-salon-pos`. The standard PO
 
 ## Database setup
 
-Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company database. The script uses `CREATE TABLE IF NOT EXISTS` and does not alter or repurpose the existing production employee, sales, inventory, or accounting tables.
+Run `SQL/20261107_hair_salon_pos_foundation.sql` once against the POS company database. Then apply the item-mapping and master-alignment migrations. The alignment migration backfills existing mapped salon services from ERP stockmaster data.
 
 ## Foundation tables
 
 - `salon_hairdressers`: salon staff roster and active/inactive status.
-- `salon_services`: service catalogue, category, standard duration, and standard price.
+- `salon_services`: salon-specific duration, salon selling price, description/notes, ERP item mapping and generated internal service reference. The service name is read from `stockmaster.descrip`; its category is read from `stockcategory.categorydescription`.
 - `salon_hairdresser_services`: which services each hairdresser is qualified/assigned to perform.
 - `salon_commission_rules`: percentage or fixed commission rules. A rule may be global, service-specific, hairdresser-specific, or specific to one hairdresser/service combination.
 - `salon_service_commissions`: transaction-level commission snapshot and payout/reversal status.
@@ -37,5 +37,13 @@ Apply `SQL/20261107_hair_salon_appointment_pos_operations.sql` and then `SQL/202
 The unique appointment key in `salon_appointment_transactions` prevents a second receipt from being linked to the same booking. A repeated request using the same receipt number remains subject to the existing POS idempotency checks.
 
 Cancelled and no-show appointments cannot be started. Appointments that have started cannot be cancelled or marked no-show. No commission is created for cancelled, no-show or unfinished appointments because commission rows are written only inside a successfully committed paid POS sale.
+
+## ERP item master and salon service setup
+
+Create the service as an ERP stock item first. The ERP stock item is the POS transaction identity: its item code is written to the POS sales line and its posting group/VAT configuration drives accounting. The stock item description supplies the salon service name, and its `stockmaster.category` is resolved through `stockcategory` to supply the category description.
+
+In Salon Management, select the ERP item code or barcode; the paired selector and read-only description/category fields are populated from the same stock item. Do not manually enter a separate service name or category. The salon service code is generated from the new `service_id` when the service is saved. Duration, salon selling price, salon notes, staff assignments and commission rules remain salon-specific.
+
+Apply `SQL/20261107_hair_salon_pos_master_alignment.sql` once after `SQL/20261107_hair_salon_pos_item_mapping.sql` to synchronise existing mapped service names and categories from the ERP master.
 
 Appointment customer names are recorded on the POS sales header while the existing configured POS debtor/customer account remains the accounting customer. If individual debtor-account posting is required per salon customer, the appointment booking form must later be connected to the ERP debtor master rather than using free-text customer names.
