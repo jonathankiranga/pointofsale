@@ -230,7 +230,7 @@ function PostGL($period,$journal,$doc,$discount){
       ,[inventorypostinggroup].[defaultgl_sales]
       ,[inventorypostinggroup].[defaultgl_vat]
       ,SalesLine.invoiceamount * ".$discount."
-      ,COALESCE(SalesLine.vatamount,0) * ".$discount.",0) as vatamount
+      ,COALESCE(SalesLine.vatamount,0) * ".$discount." as vatamount
       ,SalesHeader.[currencycode]
       ,[currencies].[rate]
       ,SalesHeader.[customercode]
