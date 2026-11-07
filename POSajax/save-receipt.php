@@ -436,14 +436,17 @@ try {
     $invoicePosting = PostPOSInvoice($docno, $periodNo);
 
     $invoiceStatementStmt = $db->prepare("SELECT COUNT(*) AS row_count,
-            COALESCE(SUM(Grossamount),0) AS invoice_amount
+            COALESCE(SUM(Grossamount),0) AS invoice_amount,
+            (SELECT COALESCE(SUM(amount),0) FROM debtorsledger
+                WHERE invref=? AND systypes_1=10) AS debtor_amount
         FROM CustomerStatement
         WHERE JournalNo=? AND Documenttype=10 AND Accountno=?");
     if (!$invoiceStatementStmt) {
         throw new Exception('Could not verify the posted POS invoice customer statement: ' . $db->error);
     }
     $invoiceJournal = (string)$invoicePosting['journal'];
-    $invoiceStatementStmt->bind_param('ss', $invoiceJournal, $customerCode);
+    $invoiceNumber = (string)$invoicePosting['documentno'];
+    $invoiceStatementStmt->bind_param('sss', $invoiceNumber, $invoiceJournal, $customerCode);
     if (!$invoiceStatementStmt->execute()) {
         $invoiceStatementError = $invoiceStatementStmt->error;
         $invoiceStatementStmt->close();
@@ -452,7 +455,8 @@ try {
     $invoiceStatementRow = $invoiceStatementStmt->get_result()->fetch_assoc();
     $invoiceStatementStmt->close();
     if (!$invoiceStatementRow || (int)$invoiceStatementRow['row_count'] !== 1 ||
-        abs((float)$invoiceStatementRow['invoice_amount'] - $calculatedTotal) > 0.005) {
+        abs((float)$invoiceStatementRow['invoice_amount'] - $calculatedTotal) > 0.005 ||
+        abs((float)$invoiceStatementRow['debtor_amount'] - $calculatedTotal) > 0.005) {
         throw new Exception('The posted POS invoice customer statement does not equal the POS sale total.');
     }
 
@@ -502,7 +506,9 @@ try {
             WHERE DocumentNo=? AND doctype=12) AS bank_amount,
         (SELECT COALESCE(SUM(amount),0) FROM receiptheader WHERE docno=?) AS receipt_amount,
         (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=12) AS debtor_count,
+        (SELECT COALESCE(SUM(amount),0) FROM debtorsledger WHERE invref=? AND systypes_1=12) AS debtor_amount,
         (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
+        (SELECT COALESCE(SUM(amount),0) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_amount,
         (SELECT COUNT(*) FROM receiptsallocation WHERE receiptno=?) AS allocation_count,
         (SELECT COALESCE(SUM(amount),0) FROM receiptsallocation WHERE receiptno=?) AS allocation_amount,
         (SELECT COUNT(*) FROM CustomerStatement WHERE Documentno=? AND Documenttype=12) AS statement_count,
@@ -511,8 +517,8 @@ try {
     if (!$receiptVerifyStmt) {
         throw new Exception('Could not prepare the POS receipt posting verification: ' . $db->error);
     }
-    $receiptVerifyStmt->bind_param('ssssssssss',
-        $docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno);
+    $receiptVerifyStmt->bind_param('ssssssssssss',
+        $docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno,$docno);
     if (!$receiptVerifyStmt->execute()) {
         $receiptVerifyError = $receiptVerifyStmt->error;
         $receiptVerifyStmt->close();
@@ -526,7 +532,9 @@ try {
         abs((float)$receiptVerify['bank_amount'] - $calculatedTotal) > 0.005 ||
         abs((float)$receiptVerify['receipt_amount'] - $calculatedTotal) > 0.005 ||
         (int)$receiptVerify['debtor_count'] !== 1 ||
+        abs((float)$receiptVerify['debtor_amount'] + $calculatedTotal) > 0.005 ||
         (int)$receiptVerify['gl_count'] !== 1 ||
+        abs((float)$receiptVerify['gl_amount'] - $calculatedTotal) > 0.005 ||
         (int)$receiptVerify['allocation_count'] !== 1 ||
         abs((float)$receiptVerify['allocation_amount'] + $calculatedTotal) > 0.005 ||
         (int)$receiptVerify['statement_count'] !== 1 ||
