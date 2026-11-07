@@ -1,4 +1,4 @@
-function collectReceiptData(paymentMethod, mpesaPhone) {
+function collectReceiptData(paymentMethod, mpesaPhone, mpesaReference) {
     const items = [];
 
     $('#sales-table tbody tr').each(function() {
@@ -54,12 +54,13 @@ function collectReceiptData(paymentMethod, mpesaPhone) {
         currency: 'KES',
         paymentMethod: paymentMethod || 'CASH',
         mpesaPhone: mpesaPhone || '',
+        mpesaReference: mpesaReference || '',
         printerId: window.POS_PRINTER_ID || '',
         printedAt: new Date().toISOString()
     };
 }
 
-function printReceipt(paymentMethod, mpesaPhone) {
+function printReceipt(paymentMethod, mpesaPhone, mpesaReference) {
     if (window.POS_PRINT_IN_PROGRESS) {
         showCustomDialog('A sale is already being saved. Please wait.');
         return;
@@ -67,7 +68,7 @@ function printReceipt(paymentMethod, mpesaPhone) {
 
     let receiptData;
     try {
-        receiptData = collectReceiptData(paymentMethod, mpesaPhone);
+        receiptData = collectReceiptData(paymentMethod, mpesaPhone, mpesaReference);
     } catch (error) {
         showCustomDialog(error.message);
         return;
@@ -155,6 +156,7 @@ function completeSaleSave(receiptData) {
     $('#customer-cash').val('');
     $('#customer-change').text('0.00');
     $('#customer-mpesa-no').val('');
+    $('#customer-mpesa-reference').val('');
     $('#cashsaleno').text('CS-' + Date.now());
     closeModal();
 }

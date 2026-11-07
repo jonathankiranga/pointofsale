@@ -1123,29 +1123,33 @@ while($myrow = DB_fetch_array($ConfigResult)) {
 
 
 function myjavascript($DEBIT='DEBIT',$amount=0){
-    
+
     if($DEBIT=='DEBIT'){
-         echo '<script type="text/javascript"> ';
-         echo "var TotalCleared=0,Difference=0,Balbfwd=0, CRamount=0,bankendbalance=0, DBamount=0;
-              document.getElementById('clearedDB').value =Math.round( ".$amount.",1) ;
-              Balbfwd   = document.getElementById('lastreconbalance').value;
-              CRamount  = document.getElementById('clearedCR').value;
-              bankendbalance = document.getElementById('bankendbalance').value;
-              TotalCleared = (((+Balbfwd) + (+ ".$amount." ))- (+CRamount));
-              Difference= (+bankendbalance)- (+TotalCleared);
-              document.getElementById('cleared').value = Math.round(TotalCleared,1);
-            </script>";
+        echo '<script type="text/javascript">';
+        echo "var TotalCleared=0,Difference=0,Balbfwd=0,CRamount=0,bankendbalance=0;
+            var DebitAmount = Math.round((+".$amount.")*100)/100;
+            document.getElementById('clearedDB').value = DebitAmount.toFixed(2);
+            Balbfwd = Number(document.getElementById('lastreconbalance').value || 0);
+            CRamount = Number(document.getElementById('clearedCR').value || 0);
+            bankendbalance = Number(document.getElementById('bankendbalance').value || 0);
+            TotalCleared = Math.round((Balbfwd + DebitAmount + CRamount)*100)/100;
+            Difference = Math.round((bankendbalance - TotalCleared)*100)/100;
+            document.getElementById('cleared').value = TotalCleared.toFixed(2);
+            document.getElementById('Uncleared').value = Difference.toFixed(2);";
+        echo '</script>';
     }else{
-        echo '<script type="text/javascript"> ';
-        echo "var TotalCleared=0,Difference=0,Balbfwd=0,CRamount=0,bankendbalance=0,DBamount=0;
-            document.getElementById('clearedCR').value = Math.round(".$amount.",1) ;
-            Balbfwd = document.getElementById('lastreconbalance').value;
-            DBamount =  document.getElementById('clearedDB').value;
-            bankendbalance = document.getElementById('bankendbalance').value;
-            TotalCleared = (((+Balbfwd) + (+DBamount))- (+".$amount."));
-            Difference= (+bankendbalance)- (+TotalCleared);
-            document.getElementById('cleared').value =Math.round(TotalCleared,1);";
-        echo "</script>";
+        echo '<script type="text/javascript">';
+        echo "var TotalCleared=0,Difference=0,Balbfwd=0,DBamount=0,bankendbalance=0;
+            var CreditAmount = Math.round((+".$amount.")*100)/100;
+            document.getElementById('clearedCR').value = CreditAmount.toFixed(2);
+            Balbfwd = Number(document.getElementById('lastreconbalance').value || 0);
+            DBamount = Number(document.getElementById('clearedDB').value || 0);
+            bankendbalance = Number(document.getElementById('bankendbalance').value || 0);
+            TotalCleared = Math.round((Balbfwd + DBamount + CreditAmount)*100)/100;
+            Difference = Math.round((bankendbalance - TotalCleared)*100)/100;
+            document.getElementById('cleared').value = TotalCleared.toFixed(2);
+            document.getElementById('Uncleared').value = Difference.toFixed(2);";
+        echo '</script>';
     }
 }
 
@@ -1206,9 +1210,9 @@ while($row=DB_fetch_array($resultindex)){
       ,[systypes_1].[typename]
       ,[DocumentNo]
       ,(case TransType 
-	   when 'DR' then (select customer from debtors where debtors.itemcode=banktransactions.itemcode)  
-	   when 'CR' then (select customer from creditors where creditors.itemcode=banktransactions.itemcode)  
-	   else (select customer from debtors where debtors.itemcode=banktransactions.itemcode) end) as Payee
+       when 'DR' then (select customer from debtors where debtors.itemcode=banktransactions.itemcode)  
+       when 'CR' then (select customer from creditors where creditors.itemcode=banktransactions.itemcode)  
+       else (select customer from debtors where debtors.itemcode=banktransactions.itemcode) end) as Payee
       ,[journal]
       ,[amount]
       ,[narrative]
@@ -1217,16 +1221,16 @@ while($row=DB_fetch_array($resultindex)){
       ,[BankTransactions].[reconciled]
   FROM [BankTransactions] 
   left join [systypes_1] on [BankTransactions].[doctype]=[systypes_1].typeid 
-  where ([bankcode]='".$_POST['Bank_Code']."')";
-   
-  if(mb_strlen($_POST['statementstartdate'])>6 and mb_strlen($_POST['enddate'])>6){
-        $SQL .= " and ([BankTransactions].[DocDate] between '".$_POST['statementstartdate']."' and '".$_POST['enddate']."')"
-           . " or ([BankTransactions].[reconciled] is NULL)";
-  }elseif(mb_strlen($_POST['statementstartdate'])>6){
-        $SQL .= " and ([BankTransactions].[DocDate] > '".$_POST['statementstartdate']."') or ([BankTransactions].[reconciled] is NULL)";
+  where ([bankcode]='".mysqli_real_escape_string($db, trim((string)$_POST['Bank_Code']))."')
+    and [BankTransactions].[reconciled] IS NULL";
+
+  $statementEnd = isset($_POST['enddate']) ? trim((string)$_POST['enddate']) : '';
+  if ($statementEnd !== '') {
+      $statementEnd = FormatDateForSQL($statementEnd) . ' 23:59:59';
+      $SQL .= " and [BankTransactions].[DocDate] <= '".mysqli_real_escape_string($db, $statementEnd)."'";
   }
-    
-$SQL .=" order by [DocDate] Asc" ;
+
+  $SQL .=" order by [DocDate] Asc" ;
  $ResultIndex=DB_query($SQL,$db);
    
 $tableObject='<div id="filtereddata"><div class="centre">'

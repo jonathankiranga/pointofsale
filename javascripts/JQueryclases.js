@@ -131,7 +131,7 @@ $(document).ready(function() {
 		{
 			Bank_Code: $("#bankselected").val(),
 			statementstartdate: $("#statementstartdate").val(),
-			enddate: $("#bankrecondate").val()
+			enddate: $.trim($("#bankrecondate").val() || "")
 		}, function (data)
 		{
 			$("#filtereddata").remove();

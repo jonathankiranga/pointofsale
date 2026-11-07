@@ -12,3 +12,322 @@
 
 /* Scan PHP-rendered views, JavaScript templates and the existing app source. */
 @source "../";
+
+/*
+ * Back-office component styling.
+ *
+ * These selectors deliberately target the existing PHP-rendered markup, so
+ * screens receive the Tailwind design system without changing field names,
+ * form actions, SQL, AJAX handlers or table/grid behaviour.
+ */
+#view-panel {
+    @apply mx-auto w-full max-w-full text-slate-800;
+}
+
+#view-panel form {
+    @apply mx-auto mb-5 w-full max-w-full text-slate-800;
+}
+
+#view-panel label {
+    @apply mb-1 inline-block text-xs font-semibold text-slate-600;
+}
+
+#view-panel .form-group,
+#view-panel .form-row,
+#view-panel fieldset {
+    @apply mb-4;
+}
+
+#view-panel input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+#view-panel select,
+#view-panel textarea {
+    @apply box-border max-w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm leading-5 text-slate-800 shadow-sm;
+    min-height: 2.25rem;
+    font-family: inherit;
+}
+
+#view-panel input:focus,
+#view-panel select:focus,
+#view-panel textarea:focus {
+    @apply border-blue-500 outline-none ring-2 ring-blue-100;
+}
+
+#view-panel input:disabled,
+#view-panel select:disabled,
+#view-panel textarea:disabled {
+    @apply cursor-not-allowed bg-slate-100 text-slate-500;
+}
+
+#view-panel input[type="checkbox"],
+#view-panel input[type="radio"] {
+    @apply mr-1 inline-block h-4 w-4 align-middle accent-blue-700;
+}
+
+#view-panel input[type="file"] {
+    @apply block max-w-full rounded-md border border-slate-300 bg-white p-2 text-sm text-slate-700;
+}
+
+#view-panel textarea {
+    @apply min-h-24 w-full resize-y;
+}
+
+#view-panel input[type="submit"],
+#view-panel input[type="button"],
+#view-panel input[type="reset"],
+#view-panel button,
+#view-panel .btn {
+    @apply inline-flex min-h-9 items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition-colors;
+}
+
+#view-panel input[type="submit"]:hover,
+#view-panel input[type="button"]:hover,
+#view-panel input[type="reset"]:hover,
+#view-panel button:hover,
+#view-panel .btn:hover {
+    @apply border-slate-400 bg-slate-50;
+}
+
+#view-panel .btn-primary,
+#view-panel button.btn-primary,
+#view-panel input.btn-primary {
+    @apply border-blue-800 bg-blue-800 text-white;
+}
+
+#view-panel .btn-primary:hover,
+#view-panel button.btn-primary:hover,
+#view-panel input.btn-primary:hover {
+    @apply border-blue-900 bg-blue-900 text-white;
+}
+
+#view-panel .btn-success {
+    @apply border-emerald-700 bg-emerald-700 text-white;
+}
+
+#view-panel .btn-danger {
+    @apply border-red-700 bg-red-700 text-white;
+}
+
+#view-panel fieldset {
+    @apply min-w-0 rounded-lg border border-slate-200 bg-white p-4;
+}
+
+#view-panel legend {
+    @apply w-auto px-2 text-sm font-semibold text-slate-700;
+}
+
+/* Plain HTML tables used to arrange form fields are not styled as data grids. */
+#view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]) {
+    @apply mx-auto max-w-full border-separate;
+    border-spacing: 0.5rem 0.35rem;
+}
+
+#view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]) > tbody > tr > td,
+#view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]) > tr > td {
+    @apply px-2 py-1 align-middle;
+}
+
+#view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]) > tbody > tr > td:first-child:not([colspan]),
+#view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]) > tr > td:first-child:not([colspan]) {
+    @apply text-right text-xs font-semibold text-slate-600;
+}
+
+#view-panel .table-responsive {
+    @apply max-w-full overflow-auto rounded-lg border border-slate-200 bg-white;
+}
+
+#view-panel table.dataTable,
+#view-panel table.tablesorter,
+#view-panel table[role="grid"],
+#view-panel table[data-grid] {
+    @apply w-full border-collapse bg-white text-xs text-slate-700;
+}
+
+#view-panel table.dataTable thead th,
+#view-panel table.tablesorter thead th,
+#view-panel table[role="grid"] thead th,
+#view-panel table[data-grid] thead th {
+    @apply border-b border-slate-300 bg-slate-100 px-3 py-2 text-left text-xs font-semibold text-slate-700;
+}
+
+#view-panel table.dataTable tbody td,
+#view-panel table.tablesorter tbody td,
+#view-panel table[role="grid"] tbody td,
+#view-panel table[data-grid] tbody td {
+    @apply border-b border-slate-100 px-3 py-2 align-middle;
+}
+
+#view-panel table.dataTable tbody tr:nth-child(even),
+#view-panel table.tablesorter tbody tr:nth-child(even),
+#view-panel table[role="grid"] tbody tr:nth-child(even),
+#view-panel table[data-grid] tbody tr:nth-child(even) {
+    @apply bg-slate-50;
+}
+
+#view-panel table.dataTable tbody tr:hover,
+#view-panel table.tablesorter tbody tr:hover,
+#view-panel table[role="grid"] tbody tr:hover,
+#view-panel table[data-grid] tbody tr:hover {
+    @apply bg-blue-50;
+}
+
+#view-panel .dataTables_wrapper input,
+#view-panel .dataTables_wrapper select {
+    @apply min-h-8 rounded-md border border-slate-300 bg-white px-2 py-1 text-xs;
+}
+
+#view-panel .dataTables_wrapper .paginate_button {
+    @apply mx-0.5 rounded border border-slate-200 px-2 py-1 text-xs text-slate-700;
+}
+
+#view-panel .dataTables_wrapper .paginate_button.current {
+    @apply border-blue-800 bg-blue-800 text-white;
+}
+
+@media (max-width: 767px) {
+    #view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]) {
+        @apply block w-full overflow-x-auto;
+    }
+
+    #view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]) > tbody {
+        @apply w-full;
+    }
+
+    #view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]) > tbody > tr > td:first-child:not([colspan]) {
+        @apply text-left;
+    }
+}
+
+/* Tailwind hyperlink and ordinary HTML table styling.
+   Grid widgets keep their dedicated DataTables/tablesorter presentation. */
+#view-panel a:not(.btn):not(.paginate_button) {
+    @apply font-medium text-blue-800 underline-offset-2 transition-colors;
+}
+
+#view-panel a:not(.btn):not(.paginate_button):hover,
+#view-panel a:not(.btn):not(.paginate_button):focus {
+    @apply text-blue-950 underline;
+}
+
+#view-panel a:not(.btn):not(.paginate_button):focus-visible {
+    @apply rounded-sm outline-none ring-2 ring-blue-300 ring-offset-2;
+}
+
+#view-panel a:visited:not(.btn):not(.paginate_button) {
+    @apply text-indigo-800;
+}
+
+/* Non-grid HTML tables: consistent borders, spacing and readable rows. */
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) {
+    @apply max-w-full border-collapse border border-slate-200 bg-white text-sm text-slate-700;
+}
+
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) > thead > tr > th {
+    @apply border border-slate-200 bg-slate-100 px-3 py-2 text-left text-xs font-semibold text-slate-700;
+}
+
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) > tbody > tr > td,
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) > tr > td {
+    @apply border border-slate-200 px-3 py-2 align-middle;
+}
+
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) > tbody > tr:nth-child(even) > td {
+    @apply bg-slate-50;
+}
+
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) > tbody > tr:hover > td {
+    @apply bg-blue-50;
+}
+
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) caption {
+    @apply px-3 py-2 text-left text-sm font-semibold text-slate-700;
+}
+
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) a {
+    @apply text-blue-800 underline-offset-2;
+}
+
+#view-panel table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) a:hover {
+    @apply text-blue-950 underline;
+}
+
+/* Preserve compact form-table alignment while adding subtle row definition. */
+#view-panel form table:not(.dataTable):not(.tablesorter):not([role="grid"]):not([data-grid]):not(.table-grid):not(.grid-table) > tbody > tr > td {
+    @apply border-b border-slate-100;
+}
+
+
+/* Bank/Cash Account maintenance: balanced two-column form and readable register. */
+#view-panel table.bank-account-form {
+    @apply mx-auto w-full max-w-5xl border-separate rounded-xl border border-slate-200 bg-white p-4 shadow-sm;
+    width: 100%;
+    table-layout: fixed;
+    border-spacing: 0.5rem 0.4rem;
+}
+
+/* Two label/input pairs: labels use only the space they need; controls get 37%. */
+#view-panel table.bank-account-form tr > td:nth-child(1),
+#view-panel table.bank-account-form tr > td:nth-child(3) {
+    width: 13%;
+}
+
+#view-panel table.bank-account-form tr > td:nth-child(2),
+#view-panel table.bank-account-form tr > td:nth-child(4) {
+    width: 37%;
+}
+
+#view-panel table.bank-account-form td {
+    @apply px-2 py-2 align-middle;
+}
+
+#view-panel table.bank-account-form td:nth-child(odd) {
+    @apply w-1/5 text-right text-xs font-semibold text-slate-600;
+}
+
+#view-panel table.bank-account-form input:not([type="submit"]),
+#view-panel table.bank-account-form select {
+    @apply w-full;
+}
+
+#view-panel table.bank-account-form input[type="submit"] {
+    @apply min-w-32;
+}
+
+#view-panel table.bank-account-list {
+    @apply my-5 w-full border-collapse overflow-hidden rounded-lg border border-slate-200 bg-white text-sm text-slate-700 shadow-sm;
+}
+
+#view-panel table.bank-account-list th {
+    @apply border border-slate-200 bg-slate-100 px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-700;
+}
+
+#view-panel table.bank-account-list td {
+    @apply border-b border-slate-100 px-3 py-2 align-middle;
+}
+
+#view-panel table.bank-account-list tbody tr:nth-child(even) {
+    @apply bg-slate-50;
+}
+
+#view-panel table.bank-account-list tbody tr:hover {
+    @apply bg-blue-50;
+}
+
+@media (max-width: 767px) {
+    #view-panel table.bank-account-form {
+        @apply block overflow-x-auto p-2;
+    }
+
+    #view-panel table.bank-account-list {
+        @apply block overflow-x-auto whitespace-nowrap;
+    }
+}
+
+/* Keep form controls inside their allocated input columns. */
+#view-panel table.bank-account-form input:not([type="submit"]),
+#view-panel table.bank-account-form select {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
