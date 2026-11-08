@@ -1,0 +1,66 @@
+/*
+ * QuickBooks-inspired application design system.
+ * Shared visual layer only: it does not change page logic, data grids or workflows.
+ */
+:root {
+    --qb-green: #2ca01c;
+    --qb-green-hover: #238516;
+    --qb-green-soft: #e8f5e5;
+    --qb-text: #393a3d;
+    --qb-muted: #6b6c72;
+    --qb-border: #d4d7dc;
+    --qb-border-strong: #b9bec7;
+    --qb-canvas: #f4f5f8;
+    --qb-surface: #ffffff;
+    --qb-control-height: 36px;
+    --qb-radius: 6px;
+    --qb-shadow: 0 1px 2px rgba(31, 35, 40, .06);
+}
+html { color-scheme: light; }
+body { color: var(--qb-text); background: var(--qb-canvas); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+#view-panel { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; padding: 22px 24px 32px; margin: 0 auto; color: var(--qb-text); background: transparent; overflow-x: auto; }
+#view-panel *, #view-panel *::before, #view-panel *::after { box-sizing: border-box; }
+#view-panel h1, #view-panel h2, #view-panel h3, #view-panel h4, #view-panel h5, #view-panel h6 { color: #292a2d; font-weight: 600; line-height: 1.3; }
+#view-panel h1, #view-panel h2 { margin-top: 0; margin-bottom: 16px; }
+#view-panel p.page_title_text { width: 100%; margin: 0 0 18px; padding: 0 0 12px; color: #292a2d; border-bottom: 1px solid var(--qb-border); font-size: 20px; font-weight: 600; text-align: left; }
+#view-panel .card, #view-panel .panel, #view-panel .well, #view-panel .modal-content { color: var(--qb-text); background: var(--qb-surface); border: 1px solid var(--qb-border); border-radius: 8px; box-shadow: var(--qb-shadow); }
+#view-panel .card-header, #view-panel .panel-heading, #view-panel .modal-header { padding: 12px 16px; color: #34363a; background: #fafbfc; border-bottom: 1px solid var(--qb-border); font-weight: 600; }
+#view-panel .card-body, #view-panel .panel-body { padding: 16px; }
+#view-panel label, #view-panel .form-label { display: inline-block; margin: 0 0 5px; color: #4d5158; font-size: 13px; font-weight: 600; line-height: 1.35; }
+#view-panel input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), #view-panel select, #view-panel textarea { display: block; width: 100%; max-width: 100%; min-width: 0; margin: 0; padding: 7px 10px; color: var(--qb-text); background: #fff; border: 1px solid var(--qb-border-strong); border-radius: var(--qb-radius); box-shadow: none; font: inherit; font-size: 14px; line-height: 1.35; transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease; }
+#view-panel input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), #view-panel select { height: var(--qb-control-height); }
+#view-panel textarea { min-height: 84px; resize: vertical; }
+#view-panel input:focus, #view-panel select:focus, #view-panel textarea:focus { outline: 0; border-color: var(--qb-green); box-shadow: 0 0 0 3px rgba(44, 160, 28, .14); }
+#view-panel input:disabled, #view-panel select:disabled, #view-panel textarea:disabled { color: #777b82; background: #f1f2f4; cursor: not-allowed; }
+#view-panel input[type="checkbox"], #view-panel input[type="radio"] { width: 16px; height: 16px; margin: 0 6px 0 0; accent-color: var(--qb-green); vertical-align: middle; }
+#view-panel input[type="file"] { height: auto; min-height: var(--qb-control-height); padding: 5px 8px; }
+#view-panel input[type="submit"], #view-panel input[type="button"], #view-panel input[type="reset"], #view-panel button, #view-panel .btn { display: inline-flex; min-height: var(--qb-control-height); align-items: center; justify-content: center; gap: 6px; padding: 7px 14px; color: #3d4147; background: #fff; border: 1px solid var(--qb-border-strong); border-radius: var(--qb-radius); box-shadow: none; font: inherit; font-size: 14px; font-weight: 600; line-height: 1.2; text-decoration: none; white-space: normal; cursor: pointer; }
+#view-panel input[type="submit"]:hover, #view-panel input[type="button"]:hover, #view-panel input[type="reset"]:hover, #view-panel button:hover, #view-panel .btn:hover { background: #f5f6f7; border-color: #9298a1; }
+#view-panel .btn-primary, #view-panel button.btn-primary, #view-panel input[type="submit"] { color: #fff; background: var(--qb-green); border-color: var(--qb-green); }
+#view-panel .btn-primary:hover, #view-panel button.btn-primary:hover, #view-panel input[type="submit"]:hover { color: #fff; background: var(--qb-green-hover); border-color: var(--qb-green-hover); }
+#view-panel .btn-success { color: #fff; background: var(--qb-green); border-color: var(--qb-green); }
+#view-panel .btn-danger { color: #fff; background: #d92d20; border-color: #d92d20; }
+#view-panel .btn-link { min-height: 0; padding: 2px 4px; color: #176b3a; background: transparent; border: 0; }
+#view-panel table.bo-compact-form-table, #view-panel table.bo-compact-form-table tbody { display: block; width: 100%; max-width: 100%; }
+#view-panel table.bo-compact-form-table { margin: 0 0 14px; border: 0; border-collapse: separate; border-spacing: 0 7px; table-layout: fixed; }
+#view-panel table.bo-compact-form-table tr { display: grid; grid-template-columns: minmax(110px, .8fr) minmax(0, 1.2fr) minmax(110px, .8fr) minmax(0, 1.2fr); align-items: center; width: 100%; min-width: 0; }
+#view-panel table.bo-compact-form-table tr:has(> td:nth-child(2):last-child), #view-panel table.bo-compact-form-table tr:has(> th:nth-child(2):last-child) { grid-template-columns: minmax(130px, .75fr) minmax(0, 2.25fr); }
+#view-panel table.bo-compact-form-table td, #view-panel table.bo-compact-form-table th { display: block; min-width: 0; width: auto; padding: 4px 8px; color: var(--qb-text); background: transparent; border: 0; text-align: left; vertical-align: middle; overflow-wrap: anywhere; }
+#view-panel table.bo-compact-form-table td:has(> input[type="checkbox"]), #view-panel table.bo-compact-form-table td:has(> input[type="radio"]) { display: flex; align-items: center; }
+#view-panel table.bo-compact-form-table td > input, #view-panel table.bo-compact-form-table td > select, #view-panel table.bo-compact-form-table td > textarea { width: 100%; min-width: 0; }
+#view-panel table.dataTable, #view-panel table.tablesorter, #view-panel table.table-grid, #view-panel table.grid-table, #view-panel .dataTables_wrapper table { width: 100%; color: var(--qb-text); border-color: var(--qb-border); font-size: 13px; }
+#view-panel table.dataTable thead th, #view-panel table.tablesorter thead th, #view-panel table.table-grid thead th, #view-panel table.grid-table thead th, #view-panel .dataTables_wrapper table thead th { padding: 10px 12px; color: #4b5058; background: #f3f5f7; border-bottom: 1px solid var(--qb-border-strong); font-size: 12px; font-weight: 700; text-align: left; vertical-align: middle; }
+#view-panel table.dataTable tbody td, #view-panel table.tablesorter tbody td, #view-panel table.table-grid tbody td, #view-panel table.grid-table tbody td, #view-panel .dataTables_wrapper table tbody td { padding: 9px 12px; border-bottom: 1px solid #e8eaed; vertical-align: middle; }
+#view-panel table.dataTable tbody tr:hover, #view-panel table.tablesorter tbody tr:hover, #view-panel table.table-grid tbody tr:hover, #view-panel table.grid-table tbody tr:hover { background: #f7fbf6; }
+#view-panel .alert, #view-panel div.error, #view-panel div.warn, #view-panel div.success, #view-panel div.info { width: 100%; margin: 10px 0; padding: 10px 12px; border-radius: var(--qb-radius); text-align: left; }
+#view-panel a { color: #176b3a; text-decoration: none; }
+#view-panel a:hover { color: #10552c; text-decoration: underline; }
+#view-panel .text-muted, #view-panel small, #view-panel .small { color: var(--qb-muted) !important; }
+#view-panel .page_help_text { width: 100%; margin: 10px 0; padding: 10px 12px; color: #4d5158; background: #f7f8fa; border: 1px solid var(--qb-border); border-radius: var(--qb-radius); text-align: left; }
+#view-panel .table-responsive, #view-panel .dataTables_wrapper { max-width: 100%; overflow-x: auto; }
+@media (max-width: 767.98px) {
+    #view-panel { padding: 14px 12px 24px; }
+    #view-panel table.bo-compact-form-table tr, #view-panel table.bo-compact-form-table tr:has(> td:nth-child(2):last-child), #view-panel table.bo-compact-form-table tr:has(> th:nth-child(2):last-child) { grid-template-columns: minmax(0, 1fr); gap: 2px; margin-bottom: 8px; }
+    #view-panel table.bo-compact-form-table td, #view-panel table.bo-compact-form-table th { padding: 3px 4px; }
+    #view-panel .card-body, #view-panel .panel-body { padding: 12px; }
+}
