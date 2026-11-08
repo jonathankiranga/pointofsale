@@ -27,6 +27,7 @@ echo '<link rel="stylesheet" href="css/assets/DataTables/datatables.min.css" typ
 echo '<link rel="stylesheet" href="css/headers.css" type="text/css"/>';
 echo '<link rel="stylesheet" href="css/index.css" type="text/css"/>'
    . '<link rel="stylesheet" href="css/assets/css/style.css" type="text/css"/>';
+echo '<link rel="stylesheet" href="css/quickbooks.css" type="text/css"/>';
 echo '<script type="text/javascript" src = "javascripts/jquery.min.js"></script>
 <script type="text/javascript" src ="css/assets/DataTables/datatables.min.js"></script>
 <script type="text/javascript" src ="javascripts/jquery.tablesorter.pager.js"></script>
