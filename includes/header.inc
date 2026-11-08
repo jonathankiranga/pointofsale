@@ -21,6 +21,7 @@ echo '<link rel="stylesheet" href="css/dashboard.css" type="text/css"/>';
 echo '<link rel="stylesheet" href="css/headers.css" type="text/css"/>';
 echo '<link rel="stylesheet" href="css/index.css" type="text/css"/>
       <link rel="stylesheet" href="css/toastr/toastr.min.css">';
+echo '<link rel="stylesheet" href="css/quickbooks.css" type="text/css"/>';
             
  echo '<script type="text/javascript" src = "javascripts/3.5.1/jquery.min.js"></script>
       <script type="text/javascript" src ="https://code.jquery.com/jquery-3.6.0.min.js"></script>
