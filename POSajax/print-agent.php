@@ -103,8 +103,11 @@ $stmt->close();
 
 if ($action === 'poll') {
     $db->begin_transaction();
+    $db->query("UPDATE pos_print_jobs SET status='failed', locked_until=NULL,
+        last_error='Print agent lease expired after maximum attempts'
+        WHERE status='printing' AND locked_until < NOW() AND attempts >= 5");
     $result = $db->query("SELECT id, document_no, payload, attempts FROM pos_print_jobs
-        WHERE status='queued' OR (status='printing' AND locked_until < NOW())
+        WHERE status='queued' OR (status='printing' AND locked_until < NOW() AND attempts < 5)
         ORDER BY id ASC LIMIT 1 FOR UPDATE");
     if (!$result) {
         $db->rollback();
@@ -129,6 +132,11 @@ if ($action === 'poll') {
     $db->commit();
     $payload = json_decode($job['payload'], true);
     if (!is_array($payload)) {
+        $stmt = $db->prepare("UPDATE pos_print_jobs SET status='failed', locked_until=NULL,
+            last_error='Queued receipt payload is invalid' WHERE id=? AND device_id=?");
+        $stmt->bind_param('is', $jobId, $deviceId);
+        $stmt->execute();
+        $stmt->close();
         posAgentResponse(false, 'The queued receipt data is invalid.', 500);
     }
     posAgentResponse(true, 'Print job ready.', 200, array('job' => array(
