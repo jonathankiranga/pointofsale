@@ -32,7 +32,16 @@ $db->set_charset('utf8mb4');
 
 $action = (string)$input['action'];
 $deviceId = isset($input['device_id']) ? strtolower(trim((string)$input['device_id'])) : '';
-$secret = isset($_SERVER['HTTP_AUTHORIZATION']) ? trim((string)$_SERVER['HTTP_AUTHORIZATION']) : '';
+$authorization = isset($_SERVER['HTTP_AUTHORIZATION']) ? (string)$_SERVER['HTTP_AUTHORIZATION'] : '';
+if ($authorization === '' && function_exists('getallheaders')) {
+    $requestHeaders = getallheaders();
+    if (is_array($requestHeaders)) {
+        foreach ($requestHeaders as $headerName => $headerValue) {
+            if (strtolower($headerName) === 'authorization') { $authorization = (string)$headerValue; break; }
+        }
+    }
+}
+$secret = trim($authorization);
 if (strpos($secret, 'Bearer ') === 0) {
     $secret = substr($secret, 7);
 } else {
