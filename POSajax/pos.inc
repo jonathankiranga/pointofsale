@@ -237,8 +237,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     <script>
         window.POS_VAT_INCLUSIVE = <?php echo (int)$POSVatInclusive; ?>;
         window.POS_FORM_ID = <?php echo json_encode($_SESSION['FormID'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
-        window.POS_PRINT_URL = <?php echo json_encode($POSPrintUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
-        window.POS_PRINT_TOKEN = <?php echo json_encode($POSPrintToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_PRINTER_ID = <?php echo json_encode(isset($POSPrinterId) ? $POSPrinterId : '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
         window.POS_COMPANY_DETAILS = <?php
             $posCompany = isset($_SESSION['CompanyRecord']) && is_array($_SESSION['CompanyRecord']) ? $_SESSION['CompanyRecord'] : array();

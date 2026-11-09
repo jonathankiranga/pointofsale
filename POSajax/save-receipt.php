@@ -565,9 +565,41 @@ try {
         $db->query("SELECT RELEASE_LOCK('pos_sales_entryno')");
         $entryLockAcquired = false;
     }
+
+    // Printing is a separate delivery task. Never roll back a committed sale
+    // because the print queue or local printer is unavailable.
+    $printPayload = array(
+        'company' => isset($_SESSION['CompanyRecord']['coyname']) ? $_SESSION['CompanyRecord']['coyname'] : '',
+        'userlog' => isset($_SESSION['UsersRealName']) ? $_SESSION['UsersRealName'] : '',
+        'docno' => $docno,
+        'items' => $printItems,
+        'totalVAT' => $calculatedVat,
+        'total' => $calculatedTotal,
+        'cash' => $cash,
+        'change' => $change,
+        'currency' => 'KES',
+        'paymentMethod' => $paymentMethod,
+        'mpesaPhone' => $mpesaPhone,
+        'printedAt' => date('c'),
+        'printerId' => isset($receiptData['printerId']) ? trim((string)$receiptData['printerId']) : ''
+    );
+    $printQueued = false;
+    $printQueueStmt = $db->prepare("INSERT INTO pos_print_jobs (document_no, payload, status, created_at) VALUES (?, ?, 'queued', NOW())");
+    if ($printQueueStmt) {
+        $printPayloadJson = json_encode($printPayload);
+        $printQueueStmt->bind_param('ss', $docno, $printPayloadJson);
+        $printQueued = $printQueueStmt->execute();
+        if (!$printQueued) {
+            error_log('POS receipt saved but print queue insert failed: ' . $printQueueStmt->error);
+        }
+        $printQueueStmt->close();
+    } else {
+        error_log('POS receipt saved but print queue is unavailable. Apply SQL/pos_print_queue.sql: ' . $db->error);
+    }
+
     posSaveResponse(true, 'Receipt saved successfully.', 200, array(
         'documentno' => $docno, 'total' => $calculatedTotal, 'total_vat' => $calculatedVat,
-        'items' => $printItems
+        'items' => $printItems, 'print_queued' => $printQueued
     ));
 } catch (Throwable $e) {
     $db->rollback();
