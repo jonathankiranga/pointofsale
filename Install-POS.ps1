@@ -38,6 +38,8 @@ if (-not $node) {
     if (-not $winget) { throw 'Node.js is missing and winget is unavailable. Install Node.js LTS, then rerun this installer.' }
     & $winget.Source install --id OpenJS.NodeJS.LTS -e --silent --accept-package-agreements --accept-source-agreements
     if ($LASTEXITCODE -ne 0) { throw 'Node.js LTS installation failed.' }
+    $nodeInstallPath = Join-Path $env:ProgramFiles 'nodejs'
+    if (Test-Path -LiteralPath $nodeInstallPath) { $env:Path = $nodeInstallPath + ';' + $env:Path }
     $node = Get-Command node.exe -ErrorAction SilentlyContinue
 }
 if (-not $node) { throw 'Node.js was installed but is not available in this PowerShell session. Reopen PowerShell and rerun.' }
