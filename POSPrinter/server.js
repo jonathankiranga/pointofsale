@@ -35,6 +35,7 @@ const pollInterval = Math.max(1000, Number(config.pollIntervalMs || 3000));
 let identity;
 let stopping = false;
 let pollRunning = false;
+let registered = false;
 
 function loadIdentity() {
     if (fs.existsSync(identityPath)) {
@@ -110,6 +111,11 @@ async function pollLoop() {
     if (stopping || pollRunning) return;
     pollRunning = true;
     try {
+        if (!registered) {
+            await register();
+            registered = true;
+            console.log('Local printer registered with the live POS server.');
+        }
         await pollOnce();
     } catch (error) {
         console.error(new Date().toISOString(), 'POS print queue connection:', error.message);
@@ -164,6 +170,7 @@ localServer.listen(port, host, async () => {
     console.log('Printer profiles:', manager.health().map(item => item.id).join(', ') || 'none');
     try {
         await register();
+        registered = true;
         console.log('Local printer registered with the live POS server.');
         pollLoop();
     } catch (error) {
