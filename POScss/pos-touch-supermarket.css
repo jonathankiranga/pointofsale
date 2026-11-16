@@ -1,0 +1,171 @@
+/* Supermarket POS 3-Column Layout Additions (append to POScss/pos-touch.css) */
+.pos-supermarket-mode .pos-main.pos-supermarket-main {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.05fr) minmax(380px, 1.35fr) minmax(260px, 310px);
+    gap: 14px;
+    padding: 14px clamp(12px, 1.6vw, 22px) 18px;
+}
+
+.pos-barcode-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 320px;
+    max-width: 440px;
+    min-height: 44px;
+    padding: 4px 6px 4px 12px;
+    border: 1.5px solid #bfd1eb;
+    border-radius: 10px;
+    background: #f8fbff;
+}
+.pos-barcode-bar:focus-within {
+    border-color: var(--pos-primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(23, 78, 166, 0.14);
+}
+.pos-barcode-bar svg { fill: #4a6185; flex-shrink: 0; }
+.pos-barcode-bar input {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--pos-ink);
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+}
+.pos-scan-btn {
+    min-height: 34px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--pos-primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.pos-scan-btn:hover { background: var(--pos-primary-dark); }
+
+.pos-shift-pill {
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 650;
+}
+.pos-shift-pill.pos-shift-open {
+    background: rgba(18, 132, 91, 0.25);
+    color: #6ee7b7;
+}
+
+.pos-quickpick-card {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--pos-panel);
+    border: 1px solid #e1e6ee;
+    border-radius: 12px;
+    box-shadow: 0 3px 14px rgba(26, 42, 66, 0.055);
+    overflow: hidden;
+}
+.pos-quickpick-heading {
+    gap: 10px;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--pos-line);
+}
+.pos-quickpick-heading h2 {
+    margin: 4px 0 0;
+    font-size: 18px;
+    font-weight: 750;
+    color: var(--pos-ink);
+    text-align: left;
+    letter-spacing: -0.25px;
+}
+.pos-quickpick-heading h2::after { display: none; }
+.pos-inline-filter {
+    width: 170px;
+    min-height: 38px;
+    padding: 6px 10px;
+    border: 1px solid #d5dde8;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+}
+.pos-inline-filter:focus {
+    border-color: var(--pos-primary);
+}
+.pos-inline-catalogue {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 12px 14px;
+}
+.pos-inline-catalogue .pos-category-bar {
+    position: sticky;
+    top: -10px;
+    z-index: 3;
+    background: #fff;
+    padding: 6px 0 10px;
+    border-bottom: 1px solid var(--pos-line);
+}
+.pos-inline-catalogue .pos-category-chip {
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+.pos-inline-catalogue .pos-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 8px;
+    padding-top: 10px;
+}
+.pos-inline-catalogue .pos-product-tile {
+    min-height: 108px;
+    padding: 10px;
+    gap: 5px;
+}
+.pos-inline-catalogue .pos-product-name { font-size: 13px; }
+.pos-inline-catalogue .pos-product-price { font-size: 14px; }
+
+.pos-quick-tender { margin-bottom: 14px; }
+.pos-tender-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 8px;
+}
+.pos-tender-btn {
+    min-height: 42px;
+    border: 1px solid #d4deec;
+    border-radius: 8px;
+    background: #f5f8fd;
+    color: #174ea6;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.pos-tender-btn:hover {
+    background: #e7f0fd;
+    border-color: #9ab9ea;
+}
+
+@media (max-width: 1180px) {
+    .pos-supermarket-mode .pos-main.pos-supermarket-main {
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 310px);
+    }
+    .pos-quickpick-card {
+        display: none;
+    }
+}
+@media (max-width: 680px) {
+    .pos-supermarket-mode .pos-main.pos-supermarket-main {
+        display: flex;
+        flex-direction: column;
+    }
+    .pos-barcode-bar {
+        grid-column: 1 / -1;
+        max-width: none;
+    }
+}
