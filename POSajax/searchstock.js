@@ -1,7 +1,8 @@
 let stockData = [];
 let activeStockCategory = 'all';
 
-// Load the product catalogue once; searching and category filtering happen locally.
+// Load the product catalogue once; searching and category filtering happen locally
+// for both the homepage quick-pick grid and the full catalogue modal.
 $(document).ready(function() {
     $.ajax({
         url: 'POSajax/search_stock.php',
@@ -13,7 +14,7 @@ $(document).ready(function() {
                 return;
             }
             stockData = response;
-            displaySearchResults(stockData);
+            renderCatalogueTargets();
         },
         error: function() {
             showCustomDialog('Error loading stock data.');
@@ -21,10 +22,13 @@ $(document).ready(function() {
     });
 
     $('#search-input').on('input', function() {
-        displaySearchResults(getFilteredStock());
+        displaySearchResults(getFilteredStock($('#search-input').val()));
     });
 
-    // Keep the existing product-selection workflow and row structure.
+    $('#pos-inline-filter').on('input', function() {
+        displayInlineCatalogue(getFilteredStock($('#pos-inline-filter').val()));
+    });
+
     $(document).on('click', '.search-result-item', function() {
         const selectedProduct = stockData[Number($(this).attr('data-stock-index'))];
         if (!selectedProduct) {
@@ -32,34 +36,13 @@ $(document).ready(function() {
             return;
         }
 
-        const blankRow = document.querySelector('#sales-table tbody tr.blank-row');
-        if (!blankRow) {
-            showCustomDialog('The sale grid is not ready for another item. Please try again.');
-            return;
+        if (typeof addOrIncrementProductRow === 'function') {
+            addOrIncrementProductRow(selectedProduct);
         }
 
-        const vatRate = parseFloat(selectedProduct.vat) || 0;
-        const unitPrice = (parseFloat(selectedProduct.unit_price) || 0).toFixed(2);
-        const lineTotal = (parseFloat(unitPrice) * 1).toFixed(2);
-        const vatAmount = (parseFloat(lineTotal) * vatRate / (100 + vatRate)).toFixed(2);
-
-        blankRow.classList.add('selectable');
-        blankRow.classList.remove('blank-row');
-        blankRow.setAttribute('data-itemcode', selectedProduct.itemcode || '');
-        blankRow.querySelector('.barcode').textContent = selectedProduct.barcode || '';
-        blankRow.querySelector('.description').textContent = selectedProduct.description || '';
-        blankRow.querySelector('.unit-price').textContent = unitPrice;
-        blankRow.querySelector('.line-total').textContent = lineTotal;
-        blankRow.querySelector('.vat-per').textContent = vatRate;
-        blankRow.querySelector('.VAT-total').textContent = vatAmount;
-        blankRow.querySelector('.barcode').removeAttribute('contenteditable');
-
-        updateLineTotal();
-        addNewBlankRow();
         $('#search-modal').hide();
         $('#search-input').val('');
-        activeStockCategory = 'all';
-        displaySearchResults(stockData);
+        $('#pos-barcode-scan').focus();
     });
 
     // Add large +/- controls without changing the .quantity selector used by existing totals and receipt code.
@@ -83,12 +66,11 @@ $(document).ready(function() {
     });
 });
 
-function getFilteredStock() {
-    const query = String($('#search-input').val() || '').toLowerCase().trim();
+function getFilteredStock(rawQuery) {
+    const query = String(rawQuery || '').toLowerCase().trim();
     return stockData.filter(function(item) {
         const barcode = String(item.barcode || '').toLowerCase();
         const description = String(item.description || '').toLowerCase();
-        const category = String(item.category || '').toLowerCase();
         const matchesQuery = !query || barcode.includes(query) || description.includes(query);
         const matchesCategory = activeStockCategory === 'all' || String(item.category || '') === activeStockCategory;
         return matchesQuery && matchesCategory;
@@ -107,7 +89,7 @@ function escapeStockHtml(value) {
     });
 }
 
-function displaySearchResults(results) {
+function buildCategoryBarHtml() {
     const categories = [];
     stockData.forEach(function(product) {
         const category = String(product.category || '').trim();
@@ -117,35 +99,53 @@ function displaySearchResults(results) {
     });
     categories.sort(function(a, b) { return a.localeCompare(b); });
 
-    let htmlContent = '<div class="pos-category-bar" aria-label="Product categories">';
-    htmlContent += '<button type="button" class="pos-category-chip' + (activeStockCategory === 'all' ? ' active' : '') + '" data-category="all">All products</button>';
+    let html = '<div class="pos-category-bar" aria-label="Product categories">';
+    html += '<button type="button" class="pos-category-chip' + (activeStockCategory === 'all' ? ' active' : '') + '" data-category="all">All</button>';
     categories.forEach(function(category) {
-        htmlContent += '<button type="button" class="pos-category-chip' + (activeStockCategory === category ? ' active' : '') + '" data-category="' + escapeStockHtml(category) + '">' + escapeStockHtml(category) + '</button>';
+        html += '<button type="button" class="pos-category-chip' + (activeStockCategory === category ? ' active' : '') + '" data-category="' + escapeStockHtml(category) + '">' + escapeStockHtml(category) + '</button>';
     });
-    htmlContent += '</div>';
-    htmlContent += '<div class="pos-product-grid" aria-live="polite">';
+    html += '</div>';
+    return html;
+}
 
-    if (results.length) {
-        results.forEach(function(product) {
+function buildProductGridHtml(results, limit) {
+    let html = '<div class="pos-product-grid" aria-live="polite">';
+    const list = (typeof limit === 'number' && limit > 0) ? results.slice(0, limit) : results;
+    if (list.length) {
+        list.forEach(function(product) {
             const index = stockData.indexOf(product);
-            htmlContent += '<button type="button" class="search-result-item pos-product-tile" data-stock-index="' + index + '">';
-            htmlContent += '<span class="pos-product-category">' + escapeStockHtml(product.category || 'Uncategorised') + '</span>';
-            htmlContent += '<strong class="pos-product-name">' + escapeStockHtml(product.description || 'Unnamed product') + '</strong>';
-            htmlContent += '<span class="pos-product-barcode">' + escapeStockHtml(product.barcode || '') + '</span>';
-            htmlContent += '<span class="pos-product-price">KES ' + escapeStockHtml((parseFloat(product.unit_price) || 0).toFixed(2)) + '</span>';
-            htmlContent += '</button>';
+            html += '<button type="button" class="search-result-item pos-product-tile" data-stock-index="' + index + '">';
+            html += '<span class="pos-product-category">' + escapeStockHtml(product.category || 'General') + '</span>';
+            html += '<strong class="pos-product-name">' + escapeStockHtml(product.description || 'Unnamed product') + '</strong>';
+            html += '<span class="pos-product-barcode">' + escapeStockHtml(product.barcode || '') + '</span>';
+            html += '<span class="pos-product-price">KES ' + escapeStockHtml((parseFloat(product.unit_price) || 0).toFixed(2)) + '</span>';
+            html += '</button>';
         });
     } else {
-        htmlContent += '<p class="pos-no-products">No products match this search or category.</p>';
+        html += '<p class="pos-no-products">No products match this search or category.</p>';
     }
+    html += '</div>';
+    return html;
+}
 
-    htmlContent += '</div>';
-    $('#search-results').html(htmlContent);
+function displaySearchResults(results) {
+    $('#search-results').html(buildCategoryBarHtml() + buildProductGridHtml(results, 0));
+}
+
+function displayInlineCatalogue(results) {
+    const $target = $('#pos-inline-catalogue');
+    if (!$target.length) { return; }
+    $target.html(buildCategoryBarHtml() + buildProductGridHtml(results, 60));
+}
+
+function renderCatalogueTargets() {
+    displaySearchResults(getFilteredStock($('#search-input').val()));
+    displayInlineCatalogue(getFilteredStock($('#pos-inline-filter').val()));
 }
 
 $(document).on('click', '.pos-category-chip', function() {
     activeStockCategory = String($(this).attr('data-category') || 'all');
-    displaySearchResults(getFilteredStock());
+    renderCatalogueTargets();
 });
 
 function enhanceQuantityControls(tableBody) {
@@ -154,13 +154,12 @@ function enhanceQuantityControls(tableBody) {
         if (cell.getAttribute('data-pos-quantity-enhanced') === '1') {
             return;
         }
-
         const initialValue = String($(cell).text()).trim() || '1';
         cell.removeAttribute('contenteditable');
         cell.classList.remove('quantity');
         cell.classList.add('pos-quantity-cell');
         cell.setAttribute('data-pos-quantity-enhanced', '1');
-        cell.innerHTML = '<button type="button" class="pos-qty-step pos-qty-decrease" aria-label="Decrease quantity">−</button>' +
+        cell.innerHTML = '<button type="button" class="pos-qty-step pos-qty-decrease" aria-label="Decrease quantity">-</button>' +
             '<span class="quantity" contenteditable="true" inputmode="numeric" role="spinbutton" aria-label="Quantity" aria-valuemin="1">' +
             escapeStockHtml(initialValue) + '</span>' +
             '<button type="button" class="pos-qty-step pos-qty-increase" aria-label="Increase quantity">+</button>';

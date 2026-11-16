@@ -23,25 +23,27 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#101828">
-    <title>SmartERPlims POS Terminal</title>
+    <title>SmartERPlims Supermarket POS</title>
     <link rel="stylesheet" href="POScss/completecss.css">
     <link rel="stylesheet" href="POScss/posstyle.css">
     <link rel="stylesheet" href="POScss/pos-touch.css">
     <script src="javascripts/3.5.1/jquery.min.js"></script>
 </head>
-<body class="pos-touch-mode">
+<body class="pos-touch-mode pos-supermarket-mode">
     <div class="pos-terminal">
         <header class="pos-topbar">
             <div class="pos-brand">
                 <span class="pos-brand-mark"><svg width="27" height="27" aria-hidden="true"><use xlink:href="POScss/svg.svg#home"/></svg></span>
                 <div>
-                    <strong>Smarternow POS</strong>
+                    <strong>Smarternow Supermarket POS</strong>
                     <small id="company"><?php echo htmlspecialchars(stripslashes($_SESSION['CompanyRecord']['coyname']), ENT_QUOTES, 'UTF-8'); ?></small>
                 </div>
             </div>
             <div class="pos-session">
                 <span class="pos-status-dot"></span>
                 <span id="userlog">Cashier: <?php echo htmlspecialchars(stripslashes($_SESSION['UsersRealName']), ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="pos-session-divider"></span>
+                <span id="pos-shift-label" class="pos-shift-pill">No open shift</span>
                 <span class="pos-session-divider"></span>
                 <span id="cashsaleno" class="pos-sale-number"></span>
                 <script>
@@ -55,41 +57,56 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         </header>
 
         <nav class="pos-actionbar" aria-label="Point of sale actions">
+            <div class="pos-barcode-bar">
+                <svg width="20" height="20" aria-hidden="true"><use xlink:href="POScss/svg.svg#barcode"/></svg>
+                <input type="text" id="pos-barcode-scan" placeholder="Scan barcode or type item name (F2)..." autocomplete="off" autofocus>
+                <button type="button" id="pos-barcode-add" class="pos-scan-btn">Add</button>
+            </div>
             <button type="button" class="pos-action" id="find-items-link">
-                <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#barcode"/></svg>
-                <span>Find product</span>
+                <svg width="20" height="20" aria-hidden="true"><use xlink:href="POScss/svg.svg#barcode"/></svg>
+                <span>Catalogue</span>
             </button>
             <button type="button" class="pos-action" id="save-transaction-link">
-                <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#memory"/></svg>
-                <span>Save sale</span>
+                <svg width="20" height="20" aria-hidden="true"><use xlink:href="POScss/svg.svg#memory"/></svg>
+                <span>Hold sale</span>
             </button>
             <button type="button" class="pos-action" id="recall-transaction-link">
-                <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#recall"/></svg>
-                <span>Recall sale</span>
+                <svg width="20" height="20" aria-hidden="true"><use xlink:href="POScss/svg.svg#recall"/></svg>
+                <span>Recall</span>
             </button>
             <button type="button" class="pos-action pos-action-danger" id="delete-selected-link">
-                <svg width="23" height="23" aria-hidden="true"><use xlink:href="POScss/svg.svg#trash"/></svg>
-                <span>Remove line</span>
+                <svg width="20" height="20" aria-hidden="true"><use xlink:href="POScss/svg.svg#trash"/></svg>
+                <span>Void line</span>
             </button>
             <button type="button" class="pos-action" id="pos-shift-open"><span>Open shift</span></button>
             <button type="button" class="pos-action" id="pos-x-report"><span>X report</span></button>
             <button type="button" class="pos-action pos-action-danger" id="pos-z-close"><span>Z close</span></button>
-            <?php if ($POSCanAdminReports) { ?><a class="pos-action" href="POSReports.php" id="pos-admin-reports"><span>Admin reports</span></a><?php } ?>
-            <span id="pos-shift-label" class="pos-scan-hint">No open shift</span>
-            <div class="pos-scan-hint">
-                <span class="pos-scan-indicator"></span>
-                Scan barcode or use Find product
-            </div>
+            <?php if ($POSCanAdminReports) { ?><a class="pos-action" href="POSReports.php" id="pos-admin-reports"><span>Reports</span></a><?php } ?>
         </nav>
 
-        <main class="pos-main">
+        <main class="pos-main pos-supermarket-main">
+            <!-- Left: Supermarket Quick-Pick Categories & Fast-Moving Items -->
+            <section class="pos-quickpick-card" aria-label="Quick pick products">
+                <div class="pos-section-heading pos-quickpick-heading">
+                    <div>
+                        <span class="pos-eyebrow">SUPERMARKET AISLES</span>
+                        <h2>Quick-pick items</h2>
+                    </div>
+                    <input type="text" id="pos-inline-filter" class="pos-inline-filter" placeholder="Filter aisle or item..." autocomplete="off">
+                </div>
+                <div id="pos-inline-catalogue" class="pos-inline-catalogue">
+                    <p class="pos-no-products">Loading supermarket catalogue...</p>
+                </div>
+            </section>
+
+            <!-- Center: Active Till Basket -->
             <section class="pos-cart-card" aria-label="Current sale">
                 <div class="pos-section-heading">
                     <div>
-                        <span class="pos-eyebrow">CURRENT TRANSACTION</span>
-                        <h1>Sale items</h1>
+                        <span class="pos-eyebrow">CURRENT RECEIPT</span>
+                        <h1>Till basket</h1>
                     </div>
-                    <span class="pos-cart-count" id="pos-cart-label">Cart</span>
+                    <span class="pos-cart-count" id="pos-cart-label">0 items</span>
                 </div>
                 <div class="pos-table-wrap">
                     <table id="sales-table">
@@ -97,11 +114,11 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                             <tr>
                                 <th>Barcode</th>
                                 <th>Description</th>
-                                <th>Quantity</th>
-                                <th>Unit price</th>
-                                <th>VAT rate</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>VAT %</th>
                                 <th>VAT</th>
-                                <th class="pos-line-total-heading">Line total</th>
+                                <th class="pos-line-total-heading">Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,48 +126,58 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                         </tbody>
                     </table>
                     <div class="pos-empty-hint" aria-hidden="true">
-                        <span class="pos-empty-icon">＋</span>
-                        <strong>Ready for your first item</strong>
-                        <span>Scan a product barcode or tap Find product</span>
+                        <span class="pos-empty-icon">+</span>
+                        <strong>Ready for next customer</strong>
+                        <span>Scan a barcode above or tap a quick-pick product</span>
                     </div>
                 </div>
             </section>
 
+            <!-- Right: Checkout & Tender Summary -->
             <aside id="total-amount-container" class="pos-summary-card" aria-label="Sale totals">
                 <div class="pos-summary-top">
-                    <span class="pos-eyebrow">PAYMENT SUMMARY</span>
+                    <span class="pos-eyebrow">CHECKOUT SUMMARY</span>
                     <span class="pos-summary-currency">KES</span>
                 </div>
-                <div class="pos-total-label">Amount due</div>
+                <div class="pos-total-label">Total due</div>
                 <div class="pos-grand-total"><span id="total-amount">0.00</span></div>
                 <div class="pos-tax-line">
-                    <span>VAT included</span>
+                    <span><?php echo $POSVatInclusive ? 'VAT included' : 'VAT added'; ?></span>
                     <strong>KES <span id="tax-amount">0.00</span></strong>
                 </div>
                 <div class="pos-summary-divider"></div>
+
+                <div class="pos-quick-tender" aria-label="Quick cash tender">
+                    <span class="pos-eyebrow">QUICK CASH TENDER</span>
+                    <div class="pos-tender-grid">
+                        <button type="button" class="pos-tender-btn" data-tender="exact">Exact</button>
+                        <button type="button" class="pos-tender-btn" data-tender="100">100</button>
+                        <button type="button" class="pos-tender-btn" data-tender="200">200</button>
+                        <button type="button" class="pos-tender-btn" data-tender="500">500</button>
+                        <button type="button" class="pos-tender-btn" data-tender="1000">1,000</button>
+                        <button type="button" class="pos-tender-btn" data-tender="2000">2,000</button>
+                    </div>
+                </div>
+
                 <button type="button" id="show-bill-link" class="pos-checkout-button">
-                    <span class="pos-checkout-icon"><svg width="25" height="25" aria-hidden="true"><use xlink:href="POScss/svg.svg#money"/></svg></span>
-                    <span>Proceed to payment</span>
-                    <span class="pos-checkout-arrow">›</span>
+                    <span class="pos-checkout-icon"><svg width="24" height="24" aria-hidden="true"><use xlink:href="POScss/svg.svg#money"/></svg></span>
+                    <span>Pay &amp; Print Receipt</span>
+                    <span class="pos-checkout-arrow">&rsaquo;</span>
                 </button>
                 <div class="pos-payment-shortcuts">
-                    <span>Keyboard shortcuts</span>
-                    <kbd>Ctrl</kbd> + <kbd>F1</kbd>
-                    <span>Checkout</span>
+                    <span><kbd>F2</kbd> Scan &middot; <kbd>Ctrl</kbd>+<kbd>F1</kbd> Pay &middot; <kbd>Ctrl</kbd>+<kbd>F2</kbd> Cash &middot; <kbd>Ctrl</kbd>+<kbd>F3</kbd> M-Pesa</span>
                 </div>
             </aside>
         </main>
     </div>
 
     <div id="modal-overlay"></div>
-
     <div id="receipt-modal" style="display:none;">
         <div id="receipt-content">
             <h3>Sales Receipt</h3>
             <pre id="receipt-text"></pre>
         </div>
     </div>
-
     <div id="search-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Find product">
         <div class="modal-content pos-dialog">
             <div class="pos-dialog-header">
@@ -161,7 +188,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             <div id="search-results"><!-- Existing searchstock.js populates results. --></div>
         </div>
     </div>
-
     <div id="checkout-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Checkout">
         <div class="modal-content pos-dialog pos-checkout-dialog">
             <div class="pos-dialog-header">
@@ -190,10 +216,9 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                     <strong>M-Pesa</strong><span>Verify payment</span>
                 </button>
             </div>
-            <p class="pos-shortcut-note">Keyboard: Ctrl + F2 for cash · Ctrl + F3 for M-Pesa</p>
+            <p class="pos-shortcut-note">Keyboard: Ctrl + F2 for cash &middot; Ctrl + F3 for M-Pesa</p>
         </div>
     </div>
-
     <div id="mpesa-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="M-Pesa payment">
         <div class="modal-content-small pos-dialog pos-small-dialog">
             <div class="pos-dialog-header">
@@ -207,7 +232,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             <button type="button" id="process-mpesa-btn" class="pos-primary-button">Confirm and print receipt</button>
         </div>
     </div>
-
     <div id="recall-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Recall saved sale">
         <div class="modal-content-small pos-dialog pos-small-dialog">
             <div class="pos-dialog-header">
@@ -219,7 +243,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             <button type="button" id="recall-button" class="pos-primary-button">Recall selected sale</button>
         </div>
     </div>
-
     <div id="custom-dialog" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-label="POS message">
         <div class="modal-content pos-dialog pos-message-dialog">
             <div class="pos-dialog-header">
@@ -231,7 +254,6 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             <button type="button" id="dialog-ok-btn" class="pos-primary-button">OK</button>
         </div>
     </div>
-
     <script src="POSajax/posscript.js"></script>
     <script src="POSajax/searchstock.js"></script>
     <script>

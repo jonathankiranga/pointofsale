@@ -49,8 +49,8 @@ if (!in_array($paymentMethod, array('CASH', 'MPESA'), true)) {
 $mpesaPhone = isset($receiptData['mpesaPhone']) ? trim((string)$receiptData['mpesaPhone']) : '';
 $mpesaReference = isset($receiptData['mpesaReference']) ? strtoupper(trim((string)$receiptData['mpesaReference'])) : '';
 if ($paymentMethod === 'MPESA') {
-    $cash = 0;
-    $change = 0;
+    $cash = 0.00;
+    $change = 0.00;
     if (!preg_match('/^254[17][0-9]{8}$/', $mpesaPhone)) {
         posSaveResponse(false, 'A valid M-Pesa phone number is required.', 400);
     }
@@ -151,7 +151,7 @@ $bankStmt = $db->prepare("SELECT ba.accountcode,ba.currency,ba.PostingGroup,c.ra
     FROM bankaccounts ba
     INNER JOIN currencies c ON c.currabrev=ba.currency
     WHERE ba.accountcode=? LIMIT 1");
-if (!$bankStmt) { posSaveResponse(false, 'Could not validate the POS payment bank account.', 500); }
+if (!$bankStmt) { posSaveResponse(false, 'Could not prepare the POS payment bank account.', 500); }
 $bankStmt->bind_param('s', $bankAccountCode);
 if (!$bankStmt->execute()) {
     $bankError = $bankStmt->error;
@@ -350,7 +350,7 @@ try {
                 l.Quantity AS quantity,l.UnitPrice AS unit_price,l.vatrate AS vat_rate,
                 l.vatamount AS vat_amount,l.invoiceamount AS line_total
             FROM SalesLine l
-            LEFT JOIN stockmaster sm ON sm.code=l.code
+            LEFT JOIN stockmaster sm ON sm.itemcode=l.code
             WHERE l.documenttype=1 AND l.documentno=?");
         $savedLineStmt->bind_param('s', $docno);
         $savedLineStmt->execute();
@@ -395,21 +395,27 @@ try {
     }
     $entryNo = (int)$entryRow['next_entry'];
 
+    // Explicitly pass integer 0/1 for all boolean/flag columns (printed, released, status, vatinclusive, Bybatch)
+    // so strict MySQL mode never receives NULL or string 'false'/'true'.
     $header = $db->prepare("INSERT INTO SalesHeader
         (documenttype,documentno,docdate,customercode,customername,locationcode,postinggroup,currencycode,
-         status,userid,period,entryno,vatinclusive,total,cash,change_amount,pos_shift_id,payment_method,mpesa_phone,total_vat)
-        VALUES (1,?,?,?,?,?,?,?,1,?,?,?,?,?,?,?,?,?,?,?)");
+         printed,released,status,userid,period,entryno,vatinclusive,discount,Bybatch,total,cash,change_amount,
+         pos_shift_id,payment_method,mpesa_phone,total_vat)
+        VALUES (1,?,?,?,?,?,?,?,0,0,1,?,?,?,?,0,0,?,?,?,?,?,?,?)");
     if (!$header) { throw new Exception('Could not prepare sales header: ' . $db->error); }
     $customerName = (string)$customerRow['customer'];
-    $userName = isset($_SESSION['UsersRealName']) ? (string)$_SESSION['UsersRealName'] : $userId;
-    $periodString = (int)$periodNo;
-    $header->bind_param('ssssssssiiidddissd',
+    $periodInt = (int)$periodNo;
+    $vatIncInt = (int)$vatInclusive;
+    $header->bind_param('sssssssiidddissd',
         $docno, $currentDate, $customerCode, $customerName, $storeCode, $postingGroup, $currencyCode,
-        $userId, $periodString, $entryNo, $vatInclusive, $calculatedTotal, $cash, $change,
+        $userId, $periodInt, $entryNo, $vatIncInt, $calculatedTotal, $cash, $change,
         $shiftId, $paymentMethod, $mpesaPhone, $calculatedVat);
     if (!$header->execute()) { throw new Exception('Could not save sales header: ' . $header->error); }
     $header->close();
 
+    // 16 placeholders: entryno(i), docdate(s), documentno(s), locationcode(s), code(s),
+    // description(s), unitofmeasure(s), Quantity(d), Quantity_toinvoice(d), Qunatity_delivered(d),
+    // UnitPrice(d), vatamount(d), invoiceamount(d), vatrate(d), inclusive(i), pos_tax_category(s)
     $lineStmt = $db->prepare("INSERT INTO SalesLine
         (entryno,documenttype,docdate,documentno,locationcode,code,description,unitofmeasure,
          Quantity,Quantity_toinvoice,Qunatity_delivered,UnitPrice,vatamount,invoiceamount,
@@ -422,23 +428,101 @@ try {
         $code = $saleLine['itemcode'];
         $description = $saleLine['description'];
         $unit = $saleLine['units'];
-        $qty = $saleLine['quantity'];
-        $unitPrice = $saleLine['unit_price'];
-        $vatAmount = $saleLine['vat_amount'];
-        $lineTotal = $saleLine['line_total'];
-        $rate = $saleLine['vat_rate'];
+        $qty = (float)$saleLine['quantity'];
+        $unitPrice = (float)$saleLine['unit_price'];
+        $vatAmount = (float)$saleLine['vat_amount'];
+        $lineTotal = (float)$saleLine['line_total'];
+        $rate = (float)$saleLine['vat_rate'];
         $taxCategory = $saleLine['tax_category'];
-        $lineStmt->bind_param('issssssdddddddis', $lineEntry, $currentDate, $docno, $lineLocation,
-            $code, $description, $unit, $qty, $qty, $qty, $unitPrice, $vatAmount, $lineTotal, $rate, $vatInclusive, $taxCategory);
+        $lineStmt->bind_param('issssssdddddddis',
+            $lineEntry, $currentDate, $docno, $lineLocation,
+            $code, $description, $unit,
+            $qty, $qty, $qty, $unitPrice, $vatAmount, $lineTotal,
+            $rate, $vatIncInt, $taxCategory);
         if (!$lineStmt->execute()) { throw new Exception('Could not save a sales line: ' . $lineStmt->error); }
     }
     $lineStmt->close();
 
-    // The sales order, sales invoice, receipt, allocation, bank transaction
-    // and all ledger entries must use this same MySQL connection/transaction.
+    // Post the ERP Sales Invoice (SalesHeader/SalesLine doctype=10, GeneralLedger, debtorsledger, CustomerStatement)
     $_POST['DimensionOne'] = '';
     $_POST['DimensionTwo'] = '';
     $invoicePosting = PostPOSInvoice($docno, $periodNo);
+    $invoiceJournal = (string)$invoicePosting['journal'];
+    $invoiceNumber = (string)$invoicePosting['documentno'];
+
+    // Deduct sold stock from stockledger and stockregister (FIFO) within the same transaction.
+    $pkeyResult = $db->query("SELECT COALESCE(MAX(pkey),0) AS max_pkey FROM stockledger");
+    if (!$pkeyResult) { throw new Exception('Could not read stockledger sequence: ' . $db->error); }
+    $pkeyRow = $pkeyResult->fetch_assoc();
+    $nextPkey = (int)$pkeyRow['max_pkey'];
+
+    $stockLedgerStmt = $db->prepare("INSERT INTO stockledger
+        (date, stname, doctyp, itemcode, invref, netamt, vat, amount,
+         fulqty, loosqty, price, curr_rat, stockvalue, store, journal, curr_cod, period, factory, jobcard, pkey)
+        VALUES (?, ?, '10', ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)");
+    if (!$stockLedgerStmt) { throw new Exception('Could not prepare stockledger deduction: ' . $db->error); }
+
+    $fifoSelectStmt = $db->prepare("SELECT rowid, (COALESCE(StockIn,0) - COALESCE(StockOut,0)) AS avail
+        FROM stockregister
+        WHERE itemcode=? AND (COALESCE(StockIn,0) - COALESCE(StockOut,0)) > 0
+        ORDER BY rowid ASC FOR UPDATE");
+    $fifoUpdateStmt = $db->prepare("UPDATE stockregister SET StockOut = COALESCE(StockOut,0) + ? WHERE rowid=?");
+    $fifoInsertOutStmt = $db->prepare("INSERT INTO stockregister (itemcode, StockIn, cost, StockOut, journal, GRN) VALUES (?, 0, 0, ?, ?, ?)");
+    if (!$fifoSelectStmt || !$fifoUpdateStmt || !$fifoInsertOutStmt) {
+        throw new Exception('Could not prepare FIFO stockregister deduction: ' . $db->error);
+    }
+
+    $currencyRate = (float)$bankRow['rate'];
+    foreach ($items as $saleLine) {
+        $nextPkey++;
+        $stName = substr((string)$saleLine['description'], 0, 30);
+        $itemCode = (string)$saleLine['itemcode'];
+        $qty = (float)$saleLine['quantity'];
+        $negQty = 0.0 - $qty;
+        $lineGross = (float)$saleLine['line_total'];
+        $lineVat = (float)$saleLine['vat_amount'];
+        $lineNet = round($lineGross - $lineVat, 2);
+        $unitPrice = (float)$saleLine['unit_price'];
+
+        $stockLedgerStmt->bind_param('ssssdddddddsssisi',
+            $currentDate, $stName, $itemCode, $invoiceNumber,
+            $lineNet, $lineVat, $lineGross,
+            $negQty, $unitPrice, $currencyRate, $lineNet,
+            $storeCode, $invoiceJournal, $currencyCode, $periodInt, $docno, $nextPkey);
+        if (!$stockLedgerStmt->execute()) {
+            throw new Exception('Could not deduct stock from stockledger: ' . $stockLedgerStmt->error);
+        }
+
+        // Allocate StockOut across oldest FIFO layers in stockregister
+        $remaining = $qty;
+        $fifoSelectStmt->bind_param('s', $itemCode);
+        if (!$fifoSelectStmt->execute()) {
+            throw new Exception('Could not read FIFO layers from stockregister: ' . $fifoSelectStmt->error);
+        }
+        $fifoRes = $fifoSelectStmt->get_result();
+        while ($remaining > 0.0001 && ($layer = $fifoRes->fetch_assoc())) {
+            $avail = (float)$layer['avail'];
+            if ($avail <= 0) { continue; }
+            $take = min($remaining, $avail);
+            $layerId = (int)$layer['rowid'];
+            $fifoUpdateStmt->bind_param('di', $take, $layerId);
+            if (!$fifoUpdateStmt->execute()) {
+                throw new Exception('Could not update FIFO stockregister layer: ' . $fifoUpdateStmt->error);
+            }
+            $remaining = round($remaining - $take, 4);
+        }
+        if ($remaining > 0.0001) {
+            // Record any remaining StockOut if no open GRN layer covered it
+            $fifoInsertOutStmt->bind_param('sdss', $itemCode, $remaining, $invoiceJournal, $invoiceNumber);
+            if (!$fifoInsertOutStmt->execute()) {
+                throw new Exception('Could not record remaining StockOut in stockregister: ' . $fifoInsertOutStmt->error);
+            }
+        }
+    }
+    $stockLedgerStmt->close();
+    $fifoSelectStmt->close();
+    $fifoUpdateStmt->close();
+    $fifoInsertOutStmt->close();
 
     $invoiceStatementStmt = $db->prepare("SELECT COUNT(*) AS row_count,
             COALESCE(SUM(Grossamount),0) AS invoice_amount,
@@ -449,8 +533,6 @@ try {
     if (!$invoiceStatementStmt) {
         throw new Exception('Could not verify the posted POS invoice customer statement: ' . $db->error);
     }
-    $invoiceJournal = (string)$invoicePosting['journal'];
-    $invoiceNumber = (string)$invoicePosting['documentno'];
     $invoiceStatementStmt->bind_param('sss', $invoiceNumber, $invoiceJournal, $customerCode);
     if (!$invoiceStatementStmt->execute()) {
         $invoiceStatementError = $invoiceStatementStmt->error;
@@ -476,7 +558,7 @@ try {
     $receipt->currencycode = mysqli_real_escape_string($db, $currencyCode);
     $receipt->Receipt_Journal = GetNextTransNo(0, $db);
     if ($receipt->Receipt_Journal === null || trim((string)$receipt->Receipt_Journal) === '' ||
-        !preg_match('/^[A-Za-z0-9._\\/-]+$/', (string)$receipt->Receipt_Journal)) {
+        !preg_match('/^[A-Za-z0-9._\\\\/-]+$/', (string)$receipt->Receipt_Journal)) {
         throw new Exception('Could not allocate a valid POS receipt journal number.');
     }
     $receipt->GetBankDetails($receipt->bankcode);
@@ -507,8 +589,8 @@ try {
         (SELECT COUNT(*) FROM BankTransactions bt
             INNER JOIN BankAccounts ba ON ba.accountcode=bt.bankcode
             WHERE bt.DocumentNo=? AND bt.doctype=12
-              AND bt.cleared IS NULL AND bt.reconciled IS NULL
-              AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_count,
+                AND COALESCE(bt.cleared,0)=0 AND COALESCE(bt.reconciled,0)=0
+                AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_count,
         (SELECT COALESCE(SUM(amount),0) FROM BankTransactions
             WHERE DocumentNo=? AND doctype=12) AS bank_amount,
         (SELECT COALESCE(SUM(amount),0) FROM receiptheader WHERE docno=?) AS receipt_amount,
@@ -607,6 +689,6 @@ try {
         $db->query("SELECT RELEASE_LOCK('pos_sales_entryno')");
     }
     error_log('POS receipt save failed: ' . $e->getMessage());
-    posSaveResponse(false, 'The receipt could not be saved. Check the server error log.', 500);
+    posSaveResponse(false, 'The receipt could not be saved: ' . $e->getMessage(), 500);
 }
 ?>
