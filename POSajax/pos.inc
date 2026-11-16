@@ -151,11 +151,11 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                     <span class="pos-eyebrow">QUICK CASH TENDER</span>
                     <div class="pos-tender-grid">
                         <button type="button" class="pos-tender-btn" data-tender="exact">Exact</button>
+                        <button type="button" class="pos-tender-btn" data-tender="50">50</button>
                         <button type="button" class="pos-tender-btn" data-tender="100">100</button>
                         <button type="button" class="pos-tender-btn" data-tender="200">200</button>
                         <button type="button" class="pos-tender-btn" data-tender="500">500</button>
                         <button type="button" class="pos-tender-btn" data-tender="1000">1,000</button>
-                        <button type="button" class="pos-tender-btn" data-tender="2000">2,000</button>
                     </div>
                 </div>
 
