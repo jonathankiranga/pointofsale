@@ -148,7 +148,10 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                 <div class="pos-summary-divider"></div>
 
                 <div class="pos-quick-tender" aria-label="Quick cash tender">
-                    <span class="pos-eyebrow">QUICK CASH TENDER</span>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="pos-eyebrow">QUICK CASH TENDER</span>
+                        <button type="button" id="pos-tender-clear" style="display:none;background:none;border:0;color:#b42318;font-size:11px;font-weight:700;cursor:pointer;padding:0;">Clear</button>
+                    </div>
                     <div class="pos-tender-grid">
                         <button type="button" class="pos-tender-btn" data-tender="exact">Exact</button>
                         <button type="button" class="pos-tender-btn" data-tender="50">50</button>
@@ -157,6 +160,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                         <button type="button" class="pos-tender-btn" data-tender="500">500</button>
                         <button type="button" class="pos-tender-btn" data-tender="1000">1,000</button>
                     </div>
+                    <div id="pos-tender-status" style="display:none;margin-top:7px;font-size:12px;font-weight:650;color:#174ea6;"></div>
                 </div>
 
                 <button type="button" id="show-bill-link" class="pos-checkout-button">

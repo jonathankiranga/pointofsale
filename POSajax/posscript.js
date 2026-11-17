@@ -62,7 +62,23 @@ $(document).ready(function() {
         }
     });
 
-    // Quick cash tender buttons on the right summary panel
+    function refreshTenderStatus() {
+        const total = parseFloat($('#total-amount').text()) || 0;
+        const cash = parseFloat($('#customer-cash').val());
+        if (Number.isFinite(cash) && cash > 0) {
+            const diff = cash - total;
+            const statusText = diff >= 0
+                ? 'Tendered: KES ' + cash.toFixed(2) + ' · Change: KES ' + diff.toFixed(2)
+                : 'Tendered: KES ' + cash.toFixed(2) + ' · Balance: KES ' + Math.abs(diff).toFixed(2);
+            $('#pos-tender-status').text(statusText).css('color', diff >= 0 ? '#12845b' : '#174ea6').show();
+            $('#pos-tender-clear').show();
+        } else {
+            $('#pos-tender-status').hide().text('');
+            $('#pos-tender-clear').hide();
+        }
+    }
+
+    // Quick cash tender buttons add together so bills over 1,000 can use multiple notes.
     $(document).on('click', '.pos-tender-btn', function() {
         const total = parseFloat($('#total-amount').text()) || 0;
         if (total <= 0) {
@@ -70,9 +86,18 @@ $(document).ready(function() {
             return;
         }
         const tender = $(this).attr('data-tender');
-        const cashAmount = (tender === 'exact') ? total : parseFloat(tender);
+        const currentCash = parseFloat($('#customer-cash').val()) || 0;
+        const cashAmount = (tender === 'exact') ? total : (currentCash + (parseFloat(tender) || 0));
         $('#customer-cash').val(cashAmount.toFixed(2)).trigger('input');
-        openCheckoutModal();
+        refreshTenderStatus();
+        if (cashAmount >= total) {
+            openCheckoutModal();
+        }
+    });
+
+    $(document).on('click', '#pos-tender-clear', function() {
+        $('#customer-cash').val('').trigger('input');
+        refreshTenderStatus();
     });
 
     // Cash payment is validated before the receipt is printed and saved.
@@ -401,6 +426,10 @@ function addNewBlankRow() {
 function clearTable() {
     const tableBody = document.querySelector('#sales-table tbody');
     tableBody.innerHTML = '';
+    $('#customer-cash').val('');
+    $('#customer-change').text('0.00');
+    $('#pos-tender-status').hide().text('');
+    $('#pos-tender-clear').hide();
     addNewBlankRow();
     updateLineTotal();
 }
