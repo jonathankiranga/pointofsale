@@ -77,12 +77,9 @@ function printReceipt(paymentMethod, mpesaPhone, mpesaReference) {
         return;
     }
 
-    const printUrl = window.POS_PRINT_URL;
-
     window.POS_PRINT_IN_PROGRESS = true;
 
-    // Saving the sale is the transaction. Printing is an optional follow-up
-    // and must never prevent the sale from being committed.
+    // The sale is committed first. Receipt delivery is handled separately by the local HTTPS print agent.
     SaveReceipt(receiptData, function(saveResponse) {
         receiptData.total = Number(saveResponse.total);
         receiptData.totalVAT = Number(saveResponse.total_vat);
@@ -90,35 +87,11 @@ function printReceipt(paymentMethod, mpesaPhone, mpesaReference) {
         completeSaleSave(receiptData);
         window.POS_PRINT_IN_PROGRESS = false;
 
-        if (!printUrl) {
-            showCustomDialog('Sale completed and saved. Receipt printing is not configured.');
-            return;
+        if (saveResponse.print_queued) {
+            showCustomDialog('Sale completed and saved. Receipt queued for the local printer.');
+        } else {
+            showCustomDialog('Sale completed and saved. The print queue is unavailable. Please check the POS print-agent setup.');
         }
-
-        // A printer outage, missing printer or print-service error must not
-        // reverse or block the sale that has already been saved.
-        $.ajax({
-            url: printUrl,
-            type: 'POST',
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            headers: { 'X-Print-Token': window.POS_PRINT_TOKEN || '' },
-            data: JSON.stringify(receiptData),
-            timeout: 20000
-        }).done(function(response) {
-            if (response && response.success) {
-                if (receiptData.paymentMethod === 'CASH') {
-                    openCashDrawer();
-                }
-                const documentNo = response.documentno || receiptData.docno;
-                showCustomDialog('Sale completed and saved. Receipt printed successfully: ' + documentNo);
-            } else {
-                showCustomDialog('Sale completed and saved. Receipt could not be printed: ' +
-                    ((response && response.message) ? response.message : 'Printer did not confirm the receipt.'));
-            }
-        }).fail(function() {
-            showCustomDialog('Sale completed and saved. The printer is unavailable; you can print the receipt later.');
-        });
     });
 }
 
@@ -140,7 +113,7 @@ function SaveReceipt(receiptData, onSaved) {
             window.POS_PRINT_IN_PROGRESS = false;
             showCustomDialog((response && response.message)
                 ? response.message
-                : 'The sale could not be saved. No receipt was sent to the printer.');
+                : 'The sale could not be saved. No receipt was queued for printing.');
         }
     }).fail(function(jqXHR) {
         window.POS_PRINT_IN_PROGRESS = false;
