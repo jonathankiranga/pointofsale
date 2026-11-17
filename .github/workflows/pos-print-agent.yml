@@ -1,13 +1,27 @@
-name: POS Print Agent tests
+name: POS print integration tests
 
 on:
   push:
     paths:
       - 'POSPrinter/**'
+      - 'POSajax/print-agent.php'
+      - 'POSajax/save-receipt.php'
+      - 'POSajax/printreceipt.js'
+      - 'POSajax/pos.inc'
+      - 'config.php'
+      - 'Install-POS.ps1'
+      - 'SQL/pos_print_queue.sql'
       - '.github/workflows/pos-print-agent.yml'
   pull_request:
     paths:
       - 'POSPrinter/**'
+      - 'POSajax/print-agent.php'
+      - 'POSajax/save-receipt.php'
+      - 'POSajax/printreceipt.js'
+      - 'POSajax/pos.inc'
+      - 'config.php'
+      - 'Install-POS.ps1'
+      - 'SQL/pos_print_queue.sql'
       - '.github/workflows/pos-print-agent.yml'
 
 jobs:
@@ -18,5 +32,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm test
+      - name: Check Node.js syntax
+        run: node --check server.js
         working-directory: POSPrinter
+      - name: Run print-agent tests
+        run: npm test
+        working-directory: POSPrinter
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+      - name: Check PHP syntax
+        run: |
+          php -l POSajax/print-agent.php
+          php -l POSajax/save-receipt.php
+          php -l config.php
