@@ -1,5 +1,25 @@
-
 $(document).ready(function() {
+    // Auto-focus the top barcode/search bar on load for instant supermarket scanning.
+    $('#pos-barcode-scan').focus();
+
+    function submitTopBarcodeScan() {
+        const raw = $('#pos-barcode-scan').val().trim();
+        if (!raw) { return; }
+        fetchProduct(raw);
+        $('#pos-barcode-scan').val('').focus();
+    }
+
+    $('#pos-barcode-scan').on('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            submitTopBarcodeScan();
+        }
+    });
+
+    $('#pos-barcode-add').on('click', function() {
+        submitTopBarcodeScan();
+    });
+
     // One delegated handler supports dynamically added barcode cells.
     $('#sales-table tbody').on('keydown', '.barcode[contenteditable="true"]', function(event) {
         if (event.key !== 'Enter') { return; }
@@ -7,33 +27,79 @@ $(document).ready(function() {
         const barcode = $(this).text().trim();
         if (barcode) { fetchProduct(barcode); }
     });
-     
-       // Detect barcode input from scanner (usually appends Enter key after scan)
+
+    // Supermarket keyboard shortcuts
     $(document).keydown(function(event) {
-    // Check if the active element is contenteditable
         if (event.target.isContentEditable && event.key === 'Enter') {
-            event.preventDefault(); // Prevent Enter from adding a new line
+            event.preventDefault();
         }
-        
+
+        if (event.key === 'F2' && !event.ctrlKey) {
+            event.preventDefault();
+            $('#pos-barcode-scan').focus().select();
+        }
+
         if (event.ctrlKey && event.key === 'F1') {
             event.preventDefault();
             openCheckoutModal();
         }
-        
+
         if (event.ctrlKey && event.key === 'F2') {
             event.preventDefault();
-            showReceiptModal();
+            openCheckoutModal();
             handleCashPayment();
         }
-        
+
         if (event.ctrlKey && event.key === 'F3') {
             event.preventDefault();
-            showReceiptModal();
+            openCheckoutModal();
             handleMpesaPayment();
         }
-        
+
+        if (event.key === 'Delete' && !$(event.target).is('input, textarea, [contenteditable="true"]')) {
+            $('#sales-table tbody tr.selected').remove();
+            updateLineTotal();
+        }
     });
-   
+
+    function refreshTenderStatus() {
+        const total = parseFloat($('#total-amount').text()) || 0;
+        const cash = parseFloat($('#customer-cash').val());
+        if (Number.isFinite(cash) && cash > 0) {
+            const diff = cash - total;
+            const statusText = diff >= 0
+                ? 'Tendered: KES ' + cash.toFixed(2) + ' · Change: KES ' + diff.toFixed(2)
+                : 'Tendered: KES ' + cash.toFixed(2) + ' · Balance: KES ' + Math.abs(diff).toFixed(2);
+            $('#pos-tender-status').text(statusText).css('color', diff >= 0 ? '#12845b' : '#174ea6').show();
+            $('#pos-tender-clear').show();
+        } else {
+            $('#pos-tender-status').hide().text('');
+            $('#pos-tender-clear').hide();
+        }
+    }
+
+    // Quick cash tender buttons add together so bills over 1,000 can use multiple notes.
+    $(document).on('click', '.pos-tender-btn', function() {
+        const total = parseFloat($('#total-amount').text()) || 0;
+        if (total <= 0) {
+            showCustomDialog('Add at least one product before tendering cash.');
+            return;
+        }
+        const tender = $(this).attr('data-tender');
+        const currentCash = parseFloat($('#customer-cash').val()) || 0;
+        const cashAmount = (tender === 'exact') ? total : (currentCash + (parseFloat(tender) || 0));
+        $('#customer-cash').val(cashAmount.toFixed(2)).trigger('input');
+        refreshTenderStatus();
+        if (cashAmount >= total) {
+            openCheckoutModal();
+        }
+    });
+
+    $(document).on('click', '#pos-tender-clear', function() {
+        $('#customer-cash').val('').trigger('input');
+        refreshTenderStatus();
+    });
+
     // Cash payment is validated before the receipt is printed and saved.
     $('#pay-cash-btn').click(function() {
         handleCashPayment();
@@ -61,114 +127,94 @@ $(document).ready(function() {
         }
         printReceipt('MPESA', phone, reference);
     });
-    
+
     $('#show-bill-link').on('click', function(event) {
-        event.preventDefault(); // Prevent the default link behavior
-        $('#checkout-modal').show(); // Show the bill modal
+        event.preventDefault();
+        openCheckoutModal();
     });
-
-
 
     $(document).on('input', '.quantity', function() {
-    const $row = $(this).closest('tr');
-    const unitPrice = parseFloat($row.find('.unit-price').text());
-    const quantity = parseInt($(this).text()) || 0; // Ensure quantity is a number or default to 0
-    const lineTotal = unitPrice * quantity;
-    const vatper = parseFloat($row.find('.vat-per').text()) || 0; // Ensure vatper is a number or default to 0
+        const $row = $(this).closest('tr');
+        const unitPrice = parseFloat($row.find('.unit-price').text()) || 0;
+        const quantity = parseFloat($(this).text()) || 0;
+        const lineTotal = unitPrice * quantity;
+        const vatper = parseFloat($row.find('.vat-per').text()) || 0;
 
-    // Respect the configured ERP sales posting group's VAT-inclusive setting.
-    const vatInclusive = Number(window.POS_VAT_INCLUSIVE) === 1;
-    const vatAmount = vatInclusive
-        ? lineTotal - (lineTotal / (1 + (vatper / 100)))
-        : lineTotal * (vatper / 100);
-    const grossTotal = vatInclusive ? lineTotal : lineTotal + vatAmount;
+        // Respect the configured ERP sales posting group's VAT-inclusive setting.
+        const vatInclusive = Number(window.POS_VAT_INCLUSIVE) === 1;
+        const vatAmount = vatInclusive
+            ? (vatper > 0 ? lineTotal - (lineTotal / (1 + (vatper / 100))) : 0)
+            : lineTotal * (vatper / 100);
+        const grossTotal = vatInclusive ? lineTotal : lineTotal + vatAmount;
 
-    $row.find('.VAT-total').text(vatAmount.toFixed(2));
-    $row.find('.line-total').text(grossTotal.toFixed(2));
+        $row.find('.VAT-total').text(vatAmount.toFixed(2));
+        $row.find('.line-total').text(grossTotal.toFixed(2));
 
-    // Call updateLineTotal to recalculate totals across the entire table
-    updateLineTotal();    
-});
-
-   
-$(document).on('click', '#delete-selected-link', function() {
-    $('#sales-table tbody tr.selected').remove();
-    updateLineTotal(); // Update the total after item is removed
-});
-
-
-$(document).on('click', '#sales-table tbody tr', function() {
-    // Check if the clicked row does not have the 'blank-row' class
-    if (!$(this).hasClass('blank-row')) {
-        // Remove the 'selected' class from all rows
-        $('#sales-table tbody tr').removeClass('selected');
-      // Add the 'selected' class to the clicked row
-        $(this).addClass('selected');
-    }
-       updateLineTotal(); // Update the total after item is removed
-});
-
-  
-  
-$(document).on('input', '#customer-cash', function() {
-    const cash = parseFloat($(this).val());
-    const total = parseFloat($('#total-amount').text());
-    const change = (cash - total).toFixed(2);
-    $('#customer-change').text(change >= 0 ? change : 'Insufficient Cash');
-});
-
-$('#find-items-link').on('click', function(event) {
-    event.preventDefault(); // Prevent the default link behavior
-    $('#search-modal').show(); // Show the search modal
-});
-
-
-// Event listener for closing the modal when the "X" is clicked
-$('.checkout-modal-close').on('click', function(event) {
-    event.preventDefault(); // Prevent the default link behavior
-    $('.modal').hide();
-});
-
-
- $('#save-transaction-link').on('click', function(event) {
-    event.preventDefault(); // Prevent the default link behavior
-    saveSalesDataWithReference();
- });
-     
-     
-      // Open modal function
-    function openModal() {
-        $('#recall-modal').show();
-    }
-
-    // Close modal function
-    function closeModal() {
-        $('#recall-modal').hide();
-    }
-
-    // Show the modal when needed (example: a button click)
-    $('#recall-transaction-link').on('click', function() {
-        openModal();
+        updateLineTotal();
     });
-    
-    
-     // Handle recall action
+
+    $(document).on('click', '#delete-selected-link', function() {
+        $('#sales-table tbody tr.selected').remove();
+        updateLineTotal();
+    });
+
+    $(document).on('click', '#sales-table tbody tr', function() {
+        if (!$(this).hasClass('blank-row')) {
+            $('#sales-table tbody tr').removeClass('selected');
+            $(this).addClass('selected');
+        }
+        updateLineTotal();
+    });
+
+    $(document).on('input', '#customer-cash', function() {
+        const cash = parseFloat($(this).val());
+        const total = parseFloat($('#total-amount').text()) || 0;
+        const change = (cash - total).toFixed(2);
+        $('#customer-change').text(Number.isFinite(cash) && cash >= total ? change : 'Insufficient Cash');
+        if (Number.isFinite(cash) && cash >= total) {
+            listChangeDenominations(cash - total);
+            $('#denomination-list-container').show();
+        } else {
+            $('#denomination-list').empty();
+            $('#denomination-list-container').hide();
+        }
+    });
+
+    $('#find-items-link').on('click', function(event) {
+        event.preventDefault();
+        $('#search-modal').show();
+        $('#search-input').focus();
+    });
+
+    $('.checkout-modal-close').on('click', function(event) {
+        event.preventDefault();
+        $('.modal').hide();
+        $('#pos-barcode-scan').focus();
+    });
+
+    $('#save-transaction-link').on('click', function(event) {
+        event.preventDefault();
+        saveSalesDataWithReference();
+    });
+
+    $('#recall-transaction-link').on('click', function() {
+        $('#recall-modal').show();
+    });
+
     $('#recall-button').on('click', function() {
         const selectedId = $('#reference-list').val();
         if (selectedId) {
             recallSalesDataByReference(selectedId);
-            closeModal(); // Close the modal after recalling
+            $('#recall-modal').hide();
         } else {
             showCustomDialog('Please select a reference to recall.');
         }
     });
-     
-    
+
     $('#dialog-ok-btn').on('click', function(event) {
-        event.preventDefault(); // Prevent the default link behavior
+        event.preventDefault();
         hideCustomDialog();
-     });
-     
+    });
 });
 
 function showCustomDialog(message) {
@@ -179,12 +225,13 @@ function showCustomDialog(message) {
 }
 
 function hideCustomDialog() {
-    $('#custom-dialog').fadeOut();         // Hide the dialog
+    $('#custom-dialog').fadeOut();
+    $('#pos-barcode-scan').focus();
 }
-// Function to list change in currency denominations
+
 function listChangeDenominations(change) {
     const denominations = [1000, 500, 200, 100, 50, 20, 10, 5, 1];
-    let remainingChange = Math.floor(change); // Convert to whole number for denomination calculation
+    let remainingChange = Math.floor(change);
     let denominationCount = {};
 
     denominations.forEach(denomination => {
@@ -194,14 +241,11 @@ function listChangeDenominations(change) {
         }
     });
 
-    // Generate and display the denomination list
     let denominationHtml = '<ul>';
     for (const [denomination, count] of Object.entries(denominationCount)) {
         denominationHtml += `<li>${count} x KES ${denomination}</li>`;
     }
     denominationHtml += '</ul>';
-
-    // Display the list of denominations
     $('#denomination-list').html(denominationHtml);
 }
 
@@ -209,37 +253,30 @@ function restoreSalesData() {
     const savedData = localStorage.getItem('salesData');
     if (savedData) {
         const receiptData = JSON.parse(savedData);
-
-        // Restore total, cash, and change
         $('#total-amount').text(receiptData.total);
         $('#customer-cash').val(receiptData.cash);
         $('#customer-change').text(receiptData.change);
-     // Clear existing rows in the table
         const tableBody = document.querySelector('#sales-table tbody');
-        tableBody.innerHTML = ''; // Clear all rows
-          
-        // Restore each item row
+        tableBody.innerHTML = '';
+
         receiptData.items.forEach(function(item) {
             const newRow = `<tr class="selectable" data-barcode="${item.barcode}" data-itemcode="${item.itemcode || ''}">
-                    <td>${item.barcode}</td>
-                    <td>${item.description}</td>
-                    <td contenteditable="true" class="quantity">${item.quantity}</td>
-                    <td class="unit-price">${item.unitPrice}</td>
-                    <td class="vat-per">${item.vatper}</td>
-                    <td class="VAT-total">${item.VATtotal}</td>
-                    <td class="line-total">${item.lineTotal}</td>
-                </tr>`;
-             
-             tableBody.insertAdjacentHTML('beforeend', newRow);
-             updateLineTotal(); // Update the total after item is removed
+                <td class="barcode">${item.barcode}</td>
+                <td class="description">${item.description}</td>
+                <td contenteditable="true" class="quantity">${item.quantity}</td>
+                <td class="unit-price">${item.unitPrice}</td>
+                <td class="vat-per">${item.vatper}</td>
+                <td class="VAT-total">${item.VATtotal}</td>
+                <td class="line-total">${item.lineTotal}</td>
+            </tr>`;
+            tableBody.insertAdjacentHTML('beforeend', newRow);
         });
-         
-         localStorage.removeItem('salesData');
-        // Add a new blank row ONLY IF there are no other blank rows
+        updateLineTotal();
+
+        localStorage.removeItem('salesData');
         if (document.querySelector('#sales-table tbody tr.blank-row') === null) {
             addNewBlankRow();
         }
-            
     }
 }
 
@@ -248,7 +285,6 @@ function saveSalesData() {
     const cash = $('#customer-cash').val();
     const change = $('#customer-change').text();
     const items = [];
-
     $('#sales-table tbody tr').each(function() {
         const barcode = $(this).find('td').eq(0).text().trim();
         const itemcode = String($(this).attr('data-itemcode') || '').trim();
@@ -259,7 +295,6 @@ function saveSalesData() {
         const VATtotal = $(this).find('.VAT-total').text().trim();
         const lineTotal = $(this).find('.line-total').text().trim();
 
- 
         if (barcode !== '' && description !== '') {
             items.push({
                 barcode: barcode,
@@ -272,19 +307,14 @@ function saveSalesData() {
                 lineTotal: lineTotal
             });
         }
-        
     });
 
-    const receiptData = {
+    localStorage.setItem('salesData', JSON.stringify({
         items: items,
         total: total,
         cash: cash,
         change: change
-    };
-    
-    localStorage.removeItem('salesData');
-    // Save to localStorage
-    localStorage.setItem('salesData', JSON.stringify(receiptData));
+    }));
 }
 
 function saveSalesDataWithReference() {
@@ -303,7 +333,6 @@ function saveSalesDataWithReference() {
         const VATtotal = $(this).find('.VAT-total').text().trim();
         const lineTotal = $(this).find('.line-total').text().trim();
 
- 
         if (barcode !== '' && description !== '') {
             items.push({
                 barcode: barcode,
@@ -318,27 +347,19 @@ function saveSalesDataWithReference() {
         }
     });
 
-    const receiptData = {
-        items: items,
-        total: total,
-        cash: cash,
-        change: change
-    };
+    if (!items.length) {
+        showCustomDialog('Add at least one item before holding a sale.');
+        return;
+    }
 
-    // Generate a unique reference number (timestamp as an example)
     const referenceNumber = `REF-${Date.now()}`;
-    
-    // Save to localStorage with the reference number as the key
     let savedTransactions = JSON.parse(localStorage.getItem('savedTransactions')) || {};
-    savedTransactions[referenceNumber] = receiptData;
+    savedTransactions[referenceNumber] = { items: items, total: total, cash: cash, change: change };
     localStorage.setItem('savedTransactions', JSON.stringify(savedTransactions));
 
-    // Optionally, update a UI list with the reference number
     $('#reference-list').append(`<option value="${referenceNumber}">${referenceNumber}</option>`);
-
-   
-     showCustomDialog(`Data saved with reference: ${referenceNumber}`);
-     clearTable(); // Call this to clear the existing table and create editable row
+    showCustomDialog(`Sale held with reference: ${referenceNumber}`);
+    clearTable();
 }
 
 function recallSalesDataByReference(referenceNumber) {
@@ -346,169 +367,170 @@ function recallSalesDataByReference(referenceNumber) {
     const receiptData = savedTransactions[referenceNumber];
 
     if (receiptData) {
-        // Restore total, cash, and change
         $('#total-amount').text(receiptData.total);
         $('#customer-cash').val(receiptData.cash);
         $('#customer-change').text(receiptData.change);
-        // Clear existing rows in the table
-        
         const tableBody = document.querySelector('#sales-table tbody');
-        tableBody.innerHTML = ''; // Clear all rows
-       
-        // Restore each item row
+        tableBody.innerHTML = '';
+
         receiptData.items.forEach(function(item) {
             const newRow = `
                 <tr class="selectable" data-barcode="${item.barcode}" data-itemcode="${item.itemcode || ''}">
-                    <td>${item.barcode}</td>
-                    <td>${item.description}</td>
+                    <td class="barcode">${item.barcode}</td>
+                    <td class="description">${item.description}</td>
                     <td contenteditable="true" class="quantity">${item.quantity}</td>
                     <td class="unit-price">${item.unitPrice}</td>
                     <td class="vat-per">${item.vatper}</td>
                     <td class="VAT-total">${item.VATtotal}</td>
                     <td class="line-total">${item.lineTotal}</td>
                 </tr>`;
-            
             tableBody.insertAdjacentHTML('beforeend', newRow);
-             updateLineTotal(); // Update the total after item is remove
         });
-        
-        delete savedTransactions[referenceNumber]; // Remove the transaction
-        // Update the savedTransactions in localStorage
-        localStorage.setItem('savedTransactions', JSON.stringify(savedTransactions));
+        updateLineTotal();
 
-        
-         showCustomDialog(`Data for reference ${referenceNumber} loaded successfully!`);
+        delete savedTransactions[referenceNumber];
+        localStorage.setItem('savedTransactions', JSON.stringify(savedTransactions));
+        fillAnySavedDataOnLoading();
+        showCustomDialog(`Data for reference ${referenceNumber} loaded successfully!`);
     } else {
-        
         showCustomDialog('No data found for the selected reference.');
     }
-    
-    // Add a new blank row ONLY IF there are no other blank rows
-        if (document.querySelector('#sales-table tbody tr.blank-row') === null) {
-            addNewBlankRow();
-        }
+
+    if (document.querySelector('#sales-table tbody tr.blank-row') === null) {
+        addNewBlankRow();
+    }
 }
 
 function openCheckoutModal() {
     const totalAmount = $('#total-amount').text();
-    $('#checkout-total').text(totalAmount);  // Set the total amount in the modal
-    $('#checkout-modal').show();  // Show the modal
+    $('#checkout-total').text(totalAmount);
+    $('#checkout-modal').show();
+    $('#customer-cash').focus();
 }
-// Function to add a new blank row to the sales table
+
 function addNewBlankRow() {
     const newBlankRow = `<tr class="blank-row">
-            <td class="barcode" contenteditable="true"></td>
-            <td class="description"></td>
-            <td class="quantity" contenteditable="true"></td>
-            <td class="unit-price">0.00</td>
-            <td class="vat-per"></td>
-            <td class="VAT-total">0.00</td>
-            <td class="line-total">0.00</td>
-        </tr>`;
-    
-     const tableBody = document.querySelector('#sales-table tbody');
-     tableBody.insertAdjacentHTML('beforeend', newBlankRow);
-    
-}
- 
-function clearTable() {
-    // Clear all existing rows except for the editable row
+        <td class="barcode" contenteditable="true"></td>
+        <td class="description"></td>
+        <td class="quantity" contenteditable="true"></td>
+        <td class="unit-price">0.00</td>
+        <td class="vat-per"></td>
+        <td class="VAT-total">0.00</td>
+        <td class="line-total">0.00</td>
+    </tr>`;
+
     const tableBody = document.querySelector('#sales-table tbody');
-    tableBody.innerHTML = ''; // Clear all rows
-    
+    tableBody.insertAdjacentHTML('beforeend', newBlankRow);
+}
+
+function clearTable() {
+    const tableBody = document.querySelector('#sales-table tbody');
+    tableBody.innerHTML = '';
+    $('#customer-cash').val('');
+    $('#customer-change').text('0.00');
+    $('#pos-tender-status').hide().text('');
+    $('#pos-tender-clear').hide();
     addNewBlankRow();
+    updateLineTotal();
 }
-// Function to simulate fetching data from the database
-function fetchProduct(barcode) {
-  $.ajax({
-    url: 'POSajax/fetch_product.php', // Update with your actual endpoint
-    type: 'GET', // or 'POST' based on your API setup
-    data: { barcode: barcode },
-    success: function(response) {
-        // Assuming the response is a JSON object with the product details
-        const product = response[0];
-        if (product) {
-            //  const blankRow = document.querySelector('#sales-table tbody tr.blank-row'); 
-            // Select the current blank row
-              const blankRow = $('#sales-table tbody tr.blank-row');
-              if (!blankRow.length) { addNewBlankRow(); }
-              const targetRow = $('#sales-table tbody tr.blank-row').first();
-              const vatper = parseFloat(product.vat) || 0;
-              const unitPrice = parseFloat(product.unit_price) || 0;
-              const vatInclusive = Number(window.POS_VAT_INCLUSIVE) === 1;
-              const netAmount = unitPrice;
-              const vatamount = (vatInclusive
-                  ? netAmount - (netAmount / (1 + (vatper / 100)))
-                  : netAmount * (vatper / 100)).toFixed(2);
-              const initialTotal = vatInclusive ? netAmount : netAmount + parseFloat(vatamount);
-               // Replace the blank row with the product data
-                targetRow.attr('data-itemcode', product.itemcode || '');
-                targetRow.html(`
-                    <td class="barcode">${product.barcode}</td>
-                    <td>${product.description}</td>
-                    <td contenteditable="true" class="quantity">1</td>
-                    <td class="unit-price">${product.unit_price}</td>
-                    <td class="vat-per">${product.vat}</td>
-                    <td class="VAT-total">${vatamount}</td>
-                    <td class="line-total">${initialTotal.toFixed(2)}</td>
-                `).removeClass('blank-row'); // Remove 'blank-row' class
 
-                // Remove the contenteditable attribute from the barcode cell
-                targetRow.find('.barcode').removeAttr('contenteditable');
-             updateLineTotal();
-            // Add a new blank row ONLY IF there are no other blank rows
-         //   if (document.querySelector('#sales-table tbody tr.blank-row') === null) {
-             if ($('#sales-table tbody tr.blank-row').length === 0) {
-                addNewBlankRow();
-            }
-             // Remove the 'blank-row' class since this row is no longer blank
-        } else {
-              showCustomDialog('Product not found');
-        }
-    },
-    error: function() {
-        
-         showCustomDialog('Error fetching product details');
+// Supermarket behavior: if the scanned item is already in the cart, increment quantity by 1.
+function addOrIncrementProductRow(product) {
+    if (!product || !product.itemcode) { return; }
+    const existingRow = $('#sales-table tbody tr.selectable[data-itemcode="' + product.itemcode + '"]').first();
+    if (existingRow.length) {
+        const $qty = existingRow.find('.quantity');
+        const nextQty = (parseFloat($qty.text()) || 0) + 1;
+        $qty.text(nextQty).trigger('input');
+        $('#sales-table tbody tr').removeClass('selected');
+        existingRow.addClass('selected');
+        return;
     }
-});
 
+    const blankRow = $('#sales-table tbody tr.blank-row');
+    if (!blankRow.length) { addNewBlankRow(); }
+    const targetRow = $('#sales-table tbody tr.blank-row').first();
+    const vatper = parseFloat(product.vat) || 0;
+    const unitPrice = parseFloat(product.unit_price) || 0;
+    const vatInclusive = Number(window.POS_VAT_INCLUSIVE) === 1;
+    const vatamount = (vatInclusive
+        ? (vatper > 0 ? unitPrice - (unitPrice / (1 + (vatper / 100))) : 0)
+        : unitPrice * (vatper / 100)).toFixed(2);
+    const initialTotal = vatInclusive ? unitPrice : unitPrice + parseFloat(vatamount);
+
+    targetRow.attr('data-itemcode', product.itemcode || '');
+    targetRow.addClass('selectable').removeClass('blank-row');
+    targetRow.html(`
+        <td class="barcode">${product.barcode}</td>
+        <td class="description">${product.description}</td>
+        <td contenteditable="true" class="quantity">1</td>
+        <td class="unit-price">${unitPrice.toFixed(2)}</td>
+        <td class="vat-per">${vatper}</td>
+        <td class="VAT-total">${vatamount}</td>
+        <td class="line-total">${initialTotal.toFixed(2)}</td>
+    `);
+    targetRow.find('.barcode').removeAttr('contenteditable');
+    $('#sales-table tbody tr').removeClass('selected');
+    targetRow.addClass('selected');
+
+    updateLineTotal();
+    if ($('#sales-table tbody tr.blank-row').length === 0) {
+        addNewBlankRow();
+    }
 }
-// Update the total sales amount
-function updateLineTotal() {
-    let total = 0; 
-    let vattotal = 0;
-    
-    // Loop through each .line-total and add the value if valid
-    $('#sales-table tbody tr').each(function() {
-        let lineValue = parseFloat($(this).find('.line-total').text()) || 0; // Fallback to 0 if invalid
-        total += lineValue;
-    
-        let vatValue = parseFloat($(this).find('.VAT-total').text()) || 0; // Fallback to 0 if invalid
-        vattotal += vatValue;
+
+function fetchProduct(barcode) {
+    $.ajax({
+        url: 'POSajax/fetch_product.php',
+        type: 'GET',
+        data: { barcode: barcode },
+        success: function(response) {
+            const product = Array.isArray(response) ? response[0] : null;
+            if (product) {
+                addOrIncrementProductRow(product);
+            } else {
+                showCustomDialog('Product not found for barcode: ' + barcode);
+            }
+        },
+        error: function() {
+            showCustomDialog('Error fetching product details');
+        }
     });
-    
-    // Update the total and VAT amounts in the UI
+}
+
+function updateLineTotal() {
+    let total = 0;
+    let vattotal = 0;
+    let itemCount = 0;
+
+    $('#sales-table tbody tr:not(.blank-row)').each(function() {
+        let lineValue = parseFloat($(this).find('.line-total').text()) || 0;
+        total += lineValue;
+
+        let vatValue = parseFloat($(this).find('.VAT-total').text()) || 0;
+        vattotal += vatValue;
+
+        let qtyValue = parseFloat($(this).find('.quantity').text()) || 0;
+        itemCount += qtyValue;
+    });
+
     $('#total-amount').text(total.toFixed(2));
-    $('#checkout-total').text(total.toFixed(2));  // Corrected the selector
+    $('#checkout-total').text(total.toFixed(2));
     $('#tax-amount').text(vattotal.toFixed(2));
+    $('#pos-cart-label').text(itemCount + (itemCount === 1 ? ' item' : ' items'));
 }
 
 function fillAnySavedDataOnLoading() {
-   const referencelist = document.querySelector('#reference-list');
-   referencelist.innerHTML = ''; // Clear the list
-   $('#reference-list').append(`<option value="">Select a Reference</option>`);
-   // Retrieve saved transactions, or initialize an empty array if none exist
-   let savedTransactions = JSON.parse(localStorage.getItem('savedTransactions')) || [];
-  // Loop through the keys of the savedTransactions object (reference numbers)
+    const referencelist = document.querySelector('#reference-list');
+    referencelist.innerHTML = '';
+    $('#reference-list').append(`<option value="">Select a Reference</option>`);
+    let savedTransactions = JSON.parse(localStorage.getItem('savedTransactions')) || {};
     Object.keys(savedTransactions).forEach(function(referenceNumber) {
-        // Append each reference number to the reference-list select element
         $('#reference-list').append(`<option value="${referenceNumber}">${referenceNumber}</option>`);
     });
 }
 
 function showReceiptModal() {
-    // Kept for compatibility with any existing callers; opening this preview
-    // must not trigger a print or save operation.
     $('#receipt-modal').show();
 }
 
@@ -541,37 +563,16 @@ function handleMpesaPayment() {
     $('#denomination-list-container').hide();
     $('#checkout-modal').hide();
     $('#mpesa-modal').show();
+    $('#customer-mpesa-no').focus();
 }
 
 function closeModal() {
     $('.modal').hide();
+    $('#pos-barcode-scan').focus();
 }
 
-// Cash drawer opening is handled by the Node.js ESC/POS printer service
-// after the receipt has been printed and the sale has been saved.
-
-function viewInventoryReport() {
-    $('#search-modal').show(); // Show the receipt modal
-}
-
-function viewPaymentsReport() {
-    alert('Showing Payments Report...');
-    // Add logic to display the payments report
-}
-
-function viewDailyReport() {
-    alert('Showing Daily Summary...');
-    // Add logic to display the daily summary
-}
-
-function viewMonthlyReport() {
-    alert('Showing Monthly Summary...');
-    // Add logic to display the monthly summary
-}
-
-// Call this function whenever the data changes (e.g., after adding a product)
-setInterval(saveSalesData,5000);  // Save every 5 seconds
-clearTable(); // Call this to clear the existing table and create editable row
+setInterval(saveSalesData, 5000);
+clearTable();
 restoreSalesData();
 fillAnySavedDataOnLoading();
 
@@ -638,14 +639,14 @@ function showPosShiftReport(type, shift, items) {
         '<header class="psr-company-head"><div class="psr-company-name">' + posReportEscape(companyName) +
         '</div><div class="psr-company-address">' + posReportEscape(companyAddress) + '</div>' +
         '<div class="psr-company-address">' + posReportEscape(companyContacts) + '</div></header>' +
-        '<div class="psr-report-heading"><div><h2>' + (isZ ? 'Z REPORT — SHIFT CLOSING' : 'X REPORT — SHIFT SUMMARY') +
+        '<div class="psr-report-heading"><div><h2>' + (isZ ? 'Z REPORT - SHIFT CLOSING' : 'X REPORT - SHIFT SUMMARY') +
         '</h2><span>Point of Sale Shift Report</span></div><strong>' + posReportEscape(reportNo) + '</strong></div>' +
         '<table class="psr-parties"><tbody><tr><th>Report date</th><td>' + reportDate +
         '</td><th>Report time</th><td>' + reportTime + '</td></tr><tr><th>Cashier</th><td>' +
-        posReportEscape(shift.cashier_name || '—') + '</td><th>Shift number</th><td>#' +
-        posReportEscape(shift.id || '—') + '</td></tr><tr><th>Shift opened</th><td>' +
-        posReportEscape(shift.opened_at || '—') + '</td><th>Shift closed</th><td>' +
-        posReportEscape(shift.closed_at || (isZ ? '—' : 'OPEN')) + '</td></tr><tr><th>Receipts</th><td>' +
+        posReportEscape(shift.cashier_name || '-') + '</td><th>Shift number</th><td>#' +
+        posReportEscape(shift.id || '-') + '</td></tr><tr><th>Shift opened</th><td>' +
+        posReportEscape(shift.opened_at || '-') + '</td><th>Shift closed</th><td>' +
+        posReportEscape(shift.closed_at || (isZ ? '-' : 'OPEN')) + '</td></tr><tr><th>Receipts</th><td>' +
         posReportEscape(shift.receipt_count || 0) + '</td><th>Report type</th><td>' +
         (isZ ? 'Final / Z' : 'Interim / X') + '</td></tr></tbody></table>' +
         '<table class="psr-table"><thead><tr><th colspan="7" class="psr-table-title">PRODUCT SALES ANALYSIS</th></tr><tr>' +
@@ -699,13 +700,13 @@ function posRefreshShift() {
     posShiftRequest('status', null, function(response) {
         var shift = response.shift;
         if (!shift) {
-            $('#pos-shift-label').text('No open shift');
+            $('#pos-shift-label').text('No open shift').removeClass('pos-shift-open');
             $('#pos-shift-open').prop('disabled', false);
             $('#pos-x-report, #pos-z-close').prop('disabled', true);
             $('#pay-cash-btn, #pay-mpesa-btn').prop('disabled', true);
             return;
         }
-        $('#pos-shift-label').text('Shift #' + shift.id + ' · Opened ' + shift.opened_at);
+        $('#pos-shift-label').text('Shift #' + shift.id + ' · ' + shift.opened_at).addClass('pos-shift-open');
         $('#pos-shift-open').prop('disabled', true);
         $('#pos-x-report, #pos-z-close').prop('disabled', false);
         $('#pay-cash-btn, #pay-mpesa-btn').prop('disabled', false);
@@ -720,7 +721,8 @@ $(document).ready(function() {
             showCustomDialog('Allow pop-ups to print the shift report.');
             return;
         }
-        reportWindow.document.write('<!doctype html><html><head><meta charset="utf-8"><title>SmartERPlims POS Shift Report</title><style>' + posShiftReportPrintCss() + '</style></head><body>' + window.POS_LAST_SHIFT_REPORT + '<script>window.onload=function(){window.print();};<\/script></body></html>');
+        reportWindow.document.write('<!doctype html><html><head><meta charset="utf-8"><title>SmartERPlims POS Shift Report</title><style>' +
+posShiftReportPrintCss() + '</style></head><body>' + window.POS_LAST_SHIFT_REPORT + '<script>window.onload=function(){window.print();};<\/script></body></html>');
         reportWindow.document.close();
     });
     posRefreshShift();

@@ -1,30 +1,187 @@
 'use strict';
-const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
-const {PrinterManager}=require('./lib/printer-manager');
-const configPath=path.join(__dirname,'config.json');
-if(!fs.existsSync(configPath)){console.error('Copy config.example.json to config.json and configure a printer.');process.exit(1);}
-let config;try{config=JSON.parse(fs.readFileSync(configPath,'utf8'));}catch(e){console.error('Invalid config.json: '+e.message);process.exit(1);}
-const host=config.serviceHost||'127.0.0.1',port=Number(config.servicePort||3000),token=String(config.apiToken||'');
-const origins=Array.isArray(config.allowedOrigins)?config.allowedOrigins:[];
-if(token.length<24||token==='REPLACE_WITH_A_LONG_RANDOM_SECRET'){console.error('Set apiToken to a random secret of at least 24 characters.');process.exit(1);}
-if(!Number.isInteger(port)||port<1||port>65535){console.error('Invalid servicePort.');process.exit(1);}
-const manager=new PrinterManager(config),maxBytes=Number(config.maxRequestBytes||1048576);
-function reply(res,status,data,origin){const h={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};if(origin){h['Access-Control-Allow-Origin']=origin;h.Vary='Origin';}res.writeHead(status,h);res.end(JSON.stringify(data));}
-function originFor(req){const o=req.headers.origin;if(!o)return '';if(origins.includes('*'))return o;return origins.includes(o)?o:null;}
-function auth(req){const supplied=String(req.headers['x-print-token']||'');return supplied.length===token.length&&crypto.timingSafeEqual(Buffer.from(supplied),Buffer.from(token));}
-function body(req){return new Promise((resolve,reject)=>{let n=0,parts=[];req.on('data',c=>{n+=c.length;if(n>maxBytes){reject(Object.assign(new Error('Request body too large.'),{statusCode:413}));req.destroy();}else parts.push(c);});req.on('end',()=>{try{resolve(JSON.parse(Buffer.concat(parts).toString('utf8')||'{}'));}catch(_){reject(Object.assign(new Error('Request body must be valid JSON.'),{statusCode:400}));}});req.on('error',reject);});}
-const server=http.createServer(async(req,res)=>{
- const origin=originFor(req);if(origin===null)return reply(res,403,{success:false,message:'Browser origin is not allowed.'});
- if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':origin||'null','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, X-Print-Token','Access-Control-Max-Age':'600',Vary:'Origin'});return res.end();}
- const route=new URL(req.url,'http://localhost').pathname;
- if(req.method==='GET'&&route==='/health')return reply(res,200,{success:true,service:'POS Print Agent',version:'1.0.0',printers:manager.health()},origin);
- if(!auth(req))return reply(res,401,{success:false,message:'Invalid or missing print-agent token.'},origin);
- if(req.method==='GET'&&route==='/api/printers')return reply(res,200,{success:true,printers:manager.health()},origin);
- if(req.method!=='POST'||!['/print-receipt','/api/print','/open-drawer','/api/open-drawer','/api/test-print'].includes(route))return reply(res,404,{success:false,message:'Endpoint not found.'},origin);
- try{const data=await body(req);if(route==='/open-drawer'||route==='/api/open-drawer'){const result=await manager.openDrawer(data.printerId);return reply(res,200,{success:true,result},origin);}
- if(route==='/api/test-print'){const result=await manager.testPrint(data.printerId);return reply(res,200,{success:true,result},origin);}
- const result=await manager.printReceipt(data);return reply(res,200,{success:true,message:'Print job handed to adapter.',documentno:result.documentno,printerId:result.printerId,delivery:result.delivery,bytes:result.bytes,note:'Adapter acceptance does not confirm physical paper output.'},origin);
- }catch(e){console.error(new Date().toISOString(),e.message);return reply(res,e.statusCode||400,{success:false,message:e.message},origin);}
+
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const crypto = require('node:crypto');
+const { PrinterManager } = require('./lib/printer-manager');
+
+const configPath = path.join(__dirname, 'config.json');
+if (!fs.existsSync(configPath)) {
+    console.error('Run Install-POS.ps1 to configure the printer and live POS address.');
+    process.exit(1);
+}
+
+let config;
+try {
+    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+} catch (error) {
+    console.error('Invalid POSPrinter/config.json: ' + error.message);
+    process.exit(1);
+}
+
+const serverUrl = String(config.serverUrl || '').trim();
+if (!/^https:\/\/[^/]+/i.test(serverUrl)) {
+    console.error('Configure serverUrl as the HTTPS URL of POSajax/print-agent.php.');
+    process.exit(1);
+}
+
+const host = config.serviceHost || '127.0.0.1';
+const port = Number(config.servicePort || 3000);
+const manager = new PrinterManager(config);
+const identityPath = path.join(__dirname, 'device.json');
+const pollInterval = Math.max(1000, Number(config.pollIntervalMs || 3000));
+let identity;
+let stopping = false;
+let pollRunning = false;
+let registered = false;
+
+function loadIdentity() {
+    if (fs.existsSync(identityPath)) {
+        const saved = JSON.parse(fs.readFileSync(identityPath, 'utf8'));
+        if (/^[a-f0-9]{32}$/.test(saved.deviceId) && /^[a-f0-9]{64}$/.test(saved.deviceSecret)) {
+            return saved;
+        }
+    }
+    const created = {
+        deviceId: crypto.randomBytes(16).toString('hex'),
+        deviceSecret: crypto.randomBytes(32).toString('hex')
+    };
+    fs.writeFileSync(identityPath, JSON.stringify(created, null, 2), { mode: 0o600 });
+    return created;
+}
+
+identity = loadIdentity();
+
+async function api(action, data, authenticated) {
+    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+    if (authenticated) headers.Authorization = 'Bearer ' + identity.deviceSecret;
+    const response = await fetch(serverUrl, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(Object.assign({ action: action, device_id: identity.deviceId }, data || {})),
+        signal: AbortSignal.timeout(20000)
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+        throw new Error(result.message || ('POS server returned HTTP ' + response.status));
+    }
+    return result;
+}
+
+async function register() {
+    return api('register', {
+        device_secret: identity.deviceSecret,
+        device_name: os.hostname() + ' POS printer'
+    }, false);
+}
+
+async function acknowledge(jobId, printed, error) {
+    return api('ack', {
+        job_id: jobId,
+        printed: printed,
+        error: error || ''
+    }, true);
+}
+
+async function pollOnce() {
+    const response = await api('poll', {}, true);
+    if (!response.job) return;
+    const job = response.job;
+    try {
+        const result = await manager.printReceipt(job.payload);
+        if (job.payload.paymentMethod === 'CASH') {
+            const profile = manager.getProfile(job.payload.printerId);
+            if (profile.cashDrawer !== false) {
+                try { await manager.openDrawer(job.payload.printerId); }
+                catch (drawerError) { console.error('Receipt printed; cash drawer did not open: ' + drawerError.message); }
+            }
+        }
+        await acknowledge(job.id, true, '');
+        console.log(new Date().toISOString(), 'Printed', job.documentno, result.delivery);
+    } catch (error) {
+        console.error(new Date().toISOString(), 'Print failed for', job.documentno, error.message);
+        try { await acknowledge(job.id, false, error.message); }
+        catch (ackError) { console.error('Could not acknowledge failed print job: ' + ackError.message); }
+    }
+}
+
+async function pollLoop() {
+    if (stopping || pollRunning) return;
+    pollRunning = true;
+    try {
+        if (!registered) {
+            await register();
+            registered = true;
+            console.log('Local printer registered with the live POS server.');
+        }
+        await pollOnce();
+    } catch (error) {
+        console.error(new Date().toISOString(), 'POS print queue connection:', error.message);
+    } finally {
+        pollRunning = false;
+        if (!stopping) setTimeout(pollLoop, pollInterval);
+    }
+}
+
+const localServer = http.createServer((req, res) => {
+    const route = new URL(req.url, 'http://127.0.0.1').pathname;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    if (req.method === 'GET' && route === '/health') {
+        res.writeHead(200);
+        res.end(JSON.stringify({
+            success: true,
+            service: 'POS Print Agent',
+            mode: 'outbound-https-polling',
+            serverConfigured: true,
+            printers: manager.health()
+        }));
+        return;
+    }
+    if (req.method === 'POST' && route === '/api/test-print') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; if (body.length > 4096) req.destroy(); });
+        req.on('end', async () => {
+            try {
+                const data = body ? JSON.parse(body) : {};
+                const result = await manager.testPrint(data.printerId);
+                res.writeHead(200);
+                res.end(JSON.stringify({ success: true, result: result }));
+            } catch (error) {
+                res.writeHead(400);
+                res.end(JSON.stringify({ success: false, message: error.message }));
+            }
+        });
+        return;
+    }
+    res.writeHead(404);
+    res.end(JSON.stringify({ success: false, message: 'Endpoint not found.' }));
 });
-server.listen(port,host,()=>console.log('POS Print Agent listening on http://'+host+':'+port,'printers:',manager.health().map(p=>p.id).join(', ')||'none'));
-function stop(){server.close(()=>process.exit(0));}process.on('SIGINT',stop);process.on('SIGTERM',stop);
+
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    console.error('Invalid local servicePort.');
+    process.exit(1);
+}
+
+localServer.listen(port, host, async () => {
+    console.log('POS Print Agent listening on http://' + host + ':' + port);
+    console.log('Printer profiles:', manager.health().map(item => item.id).join(', ') || 'none');
+    try {
+        await register();
+        registered = true;
+        console.log('Local printer registered with the live POS server.');
+        pollLoop();
+    } catch (error) {
+        console.error('Printer registration failed:', error.message);
+        setTimeout(pollLoop, pollInterval);
+    }
+});
+
+function stop() {
+    stopping = true;
+    localServer.close(() => process.exit(0));
+}
+process.on('SIGINT', stop);
+process.on('SIGTERM', stop);

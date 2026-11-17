@@ -6,27 +6,29 @@ $_SESSION['DocumentNo']=$_POST['documentno'] ;
 if($_SESSION['DocumentPosted']==true){
     prnMsg('You cannot repost this invoice','warn');
 }else{
-       
+
     $ResultIndex = DB_query('Select sysdate() as date ',$db);
     $rowdate = DB_fetch_row($ResultIndex);
     $_POST['posingdate'] = ConvertSQLDate($rowdate[0]);
-    
+
     $sqldebtors=DB_query("SELECT [itemcode],[creditlimit],[customer],[phone],
     [email],[city],[country],[curr_cod],[customerposting],[salesman],[VATinclusive]
-    FROM [debtors] join postinggroups on code=[customerposting] 
+    FROM [debtors] join postinggroups on code=[customerposting]
     where itemcode='".$_POST['CustomerID']."'", $db);
-    
+
     $debtorsrow      = DB_fetch_row($sqldebtors);
     $customerposting = $debtorsrow[8];
     $salesrep        = $debtorsrow[9];
-    $VATinclusive    = $debtorsrow[10];
+    $VATinclusive    = (int)$debtorsrow[10];
     $PeriodNo        = GetPeriod($_POST['date'],$db,false);
     $discount        = ($_POST['discount'] * 0.01);
     $TransBuffer     = DB_Txn_Begin($db);
     $INVOICENO       = GetNextTransNo(31,$db); // shoulb be 10 but 10 is Lab batch
     $sql = array();
-    
-    $sql[] ="insert into [SalesHeader] 
+
+    $byBatchInt = ($_SESSION['bybatchno'] === true || $_SESSION['bybatchno'] === 'true' || $_SESSION['bybatchno'] === 1 || $_SESSION['bybatchno'] === '1') ? 1 : 0;
+
+    $sql[] ="insert into [SalesHeader]
       ([documenttype]
       ,[documentno]
       ,[docdate]
@@ -47,13 +49,13 @@ if($_SESSION['DocumentPosted']==true){
       ,[discount]
       ,BatchNO
       ,Bybatch
-      ,[paymentterms]) 
+      ,[paymentterms])
       (select 10
       ,'".$INVOICENO."'
       ,'".FormatDateForSQL($_POST['date'])."'
-       ,'".FormatDateForSQL($_POST['posingdate'])."'
-       ,'".$_POST['CustomerID']."'
-       ,'".$_POST['CustomerName']."'
+      ,'".FormatDateForSQL($_POST['posingdate'])."'
+      ,'".$_POST['CustomerID']."'
+      ,'".$_POST['CustomerName']."'
       ,'".$_POST['reference']."'
       ,'".$_SESSION['DocumentNo']."'
       ,'".$customerposting."'
@@ -64,88 +66,87 @@ if($_SESSION['DocumentPosted']==true){
       ,1
       ,'".$_SESSION['UserID']."'
       ,'".$PeriodNo."'
-      ,'".$VATinclusive ."'
-      ,'".$_POST['discount'] ."'
+      ,".$VATinclusive."
+      ,'".(float)$_POST['discount']."'
       ,'".$_SESSION['batchnoref']."'
-      ,'".$_SESSION['bybatchno']."'
+      ,".$byBatchInt."
       ,'".$_POST['paymentterms']."'
-      from [SalesHeader] 
+      from [SalesHeader]
       where documentno='".$_SESSION['DocumentNo']."') ";
-    
+
     foreach ($_POST['code'] as $key => $value) {
-       
+
     if(mb_strlen($value)>0){
-        
+
     $location    = $_POST['location'][$key];
     $stcode      = $_POST['code'][$key];
-    $qty         = $_POST['subunits'][$key];        
+    $qty         = $_POST['subunits'][$key];
     $salesprice  = $_POST['salesprice'][$key];
-    $Shipping    = $_POST['Shipping'][$key] ; 
+    $Shipping    = $_POST['Shipping'][$key] ;
     $netamount   = $_POST['netamount'][$key];
     $vatamount   = $_POST['vatamount'][$key];
     $grossamount = $_POST['grossamount'][$key];
-   
+
     $journal = GetNextTransNo(0,$db);
-     
+
     $sql[] = "Update [SalesLine] set [completed]=1 where [entryno]='".$key."'";
-    
-    $sql[] =  sprintf("INSERT INTO [SalesLine]
+
+    $sql[] = sprintf("INSERT INTO [SalesLine]
            ([documenttype],[docdate],[documentno],[code],[description],[unitofmeasure]
            ,[Quantity],[UnitPrice],[vatamount],[invoiceamount],[vatrate],[inclusive],[locationcode]
-           ,UOM,[shipping],BatchNO,Itemlist,sampleID) 
+           ,UOM,[shipping],BatchNO,Itemlist,sampleID,completed,printed)
            (select '10','%s','%s',[code],[description],[unitofmeasure],[Qunatity_delivered],
-           %f ,%f ,%f ,[vatrate],[inclusive],'%s','fulqty',%f,'%s',Itemlist,sampleID
+           %f ,%f ,%f ,[vatrate],COALESCE([inclusive],0),'%s','fulqty',%f,'%s',Itemlist,sampleID,1,1
            from SalesLine where [entryno]='".$key."')"
            ,FormatDateForSQL($_POST['date'])
            ,$INVOICENO
            ,$salesprice
-           ,$vatamount 
+           ,$vatamount
            ,$grossamount
            ,$location
            ,$Shipping
            ,$_SESSION['batchnoref']);
-    
+
     }
-  
+
     }
-    
+
     if($discount==0)$discount=1;
     $journal=GetNextTransNo(0,$db);
     $sql[]=PostGL($PeriodNo,$journal,$INVOICENO,$discount);
     $sql[]=PostDebtors($PeriodNo,$journal,$INVOICENO,$discount);
     $sql[]=VATPostGL($PeriodNo,$journal,$INVOICENO,$discount);
     $sql[]=CustomerStatemet($journal,$INVOICENO,$discount);
-         
-    
+
+
     foreach ($sql as $value) {
-        $ResultIndex=DB_query($value,$db);
+       $ResultIndex=DB_query($value,$db);
     }
-    
-    
+
+
     if(DB_error_no($db)>0){
-        DB_Txn_Rollback($db);
-        prnMsg('There was an Error Posting the invoice, Contact your administrator','warn');
+       DB_Txn_Rollback($db);
+       prnMsg('There was an Error Posting the invoice, Contact your administrator','warn');
     }else{
-        
-      prnMsg('Click here to print invoice No :<a href="PDFPrintSalesInvoice.php?No='.$INVOICENO.'">'.$INVOICENO.'</a>');
-       
-      if($_SESSION['bybatchno']=='true'){
-        DB_query("Update SalesHeader set [released]=2 where [documenttype]=1 and [released]=1 and BatchNO='".$_SESSION['batchnoref']."'",$db);
-       }else{
-        DB_query("Update SalesHeader set [released]=2 where [documenttype]=1 and [released]=1 and documentno='".$_SESSION['DocumentNo']."'",$db);
-      }
-      DB_query("Update SalesHeader set [released]=2 where [documenttype]=10 and [released]=1 and documentno='".$INVOICENO."'",$db);
-      
+
+        prnMsg('Click here to print invoice No :<a href="PDFPrintSalesInvoice.php?No='.$INVOICENO.'">'.$INVOICENO.'</a>');
+        if($_SESSION['bybatchno']=='true'){
+           DB_query("Update SalesHeader set [released]=2 where [documenttype]=1 and [released]=1 and BatchNO='".$_SESSION['batchnoref']."'",$db);
+        }else{
+           DB_query("Update SalesHeader set [released]=2 where [documenttype]=1 and [released]=1 and documentno='".$_SESSION['DocumentNo']."'",$db);
+        }
+        DB_query("Update SalesHeader set [released]=2 where [documenttype]=10 and [released]=1 and documentno='".$INVOICENO."'",$db);
+
         DB_Txn_Commit($db);
         prnMsg('This Sale has successfully been posted in the General Ledger');
-        
+
         $_SESSION['DocumentPosted']=true;
         unset($_SESSION['bybatchno']);
         unset($_SESSION['batchnoref']);
         unset($_SESSION['DocumentNo']);
         unset($_POST);
     }
-    
+
 }
 
 }
@@ -166,8 +167,10 @@ function PostDebtors($period,$journal,$doc,$discount){
       ,[vatamt]
       ,[systypes_1]
       ,[ledger]
-      ,period)
-  (SELECT 
+      ,period
+      ,cleared
+      ,cash)
+  (SELECT
       SalesHeader.[docdate]
       ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration,'I'
       ,SalesHeader.[documentno]
@@ -182,12 +185,14 @@ function PostDebtors($period,$journal,$doc,$discount){
       ,SalesHeader.[documenttype]
       ,SalesHeader.[postinggroup]
       ,'%s'
-  FROM [SalesHeader] join SalesLine 
-        on SalesHeader.documentno=SalesLine.documentno 
-        and SalesHeader.documenttype=SalesLine.documenttype 
-        where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10 
+      ,0
+      ,0
+  FROM [SalesHeader] join SalesLine
+        on SalesHeader.documentno=SalesLine.documentno
+        and SalesHeader.documenttype=SalesLine.documenttype
+        where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
         group by
-       SalesHeader.[documenttype]
+        SalesHeader.[documenttype]
       ,SalesHeader.[documentno]
       ,SalesHeader.[docdate]
       ,SalesHeader.[customercode]
@@ -198,8 +203,8 @@ function PostDebtors($period,$journal,$doc,$discount){
       ,SalesLine.sampleID
       ,SalesLine.[code]
       ,SalesLine.[UOM])", $journal,$period,$doc);
-   
-   return $SQL;
+
+    return $SQL;
 }
 
 function PostGL($period,$journal,$doc,$discount){
@@ -224,7 +229,8 @@ function PostGL($period,$journal,$doc,$discount){
       ,[cutomercode]
       ,[narration]
       ,[dimension]
-      ,[dimension2])
+      ,[dimension2]
+      ,[reconcilled])
       (select
        '%s'
       ,SalesHeader.[docdate]
@@ -240,20 +246,21 @@ function PostGL($period,$journal,$doc,$discount){
       ,[currencies].[rate]
       ,SalesHeader.[customercode]
       ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration
-       ,'".$dimensionOne."' 
-       ,'".$dimensionTwo."'
-      from SalesHeader 
+      ,'".$dimensionOne."'
+      ,'".$dimensionTwo."'
+      ,0
+      from SalesHeader
       join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
-      join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-        and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
-      join stockmaster on stockmaster.code=SalesLine.code
+      join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno]
+           and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
+      join stockmaster on stockmaster.itemcode=SalesLine.code
       join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
       join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
       where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
-      )",$journal,$period,$doc);
-    
+     )",$journal,$period,$doc);
+
     return $sql;
-    
+
 }
 
 function VATPostGL($period,$journal,$doc,$discount){
@@ -271,7 +278,8 @@ function VATPostGL($period,$journal,$doc,$discount){
       ,[currencycode]
       ,[ExchangeRate]
       ,[cutomercode]
-      ,[narration])
+      ,[narration]
+      ,[reconcilled])
       (select
        '%s'
       ,SalesHeader.[docdate]
@@ -287,17 +295,18 @@ function VATPostGL($period,$journal,$doc,$discount){
       ,[currencies].[rate]
       ,SalesHeader.[customercode]
       ,COALESCE(NULLIF(TRIM(SalesLine.sampleID),''),SalesLine.description,'Sales Invoice') as narration
+      ,0
       from SalesHeader join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
       join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno]
-        and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
-     join stockmaster on stockmaster.code=SalesLine.code
-     join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
+           and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
+      join stockmaster on stockmaster.itemcode=SalesLine.code
+      join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
        join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
       where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
-      )",$journal,$period,$doc);
-    
+     )",$journal,$period,$doc);
+
     return $sql;
-    
+
 }
 
 Function CustomerStatemet($journal,$doc,$discount){
@@ -316,7 +325,7 @@ Function CustomerStatemet($journal,$doc,$discount){
            ,[Dimension_One]
            ,[Dimension_Two]
            ,[Currency])
-      (select
+     (select
               SalesHeader.[docdate]
              ,SalesHeader.documentno
              ,SalesHeader.documenttype
@@ -324,21 +333,21 @@ Function CustomerStatemet($journal,$doc,$discount){
              ,sum(COALESCE(SalesLine.invoiceamount,0)) * ".$discount."
              ,'%s'
              ,'".$dimensionOne."'
-             ,'".$dimensionTwo."' 
-             ,SalesHeader.[currencycode]    
+             ,'".$dimensionTwo."'
+             ,SalesHeader.[currencycode]
              from SalesHeader
              join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno]
-               and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
-           where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
-           Group by 
-             SalesHeader.[docdate]
+             and [SalesLine].[documenttype]=[SalesHeader].[documenttype]
+             where SalesHeader.documentno='%s' AND SalesHeader.documenttype=10
+             Group by
+              SalesHeader.[docdate]
              ,SalesHeader.documentno
              ,SalesHeader.documenttype
              ,SalesHeader.customercode
              ,SalesHeader.[currencycode]
              ) ",
-            $journal,$doc);
-    
+             $journal,$doc);
+
     return $sql;
 }
 
@@ -358,6 +367,7 @@ function PostPOSInvoice($sourceDocumentNo, $periodNo) {
         throw new Exception('Could not allocate a valid POS invoice number or journal number.');
     }
 
+    // Bybatch is TINYINT(1): use integer 0 instead of string 'false' for strict MySQL.
     $headerSql = "INSERT INTO SalesHeader
         (documenttype,documentno,docdate,postingdate,customercode,customername,
          lpo,externaldocumentno,postinggroup,currencycode,salespersoncode,
@@ -367,8 +377,8 @@ function PostPOSInvoice($sourceDocumentNo, $periodNo) {
                'POS',src.documentno,src.postinggroup,src.currencycode,
                COALESCE((SELECT d.salesman FROM debtors d
                          WHERE d.itemcode=src.customercode LIMIT 1),''),
-               0,0,1,src.userid,?,src.vatinclusive,0,
-               COALESCE(src.BatchNO,'POS'),COALESCE(src.Bybatch,'false'),
+               0,0,1,src.userid,?,COALESCE(src.vatinclusive,0),0,
+               COALESCE(src.BatchNO,'POS'),COALESCE(src.Bybatch,0),
                COALESCE(NULLIF(src.paymentterms,''),src.payment_method,'CASH')
         FROM SalesHeader src
         WHERE src.documenttype=1 AND src.documentno=?";
@@ -386,12 +396,12 @@ function PostPOSInvoice($sourceDocumentNo, $periodNo) {
     $headerStmt->close();
 
     $lineSql = "INSERT INTO SalesLine
-        (documenttype,docdate,documentno,code,description,unitofmeasure,
+        (entryno,documenttype,docdate,documentno,code,description,unitofmeasure,
          Quantity,UnitPrice,vatamount,invoiceamount,vatrate,inclusive,
-         locationcode,UOM,shipping,BatchNO,Itemlist,sampleID)
-        SELECT 10,l.docdate,?,l.code,l.description,l.unitofmeasure,
+         completed,printed,locationcode,UOM,shipping,BatchNO,Itemlist,sampleID)
+        SELECT l.entryno,10,l.docdate,?,l.code,l.description,l.unitofmeasure,
                l.Qunatity_delivered,l.UnitPrice,l.vatamount,l.invoiceamount,
-               l.vatrate,l.inclusive,l.locationcode,'fulqty',
+               l.vatrate,COALESCE(l.inclusive,0),1,1,l.locationcode,'fulqty',
                COALESCE(l.shipping,0),COALESCE(l.BatchNO,'POS'),
                l.Itemlist,COALESCE(NULLIF(l.sampleID,''),l.description)
         FROM SalesLine l
