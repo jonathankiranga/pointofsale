@@ -78,8 +78,9 @@ $manualTitle = 'POS & Back-office User Manual';
         <a href="#stock-control">15. Stock control</a>
         <a href="#back-office">16. Back-office operations</a>
         <a href="#salon-foundation">17. Hair salon operations (foundation)</a>
-        <a href="#security">18. Security and good practice</a>
-        <a href="#troubleshooting">19. Troubleshooting</a>
+        <a href="#shared-printing">18. Shared-server receipt printing</a>
+        <a href="#security">19. Security and good practice</a>
+        <a href="#troubleshooting">20. Troubleshooting</a>
     </nav>
 
     <main class="manual-content">
@@ -296,7 +297,78 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Complete payment using the normal POS cash or manually verified M-Pesa workflow. The POS revalidates the stock item, hairdresser assignment and commission rule.</li>
             <li>On successful database commit, the receipt is linked to the appointment, the appointment and service line become <strong>Completed</strong>, and eligible commissions are recorded. If checkout fails, the sale and appointment completion are rolled back and the appointment remains <strong>In Service</strong>.</li>
         </ol>
-        <h2 id="security">18. Security and good practice</h2>
+        <h2 id="shared-printing">18. Configure receipt printing when the POS is hosted on a shared server</h2>
+        <p>This POS uses a local Windows print agent when the PHP application is hosted on ordinary shared hosting. The public server stores sales and queues receipts in MySQL. A Windows computer connected to the receipt printer makes an outbound HTTPS connection to the public POS and collects the queued receipts.</p>
+        <div class="note"><strong>Important architecture:</strong> Node.js runs on the cashier's Windows computer, not on the shared hosting account. The hosting provider does not need to allow Node.js processes, inbound connections, VPN access or router port forwarding. The Windows computer initiates the connection to the POS website.</div>
+        <h3>18.1 Understand the three locations</h3>
+        <ul>
+            <li><strong>Shared hosting account:</strong> Hosts the PHP application and MySQL database. It needs the updated POS PHP files and the print-queue database tables. It does not need Node.js.</li>
+            <li><strong>Administrator's computer:</strong> Used to upload application files, access phpMyAdmin and download/extract the installer. It does not need to be the cashier computer.</li>
+            <li><strong>Cashier's Windows computer:</strong> Must be switched on, connected to the internet, signed in to Windows and connected to the receipt printer. This is where Node.js and the print agent run.</li>
+        </ul>
+        <h3>18.2 Requirements before configuration</h3>
+        <ul>
+            <li>A live POS website that is accessible over valid HTTPS.</li>
+            <li>Hosting file-manager/FTP access and phpMyAdmin or equivalent MySQL access.</li>
+            <li>The correct POS company database name. Confirm it from <code>$DefaultDatabase</code> in the live root <code>config.php</code>.</li>
+            <li>A Windows 10 or Windows 11 computer with internet access and the receipt printer installed and working in Windows.</li>
+            <li>Administrator permission on the Windows computer for the one-time installation.</li>
+        </ul>
+        <h3>18.3 Configure the shared hosting account</h3>
+        <ol>
+            <li><strong>Back up first.</strong> Back up the live application files and export the POS company database before making changes.</li>
+            <li><strong>Upload the updated application files.</strong> Deploy the print-agent PHP changes from the same application release as the cashier agent. Preserve the existing directory structure. The deployment includes <code>POSajax/print-agent.php</code>, <code>POSajax/printreceipt.js</code>, <code>POSajax/save-receipt.php</code>, <code>POSajax/pos.inc</code> and the corresponding root <code>config.php</code> changes. Do not replace live configuration with an example configuration file.</li>
+            <li><strong>Create the print queue tables.</strong> In phpMyAdmin, select the exact company database used by the live POS. Open the SQL tab, run the complete <code>SQL/pos_print_queue.sql</code> script, and confirm that <code>pos_print_devices</code> and <code>pos_print_jobs</code> exist.</li>
+            <li><strong>Check the endpoint path.</strong> The endpoint is <code>https://YOUR-DOMAIN/POSajax/print-agent.php</code>. If the POS is installed in a subdirectory, include that subdirectory in the URL. Opening the endpoint in a browser sends GET; a <code>405 / POST is required</code> response is expected and does not mean the endpoint is broken. A 404 indicates a path/deployment problem. Investigate 500 errors in the hosting PHP error log.</li>
+        </ol>
+        <div class="note warning"><strong>Database selection matters:</strong> Run the SQL migration against the POS company database selected by the live root <code>config.php</code>, not an arbitrary hosting database or a separate system database. Do not proceed if the two queue tables cannot be confirmed.</div>
+        <h3>18.4 Install the agent on the cashier's Windows computer</h3>
+        <ol>
+            <li>Sign in to Windows using the account that will be used for POS printing. Connect the receipt printer and confirm it appears under <strong>Settings → Bluetooth &amp; devices → Printers &amp; scanners</strong>. Print a Windows test page first.</li>
+            <li>Download or clone the POS repository and extract it to a permanent folder, for example <code>C:\POS\pointofsale</code>. Do not run the installer from inside the ZIP file.</li>
+            <li>Confirm that the folder contains <code>Install-POS.ps1</code>, <code>POSPrinter\package.json</code>, <code>POSPrinter\server.js</code> and <code>POSPrinter\config.example.json</code>.</li>
+            <li>Open Windows PowerShell as Administrator and change to the extracted repository folder, for example <code>cd C:\POS\pointofsale</code>.</li>
+            <li>Run <code>powershell -ExecutionPolicy Bypass -File .\Install-POS.ps1</code>.</li>
+            <li>When prompted, enter the public POS website base URL, including <code>https://</code>. If the application is in a subdirectory, include it. Do not enter the phpMyAdmin URL, hosting control-panel URL, database hostname or a localhost URL.</li>
+            <li>If Node.js 18 or later is not installed, the installer attempts to install Node.js LTS using Windows Package Manager. If that fails, install Node.js LTS for Windows, reopen PowerShell and rerun the installer.</li>
+            <li>Select the correct receipt printer from the Windows printer list. The installer installs dependencies, runs its tests, registers the device and creates a Windows Scheduled Task named <code>POS Node Print Agent</code>.</li>
+        </ol>
+        <p>The agent starts when the configured Windows user signs in. The cashier computer must remain powered on, connected to the internet and signed in for automatic receipt printing to work.</p>
+        <h3>18.5 Device identity and security</h3>
+        <p>The agent generates its own device identity and secret. It stores them locally in <code>POSPrinter/device.json</code>. No user has to create, copy or enter a print token.</p>
+        <ul>
+            <li>Do not upload <code>device.json</code> to the website or GitHub.</li>
+            <li>Do not send the file to another cashier or copy it to another computer.</li>
+            <li>Do not delete it after registration; deleting it causes the computer to register again with a new identity.</li>
+            <li>Keep the extracted application folder in its permanent location because the scheduled task starts the agent from that folder.</li>
+        </ul>
+        <h3>18.6 Test printing</h3>
+        <ol>
+            <li>On the cashier computer, open <code>http://127.0.0.1:3000/health</code>. The local agent should respond and report its printer/health information.</li>
+            <li>In phpMyAdmin, inspect <code>pos_print_devices</code> and confirm that the cashier computer has registered and has a recent <code>last_seen</code> value.</li>
+            <li>Confirm the Windows Scheduled Task <strong>POS Node Print Agent</strong> is running.</li>
+            <li>Complete one small authorised test sale in the live POS.</li>
+            <li>Inspect <code>pos_print_jobs</code>. The job should progress from <code>queued</code> to <code>printing</code> and then <code>printed</code>.</li>
+            <li>Physically check the receipt for correct content and legibility. A <code>printed</code> queue status means the printer adapter acknowledged the job; it cannot prove that paper physically emerged.</li>
+        </ol>
+        <h3>18.7 Important deployment limitation</h3>
+        <div class="note warning"><strong>One active agent per company database:</strong> The current queue is shared by the POS company database and does not yet route jobs to individual cashier terminals. Install and activate the agent on only one designated Windows computer for that company database. Do not install agents on several cashier computers against the same database; any active agent could claim the next receipt. Per-terminal printer assignment must be implemented before deploying multiple agents.</div>
+        <h3>18.8 Troubleshooting</h3>
+        <table>
+            <thead><tr><th>Problem</th><th>What to check</th></tr></thead>
+            <tbody>
+                <tr><td>Receipt is not queued</td><td>Confirm both queue tables exist in the correct company database. Check the PHP error log and database permissions. The sale may already have committed; do not repeat the sale without checking its status.</td></tr>
+                <tr><td>Agent cannot register or connect</td><td>Check the website URL entered during installation, valid HTTPS, internet connectivity and that <code>POSajax/print-agent.php</code> is deployed at the expected path.</td></tr>
+                <tr><td>Endpoint returns 404</td><td>Check the domain, application subdirectory and exact file path.</td></tr>
+                <tr><td>Endpoint returns 500</td><td>Check the shared-hosting PHP error log, database connection and queue-table migration.</td></tr>
+                <tr><td>Local health page does not open</td><td>On the cashier computer, check Task Scheduler → Task Scheduler Library → <strong>POS Node Print Agent</strong>. Start the task or run <code>node .\server.js</code> from the <code>POSPrinter</code> folder and read the displayed error.</td></tr>
+                <tr><td>Agent is running but no receipt prints</td><td>Check the device's active status and recent <code>last_seen</code>, inspect the print job status, confirm the selected Windows printer and check the printer driver. Some drivers do not pass RAW ESC/POS data correctly.</td></tr>
+                <tr><td>Receipt appears more than once</td><td>Do not keep repeating test sales. Inspect the queue and agent logs. If the printer accepts a job but the acknowledgement is lost, the expired job can be retried and may print again.</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Operational guarantee:</strong> Printing is asynchronous. The POS commits the sale and accounting entries before queuing the receipt. A printer, agent or internet outage must not reverse a committed sale. Check the queue before retrying a receipt to avoid unnecessary duplicate prints.</p>
+
+        <h2 id="security">19. Security and good practice</h2>
         <ul>
             <li>Use your own ERP login. Never share cashier credentials or leave an active terminal unattended.</li>
             <li>Open and close shifts under the correct cashier account.</li>
@@ -308,7 +380,7 @@ $manualTitle = 'POS & Back-office User Manual';
             <li>Log out when finished, especially on shared tills and back-office computers.</li>
         </ul>
 
-        <h2 id="troubleshooting">19. Troubleshooting</h2>
+        <h2 id="troubleshooting">20. Troubleshooting</h2>
         <table>
             <thead><tr><th>Problem</th><th>What to check</th></tr></thead>
             <tbody>
