@@ -23,32 +23,32 @@ echo '<div class="container"><table class="table table-bordered"><tr>'
     . '<input type="submit" value="GO"/></td></tr></table></div>';
 
 $SQL="select 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid] 
-      ,sum(PurchaseLine.[invoiceamount]) as OrderValue
-      ,[PurchaseHeader].printed
-      from [PurchaseHeader] join PurchaseLine on 
-      [PurchaseHeader].[documentno]=PurchaseLine.[documentno] 
-      where [PurchaseHeader].[documenttype]='20' ". 
-        (isset($_POST['VendorID'])?" and [PurchaseHeader].[vendorcode]='".$_POST['VendorID']."'":'')."
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid] 
+      ,sum(purchaseline.[invoiceamount]) as OrderValue
+      ,[purchaseheader].printed
+      from [purchaseheader] join purchaseline on 
+      [purchaseheader].[documentno]=purchaseline.[documentno] 
+      where [purchaseheader].[documenttype]='20' ". 
+        (isset($_POST['VendorID'])?" and [purchaseheader].[vendorcode]='".$_POST['VendorID']."'":'')."
        group by 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid]
-      ,[PurchaseHeader].printed order by [PurchaseHeader].[docdate] desc ";
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid]
+      ,[purchaseheader].printed order by [purchaseheader].[docdate] desc ";
     $Result=DB_query($SQL,$db);
        
     
