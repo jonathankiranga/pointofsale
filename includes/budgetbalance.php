@@ -38,12 +38,12 @@ class DimensionsBudget {
         Global $db;
         
         $SQL="SELECT 
-                  sum(PurchaseLine.invoiceamount) as amount
-              FROM [PurchaseHeader] join PurchaseLine on PurchaseHeader.documenttype=PurchaseLine.documenttype 
-                  and PurchaseHeader.documentno=PurchaseLine.documentno
-                  where PurchaseHeader.released=1 and PurchaseHeader.documenttype=18 
-                  and (PurchaseHeader.Dimension_1='".$dim1."'
-                  and PurchaseHeader.Dimension_2='".$dim2."')";
+                  sum(purchaseline.invoiceamount) as amount
+              FROM [purchaseheader] join purchaseline on purchaseheader.documenttype=purchaseline.documenttype 
+                  and purchaseheader.documentno=purchaseline.documentno
+                  where purchaseheader.released=1 and purchaseheader.documenttype=18 
+                  and (purchaseheader.Dimension_1='".$dim1."'
+                  and purchaseheader.Dimension_2='".$dim2."')";
                 
                 $ResultIndex=DB_query($SQL,$db);
                 $rows = DB_fetch_row($ResultIndex);
@@ -55,11 +55,11 @@ class DimensionsBudget {
         Global $db;
         
         $SQL="SELECT 
-                  sum(PurchaseLine.invoiceamount)as  amount
-              FROM [PurchaseHeader] join PurchaseLine on PurchaseHeader.documenttype=PurchaseLine.documenttype 
-                  and PurchaseHeader.documentno=PurchaseLine.documentno
-                  where PurchaseHeader.released=1 and PurchaseHeader.documenttype=18 
-                  and (PurchaseHeader.Dimension_1='".$dim1."')";
+                  sum(purchaseline.invoiceamount)as  amount
+              FROM [purchaseheader] join purchaseline on purchaseheader.documenttype=purchaseline.documenttype 
+                  and purchaseheader.documentno=purchaseline.documentno
+                  where purchaseheader.released=1 and purchaseheader.documenttype=18 
+                  and (purchaseheader.Dimension_1='".$dim1."')";
                 
                 $ResultIndex=DB_query($SQL,$db);
                 $rows = DB_fetch_row($ResultIndex);
@@ -71,11 +71,11 @@ class DimensionsBudget {
       Global $db;
       
         $SQL="SELECT 
-                  sum(PurchaseLine.invoiceamount) as  amount
-              FROM [PurchaseHeader] join PurchaseLine on PurchaseHeader.documenttype=PurchaseLine.documenttype 
-                  and PurchaseHeader.documentno=PurchaseLine.documentno
-                  where PurchaseHeader.released=1 and PurchaseHeader.documenttype=18 
-                  and (PurchaseHeader.Dimension_2='".$dim2."')";
+                  sum(purchaseline.invoiceamount) as  amount
+              FROM [purchaseheader] join purchaseline on purchaseheader.documenttype=purchaseline.documenttype 
+                  and purchaseheader.documentno=purchaseline.documentno
+                  where purchaseheader.released=1 and purchaseheader.documenttype=18 
+                  and (purchaseheader.Dimension_2='".$dim2."')";
         
                 $ResultIndex=DB_query($SQL,$db);
                 $rows = DB_fetch_row($ResultIndex);
