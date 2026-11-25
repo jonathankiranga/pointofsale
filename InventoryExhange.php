@@ -58,7 +58,7 @@ if(isset($_POST['submit'])){
                       where [authorised]=1 and [docno]='".$_POST['SelectedNo']."')";
 
                  
-            $sql[]=SPRINTF("Insert into [Generalledger]
+            $sql[]=SPRINTF("Insert into [generalledger]
             ([journalno],[Docdate] ,[period] ,[DocumentNo],[DocumentType] ,[accountcode],[balaccountcode],[VATaccountcode],[amount] ,[VATamount] ,[currencycode] ,[ExchangeRate] ,[narration])
             (select [docno],[docdate] ,'%s' ,[docno] ,50
                     ,[inventorypostinggroup].[defaultgl_purch]
@@ -79,7 +79,7 @@ if(isset($_POST['submit'])){
                     join [arpostinggroups] on [arpostinggroups].[code]=[creditors].[supplierposting] 
                     where [stockexchange].[docno]='%s' )",$PeriodNo,$_POST['SelectedNo']); 
             
-             $sql[]=SPRINTF("Insert into [Generalledger]
+             $sql[]=SPRINTF("Insert into [generalledger]
             ([journalno],[Docdate] ,[period] ,[DocumentNo],[DocumentType] ,[accountcode],[balaccountcode],[VATaccountcode],[amount] ,[VATamount] ,[currencycode] ,[ExchangeRate] ,[narration])
             (select [docno],[docdate] ,'%s' ,[docno] ,50
                     ,[inventorypostinggroup].[balancesheet]
@@ -309,12 +309,12 @@ $procodedure ="Create PROCEDURE [EMPTYFIFO]
         
      Select @partperunit = partperunit from stockmaster where itemcode=@stcode
    
-	DECLARE STOCKREGISTER CURSOR FOR 
+	DECLARE stockregister CURSOR FOR 
         select [cost],[StockBalance],[rowid]  from [stockregister] 
         where [itemcode]=@stcode and [StockBalance]>0  order by rowid asc
         
-        open STOCKREGISTER
-        FETCH NEXT FROM STOCKREGISTER into @avecost,@stockbalance,@rowid
+        open stockregister
+        FETCH NEXT FROM stockregister into @avecost,@stockbalance,@rowid
         WHILE (@@FETCH_STATUS = 0)
         BEGIN 
     
@@ -335,7 +335,7 @@ $procodedure ="Create PROCEDURE [EMPTYFIFO]
 if(@usequantity>0)
 begin
 
-        Insert into [Generalledger]
+        Insert into [generalledger]
                    ([journalno],[Docdate] ,[period] ,[DocumentNo],[DocumentType] ,[accountcode],[balaccountcode]
                    ,[VATaccountcode],[amount] ,[VATamount] ,[currencycode] ,[ExchangeRate] ,[narration])
                    (select
@@ -364,10 +364,10 @@ end
 
 
   
-FETCH NEXT FROM  STOCKREGISTER into @avecost,@stockbalance,@rowid
+FETCH NEXT FROM  stockregister into @avecost,@stockbalance,@rowid
 END
-CLOSE  STOCKREGISTER
-DEALLOCATE  STOCKREGISTER
+CLOSE  stockregister
+DEALLOCATE  stockregister
 
 END";
     
@@ -412,10 +412,10 @@ $procodedure ="Create PROCEDURE [FIFO]
         Select @partperunit = partperunit from stockmaster where itemcode=@stcode
         select @quantity=  abs(@qtyinput)
    
-	DECLARE STOCKREGISTER CURSOR FOR select [cost],[StockBalance],[rowid] 
+	DECLARE stockregister CURSOR FOR select [cost],[StockBalance],[rowid] 
         from [stockregister] where [itemcode]=@stcode and [StockBalance]>0  order by rowid asc
-        open STOCKREGISTER
-        FETCH NEXT FROM STOCKREGISTER into @avecost,@stockbalance,@rowid
+        open stockregister
+        FETCH NEXT FROM stockregister into @avecost,@stockbalance,@rowid
         WHILE (@@FETCH_STATUS = 0)
         BEGIN 
     
@@ -435,7 +435,7 @@ $procodedure ="Create PROCEDURE [FIFO]
       
 if(@usequantity>0)
 begin
-                    Insert into [Generalledger]
+                    Insert into [generalledger]
                    ([journalno],[Docdate] ,[period] ,[DocumentNo],[DocumentType] ,[accountcode],[balaccountcode]
                    ,[VATaccountcode],[amount] ,[VATamount] ,[currencycode] ,[ExchangeRate] ,[narration])
                    (select
@@ -459,7 +459,7 @@ begin
                         where [stockexchange].[docno]='".$SelectedNo."' )
                             
 
-   Insert into [Generalledger]
+   Insert into [generalledger]
                    ([journalno],[Docdate] ,[period] ,[DocumentNo],[DocumentType] ,[accountcode],[balaccountcode]
                    ,[VATaccountcode],[amount] ,[VATamount] ,[currencycode] ,[ExchangeRate] ,[narration])
                    (select
@@ -486,10 +486,10 @@ end
 
 
   
-FETCH NEXT FROM  STOCKREGISTER into @avecost,@stockbalance,@rowid
+FETCH NEXT FROM  stockregister into @avecost,@stockbalance,@rowid
 END
-CLOSE  STOCKREGISTER
-DEALLOCATE  STOCKREGISTER
+CLOSE  stockregister
+DEALLOCATE  stockregister
 
 END";
     
