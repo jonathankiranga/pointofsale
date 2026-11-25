@@ -6,8 +6,14 @@ function collectReceiptData(paymentMethod, mpesaPhone, mpesaReference) {
         const barcode = $row.find('td').eq(0).text().trim();
         const itemcode = String($row.attr('data-itemcode') || '').trim();
         const description = $row.find('td').eq(1).text().trim();
+        const salonServiceId = Number($row.attr('data-salon-service-id')) || 0;
+        const isSalonService = salonServiceId > 0;
 
-        if (barcode && itemcode && description && !$row.hasClass('blank-row')) {
+        // Salon services are validated by their stockmaster primary key and
+        // item code on the server. Unlike ordinary stock rows, they do not
+        // require a barcode to be present in order to complete the sale.
+        if (itemcode && description && !$row.hasClass('blank-row') &&
+            (isSalonService || barcode)) {
             const quantity = parseFloat($row.find('.quantity').text()) || 0;
             const unitPrice = parseFloat($row.find('.unit-price').text()) || 0;
             const vatRate = parseFloat($row.find('.vat-per').text()) || 0;
@@ -29,7 +35,7 @@ function collectReceiptData(paymentMethod, mpesaPhone, mpesaReference) {
                 vatRate: vatRate,
                 vatAmount: vatAmount,
                 lineTotal: lineTotal,
-                salonServiceId: Number($row.attr('data-salon-service-id')) || 0,
+                salonServiceId: salonServiceId,
                 hairdresserId: Number($row.attr('data-hairdresser-id')) || 0
             });
         }
