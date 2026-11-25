@@ -166,7 +166,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                 <button type="button" class="pos-close-button salon-service-modal-close" aria-label="Close service catalogue">&times;</button>
             </div>
             <div class="salon-service-modal-actions">
-                <a class="salon-add-service-link" href="SalonManagement.php?view=services">Manage Services</a>
+                <a class="salon-add-service-link" href="SalonManagement.php?view=services" target="_top">Manage Services</a>
                 <span class="pos-scan-hint">Select a service to add it to the current sale.</span>
             </div>
             <div id="salon-service-catalogue" class="salon-service-grid">
