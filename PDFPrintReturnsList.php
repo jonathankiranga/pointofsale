@@ -6,26 +6,26 @@ $Title = _('Print Picking List');
 if(isset($_GET['No'])){
     
 $SQL="select 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid]
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid]
       ,[debtors].email
       ,[debtors].city
       ,[debtors].postcode
       ,[debtors].country
       ,[debtors].phone
       ,[debtors].contact
-      from [SalesHeader] 
-      join [SalesLine] on [SalesHeader].[documentno]=SalesLine.[documentno]
-      join [debtors] on [SalesHeader].[customercode]=[debtors].[itemcode]
-      where [SalesHeader].[documentno]='".$_GET['No']."'";
+      from [salesheader] 
+      join [salesline] on [salesheader].[documentno]=salesline.[documentno]
+      join [debtors] on [salesheader].[customercode]=[debtors].[itemcode]
+      where [salesheader].[documentno]='".$_GET['No']."'";
     $Result=DB_query($SQL,$db);
     $myrow=DB_fetch_row($Result);
         
@@ -44,20 +44,20 @@ $SQL="select
     include('includes/PDFcreditnoteheader.inc');
      //[Quantity],[UnitPrice],[vatamount],[invoiceamount]
                 $SQL=Sprintf("SELECT stockmaster.barcode ,
-                    SalesHeader.docdate ,
-                    SalesLine.[description] ,
-                    SalesLine.[Quantity], 
-                   [SalesLine].UOM, 
-                   (case [SalesLine].UOM when 'fulqty'  then (select SalesLine.UnitPrice * stockmaster.partperunit from stockmaster where stockmaster.itemcode=SalesLine.code) else (SalesLine.UnitPrice) end) as Sp , 
-                   (case [SalesLine].UOM when 'fulqty' then (select rtrim([unit].[descrip])  from [unit] join stockmaster on stockmaster.units=[unit].code and stockmaster.itemcode=SalesLine.code) 
+                    salesheader.docdate ,
+                    salesline.[description] ,
+                    salesline.[Quantity], 
+                   [salesline].UOM, 
+                   (case [salesline].UOM when 'fulqty'  then (select salesline.UnitPrice * stockmaster.partperunit from stockmaster where stockmaster.itemcode=salesline.code) else (salesline.UnitPrice) end) as Sp , 
+                   (case [salesline].UOM when 'fulqty' then (select rtrim([unit].[descrip])  from [unit] join stockmaster on stockmaster.units=[unit].code and stockmaster.itemcode=salesline.code) 
                    else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code 
-                   and stockmaster.itemcode=SalesLine.code) end) as UOMDesc , 
-                   SalesHeader.[documentno] , 
-                   SalesHeader.[customercode] , 
-                   SalesHeader.[documenttype] 
-                   FROM [SalesHeader] join SalesLine on SalesHeader.documentno=SalesLine.documentno and SalesHeader.documenttype=SalesLine.documenttype 
-                   and SalesHeader.documenttype='11' left join stockmaster on stockmaster.itemcode=SalesLine.code 
-                   where SalesHeader.documentno='%s' ",$_GET['No']);
+                   and stockmaster.itemcode=salesline.code) end) as UOMDesc , 
+                   salesheader.[documentno] , 
+                   salesheader.[customercode] , 
+                   salesheader.[documenttype] 
+                   FROM [salesheader] join salesline on salesheader.documentno=salesline.documentno and salesheader.documenttype=salesline.documenttype 
+                   and salesheader.documenttype='11' left join stockmaster on stockmaster.itemcode=salesline.code 
+                   where salesheader.documentno='%s' ",$_GET['No']);
      
      
      $FontSize = 12;
@@ -110,20 +110,20 @@ echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />'
 
 
 $SQL="Select 
-        [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid] 
-      from [SalesHeader] join SalesLine on 
-      [SalesHeader].documentno=SalesLine.[documentno]  
-      where [SalesHeader].[documenttype]='11' 
-      order by [SalesHeader].[docdate] desc";
+        [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid] 
+      from [salesheader] join salesline on 
+      [salesheader].documentno=salesline.[documentno]  
+      where [salesheader].[documenttype]='11' 
+      order by [salesheader].[docdate] desc";
     $Result=DB_query($SQL,$db);
        
     Echo '<Table class="table table-bordered"><tr>'
