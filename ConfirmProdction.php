@@ -41,7 +41,7 @@ $filter="SELECT
            ,[duedate],[postingdate] ,[vendorcode],[vendorname]
            ,[yourreference] ,[externaldocumentno] ,[locationcode]
            ,[paymentterms],[postinggroup] ,[currencycode] ,[vatinclusive]
-       FROM [PurchaseHeader] 
+       FROM [purchaseheader] 
        where [documentno]='".$_POST['documentno']."'";
 $ResultIndex= DB_query($filter, $db);
 $rowresults = DB_fetch_row($ResultIndex);
@@ -103,8 +103,8 @@ $SQL="SELECT [entryno],[documenttype]
       IFNULL([Quantity_toinvoice],0) as Quantity_toinvoice,
       IFNULL([Qunatity_delivered],0) as Qunatity_delivered,
       [UnitPrice],[vatamount],[invoiceamount],[completed],[printed],[vatrate],[inclusive],[partperunit],[averagestock],[UOM]
-  FROM [PurchaseLine] join [stockmaster] 
-  on [PurchaseLine].code=[stockmaster].itemcode  where [documentno]='".$_POST['documentno']."'";
+  FROM [purchaseline] join [stockmaster] 
+  on [purchaseline].code=[stockmaster].itemcode  where [documentno]='".$_POST['documentno']."'";
 
 
 $ResultIndex = DB_query($SQL, $db);
@@ -224,7 +224,7 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
     $_POST['posingdate'] = ConvertSQLDate($rowdate[0]);
  
     $sqldebtors=DB_query("SELECT  [curr_cod],[commissionposting]
-      FROM [productionEmployee] where [code]='".$_POST['VendorID']."'", $db);
+      FROM [productionemployee] where [code]='".$_POST['VendorID']."'", $db);
     $debtorsrow = DB_fetch_row($sqldebtors);
     $postinggroup = $debtorsrow[1];
     $curr_code = $debtorsrow[0];
@@ -238,7 +238,7 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
     
     $sql=array();
     
-    $sql[]="INSERT INTO [PurchaseHeader]
+    $sql[]="INSERT INTO [purchaseheader]
            ([documenttype]
            ,[documentno]
            ,[docdate]
@@ -280,34 +280,34 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
                $ProductionCost = $_POST['salesprice'][$key];
                $salesoderno = $_SESSION['DocumentNo'];
             
-               $sql[]= sprintf("Update [PurchaseLine] set
+               $sql[]= sprintf("Update [purchaseline] set
                     [Qunatity_delivered]= IFNULL([Qunatity_delivered],0)+ %f,[Quantity_toinvoice]= [Quantity]-[Qunatity_delivered]
                     where [documentno]='%s' and [documenttype]='%s'  and [entryno]=%s",$qty,$salesoderno,40,$key);
                 
            $sql[]="INSERT [stockledger]
                ([date] ,[stname] ,[batch] ,[doctyp],[itemcode] ,[invref],[netamt] ,[vat] ,[amount] ,[fulqty] ,[loosqty] ,[price] ,[store] ,[journal] ,[period] ,[jobcard] )
             (SELECT 
-                [PurchaseLine].[docdate] , substring([PurchaseLine].[description],0,30),'".$key."','30'
-               ,[PurchaseLine].[code]
-               ,[PurchaseLine].[documentno]
-               ,[PurchaseLine].[invoiceamount]
-               ,[PurchaseLine].[vatamount]
-               ,[PurchaseLine].[invoiceamount]
-               ,case [PurchaseLine].UOM when 'fulqty' then ".$qty."  else 0 end as fulqty
-               ,case [PurchaseLine].UOM when 'loosqty' then ".$qty."  else 0 end as loosqty
-               ,[PurchaseLine].[UnitPrice] ,'".$location."' ,'".$journal."' ,'".$PeriodNo."' ,'".$INVOICENO ."' 
-               FROM [PurchaseLine] 
+                [purchaseline].[docdate] , substring([purchaseline].[description],0,30),'".$key."','30'
+               ,[purchaseline].[code]
+               ,[purchaseline].[documentno]
+               ,[purchaseline].[invoiceamount]
+               ,[purchaseline].[vatamount]
+               ,[purchaseline].[invoiceamount]
+               ,case [purchaseline].UOM when 'fulqty' then ".$qty."  else 0 end as fulqty
+               ,case [purchaseline].UOM when 'loosqty' then ".$qty."  else 0 end as loosqty
+               ,[purchaseline].[UnitPrice] ,'".$location."' ,'".$journal."' ,'".$PeriodNo."' ,'".$INVOICENO ."' 
+               FROM [purchaseline] 
                where documentno='".$salesoderno."' and code='".$stcode."' and [entryno]='".$key."')";
                 
-         $sql[]="INSERT INTO [PurchaseLine]
+         $sql[]="INSERT INTO [purchaseline]
                 ([documenttype],[docdate],[documentno],[code],[description],[unitofmeasure],[Quantity],[UnitPrice],[vatamount],[invoiceamount],[vatrate],[inclusive],[UOM]) 
                 (select 30,[docdate],'".$INVOICENO."',[code],[description],[unitofmeasure],".$qty.",[UnitPrice],[vatamount],[invoiceamount],[vatrate],[inclusive],[UOM]
-                from [PurchaseLine] where documentno='".$salesoderno."' and code='".$stcode."'  and [entryno]='".$key."')" ;
+                from [purchaseline] where documentno='".$salesoderno."' and code='".$stcode."'  and [entryno]='".$key."')" ;
 
            if($ProductionCost>0){ 
             $sql[] = " Update [stockmaster] set [averagestock]=".$ProductionCost." where itemcode='".$stcode."'";
            
-            $sql[] = " INSERT INTO [StockRegister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN]) 
+            $sql[] = " INSERT INTO [stockregister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN]) 
             VALUES  ('".$stcode."',".$qty.",".$ProductionCost.",0,'".$journal."','".$INVOICENO."')";
            }
               
