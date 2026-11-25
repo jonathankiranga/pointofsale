@@ -128,15 +128,15 @@ echo '<img src="css/xenos/images/company.png" title="'._('Company').'" alt="'._(
 echo '</a>';
  
 echo ' <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">';
-echo '<li><a class="nav-link text-white" href="index.php?link=UserSettings">'
+echo '<li><a class="nav-link text-white" href="UserSettings.php">'
 . '<svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#table"/></svg>User Logged : ' . stripslashes($_SESSION['UsersRealName']).'</a></li>';
 		
 	if (isset($Title)) {
 		if (count($_SESSION['AllowedPageSecurityTokens'])>1){
-			echo '<li><a  class="nav-link text-white"   href="index.php?link=SelectCustomer&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#people-circle"/></svg>' . _('Customers') .'</a></li>';
-			echo '<li><a  class="nav-link text-white"   href="index.php?link=SelectSupplier&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#head"/></svg>' . _('Suppliers') .'</a></li>';
-                        echo '<li><a  class="nav-link text-white"   href="index.php?link=SelectProduct&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#basket"/></svg>' ._('Items') .'</a></li>';
-			    echo '<li><a class="nav-link text-white" href="index.php?link=bankregister"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#table"/></svg>' ._('Cash Book') .'</a></li>';
+			echo '<li><a  class="nav-link text-white"   href="SelectCustomer.php&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#people-circle"/></svg>' . _('Customers') .'</a></li>';
+			echo '<li><a  class="nav-link text-white"   href="SelectSupplier.php&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#head"/></svg>' . _('Suppliers') .'</a></li>';
+                        echo '<li><a  class="nav-link text-white"   href="SelectProduct.php&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#basket"/></svg>' ._('Items') .'</a></li>';
+			    echo '<li><a class="nav-link text-white" href="bankregister.php"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#table"/></svg>' ._('Cash Book') .'</a></li>';
                         
                    
 			$DefaultManualLink = '<li><a class="nav-link text-white" rel="external" accesskey="8" href="doc/Manual/ManualContents.php'. $ViewTopic . $BookMark. '"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#whatsapp"/></svg>' . _('Manual') . '</a></li>';
@@ -160,7 +160,7 @@ echo '<button class="navbar-toggler position-absolute d-md-none collapsed" type=
   </button>
   <div class="navbar-nav">
     <div class="nav-item text-nowrap">
- 	<a class="nav-link text-white" href="index.php?link=Logout" onclick="return confirm(\''._('Are you sure you wish to logout?').'\');"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#logout"/></svg>' . _('Logout') . '</a>
+ 	<a class="nav-link text-white" href="Logout.php" onclick="return confirm(\''._('Are you sure you wish to logout?').'\');"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#logout"/></svg>' . _('Logout') . '</a>
    </div>
   </div>
 </header><main>';
