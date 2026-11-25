@@ -319,7 +319,7 @@ function NormalizeTableNames($sql){
     }
 
     $identifier = '(?:`[^`]+`|"[^"]+"|[A-Za-z_][A-Za-z0-9_$]*)';
-    $pattern = '/\\b(FROM|JOIN|UPDATE|INTO(?!\\s+(?:OUTFILE|DUMPFILE)\\b)|REFERENCES|DESCRIBE|OPTIMIZE|TABLE)\\s+(?:(IF\\s+NOT\\s+EXISTS|IF\\s+EXISTS)\\s+)?('
+    $pattern = '/\\b(FROM|JOIN|UPDATE|INTO(?!\\s+(?:OUTFILE|DUMPFILE)\\b)|REFERENCES|DESCRIBE|OPTIMIZE|TABLE)\\s+(?:(IF\\s+NOT\\s+EXISTS|IF\\s+EXISTS)\\s+)?(TABLE\\s+)?('
         . $identifier . '(?:\\s*\\.\\s*' . $identifier . ')?)/i';
 
     foreach ($parts as $index => $part) {
@@ -329,7 +329,7 @@ function NormalizeTableNames($sql){
         }
 
         $parts[$index] = preg_replace_callback($pattern, function($matches) {
-            $tableReference = trim($matches[3]);
+            $tableReference = trim($matches[4]);
             $segments = preg_split('/\\s*\\.\\s*/', $tableReference);
             $tableName = array_pop($segments);
 
@@ -351,7 +351,8 @@ function NormalizeTableNames($sql){
                 ? $matches[2] . ' '
                 : '';
 
-            return $matches[1] . ' ' . $conditional . $normalizedReference;
+            $tableModifier = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : '';
+            return $matches[1] . ' ' . $conditional . $tableModifier . $normalizedReference;
         }, $part);
     }
 
