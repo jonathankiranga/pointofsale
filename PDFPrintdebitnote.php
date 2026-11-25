@@ -6,25 +6,25 @@ $Title = _('Print Picking List');
 if(isset($_GET['No'])){
     
 $SQL="select 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid]
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid]
       ,[creditors].[email]
       ,[creditors].[city]
       ,[creditors].[postcode]
       ,[creditors].[country]
       ,[creditors].[phone]
       ,[creditors].[contact]
-     from [PurchaseHeader] 
-     join PurchaseLine on [PurchaseHeader].[documentno]=PurchaseLine.[documentno] 
-     join [creditors] on [PurchaseHeader].[vendorcode]=[creditors].[itemcode]
-     where [PurchaseHeader].[documentno]='".$_GET['No']."'";
+     from [purchaseheader] 
+     join purchaseline on [purchaseheader].[documentno]=purchaseline.[documentno] 
+     join [creditors] on [purchaseheader].[vendorcode]=[creditors].[itemcode]
+     where [purchaseheader].[documentno]='".$_GET['No']."'";
     $Result=DB_query($SQL,$db);
     $myrow=DB_fetch_row($Result);
     
@@ -46,20 +46,20 @@ $SQL="select
      
      $SQL=Sprintf("SELECT 
          stockmaster.barcode ,
-         PurchaseHeader.docdate ,
-         PurchaseLine.[description] ,
-        (case [PurchaseLine].UOM when 'fulqty' then (select stockledger.fulqty)  else (select stockledger.loosqty)  end) as Quantity,
-        [PurchaseLine].UOM,
-        (case [PurchaseLine].UOM when 'fulqty'  then (select PurchaseLine.UnitPrice*stockmaster.partperunit from stockmaster where stockmaster.itemcode=PurchaseLine.code)  else (PurchaseLine.UnitPrice) end) as Sp , 
-        (case [PurchaseLine].UOM when 'fulqty' then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code   
-        and stockmaster.itemcode=PurchaseLine.code) else (select rtrim([unit].[descrip])  from [unit] join stockmaster on stockmaster.subunits=[unit].code and stockmaster.itemcode=PurchaseLine.code) end) as UOMDesc ,
+         purchaseheader.docdate ,
+         purchaseline.[description] ,
+        (case [purchaseline].UOM when 'fulqty' then (select stockledger.fulqty)  else (select stockledger.loosqty)  end) as Quantity,
+        [purchaseline].UOM,
+        (case [purchaseline].UOM when 'fulqty'  then (select purchaseline.UnitPrice*stockmaster.partperunit from stockmaster where stockmaster.itemcode=purchaseline.code)  else (purchaseline.UnitPrice) end) as Sp , 
+        (case [purchaseline].UOM when 'fulqty' then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code   
+        and stockmaster.itemcode=purchaseline.code) else (select rtrim([unit].[descrip])  from [unit] join stockmaster on stockmaster.subunits=[unit].code and stockmaster.itemcode=purchaseline.code) end) as UOMDesc ,
         stockledger.jobcard as [documentno] ,
-        PurchaseHeader.[vendorcode] ,
-        PurchaseHeader.[documenttype] 
-        FROM [PurchaseHeader] join PurchaseLine 
-        on PurchaseHeader.documentno=PurchaseLine.documentno and PurchaseHeader.documenttype=PurchaseLine.documenttype and PurchaseHeader.documenttype='20' 
-        join stockmaster on stockmaster.itemcode=PurchaseLine.code join stockledger on stockledger.invref=PurchaseLine.documentno 
-        and stockledger.itemcode=PurchaseLine.code
+        purchaseheader.[vendorcode] ,
+        purchaseheader.[documenttype] 
+        FROM [purchaseheader] join purchaseline 
+        on purchaseheader.documentno=purchaseline.documentno and purchaseheader.documenttype=purchaseline.documenttype and purchaseheader.documenttype='20' 
+        join stockmaster on stockmaster.itemcode=purchaseline.code join stockledger on stockledger.invref=purchaseline.documentno 
+        and stockledger.itemcode=purchaseline.code
         where stockledger.jobcard='%s' ",$_GET['No']);
      
      $FontSize = 12;
@@ -110,20 +110,20 @@ echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />'
 
 $SQL="Select 
        stockledger.jobcard
-      ,[PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-     ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid] 
-      from stockledger join PurchaseLine on 
-      stockledger.invref=PurchaseLine.[documentno] 
-      join [PurchaseHeader] on [PurchaseHeader].documentno=PurchaseLine.[documentno] 
-      where [PurchaseHeader].[documenttype]='20' 
-      order by [PurchaseHeader].[docdate] desc limit ". $_SESSION['DefaultDisplayRecordsMax'] ."";
+      ,[purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+     ,[purchaseheader].[status]
+      ,[purchaseheader].[userid] 
+      from stockledger join purchaseline on 
+      stockledger.invref=purchaseline.[documentno] 
+      join [purchaseheader] on [purchaseheader].documentno=purchaseline.[documentno] 
+      where [purchaseheader].[documenttype]='20' 
+      order by [purchaseheader].[docdate] desc limit ". $_SESSION['DefaultDisplayRecordsMax'] ."";
     $Result=DB_query($SQL,$db);
        
     Echo '<Table class="table table-bordered"><tr>'
