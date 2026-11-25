@@ -775,6 +775,9 @@ try {
         abs((float)$receiptVerify['allocation_amount'] + $calculatedTotal) > 0.005 ||
         (int)$receiptVerify['statement_count'] !== 1 ||
         abs((float)$receiptVerify['statement_amount'] + $calculatedTotal) > 0.005) {
+        error_log('POS receipt posting verification mismatch for document ' . $docno .
+            '; expected_total=' . number_format((float)$calculatedTotal, 2, '.', '') .
+            '; actual=' . json_encode($receiptVerify));
         throw new Exception('The POS receipt, bank, debtor, general ledger or allocation postings failed their amount and record-count verification.');
     }
 
