@@ -855,3 +855,25 @@ body.pos-touch-mode.salon-pos-mode {
         max-height: none;
     }
 }
+
+/* Ordinary POS alerts should size to their message, not inherit the wide X/Z report layout. */
+#custom-dialog .pos-message-dialog:not(:has(.pos-shift-report)) {
+    width: min(420px, calc(100vw - 32px));
+    max-width: 420px;
+    height: auto;
+    max-height: min(80dvh, 520px);
+    padding: 18px;
+    gap: 12px;
+    overflow-wrap: anywhere;
+}
+#custom-dialog .pos-message-dialog:not(:has(.pos-shift-report)) #dialog-message {
+    width: 100%;
+    margin: 0;
+    color: #344054;
+    font-size: 15px;
+    line-height: 1.45;
+}
+#custom-dialog .pos-message-dialog:not(:has(.pos-shift-report)) #dialog-ok-btn {
+    width: 100%;
+    min-height: 46px;
+}
