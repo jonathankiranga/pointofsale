@@ -25,11 +25,11 @@ if($_SESSION['DocumentPosted']==true){
     $sql = array();
     $TransBuffer  = DB_Txn_Begin($db);
     
-    $sql[] ="delete from CustomerStatement where Documentno='".$INVOICENO."' and Documenttype='10'";
+    $sql[] ="delete from customerstatement where Documentno='".$INVOICENO."' and Documenttype='10'";
     $sql[] ="delete from Generalledger where DocumentNo='".$INVOICENO."' and DocumentType='10'";
     $sql[] ="delete from debtorsledger where invref='".$INVOICENO."' and [systypes_1]='10'";
-    $sql[] ="delete from SalesLine where documentno='".$INVOICENO."' and [documenttype]='10'";
-    $sql[] ="delete from SalesHeader where documentno='".$INVOICENO."' and [documenttype]='10'";
+    $sql[] ="delete from salesline where documentno='".$INVOICENO."' and [documenttype]='10'";
+    $sql[] ="delete from salesheader where documentno='".$INVOICENO."' and [documenttype]='10'";
     
     
     foreach ($sql as $value) {
@@ -44,7 +44,7 @@ if($_SESSION['DocumentPosted']==true){
     
     $sql=array();
     
-    $sql[] ="insert into [SalesHeader] 
+    $sql[] ="insert into [salesheader] 
       ([documenttype]
       ,[documentno]
       ,[docdate]
@@ -83,7 +83,7 @@ if($_SESSION['DocumentPosted']==true){
       ,'".$VATinclusive ."'
       ,'".$_POST['discount'] ."'
       ,'".$_SESSION['batchnoref']."'
-      from [SalesHeader] 
+      from [salesheader] 
       where documentno='".$_SESSION['DocumentNo']."') ";
     
     foreach ($_POST['code'] as $key => $value) {
@@ -102,13 +102,13 @@ if($_SESSION['DocumentPosted']==true){
     $journal = GetNextTransNo(0,$db);
      
      
-    $sql[] =  sprintf("INSERT INTO [SalesLine]
+    $sql[] =  sprintf("INSERT INTO [salesline]
            ([documenttype],[docdate],[documentno],[code],[description],[unitofmeasure]
            ,[Quantity],[UnitPrice],[vatamount],[invoiceamount],[vatrate],[inclusive],[locationcode]
            ,UOM,[shipping],BatchNO,Itemlist,sampleID) 
            (select '10','%s','%s',[code],[description],[unitofmeasure],[Qunatity_delivered],
            %f ,%f ,%f ,[vatrate],[inclusive],'%s','fulqty',%f,'%s',Itemlist,sampleID
-           from SalesLine where [entryno]='".$key."')"
+           from salesline where [entryno]='".$key."')"
            ,FormatDateForSQL($_POST['date'])
            ,$INVOICENO
            ,$salesprice
@@ -168,36 +168,36 @@ function PostDebtors($period,$journal,$doc,$discount){
       ,[ledger]
       ,period)
   (SELECT 
-      SalesHeader.[docdate]
-      ,rtrim(SalesLine.sampleID)  as narration,'I'
-      ,SalesHeader.[documentno]
-      ,SalesHeader.[customercode]
-      ,SUM(SalesLine.invoiceamount) * ".$discount." as Value
+      salesheader.[docdate]
+      ,rtrim(salesline.sampleID)  as narration,'I'
+      ,salesheader.[documentno]
+      ,salesheader.[customercode]
+      ,SUM(salesline.invoiceamount) * ".$discount." as Value
       ,0.00
-      ,SalesHeader.[currencycode]
+      ,salesheader.[currencycode]
       ,'I'
       ,'%s'
       ,'r'
-      ,SUM(SalesLine.vatamount) * ".$discount." as VAT
-      ,SalesHeader.[documenttype]
-      ,SalesHeader.[postinggroup]
+      ,SUM(salesline.vatamount) * ".$discount." as VAT
+      ,salesheader.[documenttype]
+      ,salesheader.[postinggroup]
       ,'%s'
-  FROM [SalesHeader] join SalesLine 
-        on SalesHeader.documentno=SalesLine.documentno 
-        and SalesHeader.documenttype=SalesLine.documenttype 
-        where SalesHeader.documentno='%s' 
+  FROM [salesheader] join salesline 
+        on salesheader.documentno=salesline.documentno 
+        and salesheader.documenttype=salesline.documenttype 
+        where salesheader.documentno='%s' 
         group by
-       SalesHeader.[documenttype]
-      ,SalesHeader.[documentno]
-      ,SalesHeader.[docdate]
-      ,SalesHeader.[customercode]
-      ,SalesHeader.[externaldocumentno]
-      ,SalesHeader.[postinggroup]
-      ,SalesHeader.[currencycode]
-      ,SalesLine.[Quantity]
-      ,SalesLine.sampleID
-      ,SalesLine.[code]
-      ,SalesLine.[UOM])", $journal,$period,$doc);
+       salesheader.[documenttype]
+      ,salesheader.[documentno]
+      ,salesheader.[docdate]
+      ,salesheader.[customercode]
+      ,salesheader.[externaldocumentno]
+      ,salesheader.[postinggroup]
+      ,salesheader.[currencycode]
+      ,salesline.[Quantity]
+      ,salesline.sampleID
+      ,salesline.[code]
+      ,salesline.[UOM])", $journal,$period,$doc);
    
    return $SQL;
 }
@@ -222,27 +222,27 @@ function PostGL($period,$journal,$doc,$discount){
       ,[dimension2])
       (select
        '%s'
-      ,SalesHeader.[docdate]
+      ,salesheader.[docdate]
       ,'%s'
-      ,SalesHeader.documentno
-      ,SalesHeader.documenttype
+      ,salesheader.documentno
+      ,salesheader.documenttype
       ,[postinggroups].[debtorsaccount]
       ,[inventorypostinggroup].[defaultgl_sales]
       ,[inventorypostinggroup].[defaultgl_vat]
-      ,SalesLine.invoiceamount * ".$discount."
-      ,IFNULL(SalesLine.vatamount * ".$discount.",0) as vatamount
-      ,SalesHeader.[currencycode]
+      ,salesline.invoiceamount * ".$discount."
+      ,IFNULL(salesline.vatamount * ".$discount.",0) as vatamount
+      ,salesheader.[currencycode]
       ,[currencies].[rate]
-      ,SalesHeader.[customercode]
-      ,(rtrim(SalesLine.sampleID))  as narration
+      ,salesheader.[customercode]
+      ,(rtrim(salesline.sampleID))  as narration
        ,'".$_POST['DimensionOne']."' 
        ,'".$_POST['DimensionTwo']."'
-      from SalesHeader join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
-      join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-      join [stockmaster] on [SalesLine].[code]=[stockmaster].itemcode
+      from salesheader join [postinggroups] on [salesheader].[postinggroup]=[postinggroups].[code]
+      join salesline on [salesline].[documentno] = [salesheader].[documentno] 
+      join [stockmaster] on [salesline].[code]=[stockmaster].itemcode
       join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-      join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
-      where SalesHeader.documentno='%s'
+      join [currencies] on [salesheader].[currencycode]=[currencies].[currabrev]
+      where salesheader.documentno='%s'
       )",$journal,$period,$doc);
     
     return $sql;
@@ -267,25 +267,25 @@ function VATPostGL($period,$journal,$doc,$discount){
       ,[narration])
       (select
        '%s'
-      ,SalesHeader.[docdate]
+      ,salesheader.[docdate]
       ,'%s'
-      ,SalesHeader.documentno
-      ,SalesHeader.documenttype
+      ,salesheader.documentno
+      ,salesheader.documenttype
       ,[inventorypostinggroup].[defaultgl_sales]
       ,[inventorypostinggroup].[defaultgl_vat]
       ,''
-      ,SalesLine.vatamount * ".$discount."
+      ,salesline.vatamount * ".$discount."
       ,0
-      ,SalesHeader.[currencycode]
+      ,salesheader.[currencycode]
       ,[currencies].[rate]
-      ,SalesHeader.[customercode]
-      ,(rtrim(SalesLine.sampleID))  as narration
-      from SalesHeader join [postinggroups] on [SalesHeader].[postinggroup]=[postinggroups].[code]
-      join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-      join [stockmaster] on [SalesLine].[code]=[stockmaster].itemcode
+      ,salesheader.[customercode]
+      ,(rtrim(salesline.sampleID))  as narration
+      from salesheader join [postinggroups] on [salesheader].[postinggroup]=[postinggroups].[code]
+      join salesline on [salesline].[documentno] = [salesheader].[documentno] 
+      join [stockmaster] on [salesline].[code]=[stockmaster].itemcode
       join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-      join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
-      where SalesHeader.documentno='%s'
+      join [currencies] on [salesheader].[currencycode]=[currencies].[currabrev]
+      where salesheader.documentno='%s'
       )",$journal,$period,$doc);
     
     return $sql;
@@ -293,7 +293,7 @@ function VATPostGL($period,$journal,$doc,$discount){
 }
 
 Function CustomerStatemet($journal,$doc,$discount){
-    $sql=sprintf("INSERT INTO [CustomerStatement]
+    $sql=sprintf("INSERT INTO [customerstatement]
            ([Date]
            ,[Documentno]
            ,[Documenttype]
@@ -304,24 +304,24 @@ Function CustomerStatemet($journal,$doc,$discount){
            ,[Dimension_Two]
            ,[Currency])
       (select
-              SalesHeader.[docdate]
-             ,SalesHeader.documentno
-             ,SalesHeader.documenttype
-             ,SalesHeader.customercode
-             ,sum(SalesLine.invoiceamount) * ".$discount."
+              salesheader.[docdate]
+             ,salesheader.documentno
+             ,salesheader.documenttype
+             ,salesheader.customercode
+             ,sum(salesline.invoiceamount) * ".$discount."
              ,'%s'
              ,'".$_POST['DimensionOne']."'
              ,'".$_POST['DimensionTwo']."' 
-             ,SalesHeader.[currencycode]    
-             from SalesHeader
-             join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-           where SalesHeader.documentno='%s' 
+             ,salesheader.[currencycode]    
+             from salesheader
+             join salesline on [salesline].[documentno] = [salesheader].[documentno] 
+           where salesheader.documentno='%s' 
            Group by 
-             SalesHeader.[docdate]
-             ,SalesHeader.documentno
-             ,SalesHeader.documenttype
-             ,SalesHeader.customercode
-             ,SalesHeader.[currencycode]
+             salesheader.[docdate]
+             ,salesheader.documentno
+             ,salesheader.documenttype
+             ,salesheader.customercode
+             ,salesheader.[currencycode]
              ) ",
             $journal,$doc);
     
