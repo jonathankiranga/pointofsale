@@ -90,7 +90,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
         <section class="salon-service-picker" aria-label="Salon service catalogue">
             <div class="salon-service-picker-heading">
                 <div><span class="pos-eyebrow">SALON SERVICE MENU</span><h1>Choose a service and hairdresser</h1></div>
-                <span class="pos-scan-hint">Services are charged through the standard POS payment workflow</span>
+                <div class="salon-service-heading-actions"><a class="salon-add-service-link" href="index.php?link=SalonManagement&amp;view=services">Add Service</a><span class="pos-scan-hint">Services are charged through the standard POS payment workflow</span></div>
             </div>
             <div id="salon-service-catalogue" class="salon-service-grid">
                 <div class="pos-empty-hint">Loading salon services...</div>
