@@ -112,6 +112,8 @@ if ($customerRow['VATinclusive'] === null ||
     !in_array((string)$customerRow['VATinclusive'], array('0','1'), true)) {
     posSaveResponse(false, 'The configured POS customer posting group has a NULL or invalid VAT-inclusive setting.', 409);
 }
+// Persist the debtor's own customer posting group on the POS sales document.
+$postingGroup = trim((string)$customerRow['customerposting']);
 $vatInclusive = (int)$customerRow['VATinclusive'];
 
 $shiftStmt = $db->prepare("SELECT id FROM pos_shifts WHERE cashier_id=? AND status='OPEN' ORDER BY id DESC LIMIT 1");
