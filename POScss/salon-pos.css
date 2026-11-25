@@ -122,3 +122,46 @@
     letter-spacing: .04em;
     background: linear-gradient(135deg, #eef2f7, #f8fafc);
 }
+
+
+.salon-pos-mode .salon-service-heading-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.salon-pos-mode .salon-add-service-link {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 17px;
+    border: 1px solid #1769e0;
+    border-radius: 10px;
+    background: #1769e0;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 750;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.salon-pos-mode .salon-add-service-link:hover,
+.salon-pos-mode .salon-add-service-link:focus {
+    background: #0d4fb5;
+    border-color: #0d4fb5;
+    color: #fff;
+    text-decoration: none;
+}
+.salon-pos-mode .salon-service-grid > .alert {
+    grid-column: 1 / -1;
+}
+@media (max-width: 700px) {
+    .salon-pos-mode .salon-service-heading-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .salon-pos-mode .salon-service-heading-actions .pos-scan-hint {
+        display: none;
+    }
+}
