@@ -4,9 +4,14 @@
  * Uses the standard ERP session bootstrap and the same visual language as
  * POSReports.php, but presents operational shortcuts and live daily figures.
  */
+session_name('smartlimserp');
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 $PageSecurity = isset($_SESSION['PageSecurityArray']['CompanyPreferences.php'])
-    ? $_SESSION['PageSecurityArray']['CompanyPreferences.php'] : 0;
-include('includes/session.inc');
+    ? $_SESSION['PageSecurityArray']['CompanyPreferences.php'] : -1;
+$PathPrefix = '';
+include('includes/globalsession.inc');
 
 $Title = 'Home';
 include('includes/header.inc');
