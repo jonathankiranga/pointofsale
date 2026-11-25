@@ -84,12 +84,12 @@ if($_POST['Maxunit']>0){
    
         
                     if($_POST['averagecost']>0){ 
-                        $mssql="SELECT [itemcode],[balance],[tankname] FROM [ProductionUnit]  where [tankname]='".$_POST['wotank']."'";
+                        $mssql="SELECT [itemcode],[balance],[tankname] FROM [productionunit]  where [tankname]='".$_POST['wotank']."'";
                         $ResultIndex = DB_query($mssql,$db);  $row = DB_fetch_row($ResultIndex);  $Tank_stock_ID = $row[0];
                             
                         $sql[] = "Update [stockmaster] set [averagestock]=".$_POST['averagecost']."  where itemcode='".$Tank_stock_ID."'";
 
-                        $sql[] = " INSERT INTO [StockRegister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN])  VALUES  ('".$Tank_stock_ID."', ".$_POST['units']." ,".$_POST['averagecost'].", 0 , '".$journal."' ,'".$_POST['docno']."')";
+                        $sql[] = " INSERT INTO [stockregister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN])  VALUES  ('".$Tank_stock_ID."', ".$_POST['units']." ,".$_POST['averagecost'].", 0 , '".$journal."' ,'".$_POST['docno']."')";
                      }
    
                     foreach ($sql as $value) {
@@ -152,7 +152,7 @@ echo '</select></td></tr>';
 
 if(isset($_POST['wotank'])){
     
-$sql="SELECT [itemcode],[balance],[tankname] FROM [ProductionUnit] where [tankname]='".$_POST['wotank']."'";
+$sql="SELECT [itemcode],[balance],[tankname] FROM [productionunit] where [tankname]='".$_POST['wotank']."'";
 $ResultIndex = DB_query($sql,$db);
 $row = DB_fetch_row($ResultIndex);
 $Tank_stock_ID = $row[0];
@@ -168,17 +168,17 @@ echo '</td></tr>';
         echo '<input type="hidden" name="ItemCode" value="' .$Tank_stock_ID. '" />';
 
             $sql="SELECT 
-                [ProductionUnit].[itemcode], 
-                [ProductionUnit].[balance], 
-                [ProductionUnit].[tankname], 
+                [productionunit].[itemcode], 
+                [productionunit].[balance], 
+                [productionunit].[tankname], 
                 [unit].[descrip],
                 [stockmaster].[partperunit],
-                [ProductionUnit].[UOM] 
-             FROM [ProductionUnit] 
-             join stockmaster on ProductionUnit.itemcode=stockmaster.itemcode 
+                [productionunit].[UOM] 
+             FROM [productionunit] 
+             join stockmaster on productionunit.itemcode=stockmaster.itemcode 
              left join [unit] on 
              (case 
-             ProductionUnit.UOM when 'fulqty' 
+             productionunit.UOM when 'fulqty' 
                 then (stockmaster.units) 
                 else (stockmaster.subunits) 
              end) = unit.code  where [tankname]='".$_POST['wotank']."'";
