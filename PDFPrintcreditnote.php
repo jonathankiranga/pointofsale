@@ -6,29 +6,29 @@ $Title = _('Print Sales Invoice');
 if(isset($_GET['No'])){
     
 $SQL="select
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid]
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid]
       ,[debtors].email
       ,[debtors].city
       ,[debtors].postcode
       ,[debtors].country
       ,[debtors].phone
       ,[debtors].contact
-      ,[SalesHeader].[yourreference]
-      ,[SalesHeader].[printed]
-      from [SalesHeader] join SalesLine on 
-      [SalesHeader].[documentno]=SalesLine.[documentno] 
-      join debtors on [SalesHeader].[customercode]=debtors.itemcode
-      where [SalesHeader].[documenttype]='13' 
-      and [SalesHeader].[documentno]='".$_GET['No']."'";
+      ,[salesheader].[yourreference]
+      ,[salesheader].[printed]
+      from [salesheader] join salesline on 
+      [salesheader].[documentno]=salesline.[documentno] 
+      join debtors on [salesheader].[customercode]=debtors.itemcode
+      where [salesheader].[documenttype]='13' 
+      and [salesheader].[documentno]='".$_GET['No']."'";
     $ResultG=DB_query($SQL,$db);
     $myrow=DB_fetch_row($ResultG);
     
@@ -49,27 +49,27 @@ $SQL="select
      
      
      $SQL=Sprintf("SELECT 
-       SalesLine.code as barcode
-       ,SalesHeader.docdate
-       ,SalesLine.[description] 
+       salesline.code as barcode
+       ,salesheader.docdate
+       ,salesline.[description] 
        ,salesline.Quantity,
-       [SalesLine].UOM,
-       SalesLine.UnitPrice as Sp ,
-       [SalesLine].[unitofmeasure]  as UOMDesc
-      ,SalesHeader.[documentno]
-      ,SalesHeader.[customercode]
-      ,SalesLine.invoiceamount
-      ,SalesHeader.[currencycode]
-      ,SalesLine.vatamount
-      ,(SalesLine.invoiceamount - SalesLine.vatamount) as netamt
-      ,SalesHeader.[documenttype]
+       [salesline].UOM,
+       salesline.UnitPrice as Sp ,
+       [salesline].[unitofmeasure]  as UOMDesc
+      ,salesheader.[documentno]
+      ,salesheader.[customercode]
+      ,salesline.invoiceamount
+      ,salesheader.[currencycode]
+      ,salesline.vatamount
+      ,(salesline.invoiceamount - salesline.vatamount) as netamt
+      ,salesheader.[documenttype]
       ,salesline.vatrate
       ,salesline.[totalchargedcontainers]
-  FROM [SalesHeader] join SalesLine  
-        on SalesHeader.documentno=SalesLine.documentno 
-        and SalesHeader.documenttype=SalesLine.documenttype 
-        and [SalesHeader].[documenttype]='13'
-         where SalesHeader.documentno='%s' ",$_GET['No']);
+  FROM [salesheader] join salesline  
+        on salesheader.documentno=salesline.documentno 
+        and salesheader.documenttype=salesline.documenttype 
+        and [salesheader].[documenttype]='13'
+         where salesheader.documentno='%s' ",$_GET['No']);
      
      
      $FontSize = 12;
@@ -128,33 +128,33 @@ echo '<form autocomplete="off"action="'.htmlspecialchars($_SERVER['PHP_SELF'],EN
 echo '<div>';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 $SQL="select 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid] ,
-      sum(SalesLine.[invoiceamount]) as OrderValue
-      ,[SalesHeader].[entryno]
-      from [SalesHeader] join SalesLine on 
-      [SalesHeader].[documentno]=SalesLine.[documentno] 
-      where [SalesHeader].[documenttype]='13' 
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid] ,
+      sum(salesline.[invoiceamount]) as OrderValue
+      ,[salesheader].[entryno]
+      from [salesheader] join salesline on 
+      [salesheader].[documentno]=salesline.[documentno] 
+      where [salesheader].[documenttype]='13' 
        group by 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid] ,[SalesHeader].[entryno]
-      order by [SalesHeader].[entryno] desc
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid] ,[salesheader].[entryno]
+      order by [salesheader].[entryno] desc
       ";
     $Result=DB_query($SQL,$db);
        
