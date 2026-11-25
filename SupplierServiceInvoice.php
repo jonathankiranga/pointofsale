@@ -28,24 +28,24 @@ if(isset($_POST['submit']) and $_POST['submit']=='Enter Delivery Details and Con
 }
       
 $filter="SELECT 
-            [PurchaseHeader].[documenttype]
-           ,[PurchaseHeader].[documentno]
-           ,[PurchaseHeader].[docdate]
-           ,[PurchaseHeader].[oderdate]
-           ,[PurchaseHeader].[duedate]
-           ,[PurchaseHeader].[postingdate]
-           ,[PurchaseHeader].[vendorcode]
-           ,[PurchaseHeader].[vendorname]
-           ,[PurchaseHeader].[yourreference]
-           ,[PurchaseHeader].[externaldocumentno]
-           ,[PurchaseHeader].[locationcode]
-           ,[PurchaseHeader].[paymentterms]
-           ,[PurchaseHeader].[postinggroup]
-           ,[PurchaseHeader].[currencycode]
-           ,[PurchaseHeader].[vatinclusive]
-       FROM [PurchaseHeader]  
-       join PurchaseLine on [PurchaseHeader].[documentno]=[PurchaseLine].[documentno]
-      where [PurchaseHeader].[documentno]='".$_POST['documentno']."' ";
+            [purchaseheader].[documenttype]
+           ,[purchaseheader].[documentno]
+           ,[purchaseheader].[docdate]
+           ,[purchaseheader].[oderdate]
+           ,[purchaseheader].[duedate]
+           ,[purchaseheader].[postingdate]
+           ,[purchaseheader].[vendorcode]
+           ,[purchaseheader].[vendorname]
+           ,[purchaseheader].[yourreference]
+           ,[purchaseheader].[externaldocumentno]
+           ,[purchaseheader].[locationcode]
+           ,[purchaseheader].[paymentterms]
+           ,[purchaseheader].[postinggroup]
+           ,[purchaseheader].[currencycode]
+           ,[purchaseheader].[vatinclusive]
+       FROM [purchaseheader]  
+       join purchaseline on [purchaseheader].[documentno]=[purchaseline].[documentno]
+      where [purchaseheader].[documentno]='".$_POST['documentno']."' ";
 
     $ResultIndex= DB_query($filter, $db);
     $rowresults = DB_fetch_row($ResultIndex);
@@ -100,48 +100,48 @@ $VATinclusive = $debtorsrow[8];
 $IsTaxed = $debtorsrow[9];
 
 $Slaqry ="SELECT 
-     [PurchaseLine].[entryno]
-    ,[PurchaseLine].[documenttype]
-    ,[PurchaseLine].[docdate]
-    ,[PurchaseLine].[documentno]
-    ,[PurchaseLine].[locationcode]
-    ,[PurchaseLine].[stocktype]
-    ,[PurchaseLine].[code] 
-    ,[PurchaseLine].[description]
-    ,[PurchaseLine].[unitofmeasure]
-    ,[PurchaseLine].[Quantity]
-    ,[PurchaseLine].[Quantity] as [Quantity_toinvoice]
-    ,[PurchaseLine].[Quantity] as [Qunatity_delivered] 
-    ,[PurchaseLine].[UnitPrice]
-    ,[PurchaseLine].[vatamount]
-    ,[PurchaseLine].[invoiceamount]
-    ,[PurchaseLine].[vatrate]  
-    ,[PurchaseLine].[inclusive]
+     [purchaseline].[entryno]
+    ,[purchaseline].[documenttype]
+    ,[purchaseline].[docdate]
+    ,[purchaseline].[documentno]
+    ,[purchaseline].[locationcode]
+    ,[purchaseline].[stocktype]
+    ,[purchaseline].[code] 
+    ,[purchaseline].[description]
+    ,[purchaseline].[unitofmeasure]
+    ,[purchaseline].[Quantity]
+    ,[purchaseline].[Quantity] as [Quantity_toinvoice]
+    ,[purchaseline].[Quantity] as [Qunatity_delivered] 
+    ,[purchaseline].[UnitPrice]
+    ,[purchaseline].[vatamount]
+    ,[purchaseline].[invoiceamount]
+    ,[purchaseline].[vatrate]  
+    ,[purchaseline].[inclusive]
     ,stockmaster.[partperunit]
     ,stockmaster.[averagestock]
-    ,[PurchaseLine].[UOM]
-FROM  PurchaseLine 
-join stockmaster on [PurchaseLine].[code]=stockmaster.itemcode 
-where [PurchaseLine].[documentno]='".$_POST['documentno']."' 
+    ,[purchaseline].[UOM]
+FROM  purchaseline 
+join stockmaster on [purchaseline].[code]=stockmaster.itemcode 
+where [purchaseline].[documentno]='".$_POST['documentno']."' 
     group by
-     [PurchaseLine].[entryno]
-    ,[PurchaseLine].[documenttype]
-    ,[PurchaseLine].[docdate]
-    ,[PurchaseLine].[documentno]
-    ,[PurchaseLine].[locationcode]
-    ,[PurchaseLine].[stocktype]
-    ,[PurchaseLine].[code] 
-    ,[PurchaseLine].[description]
-    ,[PurchaseLine].[unitofmeasure] 
-    ,[PurchaseLine].[UnitPrice]
-    ,[PurchaseLine].[vatrate]  
-    ,[PurchaseLine].[inclusive]
+     [purchaseline].[entryno]
+    ,[purchaseline].[documenttype]
+    ,[purchaseline].[docdate]
+    ,[purchaseline].[documentno]
+    ,[purchaseline].[locationcode]
+    ,[purchaseline].[stocktype]
+    ,[purchaseline].[code] 
+    ,[purchaseline].[description]
+    ,[purchaseline].[unitofmeasure] 
+    ,[purchaseline].[UnitPrice]
+    ,[purchaseline].[vatrate]  
+    ,[purchaseline].[inclusive]
     ,stockmaster.[partperunit]
     ,stockmaster.[averagestock]
-    ,[PurchaseLine].[UOM]
-    ,[PurchaseLine].[Quantity]
-    ,[PurchaseLine].[vatamount]
-    ,[PurchaseLine].[invoiceamount] ";
+    ,[purchaseline].[UOM]
+    ,[purchaseline].[Quantity]
+    ,[purchaseline].[vatamount]
+    ,[purchaseline].[invoiceamount] ";
 
  $ResultIndex = DB_query($Slaqry,$db);
 echo '<table  class="table table-bordered"><thead><tr>'
