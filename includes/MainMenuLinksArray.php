@@ -171,31 +171,19 @@ $MenuItems['Approval']['Maintenance']['URL'] = array('/DimensionTypes.php',
                                                      '/Budgets.php');
 
 /***********************************************/
-$MenuItems['Sales']['Transactions']['Caption'] = array(_('Open Salon Terminal'),
-                                                       _('Lab Sample Registration'),
+$MenuItems['Sales']['Transactions']['Caption'] = array(_('Lab Sample Registration'),
                                                        _('Lab Data Entry'),
                                                        _('Lab First Review'),
                                                        _('Lab Final Review'),
                                                        _('Sales Invoice'),
                                                        _('Sales Quotation'));
 
-$MenuItems['Sales']['Transactions']['URL'] = array('/SalonPOS.php',
-                                                   '/Laboratory.php',
+$MenuItems['Sales']['Transactions']['URL'] = array('/Laboratory.php',
                                                    '/LaboratoryDataEntry.php',
                                                    '/LaboratoryReview.php',
                                                    '/LaboratoryFinalReview.php',
                                                    '/SalesInvoice.php',
-                                                   '/SalesQuotation.php');;
-
-// Salon workspace links are part of the existing legacy Sales menu.
-$MenuItems['Sales']['Transactions']['Caption'] = array_merge(
-    $MenuItems['Sales']['Transactions']['Caption'],
-    array(_('Salon Dashboard'), _('Appointments'), _('Salon Services'), _('Hairdressers'), _('Log out'))
-);
-$MenuItems['Sales']['Transactions']['URL'] = array_merge(
-    $MenuItems['Sales']['Transactions']['URL'],
-    array('/SalonDashboard.php', '/SalonManagement.php?view=appointments', '/SalonManagement.php?view=services', '/SalonManagement.php?view=hairdressers', '/Logout.php')
-);
+                                                   '/SalesQuotation.php');
 
 
 
