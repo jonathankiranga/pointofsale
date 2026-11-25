@@ -379,13 +379,13 @@ class Paymentvouchers  {
             FormatDateForSQL($form['date']), $form['documentno'], "CR", $form['documentno'], $form['VendorID'],
             $translatedamount,0, $form['currencycode'],"Q", $JourNal, "Q", 0, 53,$form['postingGroups'], $PERIODNO);
 
-            $SQLARRAY[]=SPRINTF("Insert into [Generalledger] ([journalno] ,[Docdate] ,[period],[DocumentNo],[DocumentType]
+            $SQLARRAY[]=SPRINTF("Insert into [generalledger] ([journalno] ,[Docdate] ,[period],[DocumentNo],[DocumentType]
             ,[accountcode],[balaccountcode] ,[VATaccountcode] ,[amount],[VATamount] ,[currencycode] ,[ExchangeRate],[cutomercode],[narration]) 
             values ('%s','%s',%f,'%s','%s','%s','%s','%s',%f,'%s','%s','%s','%s','%s') ",  $JourNal,FormatDateForSQL($form['date']),$PERIODNO,$form['documentno'],53,
               $form['postingGroups'],$form['BankPostingGroup'],"", $form['totalamount'],0,$form['currencycode'],$form['BankExchange'],
               $form['VendorID'],(trim($form['VendorName'])));
           
-         $SQLARRAY[]=SPRINTF("Insert into [Generalledger] ([journalno] ,[Docdate] ,[period],[DocumentNo],[DocumentType]
+         $SQLARRAY[]=SPRINTF("Insert into [generalledger] ([journalno] ,[Docdate] ,[period],[DocumentNo],[DocumentType]
             ,[accountcode],[balaccountcode] ,[VATaccountcode] ,[amount],[VATamount] ,[currencycode] ,[ExchangeRate],[cutomercode],[narration]) 
             values ('%s','%s',%f,'%s','%s','%s','%s','%s',%f,'%s','%s','%s','%s','%s') ",  $JourNal,FormatDateForSQL($form['date']),$PERIODNO,$form['documentno'],53,
               $form['postingGroups'],$_SESSION['WithholdingTaxGlAccount'],"",$form['WithholdingTX'],0,$form['currencycode'],$form['BankExchange'],
