@@ -392,7 +392,7 @@ class journalentries {
           $_POST['reference'].$_POST['comments'],$JOURNAL,$_POST['withholdtax'],$_POST['VendorID']);
  
          
-        $this->JournalArray[] = sprintf("INSERT INTO [SupplierStatement]
+        $this->JournalArray[] = sprintf("INSERT INTO [supplierstatement]
          ([Date],[Documentno] ,[Documenttype] ,[Accountno],[Grossamount] ,[JournalNo],[Dimension_One],[Dimension_Two],[Currency],whtax) VALUES
          ('%s','%s','%s' ,'%s' ,%f ,'%s' ,'%s' ,'%s' ,'%s','%s')",
          FormatDateForSQL($_POST['date']),$_POST['documentno'],($_SESSION['Grossamounttotal']>0?'23':'21'),$_POST['VendorID'],(0-$_SESSION['Grossamounttotal']),
