@@ -65,7 +65,11 @@ if (isset($_SESSION['DatabaseName'])){
            $_GET[$GetKey] = DB_escape_string($GetValue);
         }
     }
-} else { //set SESSION['FormID'] before the a user has even logged in
+}
+
+// Keep one form token for the lifetime of the session. Rotating it on each
+// request invalidates forms rendered by the preceding request.
+if (empty($_SESSION['FormID'])) {
 	$_SESSION['FormID'] = sha1(uniqid(mt_rand(), true));
 }
 
