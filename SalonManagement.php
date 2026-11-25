@@ -1,4 +1,5 @@
 <?php
+$PageSecurity = 0;
 include('includes/session.inc');
 $Title = _('Salon Management');
 include('includes/header.inc');
