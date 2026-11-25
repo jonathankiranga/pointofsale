@@ -295,8 +295,6 @@ function DB_ReinstateForeignKeys($Conn){
  * Column names and string literals are deliberately left unchanged.
  */
 function RemoveBox($sql){
-    $sql = str_replace(array('[', ']'), '`', $sql);
-
     return NormalizeTableNames($sql);
 }
 
@@ -327,6 +325,9 @@ function NormalizeTableNames($sql){
         if (($index % 2) === 1) {
             continue;
         }
+
+        // Convert bracketed identifiers only in SQL code, never in literals/comments.
+        $part = str_replace(array('[', ']'), '`', $part);
 
         $parts[$index] = preg_replace_callback($pattern, function($matches) {
             $tableReference = trim($matches[4]);
