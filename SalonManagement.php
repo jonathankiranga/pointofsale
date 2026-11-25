@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 echo '<div class="container-fluid salon-management-page">';
-echo '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;"><div><h2 style="margin:0;">Salon operations</h2><div class="text-muted">Staff, services, appointments and commission control</div></div><div class="d-flex gap-2"><a class="btn btn-primary" href="SalonPOS.php">Open Salon POS</a><a class="btn btn-outline-secondary" href="posindex.php">Retail POS</a></div></div>';
+echo '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;"><div><h2 style="margin:0;">Salon operations</h2><div class="text-muted">Staff, services, appointments and commission control</div></div><div class="d-flex gap-2"><a class="btn btn-primary" href="SalonPOS.php" target="_top">Open Salon POS</a><a class="btn btn-outline-secondary" href="posindex.php" target="_top">Retail POS</a></div></div>';
 if ($notice !== '') { salon_message($notice, $noticeType); }
 echo '<nav class="nav nav-pills flex-wrap" style="gap:6px;margin-bottom:20px;">';
 $labels = array('hairdressers'=>'Hairdressers','services'=>'Services','assignments'=>'Staff skills','commissions'=>'Commission rules','appointments'=>'Appointments','payouts'=>'Commission payouts');
@@ -313,10 +313,10 @@ if ($view === 'hairdressers') {
         } elseif ($row['appointment_status'] === 'booked') {
             echo '<form method="post" class="d-inline-flex gap-1"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="appointment_status"><input type="hidden" name="appointment_id" value="' . (int)$row['appointment_id'] . '"><select class="form-select form-select-sm" name="appointment_status"><option value="arrived">Check In / Arrived</option><option value="cancelled">Cancelled</option><option value="no_show">No show</option></select><button class="btn btn-sm btn-outline-primary">Update</button></form>';
         } elseif ($row['appointment_status'] === 'arrived') {
-            echo '<a class="btn btn-sm btn-primary" href="SalonPOS.php?appointment_id=' . (int)$row['appointment_id'] . '">Start Service</a> ';
+            echo '<a class="btn btn-sm btn-primary" href="SalonPOS.php?appointment_id=' . (int)$row['appointment_id'] . '" target="_top">Start Service</a> ';
             echo '<form method="post" class="d-inline-flex gap-1"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="appointment_status"><input type="hidden" name="appointment_id" value="' . (int)$row['appointment_id'] . '"><select class="form-select form-select-sm" name="appointment_status"><option value="arrived">Arrived</option><option value="cancelled">Cancelled</option><option value="no_show">No show</option></select><button class="btn btn-sm btn-outline-primary">Update</button></form>';
         } elseif ($row['appointment_status'] === 'in_service') {
-            echo '<a class="btn btn-sm btn-outline-primary" href="SalonPOS.php?appointment_id=' . (int)$row['appointment_id'] . '">Resume POS</a>';
+            echo '<a class="btn btn-sm btn-outline-primary" href="SalonPOS.php?appointment_id=' . (int)$row['appointment_id'] . '" target="_top">Resume POS</a>';
         } else {
             echo '—';
         }
