@@ -5,6 +5,5 @@ INSERT INTO config (confname, confvalue) VALUES
 ('POS_DefaultStore', ''),
 ('POS_DefaultCurrency', ''),
 ('POS_CashBankAccount', ''),
-('POS_MPesaBankAccount', ''),
-('POS_DefaultPostingGroup', '')
+('POS_MPesaBankAccount', '')
 ON DUPLICATE KEY UPDATE confname = VALUES(confname);
