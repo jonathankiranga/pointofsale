@@ -287,11 +287,81 @@ function DB_ReinstateForeignKeys($Conn){
 	mysqli_query($Conn, 'SET FOREIGN_KEY_CHECKS=1');
 }
 
-Function RemoveBox($sql){
-    $leftbrace = str_replace('[','`',$sql);
-    $allbraces = str_replace(']','`',$leftbrace);
+/**
+ * Convert legacy SQL Server-style [identifiers] to MySQL backticks and
+ * normalize table identifiers to lowercase before they reach MySQL.
+ *
+ * Table names are case-sensitive on common Linux MySQL installations.
+ * Column names and string literals are deliberately left unchanged.
+ */
+function RemoveBox($sql){
+    $sql = str_replace(array('[', ']'), '`', $sql);
 
-    return $allbraces;
+    return NormalizeTableNames($sql);
+}
+
+/**
+ * Normalize only identifiers used as table names. SQL string literals and
+ * comments are split out first so text such as 'FROM Customer' is untouched.
+ * Schema qualifiers are preserved; only the final table-name component is
+ * converted to lowercase.
+ */
+function NormalizeTableNames($sql){
+    $parts = preg_split(
+        "/('(?:''|\\\\.|[^'])*'|--[^\\r\\n]*|#[^\\r\\n]*|\\/\\*[\\s\\S]*?\\*\\/)/",
+        $sql,
+        -1,
+        PREG_SPLIT_DELIM_CAPTURE
+    );
+
+    if (!is_array($parts)) {
+        return $sql;
+    }
+
+    $identifier = '(?:`[^`]+`|"[^"]+"|[A-Za-z_][A-Za-z0-9_$]*)';
+    $pattern = '/\\b(FROM|JOIN|UPDATE|INTO|REFERENCES|DESCRIBE|OPTIMIZE|TABLE)\\s+(?:(IF\\s+NOT\\s+EXISTS|IF\\s+EXISTS)\\s+)?('
+        . $identifier . '(?:\\s*\\.\\s*' . $identifier . ')?)/i';
+
+    foreach ($parts as $index => $part) {
+        // Odd elements are quoted strings or SQL comments.
+        if (($index % 2) === 1) {
+            continue;
+        }
+
+        $parts[$index] = preg_replace_callback($pattern, function($matches) {
+            $tableReference = trim($matches[3]);
+            $segments = preg_split('/\\s*\\.\\s*/', $tableReference);
+            $tableName = array_pop($segments);
+
+            if (strlen($tableName) >= 2) {
+                $first = substr($tableName, 0, 1);
+                $last = substr($tableName, -1);
+
+                if (($first === '`' && $last === '`') ||
+                    ($first === '"' && $last === '"')) {
+                    $tableName = substr($tableName, 1, -1);
+                }
+            }
+
+            $tableName = strtolower($tableName);
+            $segments[] = '`' . str_replace('`', '', $tableName) . '`';
+
+            $normalizedReference = implode('.', $segments);
+            $conditional = isset($matches[2]) && $matches[2] !== ''
+                ? $matches[2] . ' '
+                : '';
+
+            // SELECT ... INTO OUTFILE/DUMPFILE is not a table reference.
+            if (strtoupper($matches[1]) === 'INTO' &&
+                preg_match('/^(OUTFILE|DUMPFILE)\\b/i', $normalizedReference)) {
+                return $matches[0];
+            }
+
+            return $matches[1] . ' ' . $conditional . $normalizedReference;
+        }, $part);
+    }
+
+    return implode('', $parts);
 }
  
 
