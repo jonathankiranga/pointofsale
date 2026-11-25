@@ -16,32 +16,32 @@ if(isset($_GET['No'])){
     }
     
 $SQL="select 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
       ,rtrim([salesrepsinfo].[salesman])+' ,Tel:'+IFNULL([salesrepsinfo].[phone],'')
       ,rtrim([salesrepsinfo].[email])
-      ,[SalesHeader].[userid]
+      ,[salesheader].[userid]
       ,[debtors].email
       ,[debtors].city
       ,[debtors].postcode
       ,[debtors].country
       ,[debtors].phone
       ,[debtors].contact  
-      ,[SalesHeader].[yourreference] as BankCode2
-      ,SalesHeader.[externaldocumentno] as BankCode
-      ,SalesHeader.paymentterms
-      ,SalesHeader.[discount]
-      ,SalesHeader.vatinclusive
-      from [SalesHeader] 
-      join debtors on [SalesHeader].[customercode]=debtors.itemcode
-      left join [salesrepsinfo] on [salesrepsinfo].code=[SalesHeader].[salespersoncode]
-      where [SalesHeader].[documenttype]='54' 
-      and [SalesHeader].[documentno]='".$_GET['No']."'";
+      ,[salesheader].[yourreference] as BankCode2
+      ,salesheader.[externaldocumentno] as BankCode
+      ,salesheader.paymentterms
+      ,salesheader.[discount]
+      ,salesheader.vatinclusive
+      from [salesheader] 
+      join debtors on [salesheader].[customercode]=debtors.itemcode
+      left join [salesrepsinfo] on [salesrepsinfo].code=[salesheader].[salespersoncode]
+      where [salesheader].[documenttype]='54' 
+      and [salesheader].[documentno]='".$_GET['No']."'";
 
     $Result = DB_query($SQL,$db);
     $myrow  = DB_fetch_row($Result);
@@ -65,26 +65,26 @@ $SQL="select
     $lastrow =0;
         
      $SQL=Sprintf("SELECT 
-       SalesLine.[Itemlist] 
-      ,SalesHeader.docdate
-      ,SalesLine.[description] 
+       salesline.[Itemlist] 
+      ,salesheader.docdate
+      ,salesline.[description] 
       ,salesline.Quantity
-      ,[SalesLine].[unitofmeasure]
-      ,SalesLine.UnitPrice as Sp 
-      ,SalesHeader.[documentno]
-      ,SalesHeader.[customercode]
-      ,SalesLine.invoiceamount
-      ,SalesHeader.[currencycode]
-      ,SalesLine.vatamount
-      ,(SalesLine.invoiceamount-SalesLine.vatamount) as netamt
-      ,SalesHeader.[documenttype]
+      ,[salesline].[unitofmeasure]
+      ,salesline.UnitPrice as Sp 
+      ,salesheader.[documentno]
+      ,salesheader.[customercode]
+      ,salesline.invoiceamount
+      ,salesheader.[currencycode]
+      ,salesline.vatamount
+      ,(salesline.invoiceamount-salesline.vatamount) as netamt
+      ,salesheader.[documenttype]
       ,salesline.vatrate
-      ,SalesLine.code as itemcode
-  FROM [SalesHeader] join SalesLine 
-        on SalesHeader.documentno=SalesLine.documentno 
-        and SalesHeader.documenttype=SalesLine.documenttype 
-        and SalesHeader.documenttype=54  
-        where SalesHeader.documentno='%s' order by code desc",$_GET['No']);
+      ,salesline.code as itemcode
+  FROM [salesheader] join salesline 
+        on salesheader.documentno=salesline.documentno 
+        and salesheader.documenttype=salesline.documenttype 
+        and salesheader.documenttype=54  
+        where salesheader.documentno='%s' order by code desc",$_GET['No']);
      
      $R1=0; $R2=0; $R3=0; $FontSize=9;
      $Total_Rows=0; $Row_Count=0;$interaction=0;
@@ -169,33 +169,33 @@ echo '<form autocomplete="off"action="'.htmlspecialchars($_SERVER['PHP_SELF'],EN
 echo '<div>';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 $SQL="select 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid] ,
-      sum(SalesLine.[invoiceamount]) as OrderValue
-      from [SalesHeader] join SalesLine on 
-      [SalesHeader].[documentno]=SalesLine.[documentno] 
-      where [SalesHeader].[documenttype]='54' 
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid] ,
+      sum(salesline.[invoiceamount]) as OrderValue
+      from [salesheader] join salesline on 
+      [salesheader].[documentno]=salesline.[documentno] 
+      where [salesheader].[documenttype]='54' 
        group by 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid]  
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid]  
       order by 
-      [SalesHeader].[docdate] desc
+      [salesheader].[docdate] desc
     limit  ". $_SESSION['DefaultDisplayRecordsMax'] ;
     $Result=DB_query($SQL,$db);
        
