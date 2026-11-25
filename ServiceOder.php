@@ -26,9 +26,9 @@ if($_POST['submit']=="Confirm Order"){
     
 if(isset($_POST['confirm'])){
             
-    DB_query("UPDATE [SalesHeader]  SET [released] = 1 where documentno='".$_SESSION['CompleteDocument']."'", $db);
+    DB_query("UPDATE [salesheader]  SET [released] = 1 where documentno='".$_SESSION['CompleteDocument']."'", $db);
         
-    DB_query("UPDATE [SalesLine]  SET [completed] = 1 where documentno='".$_SESSION['CompleteDocument']."'", $db);
+    DB_query("UPDATE [salesline]  SET [completed] = 1 where documentno='".$_SESSION['CompleteDocument']."'", $db);
     
     prnMsg('Sales order :'.$_SESSION['CompleteDocument'].' has been saved.'
             . ' Click Here to Print'.'<a href="PDFPrintSalesOrder.php?No='.$_SESSION['CompleteDocument'].'">Print order '.$_SESSION['CompleteDocument'].'</a>');
@@ -37,9 +37,9 @@ if(isset($_POST['confirm'])){
 }
 
 if(isset($_POST['Delete'])){
-    DB_query("Delete from [SalesLine] where documentno='".$_SESSION['CompleteDocument']."' and [documenttype]='1' ", $db);
+    DB_query("Delete from [salesline] where documentno='".$_SESSION['CompleteDocument']."' and [documenttype]='1' ", $db);
           
-    DB_query("Delete from [SalesHeader] where documentno='".$_SESSION['CompleteDocument']."' and [documenttype]='1' ", $db);
+    DB_query("Delete from [salesheader] where documentno='".$_SESSION['CompleteDocument']."' and [documenttype]='1' ", $db);
             
     prnMsg('Sales order :'.$_SESSION['CompleteDocument'].' has been Deleted');
           
