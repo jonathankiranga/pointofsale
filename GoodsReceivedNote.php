@@ -14,29 +14,29 @@ echo '<p class="page_title_text">'
 
 $SQL="Select Distinct
        stockledger.jobcard
-      ,PurchaseLine.[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid] 
-      from stockledger join PurchaseLine on 
-      stockledger.invref=PurchaseLine.[documentno] 
-      join [PurchaseHeader] on [PurchaseHeader].documentno=PurchaseLine.[documentno] 
-      and  [PurchaseHeader].[documenttype]='18' and [PurchaseHeader].[released]=1 
+      ,purchaseline.[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid] 
+      from stockledger join purchaseline on 
+      stockledger.invref=purchaseline.[documentno] 
+      join [purchaseheader] on [purchaseheader].documentno=purchaseline.[documentno] 
+      and  [purchaseheader].[documenttype]='18' and [purchaseheader].[released]=1 
        order by stockledger.jobcard
-      ,PurchaseLine.[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid] desc";
+      ,purchaseline.[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid] desc";
     $Result=DB_query($SQL,$db);
            
     Echo '<Table class="table table-bordered"><tr>'
