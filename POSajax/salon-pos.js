@@ -38,6 +38,13 @@
             '<td class="VAT-total">' + line.vat.toFixed(2) + '</td>' +
             '<td class="line-total">' + line.gross.toFixed(2) + '</td>';
         table.appendChild(row);
+
+        // Keep the standard POS entry row available for the next retail product
+        // or barcode scan after a salon service is added.
+        if (!table.querySelector('.blank-row') && typeof addNewBlankRow === 'function') {
+            addNewBlankRow();
+        }
+
         if (typeof updateLineTotal === 'function') { updateLineTotal(); }
         $('#checkout-total').text($('#total-amount').text());
     }
