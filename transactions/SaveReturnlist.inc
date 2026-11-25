@@ -50,7 +50,7 @@ if($_SESSION['somedetails']==0 AND $_SESSION['DocumentPicking']==false ){
     $journal         = GetNextTransNo(0,$db);
     $sql=array();
     
-     $sql[] ="insert into [SalesHeader] 
+     $sql[] ="insert into [salesheader] 
       ([documenttype]
       ,[documentno]
       ,[docdate]
@@ -89,7 +89,7 @@ if($_SESSION['somedetails']==0 AND $_SESSION['DocumentPicking']==false ){
       ,'".$_SESSION['UserID']."'
       ,'".$PeriodNo."'
       ,'".$VATinclusive ."'
-      from [SalesHeader] 
+      from [salesheader] 
       where documentno='".$_SESSION['DocumentNo']."') ";
    
     foreach ($_POST['subunits'] as $key => $value) {
@@ -103,7 +103,7 @@ if($_SESSION['somedetails']==0 AND $_SESSION['DocumentPicking']==false ){
                $emptycode = $_POST['emptycode'][$key];
                $salesoderno = $_SESSION['DocumentNo'];
                 
-                $sql[] =sprintf("Update [SalesLine] set
+                $sql[] =sprintf("Update [salesline] set
                 [Quantity]=%f,[Qunatity_delivered] = IFNULL([Qunatity_delivered],0)- %f,
                 [Quantity_toinvoice] = [Quantity]-[Qunatity_delivered],
                 [containersunits] = IFNULL([containersunits],0)+ %f
@@ -111,8 +111,8 @@ if($_SESSION['somedetails']==0 AND $_SESSION['DocumentPicking']==false ){
                 and [entryno]=%s", $qty_ordered,$qty,$emptyunits,$salesoderno,10,$key);
                     
                     
-                $sql[] = sprintf("INSERT INTO [SalesLine] ([documenttype],[docdate],[documentno],[code],[description],[unitofmeasure],[Quantity],[UnitPrice],[vatamount],[invoiceamount],[vatrate],[inclusive],[locationcode],[UOM]) 
-                  (select '%s','%s','%s',[code],[description],[unitofmeasure],%f,%f,%f,%f,[vatrate],[inclusive],'%s',[UOM] from SalesLine where [entryno]='%s')"
+                $sql[] = sprintf("INSERT INTO [salesline] ([documenttype],[docdate],[documentno],[code],[description],[unitofmeasure],[Quantity],[UnitPrice],[vatamount],[invoiceamount],[vatrate],[inclusive],[locationcode],[UOM]) 
+                  (select '%s','%s','%s',[code],[description],[unitofmeasure],%f,%f,%f,%f,[vatrate],[inclusive],'%s',[UOM] from salesline where [entryno]='%s')"
                    ,11,FormatDateForSQL($_POST['date']),$INVOICENO,$qty,$salesprice,$vatamount,$grossamount ,$location ,$key);
 
                
@@ -135,22 +135,22 @@ if($_SESSION['somedetails']==0 AND $_SESSION['DocumentPicking']==false ){
                     ,[period]
                     ,jobcard)
                     (SELECT 
-                        [SalesLine].[docdate]
-                        ,substring([SalesLine].[description],0,30)
+                        [salesline].[docdate]
+                        ,substring([salesline].[description],0,30)
                        ,'11'
-                       ,[SalesLine].[code]
-                       ,[SalesLine].[documentno]
-                       ,[SalesLine].[invoiceamount]
-                       ,[SalesLine].[vatamount]
-                       ,[SalesLine].[invoiceamount]
-                       ,case [SalesLine].UOM when 'fulqty' then ".($qty)." else 0 end as fulqty
-                       ,case [SalesLine].UOM when 'loosqty' then ".($qty)."  else 0 end as loosqty
-                       ,[SalesLine].[UnitPrice]
+                       ,[salesline].[code]
+                       ,[salesline].[documentno]
+                       ,[salesline].[invoiceamount]
+                       ,[salesline].[vatamount]
+                       ,[salesline].[invoiceamount]
+                       ,case [salesline].UOM when 'fulqty' then ".($qty)." else 0 end as fulqty
+                       ,case [salesline].UOM when 'loosqty' then ".($qty)."  else 0 end as loosqty
+                       ,[salesline].[UnitPrice]
                        ,'".$location."'
                        ,'".$journal."'
                        ,'".$PeriodNo."'
                        ,'".$INVOICENO ."' 
-            FROM [SalesLine] where [entryno]='".$key."')";
+            FROM [salesline] where [entryno]='".$key."')";
                 
                
     
@@ -171,31 +171,31 @@ if($_SESSION['somedetails']==0 AND $_SESSION['DocumentPicking']==false ){
                                         ,[narration])
                                         (select
                                          '%s'
-                                        ,SalesHeader.[docdate]
+                                        ,salesheader.[docdate]
                                         ,'%s'
-                                        ,SalesHeader.documentno
-                                        ,SalesHeader.documenttype
+                                        ,salesheader.documentno
+                                        ,salesheader.documenttype
                                         ,[inventorypostinggroup].[balancesheet]
                                         ,[inventorypostinggroup].[stockvariance]
                                          ,''
                                         ,[stockmaster].[averagestock] * ".$qty."
                                         ,0
-                                        ,SalesHeader.[currencycode]
+                                        ,salesheader.[currencycode]
                                         ,[currencies].[rate]
-                                        ,SalesHeader.[customercode]
-                                        ,(rtrim(SalesLine.[description]) +' X ".$qty." '+
-                                            (case [SalesLine].UOM when 'fulqty' 
+                                        ,salesheader.[customercode]
+                                        ,(rtrim(salesline.[description]) +' X ".$qty." '+
+                                            (case [salesline].UOM when 'fulqty' 
                                         then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code 
-                                        and stockmaster.itemcode=SalesLine.code) 
+                                        and stockmaster.itemcode=salesline.code) 
                                             else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code 
-                                            and stockmaster.itemcode=SalesLine.code)
+                                            and stockmaster.itemcode=salesline.code)
                                             end)) as narration
-                                        from SalesHeader 
-                                        join SalesLine on [SalesLine].[documentno] = [SalesHeader].[documentno] 
-                                        join [stockmaster] on [SalesLine].[code]=[stockmaster].itemcode
+                                        from salesheader 
+                                        join salesline on [salesline].[documentno] = [salesheader].[documentno] 
+                                        join [stockmaster] on [salesline].[code]=[stockmaster].itemcode
                                         join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-                                        join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
-                                        where [SalesLine].[entryno]='%s'
+                                        join [currencies] on [salesheader].[currencycode]=[currencies].[currabrev]
+                                        where [salesline].[entryno]='%s'
                                         )", $journal,$PeriodNo,$key);
     
                                              
@@ -220,21 +220,21 @@ if($_SESSION['somedetails']==0 AND $_SESSION['DocumentPicking']==false ){
                     ,[period]
                     ,jobcard)
                     (SELECT 
-                        [SalesLine].[docdate]
-                       ,substring([SalesLine].[description],0,30)
+                        [salesline].[docdate]
+                       ,substring([salesline].[description],0,30)
                        ,'11'
-                       ,[SalesLine].[containercode]
-                       ,[SalesLine].[documentno]
-                       ,[SalesLine].[invoiceamount]
-                       ,[SalesLine].[vatamount]
-                       ,[SalesLine].[invoiceamount]
+                       ,[salesline].[containercode]
+                       ,[salesline].[documentno]
+                       ,[salesline].[invoiceamount]
+                       ,[salesline].[vatamount]
+                       ,[salesline].[invoiceamount]
                        ,".($emptyunits)."
-                       ,0,[SalesLine].[UnitPrice]
+                       ,0,[salesline].[UnitPrice]
                        ,'".$location."'
                        ,'".$journal."'
                        ,'".$PeriodNo."'
                        ,'".$INVOICENO ."' 
-                FROM [SalesLine] 
+                FROM [salesline] 
                 where [entryno]='".$key."' and code='".$emptycode."')";
                 
                 $sql[]=SPRINTF("Insert into [Generalledger]
@@ -254,27 +254,27 @@ if($_SESSION['somedetails']==0 AND $_SESSION['DocumentPicking']==false ){
                     ,[narration])
                     (select
                      '%s'
-                    ,SalesHeader.[docdate]
+                    ,salesheader.[docdate]
                     ,'%s'
-                    ,SalesHeader.documentno
-                    ,SalesHeader.documenttype
+                    ,salesheader.documentno
+                    ,salesheader.documenttype
                     ,[inventorypostinggroup].[balancesheet]
                     ,[inventorypostinggroup].[stockvariance]
                     ,''
                     ,([stockmaster].[averagestock] * ".$emptyunits.")
                     ,0
-                    ,SalesHeader.[currencycode]
+                    ,salesheader.[currencycode]
                     ,[currencies].[rate]
-                    ,SalesHeader.[customercode]
+                    ,salesheader.[customercode]
                     ,(rtrim(stockmaster.[descrip]) +' X ".$emptyunits." '+
                      (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code 
-                     and stockmaster.itemcode=[SalesLine].[containercode]))  as narration
-                    from SalesHeader 
-                    join SalesLine on [SalesLine].[documentno]=[SalesHeader].[documentno] 
-                    join [stockmaster] on [SalesLine].[containercode]=[stockmaster].itemcode
+                     and stockmaster.itemcode=[salesline].[containercode]))  as narration
+                    from salesheader 
+                    join salesline on [salesline].[documentno]=[salesheader].[documentno] 
+                    join [stockmaster] on [salesline].[containercode]=[stockmaster].itemcode
                     join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-                    join [currencies] on [SalesHeader].[currencycode]=[currencies].[currabrev]
-                    where [SalesLine].[entryno]='%s' and [SalesLine].[containercode]='".$emptycode."'
+                    join [currencies] on [salesheader].[currencycode]=[currencies].[currabrev]
+                    where [salesline].[entryno]='%s' and [salesline].[containercode]='".$emptycode."'
                     )", $journal,$PeriodNo,$key);
                 }
               
