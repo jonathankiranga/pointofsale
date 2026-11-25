@@ -16,8 +16,8 @@ echo '<p class="page_title_text">'
 
 
 if(isset($_POST['confirm'])){
-    DB_query("UPDATE [PurchaseHeader] SET [released] = 1 where documentno='".$_POST['documentno']."'", $db);
-    DB_query("UPDATE [PurchaseLine] SET [completed] = 1 where documentno='".$_POST['documentno']."'", $db);
+    DB_query("UPDATE [purchaseheader] SET [released] = 1 where documentno='".$_POST['documentno']."'", $db);
+    DB_query("UPDATE [purchaseline] SET [completed] = 1 where documentno='".$_POST['documentno']."'", $db);
     prnMsg('Purchase order :'.$_POST['documentno'].' has been saved.'
          . ' Click Here to Print'.'<div class="centre">'
             . '<a href="PDFPrintPurchaseOrder.php?No='.$_POST['documentno'].'">Print Purchase order '.$_POST['documentno'].'</a></div>');
@@ -25,8 +25,8 @@ if(isset($_POST['confirm'])){
 }
 
 if(isset($_POST['Delete'])){
-    DB_query("Delete from [PurchaseLine] where documentno='".$_POST['documentno']."' and [documenttype]='18'", $db);
-    DB_query("delete from [PurchaseHeader] where documentno='".$_POST['documentno']."' and [documenttype]='18'", $db);
+    DB_query("Delete from [purchaseline] where documentno='".$_POST['documentno']."' and [documenttype]='18'", $db);
+    DB_query("delete from [purchaseheader] where documentno='".$_POST['documentno']."' and [documenttype]='18'", $db);
     prnMsg('Purchase order :'.$_POST['documentno'].' has been Deleted.');
     unset($_POST);
 }
@@ -65,7 +65,7 @@ echo '<input type="hidden" name="documentno" value="'. $documentno.'" />';
       ,[status]
       ,[userid]
       ,[freight] 
-      from [PurchaseHeader]  where [documenttype]='18' and [documentno]='".$documentno."'";
+      from [purchaseheader]  where [documenttype]='18' and [documentno]='".$documentno."'";
     $Result=DB_query($SQL,$db);
        
     Echo '<Table class="table table-bordered"><tr><th>Parameter</th><th>Value</th></tr>';
@@ -104,7 +104,7 @@ echo '<input type="hidden" name="documentno" value="'. $documentno.'" />';
            ,[Quantity]
            ,[UnitPrice]
            ,[vatamount]
-           ,[invoiceamount] from [PurchaseLine] 
+           ,[invoiceamount] from [purchaseline] 
            where [documenttype]=18 and [documentno]='".$documentno."'";
    
     $ResultIndex=DB_query($SQL,$db);
@@ -135,19 +135,19 @@ echo '<input type="hidden" name="documentno" value="'. $documentno.'" />';
 }else{
 
 $SQL="Select  
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid] 
-      from [PurchaseHeader] 
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid] 
+      from [purchaseheader] 
     
-      where [PurchaseHeader].[documenttype]='18' and [PurchaseHeader].[released] IS NULL 
-     order by [PurchaseHeader].[docdate] desc";
+      where [purchaseheader].[documenttype]='18' and [purchaseheader].[released] IS NULL 
+     order by [purchaseheader].[docdate] desc";
     $Result=DB_query($SQL,$db);
            
     Echo '<DIV class="container">'
