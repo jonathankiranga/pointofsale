@@ -77,8 +77,8 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                 <span>Remove line</span>
             </button>
             <?php if (!empty($POSIsSalonTerminal)) { ?>
-            <a class="pos-action" href="index.php?link=SalonManagement&amp;view=appointments" id="salon-appointments-link"><span>Appointments</span></a>
-            <a class="pos-action" href="index.php?link=SalonManagement" id="salon-management-link"><span>Salon setup</span></a>
+            <a class="pos-action" href="SalonManagement.php?view=appointments" id="salon-appointments-link"><span>Appointments</span></a>
+            <a class="pos-action" href="SalonManagement.php?view=hairdressers" id="salon-management-link"><span>Salon setup</span></a>
             <?php } ?>
             <button type="button" class="pos-action" id="pos-shift-open"><span>Open shift</span></button>
             <button type="button" class="pos-action" id="pos-x-report"><span>X report</span></button>
@@ -166,7 +166,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                 <button type="button" class="pos-close-button salon-service-modal-close" aria-label="Close service catalogue">&times;</button>
             </div>
             <div class="salon-service-modal-actions">
-                <a class="salon-add-service-link" href="index.php?link=SalonManagement&amp;view=services">Manage Services</a>
+                <a class="salon-add-service-link" href="SalonManagement.php?view=services">Manage Services</a>
                 <span class="pos-scan-hint">Select a service to add it to the current sale.</span>
             </div>
             <div id="salon-service-catalogue" class="salon-service-grid">
