@@ -78,7 +78,7 @@ echo '</td></tr><tr><td>SELECT PRODUCT</td>';
   
   echo  '</select></td></tr><tr><td></td><td>From Store';
 
-  $REsults=DB_query('SELECT [code],[Storename] FROM [Stores]', $db);
+  $REsults=DB_query('SELECT [code],[Storename] FROM [stores]', $db);
        $STOREline ='<select name="location">';
        while($rows=  DB_fetch_array($REsults)){
          $STOREline .= sprintf('<option value="%s" %s >%s</option>',
@@ -88,7 +88,7 @@ echo '</td></tr><tr><td>SELECT PRODUCT</td>';
         echo $STOREline;
         echo '</td><td>From To';
 
-       $REsults=DB_query('SELECT [code],[Storename] FROM [Stores]', $db);
+       $REsults=DB_query('SELECT [code],[Storename] FROM [stores]', $db);
        $STOREline ='<select name="locationTo">';
        while($rows=  DB_fetch_array($REsults)){
          $STOREline .= sprintf('<option value="%s" %s >%s</option>',
