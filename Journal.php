@@ -167,8 +167,8 @@ class journalentries {
     function GetBankDetails($accountCode){
          Global $db;
          
-        $resultindex=DB_query("SELECT `BankAccounts`.`currency`,`currencies`.`rate`
-        FROM `BankAccounts` join `currencies` on `BankAccounts`.`currency`=`currencies`.`currabrev` where `accountcode`='".$accountCode."'", $db);
+        $resultindex=DB_query("SELECT `bankaccounts`.`currency`,`currencies`.`rate`
+        FROM `bankaccounts` join `currencies` on `bankaccounts`.`currency`=`currencies`.`currabrev` where `accountcode`='".$accountCode."'", $db);
         
         $row=DB_fetch_row($resultindex);
         $BankArray['currency']=$row[0];
@@ -272,7 +272,7 @@ class journalentries {
         }
         
         if($type=='bank'){
-               $sql="SELECT `accountcode`,`bankName` FROM `BankAccounts` where `accountcode`='".$itemcode."'";
+               $sql="SELECT `accountcode`,`bankName` FROM `bankaccounts` where `accountcode`='".$itemcode."'";
                $ResultIndex = DB_query($sql,$db);
                $row = DB_fetch_row($ResultIndex);
                $array['accno']=$row[0];
@@ -363,7 +363,7 @@ class journalentries {
           } 
          
           if($type=='bank'){
-                $ResultIndex = DB_query("SELECT `accountcode`,`bankName` FROM `BankAccounts`", $db);
+                $ResultIndex = DB_query("SELECT `accountcode`,`bankName` FROM `bankaccounts`", $db);
                  while($row = DB_fetch_array($ResultIndex)){
                     $selected=(trim($row['accountcode']) == trim($value))?'selected="selected"':'';
                    $array .='<option value="'.$row['accountcode'].'" '.$selected.'>'.$row['bankName'].'</option>';
@@ -451,7 +451,7 @@ class journalentries {
                 break;
             case 3: 
                 // bank
-                $SQL="SELECT `PostingGroup` FROM `BankAccounts` where accountcode='".$acount."'";
+                $SQL="SELECT `PostingGroup` FROM `bankaccounts` where accountcode='".$acount."'";
 
                 break;
             case 4: 
@@ -526,7 +526,7 @@ class journalentries {
             $_POST['comments'],'0','','0',$_POST['DimensionOne'],$_POST['DimensionTwo'] );
             
             
-            $this->JournalArray[]=  sprintf("INSERT INTO `BankTransactions`
+            $this->JournalArray[]=  sprintf("INSERT INTO `banktransactions`
            (`bankcode`,`DocDate`,`doctype`,`DocumentNo`,`TransType`,`journal`,
            `amount`,`narrative` ,`exchangerate`,`itemcode`) values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s') ",
             $row['itemcode'],FormatDateForSQL($_POST['date']),'0',$_POST['JournalNo'],$row['acctype'],$JOURNAL,
@@ -555,7 +555,7 @@ class journalentries {
                 $_POST['comments'],'0','','0',$_POST['DimensionOne'],$_POST['DimensionTwo'] );
 
                  
-                 $this->JournalArray[]=  sprintf("INSERT INTO `CustomerStatement`
+                 $this->JournalArray[]=  sprintf("INSERT INTO `customerstatement`
                 (`Date`,`Documentno` ,`Documenttype` ,`Accountno`,`Grossamount` ,`JournalNo`,`Dimension_One`,`Dimension_Two`,`Currency`) VALUES ('%s','%s','%s' ,'%s' ,%f ,'%s' ,'%s' ,'%s' ,'%s')",
                 FormatDateForSQL($_POST['date']),$_POST['JournalNo'],'0',$row['itemcode'],($row['amount'] * $Conrate)* -1,
                 $JOURNAL,$_POST['DimensionOne'],$_POST['DimensionTwo'],$_POST['currency']);
