@@ -466,7 +466,7 @@ try {
 
     // Serialize the duplicate check with the entry-number allocation. A retry
     // after a committed request must not create a second invoice or receipt.
-    $check = $db->prepare("SELECT documentno,total,total_vat FROM SalesHeader
+    $check = $db->prepare("SELECT documentno,total,total_vat FROM salesheader
         WHERE documenttype=1 AND documentno=? LIMIT 1 FOR UPDATE");
     if (!$check) { throw new Exception('Could not check for an existing POS receipt: ' . $db->error); }
     $check->bind_param('s', $docno);
@@ -485,7 +485,7 @@ try {
                 throw new Exception('This receipt number already belongs to another transaction and cannot be linked to this appointment.');
             }
         }
-        $invoiceCheck = $db->prepare("SELECT documentno FROM SalesHeader
+        $invoiceCheck = $db->prepare("SELECT documentno FROM salesheader
             WHERE documenttype=10 AND externaldocumentno=? LIMIT 1");
         $invoiceCheck->bind_param('s', $docno);
         $invoiceCheck->execute();
@@ -495,15 +495,15 @@ try {
         $complete = false;
         if ($invoiceRow) {
             $completeSql = "SELECT
-                (SELECT COUNT(*) FROM SalesHeader WHERE documenttype=10 AND externaldocumentno=?) AS invoice_count,
-                (SELECT COUNT(*) FROM CustomerStatement WHERE Documentno=? AND Documenttype=10) AS invoice_statement_count,
-                (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=10) AS invoice_gl_count,
+                (SELECT COUNT(*) FROM salesheader WHERE documenttype=10 AND externaldocumentno=?) AS invoice_count,
+                (SELECT COUNT(*) FROM customerstatement WHERE Documentno=? AND Documenttype=10) AS invoice_statement_count,
+                (SELECT COUNT(*) FROM generalledger WHERE DocumentNo=? AND DocumentType=10) AS invoice_gl_count,
                 (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=10) AS invoice_debtor_count,
                 (SELECT COUNT(*) FROM receiptheader WHERE docno=?) AS receipt_count,
-                (SELECT COUNT(*) FROM BankTransactions WHERE DocumentNo=? AND doctype=12
+                (SELECT COUNT(*) FROM banktransactions WHERE DocumentNo=? AND doctype=12
                     AND cleared IS NULL AND reconciled IS NULL) AS bank_count,
                 (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=12) AS debtor_count,
-                (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
+                (SELECT COUNT(*) FROM generalledger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
                 (SELECT COUNT(*) FROM receiptsallocation WHERE receiptno=?) AS allocation_count";
             $completeStmt = $db->prepare($completeSql);
             $completeStmt->bind_param('sssssssss', $docno, $invoiceRow['documentno'], $invoiceRow['documentno'],
@@ -533,7 +533,7 @@ try {
         $savedLineStmt = $db->prepare("SELECT sm.barcode,l.code AS itemcode,l.description,
                 l.Quantity AS quantity,l.UnitPrice AS unit_price,l.vatrate AS vat_rate,
                 l.vatamount AS vat_amount,l.invoiceamount AS line_total
-            FROM SalesLine l
+            FROM salesline l
             LEFT JOIN stockmaster sm ON sm.code=l.code
             WHERE l.documenttype=1 AND l.documentno=?");
         $savedLineStmt->bind_param('s', $docno);
@@ -575,7 +575,7 @@ try {
         }
     }
 
-    $entryResult = $db->query("SELECT COALESCE(MAX(entryno),0)+1 AS next_entry FROM SalesHeader");
+    $entryResult = $db->query("SELECT COALESCE(MAX(entryno),0)+1 AS next_entry FROM salesheader");
     if (!$entryResult) { throw new Exception('Could not determine the next sales entry number: ' . $db->error); }
     $entryRow = $entryResult->fetch_assoc();
     if (!$entryRow || !isset($entryRow['next_entry']) || (int)$entryRow['next_entry'] < 1) {
@@ -583,7 +583,7 @@ try {
     }
     $entryNo = (int)$entryRow['next_entry'];
 
-    $header = $db->prepare("INSERT INTO SalesHeader
+    $header = $db->prepare("INSERT INTO salesheader
         (documenttype,documentno,docdate,customercode,customername,locationcode,postinggroup,currencycode,
          status,userid,period,entryno,vatinclusive,total,cash,change_amount,pos_shift_id,payment_method,mpesa_phone,total_vat)
         VALUES (1,?,?,?,?,?,?,?,1,?,?,?,?,?,?,?,?,?,?,?)");
@@ -598,7 +598,7 @@ try {
     if (!$header->execute()) { throw new Exception('Could not save sales header: ' . $header->error); }
     $header->close();
 
-    $lineStmt = $db->prepare("INSERT INTO SalesLine
+    $lineStmt = $db->prepare("INSERT INTO salesline
         (entryno,documenttype,docdate,documentno,locationcode,code,description,unitofmeasure,
          Quantity,Quantity_toinvoice,Qunatity_delivered,UnitPrice,vatamount,invoiceamount,
          completed,printed,vatrate,inclusive,pos_tax_category)
@@ -685,7 +685,7 @@ try {
             COALESCE(SUM(Grossamount),0) AS invoice_amount,
             (SELECT COALESCE(SUM(amount),0) FROM debtorsledger
                 WHERE invref=? AND systypes_1=10) AS debtor_amount
-        FROM CustomerStatement
+        FROM customerstatement
         WHERE JournalNo=? AND Documenttype=10 AND Accountno=?");
     if (!$invoiceStatementStmt) {
         throw new Exception('Could not verify the posted POS invoice customer statement: ' . $db->error);
@@ -745,22 +745,22 @@ try {
 
     $receiptVerifySql = "SELECT
         (SELECT COUNT(*) FROM receiptheader WHERE docno=?) AS receipt_count,
-        (SELECT COUNT(*) FROM BankTransactions bt
-            INNER JOIN BankAccounts ba ON ba.accountcode=bt.bankcode
+        (SELECT COUNT(*) FROM banktransactions bt
+            INNER JOIN bankaccounts ba ON ba.accountcode=bt.bankcode
             WHERE bt.DocumentNo=? AND bt.doctype=12
               AND bt.cleared IS NULL AND bt.reconciled IS NULL
               AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_count,
-        (SELECT COALESCE(SUM(amount),0) FROM BankTransactions
+        (SELECT COALESCE(SUM(amount),0) FROM banktransactions
             WHERE DocumentNo=? AND doctype=12) AS bank_amount,
         (SELECT COALESCE(SUM(amount),0) FROM receiptheader WHERE docno=?) AS receipt_amount,
         (SELECT COUNT(*) FROM debtorsledger WHERE invref=? AND systypes_1=12) AS debtor_count,
         (SELECT COALESCE(SUM(amount),0) FROM debtorsledger WHERE invref=? AND systypes_1=12) AS debtor_amount,
-        (SELECT COUNT(*) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
-        (SELECT COALESCE(SUM(amount),0) FROM GeneralLedger WHERE DocumentNo=? AND DocumentType=12) AS gl_amount,
+        (SELECT COUNT(*) FROM generalledger WHERE DocumentNo=? AND DocumentType=12) AS gl_count,
+        (SELECT COALESCE(SUM(amount),0) FROM generalledger WHERE DocumentNo=? AND DocumentType=12) AS gl_amount,
         (SELECT COUNT(*) FROM receiptsallocation WHERE receiptno=?) AS allocation_count,
         (SELECT COALESCE(SUM(amount),0) FROM receiptsallocation WHERE receiptno=?) AS allocation_amount,
-        (SELECT COUNT(*) FROM CustomerStatement WHERE Documentno=? AND Documenttype=12) AS statement_count,
-        (SELECT COALESCE(SUM(Grossamount),0) FROM CustomerStatement WHERE Documentno=? AND Documenttype=12) AS statement_amount";
+        (SELECT COUNT(*) FROM customerstatement WHERE Documentno=? AND Documenttype=12) AS statement_count,
+        (SELECT COALESCE(SUM(Grossamount),0) FROM customerstatement WHERE Documentno=? AND Documenttype=12) AS statement_amount";
     $receiptVerifyStmt = $db->prepare($receiptVerifySql);
     if (!$receiptVerifyStmt) {
         throw new Exception('Could not prepare the POS receipt posting verification: ' . $db->error);
