@@ -553,7 +553,7 @@ class journalentries {
                     $credit = $row['account'];
                 }
             
-            $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
+            $this->JournalArray[]= sprintf("INSERT INTO [generalledger]
             ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,[bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],[dimension],[dimension2]) 
             VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", $JOURNAL,FormatDateForSQL($_POST['date']),$periodno,
             $_POST['JournalNo'],'0',$debit,$credit,abs($row['amount']),$_POST['currency'],$Conrate,(($row['acctype']=='debtors')?$row['itemcode']:''),
@@ -578,7 +578,7 @@ class journalentries {
                     $credit = $row['account'];
                 }
             
-                $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
+                $this->JournalArray[]= sprintf("INSERT INTO [generalledger]
                ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode], [balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] , [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],
                [dimension],[dimension2]) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
                 '%s','%s','%s','%s','%s','%s','%s')", $JOURNAL,FormatDateForSQL($_POST['date']),$periodno,
@@ -615,7 +615,7 @@ class journalentries {
                     $credit = $row['account'];
                 }
             
-                $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
+                $this->JournalArray[]= sprintf("INSERT INTO [generalledger]
                ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],[balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,
                [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],[dimension],[dimension2]) VALUES ('%s','%s','%s','%s','%s','%s','%s',%f,'%s',%f,'%s','%s','%s',
                 '%s','%s','%s','%s','%s','%s','%s')", $JOURNAL,FormatDateForSQL($_POST['date']),$periodno,
