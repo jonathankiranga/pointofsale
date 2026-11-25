@@ -61,7 +61,7 @@
             service.staff.forEach(function (person) {
                 html += '<option value="' + person.id + '">' + escapeHtml(person.name) + '</option>';
             });
-            html += '</select><button type="button" class="pos-primary-button salon-add-service" data-service-id="' + service.id + '">Add service</button></article>';
+            html += '</select><button type="button" class="pos-primary-button salon-add-service" data-service-id="' + service.id + '">Add to sale</button></article>';
         });
         root.innerHTML = html;
         root._salonServices = services;
