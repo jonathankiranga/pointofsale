@@ -171,7 +171,7 @@ function PostDebtors($period,$journal,$doc){
 }
 
 function PostGL($period,$journal,$doc){
-    $sql=SPRINTF("Insert into [Generalledger]
+    $sql=SPRINTF("Insert into [generalledger]
       ([journalno]
       ,[Docdate]
       ,[period]
@@ -219,7 +219,7 @@ function PostGL($period,$journal,$doc){
 }
 
 function VATPostGL($period,$journal,$doc){
-    $sql=SPRINTF("Insert into [Generalledger]
+    $sql=SPRINTF("Insert into [generalledger]
       ([journalno]
       ,[Docdate]
       ,[period]
