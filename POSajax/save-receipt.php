@@ -522,7 +522,7 @@ try {
                 l.Quantity AS quantity,l.UnitPrice AS unit_price,l.vatrate AS vat_rate,
                 l.vatamount AS vat_amount,l.invoiceamount AS line_total
             FROM salesline l
-            LEFT JOIN stockmaster sm ON sm.code=l.code
+            LEFT JOIN stockmaster sm ON sm.itemcode=l.code
             WHERE l.documenttype=1 AND l.documentno=?");
         $savedLineStmt->bind_param('s', $docno);
         $savedLineStmt->execute();
