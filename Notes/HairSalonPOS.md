@@ -67,3 +67,10 @@ The most specific active rule is selected: hairdresser plus stock item, then a s
 - A salon item must have a valid ERP selling price, units, VAT category and sales/VAT accounts before checkout.
 - Deactivating a salon setting removes the item from the salon service picker but does not deactivate the underlying ERP item in retail POS.
 - Appointment customer names remain free-text on the appointment. The configured POS debtor remains the accounting customer unless the booking workflow is separately connected to the ERP debtor master.
+
+
+## Salon service pictures
+
+Apply `SQL/20261125_hair_salon_service_images.sql` after the stockmaster-direct migration. This adds the optional `image_path` field to `salon_service_settings`; it does not create another service catalogue.
+
+In Salon Management → Services, choose the ERP stock item, select a JPG, PNG or WebP picture (maximum 5 MB), and save the service settings. The uploaded file is stored under `uploads/salon-services/`. The salon POS service menu displays the uploaded picture; services without a picture use a neutral placeholder. The upload directory blocks script execution.
