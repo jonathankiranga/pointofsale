@@ -317,12 +317,12 @@ function GetQtyForPeriod($itemcode=""){
         $toDate = ConvertSQLDate($customDate);
         $periodno = GetPeriod($toDate,$db,false);
         
-        $SQL = "select sum(SalesLine.[invoiceamount]) as OrderValue
-      ,sum(SalesLine.[Quantity] * SalesLine.[PartPerUnit]) as [Quantity]
-      from [SalesHeader] 
-      join SalesLine on [SalesHeader].[documentno]=SalesLine.[documentno] 
-      where [SalesHeader].[documenttype]='10' and [SalesLine].[code]='".$itemcode."' 
-      and [SalesHeader].[period] ='".$periodno."'";
+        $SQL = "select sum(salesline.[invoiceamount]) as OrderValue
+      ,sum(salesline.[Quantity] * salesline.[PartPerUnit]) as [Quantity]
+      from [salesheader] 
+      join salesline on [salesheader].[documentno]=salesline.[documentno] 
+      where [salesheader].[documenttype]='10' and [salesline].[code]='".$itemcode."' 
+      and [salesheader].[period] ='".$periodno."'";
          $ResultIndex = DB_query($SQL,$db);
         $row = DB_fetch_row($ResultIndex);
         $_SESSION['StockArray'][$itemcode]['Q'.$month] = $row[1] ;
@@ -344,12 +344,12 @@ function GetValueForPeriod($itemcode=""){
         $periodno = GetPeriod($toDate,$db,false);
         
          $SQL = "select 
-             sum(SalesLine.[invoiceamount]) as OrderValue
-             ,sum(SalesLine.[Quantity] * SalesLine.[PartPerUnit]) as [Quantity]
-      from [SalesHeader] 
-      join SalesLine on [SalesHeader].[documentno]=SalesLine.[documentno] 
-      where [SalesHeader].[documenttype]='10' and [SalesLine].[code]='".$itemcode."' 
-      and [SalesHeader].[period] ='".$periodno."'";
+             sum(salesline.[invoiceamount]) as OrderValue
+             ,sum(salesline.[Quantity] * salesline.[PartPerUnit]) as [Quantity]
+      from [salesheader] 
+      join salesline on [salesheader].[documentno]=salesline.[documentno] 
+      where [salesheader].[documenttype]='10' and [salesline].[code]='".$itemcode."' 
+      and [salesheader].[period] ='".$periodno."'";
          $ResultIndex = DB_query($SQL,$db);
         $row = DB_fetch_row($ResultIndex);
         $_SESSION['StockArray'][$itemcode]['V'.$month] = $row[0] ;
