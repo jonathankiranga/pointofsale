@@ -43,7 +43,7 @@ $filter="SELECT
            ,[currencycode]
            ,[salespersoncode]
            ,[vatinclusive]
-       FROM [SalesHeader] 
+       FROM [salesheader] 
        where [documentno]='".$_POST['documentno']."'";
 $ResultIndex= DB_query($filter, $db);
 $rowresults = DB_fetch_row($ResultIndex);
@@ -126,7 +126,7 @@ $Slaqry ="SELECT [entryno],[documenttype],[docdate],[documentno],[locationcode]
       ,[Quantity_toinvoice],[Qunatity_delivered],[UnitPrice],[vatamount],[invoiceamount]
       ,[completed],[printed] ,[containerprice],[containersunits] 
       ,[totalchargedcontainers],[containercode],[vatrate] ,[inclusive],[UOM],[sampleID]
-  FROM [SalesLine] where   [documentno]='".$_POST['documentno']."' and [documenttype]=10
+  FROM [salesline] where   [documentno]='".$_POST['documentno']."' and [documenttype]=10
       group by  
        [entryno],[documenttype],[docdate],[documentno]
       ,[locationcode],[stocktype],[code] ,[description]
@@ -227,14 +227,14 @@ include('includes/footer.inc');
 
 function sumallcrnts($doc){
     global $db;
-    $sql =sprintf("select sum(invoiceamount) from SalesLine "
-            . " where SalesLine.[documentno]='%s'",$doc);
+    $sql =sprintf("select sum(invoiceamount) from salesline "
+            . " where salesline.[documentno]='%s'",$doc);
    $ResultIndex=DB_query($sql,$db);
    $myrow = DB_fetch_row($ResultIndex);
    $Sales= $myrow[0];
     
-   $sql =sprintf("select sum(invoiceamount) from SalesLine "
-           . "join [SalesHeader] on [SalesHeader].[documentno]=SalesLine.[documentno] "
+   $sql =sprintf("select sum(invoiceamount) from salesline "
+           . "join [salesheader] on [salesheader].[documentno]=salesline.[documentno] "
            . " where [externaldocumentno]='%s'",$doc);
    $ResultIndex=DB_query($sql,$db);
    $myrow = DB_fetch_row($ResultIndex);
