@@ -62,7 +62,7 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
                $qty = $_POST['subunits'][$key];       
                $salesoderno = $_SESSION['DocumentNo'];
             
-               $sql[]= sprintf("Update [PurchaseLine] set
+               $sql[]= sprintf("Update [purchaseline] set
                     [Qunatity_delivered]= IFNULL([Qunatity_delivered],0)+ %f,
                     [Quantity_toinvoice]= [Quantity]-[Qunatity_delivered]
                     where [documentno]='%s' and [documenttype]='%s' 
@@ -88,24 +88,24 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
                     ,[period]
                     ,jobcard)
                     (SELECT 
-                        [PurchaseLine].[docdate]
-                       ,substring([PurchaseLine].[description],0,30)
+                        [purchaseline].[docdate]
+                       ,substring([purchaseline].[description],0,30)
                        ,'".$key."'
                        ,'30'
-                       ,[PurchaseLine].[code]
-                       ,[PurchaseLine].[documentno]
-                       ,[PurchaseLine].[invoiceamount]
-                       ,[PurchaseLine].[vatamount]
-                       ,[PurchaseLine].[invoiceamount]
-                       ,case [PurchaseLine].UOM when 'fulqty' then ".$qty."  else 0 end as fulqty
-                       ,case [PurchaseLine].UOM when 'loosqty' then ".$qty."  else 0 end as loosqty
-                       ,[PurchaseLine].[UnitPrice]
+                       ,[purchaseline].[code]
+                       ,[purchaseline].[documentno]
+                       ,[purchaseline].[invoiceamount]
+                       ,[purchaseline].[vatamount]
+                       ,[purchaseline].[invoiceamount]
+                       ,case [purchaseline].UOM when 'fulqty' then ".$qty."  else 0 end as fulqty
+                       ,case [purchaseline].UOM when 'loosqty' then ".$qty."  else 0 end as loosqty
+                       ,[purchaseline].[UnitPrice]
                        ,'".$location."'
                        ,'".$journal."'
                        ,'".$PeriodNo."'
                        ,'".$INVOICENO ."' 
-                       FROM [PurchaseLine] 
-                       join stockmaster on [PurchaseLine].[code] = stockmaster.itemcode
+                       FROM [purchaseline] 
+                       join stockmaster on [purchaseline].[code] = stockmaster.itemcode
                        where documentno='".$salesoderno."' "
                         . " and code='".$stcode."' "
                         . " and [entryno]='".$key."' "
@@ -144,7 +144,7 @@ if($_SESSION['somedetails'] == 0 AND $_SESSION['DocumentPicking']==false){
 Function RecordGRN($DOCNO){
  Global $db,$sql;
  
-    $sql[]="INSERT INTO [PurchaseHeader]
+    $sql[]="INSERT INTO [purchaseheader]
            ([documenttype]
            ,[documentno]
            ,[docdate]
@@ -180,7 +180,7 @@ Function RecordGRN($DOCNO){
            ,[vatinclusive]
            ,[Dimension_1]
            ,[Dimension_2]
-           ,[freight] from [PurchaseHeader] where [documentno]='".$_POST['documentno']."')" ;
+           ,[freight] from [purchaseheader] where [documentno]='".$_POST['documentno']."')" ;
 
 
 
@@ -190,7 +190,7 @@ Function RecordGRN($DOCNO){
 
                 $itemcode = $_POST['code'][$key];
                     
-                $sql[] =  sprintf("INSERT INTO [PurchaseLine]
+                $sql[] =  sprintf("INSERT INTO [purchaseline]
                        ([documenttype]
                        ,[docdate]
                        ,[documentno]
@@ -218,7 +218,7 @@ Function RecordGRN($DOCNO){
                        ,vatrate
                        ,inclusive
                        ,UOM 
-                       from [PurchaseLine]   where  [documentno]='".$_POST['documentno']."' and code='".$itemcode."')"
+                       from [purchaseline]   where  [documentno]='".$_POST['documentno']."' and code='".$itemcode."')"
                        ,$value);
                     }
 
