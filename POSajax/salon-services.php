@@ -22,7 +22,7 @@ if (!isset($db) || !($db instanceof mysqli)) {
 }
 
 $sql = "SELECT sm.pkey AS service_id,sm.itemcode AS service_code,sm.descrip AS service_name,
-        sc.categorydescription AS service_category,ss.duration_minutes,sm.sellingprice AS standard_price,
+        sc.categorydescription AS service_category,ss.duration_minutes,ss.image_path,sm.sellingprice AS standard_price,
         sm.itemcode AS pos_itemcode,sm.barcode AS pos_barcode,sm.units,vc.vat AS vat_rate,
         ipg.vatcategory AS tax_category,ipg.defaultgl_sales AS sales_account,ipg.defaultgl_vat AS vat_account
     FROM salon_service_settings ss
@@ -81,6 +81,7 @@ while ($row = $result->fetch_assoc()) {
         'name'=>$row['service_name'],
         'category'=>$row['service_category'],
         'duration'=>(int)$row['duration_minutes'],
+        'image_url'=>!empty($row['image_path']) ? $row['image_path'] : null,
         'price'=>(float)$row['standard_price'],
         'barcode'=>$row['pos_barcode'],
         'itemcode'=>$row['pos_itemcode'],
