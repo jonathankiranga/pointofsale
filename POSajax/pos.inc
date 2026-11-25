@@ -6,14 +6,19 @@ if ($posAdminToken !== null && isset($_SESSION['AllowedPageSecurityTokens']) && 
     $POSCanAdminReports = true;
 }
 if (isset($mysqli) && $mysqli instanceof mysqli) {
-    $posPostingResult = $mysqli->query("SELECT confvalue FROM config WHERE confname='POS_DefaultPostingGroup' LIMIT 1");
-    if ($posPostingResult && ($posPostingRow = $posPostingResult->fetch_assoc())) {
-        $posGroupStmt = $mysqli->prepare("SELECT VATinclusive FROM postinggroups WHERE code=? LIMIT 1");
-        $posGroupStmt->bind_param('s', $posPostingRow['confvalue']);
-        $posGroupStmt->execute();
-        $posGroupRow = $posGroupStmt->get_result()->fetch_assoc();
-        if ($posGroupRow) { $POSVatInclusive = (int)$posGroupRow['VATinclusive']; }
-        $posGroupStmt->close();
+    // VAT treatment follows the configured POS debtor's own customer posting group.
+    $posCustomerStmt = $mysqli->prepare("SELECT pg.VATinclusive
+        FROM config c
+        INNER JOIN debtors d ON d.itemcode=c.confvalue
+        INNER JOIN postinggroups pg ON pg.code=d.customerposting
+        WHERE c.confname='POS_DefaultCustomer' LIMIT 1");
+    if ($posCustomerStmt) {
+        $posCustomerStmt->execute();
+        $posCustomerRow = $posCustomerStmt->get_result()->fetch_assoc();
+        if ($posCustomerRow && $posCustomerRow['VATinclusive'] !== null) {
+            $POSVatInclusive = (int)$posCustomerRow['VATinclusive'];
+        }
+        $posCustomerStmt->close();
     }
 }
 ?>
