@@ -826,3 +826,32 @@ kbd { padding: 3px 6px; border: 1px solid #d8dee8; border-radius: 5px; backgroun
     }
 }
 
+
+
+/* Salon terminal: allow the service catalogue and sale workspace to scroll
+   as one page on desktop as well as touch devices. Retail POS is unchanged. */
+html.salon-pos-mode,
+body.pos-touch-mode.salon-pos-mode {
+    height: auto !important;
+    min-height: 100%;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+.salon-pos-mode .pos-terminal {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+}
+.salon-pos-mode .pos-main {
+    flex: 0 0 auto;
+    min-height: 360px;
+    overflow: visible;
+}
+.salon-pos-mode .pos-cart-card {
+    min-height: 320px;
+}
+@media (min-width: 681px) {
+    .salon-pos-mode .pos-cart-card {
+        max-height: none;
+    }
+}
