@@ -17,13 +17,13 @@ if(isset($_GET['journal'])){
     $sql=array();
     
     $sql[] ="Delete FROM [pettdoc] where [journal]='".$_GET['journal']."'";
-    $sql[] ="Delete FROM [SupplierStatement] where [JournalNo]='".$_GET['journal']."'";
+    $sql[] ="Delete FROM [supplierstatement] where [JournalNo]='".$_GET['journal']."'";
     $sql[] ="Delete FROM [creditorsledger] where [journal]='".$_GET['journal']."'";
     
-    $sql[] ="Delete FROM [BankTransactions] where [journal]='".$_GET['journal']."'";
+    $sql[] ="Delete FROM [banktransactions] where [journal]='".$_GET['journal']."'";
     $sql[] ="Delete FROM [Generalledger] where [journalno]='".$_GET['journal']."'";
     
-    $sql[] ="Delete FROM [CustomerStatement] where [JournalNo]='".$_GET['journal']."'";
+    $sql[] ="Delete FROM [customerstatement] where [JournalNo]='".$_GET['journal']."'";
     $sql[] ="Delete FROM [debtorsledger] where [journal]='".$_GET['journal']."'";
     
     DB_Txn_Begin($db);
@@ -97,7 +97,7 @@ if(isset($_POST['Save']) or isset($_POST['updateClose'])){
                     unset($_POST['comments']);
                     
                 if(isset($_POST['updateClose'])){
-                    DB_query("Update [BankAccounts] set [lastChequeno]=[lastChequeno]+1 where [accountcode]='".$_POST['Bank_Code']."'", $db);
+                    DB_query("Update [bankaccounts] set [lastChequeno]=[lastChequeno]+1 where [accountcode]='".$_POST['Bank_Code']."'", $db);
                     header('location:PetteyCash.php?New=1');
                 }  
                
@@ -151,7 +151,7 @@ if(isset($_POST['submitnext'])){
     echo '<tr><td>Account Type</td><td><select name="accttype" required="required"  onchange="ReloadForm(Journal.update);">'; Accttype() ; echo '</select></td>';
                       
     if($_POST['transtype']==0){
-         $SQLstment=sprintf("SELECT [accountcode],[bankName],BranchName,currency  FROM [BankAccounts] where [accountcode] <> '%s'",$_POST['Bank_Code']);
+         $SQLstment=sprintf("SELECT [accountcode],[bankName],BranchName,currency  FROM [bankaccounts] where [accountcode] <> '%s'",$_POST['Bank_Code']);
                
          echo '<td>Select Bank to withdraw from :</td><td><Select name="Bank_Code2" required="required">';
                  
@@ -190,7 +190,7 @@ if(isset($_POST['submitnext'])){
        
          }elseif($_POST['accttype']==2){
              
-                $SQLstment=sprintf("SELECT [accountcode],[bankName],BranchName,currency FROM [BankAccounts] where [accountcode] <> '%s'",$_POST['Bank_Code']);
+                $SQLstment=sprintf("SELECT [accountcode],[bankName],BranchName,currency FROM [bankaccounts] where [accountcode] <> '%s'",$_POST['Bank_Code']);
                  echo '<td>Select Bank to Deposit To :</td>'
                 . '<td><Select name="Bank_Code2" onchange="ReloadForm(Journal.update);">';
 
