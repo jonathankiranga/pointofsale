@@ -45,7 +45,7 @@ $sql = "SELECT COUNT(*) AS receipts, COALESCE(SUM(h.total),0) AS sales,
         COALESCE(SUM(h.total_vat),0) AS vat,
         COALESCE(SUM(CASE WHEN h.payment_method='CASH' THEN h.total ELSE 0 END),0) AS cash_sales,
         COALESCE(SUM(CASE WHEN h.payment_method='MPESA' THEN h.total ELSE 0 END),0) AS mpesa_sales
-        FROM SalesHeader h WHERE " . $where;
+        FROM salesheader h WHERE " . $where;
 $stmt = $mysqli->prepare($sql);
 posReportBind($stmt, $types, $params);
 $stmt->execute();
@@ -62,7 +62,7 @@ if ($r) {
 
 $paymentSql = "SELECT COALESCE(payment_method,'UNCLASSIFIED') AS payment_method,
                       COUNT(*) AS receipts, COALESCE(SUM(total),0) AS amount
-               FROM SalesHeader h WHERE " . $where . " GROUP BY payment_method ORDER BY payment_method";
+               FROM salesheader h WHERE " . $where . " GROUP BY payment_method ORDER BY payment_method";
 $stmt = $mysqli->prepare($paymentSql);
 posReportBind($stmt, $types, $params);
 $stmt->execute();
@@ -71,7 +71,7 @@ $stmt->close();
 
 $itemSql = "SELECT l.code AS itemcode, l.description, SUM(l.Quantity) AS quantity,
                    SUM(l.invoiceamount) AS sales_value, SUM(l.vatamount) AS vat_value
-            FROM SalesLine l INNER JOIN SalesHeader h
+            FROM salesline l INNER JOIN salesheader h
               ON h.documenttype=l.documenttype AND h.documentno=l.documentno
             WHERE " . $where . "
             GROUP BY l.code,l.description ORDER BY sales_value DESC";
@@ -86,7 +86,7 @@ $taxSql = "SELECT COALESCE(l.pos_tax_category,'UNCLASSIFIED') AS tax_category,
                        SUM(l.invoiceamount-l.vatamount) AS net_value,
                        SUM(l.vatamount) AS vat_value,
                        SUM(l.invoiceamount) AS gross_value
-                FROM SalesLine l INNER JOIN SalesHeader h
+                FROM salesline l INNER JOIN salesheader h
                   ON h.documenttype=l.documenttype AND h.documentno=l.documentno
                 WHERE " . $where . "
                 GROUP BY l.pos_tax_category,l.vatrate ORDER BY l.vatrate DESC";
@@ -122,19 +122,19 @@ if ($selectedShiftId > 0) {
     $selectedShift = $detailStmt->get_result()->fetch_assoc();
     $detailStmt->close();
     if ($selectedShift) {
-        $detailStmt = $mysqli->prepare("SELECT COALESCE(payment_method,'UNCLASSIFIED') AS payment_method, COUNT(*) AS receipts, COALESCE(SUM(total),0) AS amount FROM SalesHeader WHERE pos_shift_id=? AND documenttype=1 AND COALESCE(status,1)=1 GROUP BY payment_method ORDER BY payment_method");
+        $detailStmt = $mysqli->prepare("SELECT COALESCE(payment_method,'UNCLASSIFIED') AS payment_method, COUNT(*) AS receipts, COALESCE(SUM(total),0) AS amount FROM salesheader WHERE pos_shift_id=? AND documenttype=1 AND COALESCE(status,1)=1 GROUP BY payment_method ORDER BY payment_method");
         $detailStmt->bind_param('i', $selectedShiftId);
         $detailStmt->execute();
         $shiftPayments = $detailStmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $detailStmt->close();
 
-        $detailStmt = $mysqli->prepare("SELECT l.code AS itemcode,l.description,SUM(l.Quantity) AS quantity,SUM(l.invoiceamount) AS sales_value,SUM(l.vatamount) AS vat_value FROM SalesLine l INNER JOIN SalesHeader h ON h.documenttype=l.documenttype AND h.documentno=l.documentno WHERE h.pos_shift_id=? AND h.documenttype=1 AND COALESCE(h.status,1)=1 GROUP BY l.code,l.description ORDER BY sales_value DESC");
+        $detailStmt = $mysqli->prepare("SELECT l.code AS itemcode,l.description,SUM(l.Quantity) AS quantity,SUM(l.invoiceamount) AS sales_value,SUM(l.vatamount) AS vat_value FROM salesline l INNER JOIN salesheader h ON h.documenttype=l.documenttype AND h.documentno=l.documentno WHERE h.pos_shift_id=? AND h.documenttype=1 AND COALESCE(h.status,1)=1 GROUP BY l.code,l.description ORDER BY sales_value DESC");
         $detailStmt->bind_param('i', $selectedShiftId);
         $detailStmt->execute();
         $shiftProducts = $detailStmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $detailStmt->close();
 
-        $detailStmt = $mysqli->prepare("SELECT documentno,docdate,userid,payment_method,total,total_vat FROM SalesHeader WHERE pos_shift_id=? AND documenttype=1 AND COALESCE(status,1)=1 ORDER BY docdate,documentno");
+        $detailStmt = $mysqli->prepare("SELECT documentno,docdate,userid,payment_method,total,total_vat FROM salesheader WHERE pos_shift_id=? AND documenttype=1 AND COALESCE(status,1)=1 ORDER BY docdate,documentno");
         $detailStmt->bind_param('i', $selectedShiftId);
         $detailStmt->execute();
         $shiftReceipts = $detailStmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -143,7 +143,7 @@ if ($selectedShiftId > 0) {
 }
 
 $transactionSql = "SELECT h.documentno,h.docdate,h.userid,h.payment_method,h.total,h.total_vat
-                   FROM SalesHeader h WHERE " . $where . " ORDER BY h.docdate DESC,h.documentno DESC LIMIT 500";
+                   FROM salesheader h WHERE " . $where . " ORDER BY h.docdate DESC,h.documentno DESC LIMIT 500";
 $stmt = $mysqli->prepare($transactionSql);
 posReportBind($stmt, $types, $params);
 $stmt->execute();
