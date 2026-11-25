@@ -208,6 +208,16 @@ $MenuItems['Sales']['Reports']['URL'] = array('/PDFLaboratorytest.php',
                                               '/PDFPrintSalesInvoice.php',
                                               '/PDFPrintSalesQuote.php');
 
+// Salon sales reporting is available from the legacy Sales > Reports menu.
+$MenuItems['Sales']['Reports']['Caption'] = array_merge(
+    $MenuItems['Sales']['Reports']['Caption'],
+    array(_('Sales and Z Reports'))
+);
+$MenuItems['Sales']['Reports']['URL'] = array_merge(
+    $MenuItems['Sales']['Reports']['URL'],
+    array('/POSReports.php')
+);
+
 
 
 $MenuItems['Sales']['Maintenance']['Caption'] = array(_('New/Edit TEST Types'),
