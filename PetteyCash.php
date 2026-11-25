@@ -21,7 +21,7 @@ if(isset($_GET['journal'])){
     $sql[] ="Delete FROM [creditorsledger] where [journal]='".$_GET['journal']."'";
     
     $sql[] ="Delete FROM [banktransactions] where [journal]='".$_GET['journal']."'";
-    $sql[] ="Delete FROM [Generalledger] where [journalno]='".$_GET['journal']."'";
+    $sql[] ="Delete FROM [generalledger] where [journalno]='".$_GET['journal']."'";
     
     $sql[] ="Delete FROM [customerstatement] where [JournalNo]='".$_GET['journal']."'";
     $sql[] ="Delete FROM [debtorsledger] where [journal]='".$_GET['journal']."'";
