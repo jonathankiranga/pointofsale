@@ -13,27 +13,27 @@ echo '<p class="page_title_text">'
         . ' ' . _('Purchase Orders List') . '</p>';
 
 $SQL="Select  
-       PurchaseHeader.[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid] 
-      from PurchaseHeader 
-      join [PurchaseLine] on [PurchaseHeader].documentno=PurchaseLine.[documentno] 
-      where  [PurchaseHeader].[documenttype]='20' and [PurchaseHeader].[released]=1 
-     order by  PurchaseHeader.[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid] desc";
+       purchaseheader.[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid] 
+      from purchaseheader 
+      join [purchaseline] on [purchaseheader].documentno=purchaseline.[documentno] 
+      where  [purchaseheader].[documenttype]='20' and [purchaseheader].[released]=1 
+     order by  purchaseheader.[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid] desc";
     $Result=DB_query($SQL,$db);
            
     echo '<div class="table-responsive service-lpo-list"><table class="table table-bordered table-hover"><thead><tr>'
