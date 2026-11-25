@@ -56,7 +56,7 @@ $filter="SELECT
            ,[vatinclusive]
            ,[lpo]
            ,BatchNO
-       FROM [SalesHeader] 
+       FROM [salesheader] 
        where [documentno]='".$_POST['documentno']."'";
 
 $ResultIndex= DB_query($filter, $db);
@@ -127,7 +127,7 @@ if($_SESSION['bybatchno']=='true'){
       ,[Quantity_toinvoice],[Qunatity_delivered],[UnitPrice],[vatamount],[invoiceamount]
       ,[completed],[printed] ,[containerprice],[containersunits] 
       ,[totalchargedcontainers],[containercode],[vatrate] ,[inclusive],[UOM]
-  FROM [SalesLine] where ([completed] is null) and [BatchNO]='".$_POST['batchno']."' and [documenttype]=1
+  FROM [salesline] where ([completed] is null) and [BatchNO]='".$_POST['batchno']."' and [documenttype]=1
       group by  
        [entryno],[documenttype],[docdate],[documentno]
       ,[locationcode],[stocktype],[code] ,[description]
@@ -142,7 +142,7 @@ $Slaqry ="SELECT [entryno],[documenttype],[docdate],[documentno],[locationcode]
       ,[Quantity_toinvoice],[Qunatity_delivered],[UnitPrice],[vatamount],[invoiceamount]
       ,[completed],[printed] ,[containerprice],[containersunits] 
       ,[totalchargedcontainers],[containercode],[vatrate] ,[inclusive],[UOM]
-  FROM [SalesLine] where ([completed] is null) and  [documentno]='".$_POST['documentno']."' and [documenttype]=1
+  FROM [salesline] where ([completed] is null) and  [documentno]='".$_POST['documentno']."' and [documenttype]=1
       group by  
        [entryno],[documenttype],[docdate],[documentno]
       ,[locationcode],[stocktype],[code] ,[description]
