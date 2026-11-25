@@ -24,8 +24,8 @@ if($_POST['submit']=="Enter Delivery Details and Confirm Order"){
 }
 
 if(isset($_POST['confirmservice'])){
-    DB_query("UPDATE [PurchaseHeader] SET [released] = 1,[documenttype]=20 where documentno='".$_SESSION['CompleteDocument']."'", $db);
-    DB_query("UPDATE [PurchaseLine] SET [completed] = 1,[documenttype]=20 where documentno='".$_SESSION['CompleteDocument']."'", $db);
+    DB_query("UPDATE [purchaseheader] SET [released] = 1,[documenttype]=20 where documentno='".$_SESSION['CompleteDocument']."'", $db);
+    DB_query("UPDATE [purchaseline] SET [completed] = 1,[documenttype]=20 where documentno='".$_SESSION['CompleteDocument']."'", $db);
     prnMsg('Purchase order :'.$_SESSION['CompleteDocument'].' has been saved.'
          . ' Click Here to Print'.'<div class="centre">'
             . '<a href="PDFPrintPurchaseOrder.php?No='.$_SESSION['CompleteDocument'].'">Print Purchase order '.$_SESSION['CompleteDocument'].'</a></div>');
@@ -34,8 +34,8 @@ if(isset($_POST['confirmservice'])){
 }
     
 if(isset($_POST['confirm'])){
-    DB_query("UPDATE [PurchaseHeader] SET [released] = 1 where documentno='".$_SESSION['CompleteDocument']."'", $db);
-    DB_query("UPDATE [PurchaseLine] SET [completed] = 1 where documentno='".$_SESSION['CompleteDocument']."'", $db);
+    DB_query("UPDATE [purchaseheader] SET [released] = 1 where documentno='".$_SESSION['CompleteDocument']."'", $db);
+    DB_query("UPDATE [purchaseline] SET [completed] = 1 where documentno='".$_SESSION['CompleteDocument']."'", $db);
     prnMsg('Purchase order :'.$_SESSION['CompleteDocument'].' has been saved.'
          . ' Click Here to Print'.'<div class="centre">'
             . '<a href="PDFPrintPurchaseOrder.php?No='.$_SESSION['CompleteDocument'].'">Print Purchase order '.$_SESSION['CompleteDocument'].'</a></div>');
@@ -43,8 +43,8 @@ if(isset($_POST['confirm'])){
 }
 
 if(isset($_POST['Delete'])){
-    DB_query("Delete from [PurchaseLine] where documentno='".$_SESSION['CompleteDocument']."' and [documenttype]='18'", $db);
-    DB_query("delete from [PurchaseHeader] where documentno='".$_SESSION['CompleteDocument']."' and [documenttype]='18'", $db);
+    DB_query("Delete from [purchaseline] where documentno='".$_SESSION['CompleteDocument']."' and [documenttype]='18'", $db);
+    DB_query("delete from [purchaseheader] where documentno='".$_SESSION['CompleteDocument']."' and [documenttype]='18'", $db);
     prnMsg('Purchase order :'.$_SESSION['CompleteDocument'].' has been Deleted.');
     unset($_POST);
 }
