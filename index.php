@@ -1,71 +1,88 @@
 <?php
-// remove header
+// Remove stale cache validators.
 header_remove('ETag');
 header_remove('Pragma');
 header_remove('Cache-Control');
 header_remove('Last-Modified');
 header_remove('Expires');
 
-// set header
+// Prevent cached application pages.
 header('Expires: Thu, 1 Jan 1970 00:00:00 GMT');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Cache-Control: post-check=0, pre-check=0',false);
+header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
 
 include('config.php');
-if (isset($SessionSavePath)){
-  session_save_path($SessionSavePath);
+if (isset($SessionSavePath)) {
+    session_save_path($SessionSavePath);
 }
 
 if (!isset($SysAdminEmail)) {
-    $SysAdminEmail='';
+    $SysAdminEmail = '';
 }
 
 if (!isset($_SESSION)) {
-    ini_set('session.gc_maxlifetime',$SessionLifeTime);
+    ini_set('session.gc_maxlifetime', $SessionLifeTime);
 
-    if(!ini_get('safe_mode') ){
-       set_time_limit($MaximumExecutionTime);
-       ini_set('max_execution_time',$MaximumExecutionTime);
+    if (!ini_get('safe_mode')) {
+        set_time_limit($MaximumExecutionTime);
+        ini_set('max_execution_time', $MaximumExecutionTime);
     }
-    session_write_close();  
+
+    session_write_close();
     session_name('smartlimserp');
     session_start();
 }
 
-if(isset($_GET['link'])){
-   $getpage =  $_GET['link'];
-   $_SESSION['SCRIPT_NAME_BASE']="$getpage.php" ;
-}
+/*
+ * index.php is the back-office router. Do not redirect to SalonPOS.php
+ * merely because a request has no "link" parameter. Ordinary anchors such
+ * as href="index.php" must remain in the back office.
+ *
+ * Only use the route explicitly supplied in this request. A previous
+ * SCRIPT_NAME_BASE session value must never determine the next page.
+ */
+$route = isset($_GET['link']) ? trim((string) $_GET['link']) : '';
 
-// The hair-salon installation opens the salon terminal by default.
-// Explicit ERP page links and stock actions continue through the legacy router.
-if (!isset($_GET['link']) && !isset($_GET['Stocks']) && (!isset($_SESSION['SCRIPT_NAME_BASE']) || $_SESSION['SCRIPT_NAME_BASE'] !== 'Logout.php')) {
-    header('Location: SalonPOS.php');
-    exit;
-}
-
-if(isset($_GET['Stocks']) && $_GET['Stocks'] == '1'){
+if (isset($_GET['Stocks']) && $_GET['Stocks'] == '1') {
     include('Stocks.php');
-}elseif($_SESSION['SCRIPT_NAME_BASE']=='Logout.php'){
+} elseif ($route === 'Logout' || $route === 'Logout.php') {
+    unset($_SESSION['SCRIPT_NAME_BASE']);
     session_unset();
     session_destroy();
-    $PageSecurity=0;
-        
+
+    $PageSecurity = 0;
     include('includes/session.inc');
-    $Title =_('index');
+    $Title = _('index');
     include('includes/bootstrapheader.inc');
     echo '<main id="view-panel" class="container">';
     include('includes/boostrapfooter.inc');
-    
-}elseif(isset($_SESSION['SCRIPT_NAME_BASE'])){
-    include $_SESSION['SCRIPT_NAME_BASE'] ;
-}else{
-    $PageSecurity=0;
+} elseif ($route !== '') {
+    // Accept only a simple page name and resolve it inside the application
+    // root. This prevents path traversal and arbitrary include paths.
+    if (!preg_match('/^[A-Za-z0-9_-]+$/', $route)) {
+        http_response_code(400);
+        exit('Invalid page request.');
+    }
+
+    $pageFile = $route . '.php';
+    $pagePath = __DIR__ . DIRECTORY_SEPARATOR . $pageFile;
+
+    if (!is_file($pagePath)) {
+        http_response_code(404);
+        exit('The requested page could not be found.');
+    }
+
+    $_SESSION['SCRIPT_NAME_BASE'] = $pageFile;
+    include($pagePath);
+} else {
+    // No explicit destination was requested. Render the normal back-office
+    // landing shell; do not silently open the salon terminal or a stale page.
+    unset($_SESSION['SCRIPT_NAME_BASE']);
+    $PageSecurity = 0;
     include('includes/session.inc');
-    $Title =_('index');
+    $Title = _('index');
     include('includes/bootstrapheader.inc');
     echo '<main id="view-panel" class="container">';
     include('includes/boostrapfooter.inc');
-   
 }
