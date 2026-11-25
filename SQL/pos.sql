@@ -28,4 +28,4 @@ CREATE TABLE sales_items (
 );
 */
    
-alter table `SalesHeader` add column `total` float,add column  `cash` float, add column `change_amount` float;
+alter table `salesheader` add column `total` float,add column  `cash` float, add column `change_amount` float;
