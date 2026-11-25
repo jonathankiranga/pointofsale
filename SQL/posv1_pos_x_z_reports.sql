@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS pos_shifts (
     KEY idx_pos_shifts_closed (closed_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE SalesHeader
+ALTER TABLE salesheader
     ADD COLUMN pos_shift_id BIGINT UNSIGNED NULL,
     ADD COLUMN payment_method VARCHAR(20) NULL,
     ADD COLUMN mpesa_phone VARCHAR(20) NULL,
@@ -33,7 +33,7 @@ ALTER TABLE SalesHeader
     ADD KEY idx_salesheader_pos_shift (pos_shift_id),
     ADD KEY idx_salesheader_payment_method (payment_method);
 
-ALTER TABLE SalesLine
+ALTER TABLE salesline
     ADD COLUMN pos_tax_category VARCHAR(20) NULL,
     ADD KEY idx_salesline_pos_document (documenttype, documentno);
 
