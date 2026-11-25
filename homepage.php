@@ -1,5 +1,4 @@
 <?php
-<?php
 /* Salon back-office application shell. The legacy ERP menu remains the sole navigation. */
 session_name('smartlimserp');
 if (session_status() !== PHP_SESSION_ACTIVE) {
