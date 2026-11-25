@@ -202,7 +202,8 @@ function PostDebtors($period,$journal,$doc,$discount){
       ,salesline.[Quantity]
       ,salesline.sampleID
       ,salesline.[code]
-      ,salesline.[UOM])", $journal,$period,$doc);
+            ,salesline.[description]
+,salesline.[UOM])", $journal,$period,$doc);
 
     return $SQL;
 }
