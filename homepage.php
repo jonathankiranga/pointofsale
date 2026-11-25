@@ -16,6 +16,9 @@ $PathPrefix = '';
 include('includes/globalsession.inc');
 
 $RootPath = isset($RootPath) ? $RootPath : '';
+if ($RootPath === '') {
+    $RootPath = dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/homepage.php');
+}
 $RootPath = rtrim($RootPath, '/\\');
 if ($RootPath === '.' || $RootPath === '/') {
     $RootPath = '';
