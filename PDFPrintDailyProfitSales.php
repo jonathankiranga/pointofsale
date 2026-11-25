@@ -28,30 +28,30 @@ if(isset($_POST['salesreport'])){
      salesHeader();
     
      $SQL=Sprintf("SELECT 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[customercode]
-      ,sum([SalesLine].[Quantity]) as Quantity
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[status]
+      ,[salesheader].[customercode]
+      ,sum([salesline].[Quantity]) as Quantity
       ,[stockmaster].[descrip]
-      ,sum([SalesLine].[invoiceamount]) as Sales
+      ,sum([salesline].[invoiceamount]) as Sales
       ,sum([stockledger].[stockvalue]) as cost
-  FROM [SalesHeader] join SalesLine 
-        on SalesHeader.documentno=SalesLine.documentno 
-        and SalesHeader.documenttype=SalesLine.documenttype
-        and (SalesHeader.documenttype=12 or SalesHeader.documenttype=1)
-        join [stockmaster] on [stockmaster].itemcode=SalesLine.code
+  FROM [salesheader] join salesline 
+        on salesheader.documentno=salesline.documentno 
+        and salesheader.documenttype=salesline.documenttype
+        and (salesheader.documenttype=12 or salesheader.documenttype=1)
+        join [stockmaster] on [stockmaster].itemcode=salesline.code
         join [stockledger] 
-        on [stockledger].itemcode=SalesLine.code 
-        and [stockledger].[invref]=SalesLine.documentno
-        where SalesHeader.[docdate] 
+        on [stockledger].itemcode=salesline.code 
+        and [stockledger].[invref]=salesline.documentno
+        where salesheader.[docdate] 
         between cast('%s 00:00:00' as smalldatetime) 
         and cast('%s 23:59:59' as smalldatetime) 
-        group by [SalesHeader].[documentno]
+        group by [salesheader].[documentno]
       ,[stockmaster].[descrip]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[customercode]",$castdate,$Tcastdate);
+      ,[salesheader].[docdate]
+      ,[salesheader].[status]
+      ,[salesheader].[customercode]",$castdate,$Tcastdate);
      
      $FontSize =10; $YPos = $firstrowpos; 
      
