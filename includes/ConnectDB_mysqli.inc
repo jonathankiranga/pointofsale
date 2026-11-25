@@ -319,7 +319,7 @@ function NormalizeTableNames($sql){
     }
 
     $identifier = '(?:`[^`]+`|"[^"]+"|[A-Za-z_][A-Za-z0-9_$]*)';
-    $pattern = '/\\b(FROM|JOIN|UPDATE|INTO|REFERENCES|DESCRIBE|OPTIMIZE|TABLE)\\s+(?:(IF\\s+NOT\\s+EXISTS|IF\\s+EXISTS)\\s+)?('
+    $pattern = '/\\b(FROM|JOIN|UPDATE|INTO(?!\\s+(?:OUTFILE|DUMPFILE)\\b)|REFERENCES|DESCRIBE|OPTIMIZE|TABLE)\\s+(?:(IF\\s+NOT\\s+EXISTS|IF\\s+EXISTS)\\s+)?('
         . $identifier . '(?:\\s*\\.\\s*' . $identifier . ')?)/i';
 
     foreach ($parts as $index => $part) {
@@ -350,12 +350,6 @@ function NormalizeTableNames($sql){
             $conditional = isset($matches[2]) && $matches[2] !== ''
                 ? $matches[2] . ' '
                 : '';
-
-            // SELECT ... INTO OUTFILE/DUMPFILE is not a table reference.
-            if (strtoupper($matches[1]) === 'INTO' &&
-                preg_match('/^(OUTFILE|DUMPFILE)\\b/i', $normalizedReference)) {
-                return $matches[0];
-            }
 
             return $matches[1] . ' ' . $conditional . $normalizedReference;
         }, $part);
