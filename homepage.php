@@ -60,8 +60,12 @@ $salonMenuItems = array(
         .salon-banner a{color:#fff;text-decoration:none}
         .salon-banner a:hover{text-decoration:underline}
         .salon-menu-wrap{min-height:44px;background:#fff;border-bottom:1px solid #dce4ed;z-index:15;overflow:visible}
-        #salonAppMenu{min-height:44px;display:flex;align-items:center;padding-left:8px}
-        #salonAppMenu>div{margin:0!important}
+        .salon-nav-groups{min-height:48px;display:flex;align-items:stretch;gap:0;padding:0 12px}
+        .salon-nav-group{display:flex;align-items:center;gap:3px;padding:0 13px;border-right:1px solid #e6ebf1;white-space:nowrap}
+        .salon-nav-group:first-child{padding-left:4px}
+        .salon-nav-heading{font-size:12px;font-weight:700;color:#64748b;margin-right:8px}
+        .salon-nav-group a{display:inline-flex;align-items:center;padding:8px 10px;border-radius:6px;color:#263b53;text-decoration:none;font-size:13px}
+        .salon-nav-group a:hover,.salon-nav-group a:focus{background:#edf4fa;color:#174f79;text-decoration:none;outline:none}
         .salon-content{flex:1;min-height:0;padding:12px 14px;background:#eef2f7}
         .salon-content iframe{width:100%;height:100%;display:block;border:1px solid #dfe6ee;border-radius:9px;background:#fff;box-shadow:0 4px 16px rgba(15,23,42,.06)}
         .salon-footer{height:30px;min-height:30px;display:flex;align-items:center;gap:18px;padding:0 16px;background:#fff;border-top:1px solid #dce4ed;color:#64748b;font-size:11px}
@@ -80,53 +84,22 @@ $salonMenuItems = array(
         </div>
     </header>
     <nav class="salon-menu-wrap" aria-label="Salon navigation">
-        <div id="salonAppMenu">
-            <script src="<?php echo htmlspecialchars($RootPath, ENT_QUOTES, 'UTF-8'); ?>/javascripts/menu/dmenu.js"></script>
-            <script src="<?php echo htmlspecialchars($RootPath, ENT_QUOTES, 'UTF-8'); ?>/javascripts/menu/dmenu_key.js"></script>
-            <script>
-                var itemStylesNames=[], menuStylesNames=[];
-                var isHorizontal=1, smColumns=1, smOrientation=0, dmRTL=0;
-                var pressedItem=-2, itemCursor="pointer", itemTarget="salonContentFrame";
-                var statusString="link", blankImage="images/blank.gif";
-                var pathPrefix_img="javascripts/menu/", pathPrefix_link="";
-                var menuWidth="240px", menuHeight="", smWidth="", smHeight="";
-                var absolutePos=0, posX="8px", posY="8px", topDX=0, topDY=0, DX=0, DY=0;
-                var subMenuAlign="left", subMenuVAlign="top";
-                var fontStyle=["normal 13px Arial","normal 13px Arial"];
-                var fontColor=["#203047","#FFFFFF"], fontDecoration=["none","none"];
-                var fontColorDisabled="#94A3B8";
-                var menuBackColor="#FFFFFF", menuBackImage="", menuBackRepeat="repeat";
-                var menuBorderColor="#D7E0EA", menuBorderWidth=1, menuBorderStyle="solid";
-                var itemBackColor=["transparent","#245B86"], itemBackImage=["",""];
-                var beforeItemImage=["",""], afterItemImage=["",""];
-                var beforeItemImageW="", afterItemImageW="", beforeItemImageH="", afterItemImageH="";
-                var itemBorderWidth=0, itemBorderColor=["#D7E0EA","#245B86"];
-                var itemBorderStyle=["solid","solid"], itemSpacing=0;
-                var itemPadding="8px 12px", itemAlignTop="left", itemAlign="left";
-                var iconTopWidth=18, iconTopHeight=16, iconWidth=18, iconHeight=16;
-                var arrowWidth=7, arrowHeight=7;
-                var arrowImageMain=["images/arr_black_2.gif","images/arr_white_2.gif"];
-                var arrowWidthSub=0, arrowHeightSub=0;
-                var arrowImageSub=["images/arr_black_2.gif","images/arr_white_2.gif"];
-                var separatorImage="", separatorWidth="90%", separatorHeight="1px";
-                var separatorAlignment="center", separatorVImage="", separatorVWidth="1px";
-                var separatorVHeight="100%", separatorPadding="3px";
-                var floatable=0, floatIterations=6, floatableX=1, floatableY=1;
-                var floatableDX=15, floatableDY=15, movable=0, moveWidth=12, moveHeight=20;
-                var moveColor="#DECA9A", moveImage="", moveCursor="move", smMovable=0;
-                var closeBtnW=15, closeBtnH=15, closeBtn="";
-                var transparency="100", transition=0, transOptions="", transDuration=0, transDuration2=0;
-                var shadowLen=3, shadowColor="#94A3B8", shadowTop=1;
-                var cssStyle=0, cssSubmenu="", cssItem=["",""], cssItemText=["",""];
-                var dmObjectsCheck=0, saveNavigationPath=1, showByClick=0, noWrap=1;
-                var smShowPause=150, smHidePause=500, smSmartScroll=1, topSmartScroll=0;
-                var smHideOnClick=1, dm_writeAll=0, useIFRAME=0, dmSearch=0;
-                var dmAJAX=0, dmAJAXCount=0, ajaxReload=0, dynamic=0, popupMode=0;
-                var keystrokes=1, dm_focus=1, dm_actKey=113, onOverSnd="", onClickSnd="";
-                var itemStyles=[], menuStyles=[];
-                var menuItems=<?php echo json_encode($salonMenuItems, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
-                dm_init();
-            </script>
+        <div class="salon-nav-groups">
+            <section class="salon-nav-group" aria-label="Workspace">
+                <span class="salon-nav-heading">Workspace</span>
+                <a href="SalonDashboard.php" target="salonContentFrame">Dashboard</a>
+                <a href="SalonManagement.php?view=appointments" target="salonContentFrame">Appointments</a>
+                <a href="SalonManagement.php?view=services" target="salonContentFrame">Services</a>
+                <a href="SalonManagement.php?view=hairdressers" target="salonContentFrame">Hairdressers</a>
+            </section>
+            <section class="salon-nav-group" aria-label="Customers">
+                <span class="salon-nav-heading">Customers</span>
+                <a href="Customer.php" target="salonContentFrame">Customer Records</a>
+            </section>
+            <section class="salon-nav-group" aria-label="Sales and reports">
+                <span class="salon-nav-heading">Sales and reports</span>
+                <a href="POSReports.php" target="salonContentFrame">Sales and Z Reports</a>
+            </section>
         </div>
     </nav>
     <main class="salon-content">
@@ -140,19 +113,6 @@ $salonMenuItems = array(
         <span><?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?></span>
     </footer>
 </div>
-<script>
-(function(){
-    var dock=document.getElementById('salonAppMenu');
-    if(!dock)return;
-    var menu=document.getElementById('dm0m0') || document.querySelector('div[id^="dm"]');
-    if(menu){menu.style.position='relative';menu.style.top='0';menu.style.left='0';menu.style.margin='0';menu.style.zIndex='30';if(!dock.contains(menu))dock.appendChild(menu);}
-    var frame=document.getElementById('salonContentFrame');
-    if(frame){frame.addEventListener('load',function(){var status=document.getElementById('salonWorkspaceStatus');if(status)status.textContent='Ready';});}
-    document.addEventListener('click',function(e){
-        var link=e.target.closest ? e.target.closest('a[target="salonContentFrame"]') : null;
-        if(link){var status=document.getElementById('salonWorkspaceStatus');if(status)status.textContent='Loading '+(link.textContent||'page').trim()+'...';}
-    });
-})();
-</script>
+
 </body>
 </html>
