@@ -40,7 +40,7 @@ if(isset($_GET['link'])){
 
 // The hair-salon installation opens the salon terminal by default.
 // Explicit ERP page links and stock actions continue through the legacy router.
-if (!isset($_GET['link']) && !isset($_GET['Stocks']) && $_SESSION['SCRIPT_NAME_BASE'] !== 'Logout.php') {
+if (!isset($_GET['link']) && !isset($_GET['Stocks']) && (!isset($_SESSION['SCRIPT_NAME_BASE']) || $_SESSION['SCRIPT_NAME_BASE'] !== 'Logout.php')) {
     header('Location: SalonPOS.php');
     exit;
 }
