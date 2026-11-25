@@ -282,7 +282,7 @@ function StockMovementStoreOptions($ItemCode, $SelectedStore) {
     $Options = '';
     $SafeItemCode = DB_escape_string(trim($ItemCode));
     $ResultIndex = DB_query(
-        sprintf("SELECT COUNT(*) FROM [ProductionUnit] WHERE itemcode='%s'", $SafeItemCode),
+        sprintf("SELECT COUNT(*) FROM [productionunit] WHERE itemcode='%s'", $SafeItemCode),
         $db
     );
     $StoreCount = DB_fetch_row($ResultIndex);
@@ -292,7 +292,7 @@ function StockMovementStoreOptions($ItemCode, $SelectedStore) {
             return '<option value=""></option>';
         }
 
-        $Results = DB_query('SELECT [code], [Storename] FROM [Stores] ORDER BY [Storename]', $db);
+        $Results = DB_query('SELECT [code], [Storename] FROM [stores] ORDER BY [Storename]', $db);
         while ($Store = DB_fetch_array($Results)) {
             $Code = trim($Store['code']);
             $Options .= sprintf(
@@ -304,7 +304,7 @@ function StockMovementStoreOptions($ItemCode, $SelectedStore) {
         }
     } else {
         $Results = DB_query(
-            sprintf("SELECT [tankname] FROM [ProductionUnit] WHERE itemcode='%s' ORDER BY [tankname]", $SafeItemCode),
+            sprintf("SELECT [tankname] FROM [productionunit] WHERE itemcode='%s' ORDER BY [tankname]", $SafeItemCode),
             $db
         );
         while ($Tank = DB_fetch_array($Results)) {
@@ -323,14 +323,14 @@ function StockMovementStoreOptions($ItemCode, $SelectedStore) {
 
 Function IsTankOrStore($ItemCode){
         global $db;
-        $sql=sprintf("select count(*) from [ProductionUnit] where itemcode='%s'",$ItemCode);
+        $sql=sprintf("select count(*) from [productionunit] where itemcode='%s'",$ItemCode);
         $ResultIndex=DB_query($sql, $db);
         $Stores = DB_fetch_row($ResultIndex);
         
        if($Stores[0]==0){
           $tankStore="S";
        }else{
-             $ResultIndex=DB_query(sprintf("select tankname from [ProductionUnit] where itemcode='%s'",$ItemCode), $db);
+             $ResultIndex=DB_query(sprintf("select tankname from [productionunit] where itemcode='%s'",$ItemCode), $db);
              $Tanks = DB_fetch_row($ResultIndex);
              $tankStore=$Tanks[0];
        }
