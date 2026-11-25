@@ -133,9 +133,9 @@ echo '<li><a class="nav-link text-white" href="UserSettings.php">'
 		
 	if (isset($Title)) {
 		if (count($_SESSION['AllowedPageSecurityTokens'])>1){
-			echo '<li><a  class="nav-link text-white"   href="SelectCustomer.php&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#people-circle"/></svg>' . _('Customers') .'</a></li>';
-			echo '<li><a  class="nav-link text-white"   href="SelectSupplier.php&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#head"/></svg>' . _('Suppliers') .'</a></li>';
-                        echo '<li><a  class="nav-link text-white"   href="SelectProduct.php&newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#basket"/></svg>' ._('Items') .'</a></li>';
+			echo '<li><a  class="nav-link text-white"   href="SelectCustomer.php?newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#people-circle"/></svg>' . _('Customers') .'</a></li>';
+			echo '<li><a  class="nav-link text-white"   href="SelectSupplier.php?newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#head"/></svg>' . _('Suppliers') .'</a></li>';
+                        echo '<li><a  class="nav-link text-white"   href="SelectProduct.php?newsearch=yes"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#basket"/></svg>' ._('Items') .'</a></li>';
 			    echo '<li><a class="nav-link text-white" href="bankregister.php"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#table"/></svg>' ._('Cash Book') .'</a></li>';
                         
                    
