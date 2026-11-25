@@ -4,8 +4,7 @@ session_name('smartlimserp');
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
-$PageSecurity = isset($_SESSION['PageSecurityArray']['CompanyPreferences.php'])
-    ? $_SESSION['PageSecurityArray']['CompanyPreferences.php'] : -1;
+$PageSecurity = 0;
 $PathPrefix = '';
 include('includes/globalsession.inc');
 
