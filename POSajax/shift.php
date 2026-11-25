@@ -36,7 +36,7 @@ function posShiftTotals($mysqli, $shiftId) {
                    COALESCE(SUM(total_vat),0) AS total_vat,
                    COALESCE(SUM(CASE WHEN payment_method='CASH' THEN COALESCE(cash,0)-COALESCE(change_amount,0) ELSE 0 END),0) AS cash_sales,
                    COALESCE(SUM(CASE WHEN payment_method='MPESA' THEN total ELSE 0 END),0) AS mpesa_sales
-            FROM SalesHeader
+            FROM salesheader
             WHERE pos_shift_id=? AND documenttype=1 AND COALESCE(status,1)=1";
     $stmt = $mysqli->prepare($sql);
     if (!$stmt) { throw new Exception($mysqli->error); }
@@ -51,7 +51,7 @@ function posShiftItems($mysqli, $shiftId) {
     $items = array();
     $sql = "SELECT l.code AS itemcode, l.description, SUM(l.Quantity) AS quantity,
                    SUM(l.invoiceamount) AS sales_value, SUM(l.vatamount) AS vat_value
-            FROM SalesLine l INNER JOIN SalesHeader h
+            FROM salesline l INNER JOIN salesheader h
               ON h.documenttype=l.documenttype AND h.documentno=l.documentno
             WHERE h.pos_shift_id=? AND h.documenttype=1 AND COALESCE(h.status,1)=1
             GROUP BY l.code, l.description ORDER BY l.description";
@@ -67,38 +67,38 @@ function posShiftItems($mysqli, $shiftId) {
 
 function posShiftAccountingIntegrity($mysqli, $shiftId) {
     $sql = "SELECT h.documentno,h.total,h.payment_method,h.cash,h.change_amount,h.mpesa_phone,
-        (SELECT COUNT(*) FROM SalesHeader ih
+        (SELECT COUNT(*) FROM salesheader ih
             WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno) AS invoice_count,
-        (SELECT COUNT(*) FROM CustomerStatement cs
-            WHERE cs.Documentno=(SELECT ih.documentno FROM SalesHeader ih
+        (SELECT COUNT(*) FROM customerstatement cs
+            WHERE cs.Documentno=(SELECT ih.documentno FROM salesheader ih
                 WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
               AND cs.Documenttype=10) AS invoice_statement_count,
-        (SELECT COUNT(*) FROM GeneralLedger gl
-            WHERE gl.DocumentNo=(SELECT ih.documentno FROM SalesHeader ih
+        (SELECT COUNT(*) FROM generalledger gl
+            WHERE gl.DocumentNo=(SELECT ih.documentno FROM salesheader ih
                 WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
               AND gl.DocumentType=10) AS invoice_gl_count,
         (SELECT COUNT(*) FROM debtorsledger dl
-            WHERE dl.invref=(SELECT ih.documentno FROM SalesHeader ih
+            WHERE dl.invref=(SELECT ih.documentno FROM salesheader ih
                 WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
               AND dl.systypes_1=10) AS invoice_debtor_count,
         (SELECT COALESCE(SUM(dl.amount),0) FROM debtorsledger dl
-            WHERE dl.invref=(SELECT ih.documentno FROM SalesHeader ih
+            WHERE dl.invref=(SELECT ih.documentno FROM salesheader ih
                 WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
               AND dl.systypes_1=10) AS invoice_debtor_amount,
-        (SELECT COALESCE(SUM(cs.Grossamount),0) FROM CustomerStatement cs
-            WHERE cs.Documentno=(SELECT ih.documentno FROM SalesHeader ih
+        (SELECT COALESCE(SUM(cs.Grossamount),0) FROM customerstatement cs
+            WHERE cs.Documentno=(SELECT ih.documentno FROM salesheader ih
                 WHERE ih.documenttype=10 AND ih.externaldocumentno=h.documentno LIMIT 1)
               AND cs.Documenttype=10) AS invoice_amount,
         (SELECT COUNT(*) FROM receiptheader rh WHERE rh.docno=h.documentno) AS receipt_count,
         (SELECT externalref FROM receiptheader rh WHERE rh.docno=h.documentno LIMIT 1) AS receipt_reference,
-        (SELECT COUNT(*) FROM BankTransactions bt
+        (SELECT COUNT(*) FROM banktransactions bt
             WHERE bt.DocumentNo=h.documentno AND bt.doctype=12) AS bank_count,
-        (SELECT COUNT(*) FROM BankTransactions bt
-            INNER JOIN BankAccounts ba ON ba.accountcode=bt.bankcode
+        (SELECT COUNT(*) FROM banktransactions bt
+            INNER JOIN bankaccounts ba ON ba.accountcode=bt.bankcode
             WHERE bt.DocumentNo=h.documentno AND bt.doctype=12
               AND bt.cleared IS NULL AND bt.reconciled IS NULL
               AND bt.exchangerate IS NOT NULL AND bt.exchangerate>0) AS bank_account_count,
-        (SELECT COALESCE(SUM(bt.amount),0) FROM BankTransactions bt
+        (SELECT COALESCE(SUM(bt.amount),0) FROM banktransactions bt
             WHERE bt.DocumentNo=h.documentno AND bt.doctype=12) AS bank_amount,
         (SELECT COALESCE(SUM(rh.amount),0) FROM receiptheader rh
             WHERE rh.docno=h.documentno) AS receipt_amount,
@@ -106,17 +106,17 @@ function posShiftAccountingIntegrity($mysqli, $shiftId) {
             WHERE dl.invref=h.documentno AND dl.systypes_1=12) AS receipt_debtor_count,
         (SELECT COALESCE(SUM(dl.amount),0) FROM debtorsledger dl
             WHERE dl.invref=h.documentno AND dl.systypes_1=12) AS receipt_debtor_amount,
-        (SELECT COUNT(*) FROM GeneralLedger gl
+        (SELECT COUNT(*) FROM generalledger gl
             WHERE gl.DocumentNo=h.documentno AND gl.DocumentType=12) AS receipt_gl_count,
-        (SELECT COALESCE(SUM(gl.amount),0) FROM GeneralLedger gl
+        (SELECT COALESCE(SUM(gl.amount),0) FROM generalledger gl
             WHERE gl.DocumentNo=h.documentno AND gl.DocumentType=12) AS receipt_gl_amount,
         (SELECT COUNT(*) FROM receiptsallocation ra
             WHERE ra.receiptno=h.documentno) AS allocation_count,
         (SELECT COALESCE(SUM(ra.amount),0) FROM receiptsallocation ra
             WHERE ra.receiptno=h.documentno) AS allocation_amount,
-        (SELECT COALESCE(SUM(cs.Grossamount),0) FROM CustomerStatement cs
+        (SELECT COALESCE(SUM(cs.Grossamount),0) FROM customerstatement cs
             WHERE cs.Documentno=h.documentno AND cs.Documenttype=12) AS receipt_statement_amount
-        FROM SalesHeader h
+        FROM salesheader h
         WHERE h.pos_shift_id=? AND h.documenttype=1 AND COALESCE(h.status,1)=1";
     $stmt = $mysqli->prepare($sql);
     if (!$stmt) { throw new Exception('Could not prepare POS accounting integrity check: ' . $mysqli->error); }
