@@ -18,7 +18,7 @@ BEGIN
                    COUNT(DISTINCT entryno) AS line_count,
                    MAX(UOM) AS UOM,
                    MAX(PartPerUnit) AS PartPerUnit
-            FROM PurchaseLine
+            FROM purchaseline
             GROUP BY documentno, code
         ) pl
           ON pl.documentno = sr.GRN
@@ -28,7 +28,7 @@ BEGIN
            OR (pl.UOM = 'fulqty' AND COALESCE(pl.PartPerUnit,0) <= 0)
     ) THEN
         SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Stock register has GRN layers that cannot be matched unambiguously to PurchaseLine. Reconcile those layers before applying this migration.';
+            SET MESSAGE_TEXT = 'Stock register has GRN layers that cannot be matched unambiguously to purchaseline. Reconcile those layers before applying this migration.';
     END IF;
 
     UPDATE stockregister sr
@@ -36,7 +36,7 @@ BEGIN
         SELECT documentno, code,
                MAX(UOM) AS UOM,
                MAX(PartPerUnit) AS PartPerUnit
-        FROM PurchaseLine
+        FROM purchaseline
         GROUP BY documentno, code
         HAVING COUNT(DISTINCT entryno) = 1
     ) pl
