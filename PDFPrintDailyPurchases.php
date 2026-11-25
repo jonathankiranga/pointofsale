@@ -29,30 +29,30 @@ if(isset($_POST['salesreport'])){
     $R1=0; $R2=0; $R3=0; $Visa=0; $ledger=0; $mpesa=0; $cash=0;
      
      salesHeader();
-    $PurchaseHeader=Array();
+    $purchaseheader=Array();
      $SQL=Sprintf("SELECT 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,sum(PurchaseLine.invoiceamount) as invoiceamount
-      ,sum(PurchaseLine.vatamount) as vatamount
-      ,sum(PurchaseLine.invoiceamount-PurchaseLine.vatamount) as netamt
-  FROM [PurchaseHeader] join PurchaseLine 
-        on PurchaseHeader.documentno=PurchaseLine.documentno 
-        and PurchaseHeader.documenttype=PurchaseLine.documenttype
-        and PurchaseHeader.documenttype=20
-        where PurchaseHeader.[docdate] between '%s' and '%s' 
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,sum(purchaseline.invoiceamount) as invoiceamount
+      ,sum(purchaseline.vatamount) as vatamount
+      ,sum(purchaseline.invoiceamount-purchaseline.vatamount) as netamt
+  FROM [purchaseheader] join purchaseline 
+        on purchaseheader.documentno=purchaseline.documentno 
+        and purchaseheader.documenttype=purchaseline.documenttype
+        and purchaseheader.documenttype=20
+        where purchaseheader.[docdate] between '%s' and '%s' 
         group by 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]",$castdate,$Tcastdate);
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]",$castdate,$Tcastdate);
        $Results=DB_query($SQL,$db);
       while($rows = DB_fetch_array($Results)){
-          $PurchaseHeader[]=$rows;
+          $purchaseheader[]=$rows;
       }
       
       
@@ -73,12 +73,12 @@ if(isset($_POST['salesreport'])){
            . "  and  [EnterbillHeaders].[date] between '%s' and '%s' ",$castdate,$Tcastdate);
        $Results=DB_query($SQL,$db);
           while($rows = DB_fetch_array($Results)){
-               $PurchaseHeader[]=$rows;
+               $purchaseheader[]=$rows;
           }
        
      $FontSize =10; $YPos = $firstrowpos; 
-     asort($PurchaseHeader);
- foreach ($PurchaseHeader as $key => $rows) {
+     asort($purchaseheader);
+ foreach ($purchaseheader as $key => $rows) {
          $R1 +=$rows['vatamount'];
          $R2 +=$rows['netamt'];
          $R3 +=$rows['invoiceamount'];
@@ -132,30 +132,30 @@ if(isset($_POST['salesreport'])){
      
     if(mb_strlen($Tcastdate)>=8){ } else {$Tcastdate=$castdate;}
        
-    $PurchaseHeader=Array();
+    $purchaseheader=Array();
      $SQL=Sprintf("SELECT 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,sum(PurchaseLine.invoiceamount) as invoiceamount
-      ,sum(PurchaseLine.vatamount) as vatamount
-      ,sum(PurchaseLine.invoiceamount-PurchaseLine.vatamount) as netamt
-  FROM [PurchaseHeader] join PurchaseLine 
-        on PurchaseHeader.documentno=PurchaseLine.documentno 
-        and PurchaseHeader.documenttype=PurchaseLine.documenttype
-        and PurchaseHeader.documenttype=20
-        where PurchaseHeader.[docdate] between '%s' and '%s' 
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,sum(purchaseline.invoiceamount) as invoiceamount
+      ,sum(purchaseline.vatamount) as vatamount
+      ,sum(purchaseline.invoiceamount-purchaseline.vatamount) as netamt
+  FROM [purchaseheader] join purchaseline 
+        on purchaseheader.documentno=purchaseline.documentno 
+        and purchaseheader.documenttype=purchaseline.documenttype
+        and purchaseheader.documenttype=20
+        where purchaseheader.[docdate] between '%s' and '%s' 
         group by 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]",$castdate,$Tcastdate);
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]",$castdate,$Tcastdate);
        $Results=DB_query($SQL,$db);
       while($rows = DB_fetch_array($Results)){
-          $PurchaseHeader[]=$rows;
+          $purchaseheader[]=$rows;
       }
       
       
@@ -176,7 +176,7 @@ if(isset($_POST['salesreport'])){
            . "  and  [EnterbillHeaders].[date] between '%s' and '%s' ",$castdate,$Tcastdate);
        $Results=DB_query($SQL,$db);
           while($rows = DB_fetch_array($Results)){
-               $PurchaseHeader[]=$rows;
+               $purchaseheader[]=$rows;
           }
           
 echo '<table id="VATSALES" class="table">'
@@ -190,8 +190,8 @@ echo '<table id="VATSALES" class="table">'
 echo '<tr><td>'._('PIN No.').'</td><td>'._('NAME').'</td><td>'._('DATE').'</td><td>'._('PURCHASE DOCUMENT').'</td><td>'._('Exc Amount.').'</td><td>'._('VAT Amount').'</td><td>'._('NOTES').'</td></tr>';
      
  
-     asort($PurchaseHeader);
- foreach ($PurchaseHeader as $key => $rows) {
+     asort($purchaseheader);
+ foreach ($purchaseheader as $key => $rows) {
     
          $R1 +=$rows['vatamount'];
          $R2 +=$rows['netamt'];
