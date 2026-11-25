@@ -19,7 +19,6 @@ $PathPrefix = '../';
 include('../includes/globalsession.inc');
 include_once('../includes/DateFunctions.inc');
 include_once('../includes/SQL_CommonFunctions.inc');
-include_once('../Ajax/DatafunctionsForAjax.inc');
 include_once('../includes/chartbalancing.inc');
 if (!defined('POS_ACCOUNTING_HELPERS_ONLY')) {
     define('POS_ACCOUNTING_HELPERS_ONLY', true);
