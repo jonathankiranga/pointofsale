@@ -165,3 +165,75 @@
         display: none;
     }
 }
+
+
+/* Keep the cashier till as the default salon screen. The service catalogue
+   is an independently scrollable dialog opened only when requested. */
+.salon-pos-mode .salon-till-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.salon-pos-mode #salon-browse-services {
+    min-height: 42px;
+    padding: 9px 17px;
+    white-space: nowrap;
+}
+.salon-pos-mode .salon-service-modal {
+    z-index: 1200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.salon-pos-mode .salon-service-modal-content {
+    width: min(1120px, 100%);
+    max-width: 1120px;
+    max-height: min(88vh, 900px);
+    overflow: auto;
+    padding: 20px;
+}
+.salon-pos-mode .salon-service-modal-content .pos-dialog-header {
+    position: sticky;
+    top: -20px;
+    z-index: 2;
+    margin: -20px -20px 14px;
+    padding: 16px 20px;
+    background: #fff;
+    border-bottom: 1px solid #e5eaf1;
+}
+.salon-pos-mode .salon-service-modal-content .pos-dialog-header h2 {
+    margin: 4px 0 0;
+    text-align: left;
+    font-size: 21px;
+}
+.salon-pos-mode .salon-service-modal-content .pos-dialog-header h2::after {
+    display: none;
+}
+.salon-pos-mode .salon-service-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.salon-pos-mode .salon-service-modal .salon-service-picker-heading {
+    display: none;
+}
+@media (max-width: 700px) {
+    .salon-pos-mode .salon-till-actions { gap: 7px; }
+    .salon-pos-mode #salon-browse-services { padding: 8px 11px; font-size: 12px; }
+    .salon-pos-mode .salon-service-modal { padding: 8px; align-items: flex-end; }
+    .salon-pos-mode .salon-service-modal-content {
+        width: 100%;
+        max-height: 92vh;
+        padding: 12px;
+        border-radius: 16px 16px 0 0;
+    }
+    .salon-pos-mode .salon-service-modal-content .pos-dialog-header {
+        top: -12px;
+        margin: -12px -12px 12px;
+        padding: 12px;
+    }
+    .salon-pos-mode .salon-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
