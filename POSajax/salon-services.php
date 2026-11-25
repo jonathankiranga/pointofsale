@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 $PathPrefix = '../';
-$pagesecurity = 0;
+$PageSecurity = 0;
 include('../includes/globalsession.inc');
 
 if (empty($_SESSION['DatabaseName']) || empty($_SESSION['UserID'])) {
