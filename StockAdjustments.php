@@ -127,7 +127,7 @@ if(isset($_POST['savecount'])){
                         $ledgerUnitCost = abs($difference) > 0 ? (abs($fifoValue) / abs($difference)) : $averageCost;
                         DB_query("UPDATE stockledger SET price='".sprintf('%.6F',$ledgerUnitCost)."' WHERE journal='".$journalno."'",$db);
                         $amountSql = sprintf('%.6F',abs($fifoValue));
-                        DB_query("INSERT INTO Generalledger
+                        DB_query("INSERT INTO generalledger
                             (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,
                              VATaccountcode,amount,VATamount,currencycode,ExchangeRate,narration)
                             SELECT '".$journalno."',SYSDATE(),'".$periodNo."','".$documentNo."',17,
@@ -210,7 +210,7 @@ if(isset($_POST['saveadjustment'])){
                     $ledgerUnitCost = abs($baseAdjustment) > 0 ? (abs($fifoValue) / abs($baseAdjustment)) : $averageCost;
                     DB_query("UPDATE stockledger SET price='".sprintf('%.6F',$ledgerUnitCost)."' WHERE journal='".$journalno."'",$db);
                     $amountSql = sprintf('%.6F',abs($fifoValue));
-                    DB_query("INSERT INTO Generalledger
+                    DB_query("INSERT INTO generalledger
                         (journalno,Docdate,period,DocumentNo,DocumentType,accountcode,balaccountcode,VATaccountcode,
                          amount,VATamount,currencycode,ExchangeRate,narration)
                         SELECT '".$journalno."',SYSDATE(),'".$periodNo."','".$documentNo."',17,
@@ -270,11 +270,11 @@ if(isset($_GET['StockID']) || isset($_POST['StockID'])){
        
        $selectedStore = isset($_POST['location']) ? $_POST['location'] : '';
        if($selectedStore === ''){
-           $firstStore = DB_query('SELECT [code] FROM [Stores] ORDER BY [code] LIMIT 1',$db);
+           $firstStore = DB_query('SELECT [code] FROM [stores] ORDER BY [code] LIMIT 1',$db);
            $firstStoreRow = DB_fetch_row($firstStore);
            $selectedStore = isset($firstStoreRow[0]) ? $firstStoreRow[0] : '';
        }
-       $REsults=DB_query('SELECT [code],[Storename] FROM [Stores]', $db);
+       $REsults=DB_query('SELECT [code],[Storename] FROM [stores]', $db);
        $STOREline ='<select name="location" required="required">';
        while($rows=DB_fetch_array($REsults)){
            $STOREline .= sprintf('<option value="%s" %s >%s</option>',
