@@ -5,32 +5,54 @@ echo '<script src="css/sidebars.js"></script>';
 echo '
 <script>
 (function () {
-    function preserveCurrentBackOfficeRoute(form) {
-        var action = form.getAttribute('action');
-        if (!action || !window.location.search) {
-            return;
-        }
-
-        var target;
+    function routeFormsToDirectPage(form) {
+        var current;
         try {
-            target = new URL(action, window.location.href);
+            current = new URL(window.location.href);
         } catch (error) {
             return;
         }
 
-        if (target.origin === window.location.origin &&
-            target.pathname === window.location.pathname &&
-            target.search === '') {
-            form.setAttribute('action', window.location.pathname + window.location.search);
+        var route = current.searchParams.get('link');
+        if (!route || !/^[A-Za-z0-9_-]+$/.test(route)) {
+            return;
         }
+
+        var action = form.getAttribute('action');
+        var target;
+        try {
+            target = new URL(action || current.href, current.href);
+        } catch (error) {
+            return;
+        }
+
+        if (target.origin !== current.origin || target.pathname !== current.pathname) {
+            return;
+        }
+
+        var actionRoute = target.searchParams.get('link');
+        if (actionRoute && actionRoute !== route) {
+            return;
+        }
+
+        target.pathname = current.pathname.replace(/[^/]*$/, route + '.php');
+        target.searchParams.delete('link');
+
+        current.searchParams.forEach(function (value, key) {
+            if (key !== 'link' && !target.searchParams.has(key)) {
+                target.searchParams.append(key, value);
+            }
+        });
+
+        form.setAttribute('action', target.pathname + (target.search ? target.search : ''));
     }
 
     function updateForms(root) {
         var scope = root && root.querySelectorAll ? root : document;
         if (scope.matches && scope.matches('form')) {
-            preserveCurrentBackOfficeRoute(scope);
+            routeFormsToDirectPage(scope);
         }
-        Array.prototype.forEach.call(scope.querySelectorAll('form'), preserveCurrentBackOfficeRoute);
+        Array.prototype.forEach.call(scope.querySelectorAll('form'), routeFormsToDirectPage);
     }
 
     updateForms(document);
