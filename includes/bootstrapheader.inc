@@ -71,12 +71,6 @@ if (isset($Title)) {
 	}
         
 echo '</ul>';
-if (!function_exists('GetTempLabrefNo')) {
-    include('includes/SQL_CommonFunctions.inc');
- }
- 
- $documentno = GetTempLabrefNo(10,$db);
-echo '<input class="form-control form-control-dark w-100" type="text" placeholder="Next Batch No is '.$documentno.'" aria-label="Search">
   <div class="navbar-nav">
     <div class="nav-item text-nowrap">
  	<a class="nav-link text-white" href="index.php?link=Logout" onclick="return confirm(\''._('Are you sure you wish to logout?').'\');"><svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#logout"/></svg>' . _('Logout') . '</a>
