@@ -185,7 +185,18 @@ $MenuItems['Sales']['Transactions']['URL'] = array('/SalonPOS.php',
                                                    '/LaboratoryReview.php',
                                                    '/LaboratoryFinalReview.php',
                                                    '/SalesInvoice.php',
-                                                   '/SalesQuotation.php');
+                                                   '/SalesQuotation.php');;
+
+// Salon workspace links are part of the existing legacy Sales menu.
+$MenuItems['Sales']['Transactions']['Caption'] = array_merge(
+    $MenuItems['Sales']['Transactions']['Caption'],
+    array(_('Salon Dashboard'), _('Appointments'), _('Salon Services'), _('Hairdressers'), _('Customer Records'))
+);
+$MenuItems['Sales']['Transactions']['URL'] = array_merge(
+    $MenuItems['Sales']['Transactions']['URL'],
+    array('/SalonDashboard.php', '/SalonManagement.php?view=appointments', '/SalonManagement.php?view=services', '/SalonManagement.php?view=hairdressers', '/Customer.php')
+);
+
 
 
 
