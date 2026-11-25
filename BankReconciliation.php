@@ -19,7 +19,7 @@ $DRamount=0; $CRamount=0; $Openbalance=0; $Difference=0;$Uncleared=0;
 $SQL = array() ;
 $banklist = array();
 
-$resultindex=DB_query("SELECT `accountcode`,`bankName`,`currency`,`lastreconcileddate`,`AccountNo`,`BranchCode`,`BranchName`,`lastreconbalance`,`lastChequeno`,`PostingGroup`   FROM `BankAccounts`", $db);
+$resultindex=DB_query("SELECT `accountcode`,`bankName`,`currency`,`lastreconcileddate`,`AccountNo`,`BranchCode`,`BranchName`,`lastreconbalance`,`lastChequeno`,`PostingGroup`   FROM `bankaccounts`", $db);
 while($row=DB_fetch_array($resultindex)){
     $banklist[trim($row['accountcode'])]=$row['bankName'].' '.$row['BranchName'].' '.$row['currency'];
 }
@@ -67,7 +67,7 @@ if(isset($_POST['SaveRecon'])){
 
             $bankCode = trim((string)$_POST['Bank_Code']);
             $bankStmt = $db->prepare("SELECT PostingGroup,lastreconcileddate,lastreconbalance,StatementNo
-                FROM BankAccounts WHERE accountcode=? LIMIT 1 FOR UPDATE");
+                FROM bankaccounts WHERE accountcode=? LIMIT 1 FOR UPDATE");
             if (!$bankStmt) {
                 throw new Exception('Could not lock the selected bank account: ' . $db->error);
             }
@@ -105,7 +105,7 @@ if(isset($_POST['SaveRecon'])){
             $statementstartdate = $bankRow['lastreconcileddate'];
             $openingBalance = (float)$bankRow['lastreconbalance'];
 
-            // Recalculate the closing balance from locked BankTransactions rows.
+            // Recalculate the closing balance from locked banktransactions rows.
             // The browser's Totalcleared field is display-only and is not trusted.
             $serverClearedBalance = CalculatePostedReconciliationBalance(
                 $bankCode,
@@ -265,9 +265,9 @@ Function UpdateStatus(){
     }
 
     $bankCode = trim((string)$_POST['Bank_Code']);
-    $clearStmt = $db->prepare("UPDATE BankTransactions SET cleared=1
+    $clearStmt = $db->prepare("UPDATE banktransactions SET cleared=1
         WHERE journal=? AND bankcode=? AND reconciled IS NULL");
-    $unclearStmt = $db->prepare("UPDATE BankTransactions SET cleared=NULL
+    $unclearStmt = $db->prepare("UPDATE banktransactions SET cleared=NULL
         WHERE journal=? AND bankcode=? AND reconciled IS NULL");
     if (!$clearStmt || !$unclearStmt) {
         if ($clearStmt) { $clearStmt->close(); }
@@ -323,7 +323,7 @@ function constructBanks() {
         $resultindex=DB_query("SELECT `accountcode`,`bankName`,`currency`,"
                 . "`lastreconcileddate`,`AccountNo`,`BranchCode`,`BranchName`,"
                 . "`lastreconbalance`,`lastChequeno`,`PostingGroup` "
-                . " FROM `BankAccounts`", $db);
+                . " FROM `bankaccounts`", $db);
         while($row=DB_fetch_array($resultindex)){
             if(Isset($_POST['Bank_Code'])){
                 $BankObject .= '<option value="'.$row['accountcode'].'"  '.((trim($_POST['Bank_Code'])==trim($row['accountcode']))?'selected="selected"':'').'>'.$row['bankName'].' '.$row['BranchName'].' '.$row['currency'].'</option>';
@@ -428,7 +428,7 @@ function CalculatePostedReconciliationBalance($bankCode,$openingBalance,$endDate
     $postedRows = (isset($_POST['Cheq']) && is_array($_POST['Cheq'])) ? $_POST['Cheq'] : array();
     $countStmt = $db->prepare("SELECT COUNT(*) AS row_count,
             COALESCE(SUM(CASE WHEN amount IS NULL OR DocDate IS NULL THEN 1 ELSE 0 END),0) AS invalid_count
-        FROM BankTransactions
+        FROM banktransactions
         WHERE bankcode=? AND reconciled IS NULL
           AND (DocDate IS NULL OR DocDate<=?)");
     if (!$countStmt) {
@@ -453,7 +453,7 @@ function CalculatePostedReconciliationBalance($bankCode,$openingBalance,$endDate
         return round((float)$openingBalance, 2);
     }
 
-    $stmt = $db->prepare("SELECT amount,DocDate,reconciled FROM BankTransactions
+    $stmt = $db->prepare("SELECT amount,DocDate,reconciled FROM banktransactions
         WHERE journal=? AND bankcode=? FOR UPDATE");
     if (!$stmt) {
         throw new Exception('Could not prepare bank transaction verification: ' . $db->error);
@@ -508,7 +508,7 @@ function SaveBankreconciliation(){
     $statementBalance = round((float)$_POST['bankendbalance'], 2);
 
     if (isset($_POST['Cheq']) && is_array($_POST['Cheq'])) {
-        $stmt = $db->prepare("UPDATE BankTransactions SET reconciled='R'
+        $stmt = $db->prepare("UPDATE banktransactions SET reconciled='R'
             WHERE journal=? AND bankcode=? AND reconciled IS NULL");
         if (!$stmt) { return false; }
 
@@ -525,7 +525,7 @@ function SaveBankreconciliation(){
         $stmt->close();
     }
 
-    $bankUpdate = $db->prepare("UPDATE BankAccounts
+    $bankUpdate = $db->prepare("UPDATE bankaccounts
         SET StatementNo=?,lastreconcileddate=?,lastreconbalance=?
         WHERE accountcode=?");
     if (!$bankUpdate) { return false; }
@@ -558,7 +558,7 @@ function UpdateCashbook(){
 
     $stmt = $db->prepare("SELECT DocDate,amount,journal,
             COALESCE(NULLIF(TRIM(narrative),''),CONCAT('Journal ',journal)) AS narrative
-        FROM BankTransactions
+        FROM banktransactions
         WHERE bankcode=? AND cleared IS NULL AND reconciled IS NULL AND DocDate<=?");
     if (!$stmt) { return false; }
     $statementEndDateTime = $statementDate . ' 23:59:59';
@@ -630,7 +630,7 @@ function UpdateCashbook(){
 Function GetClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
 
-    $SQL = "Select COALESCE(sum(`amount`),0) from `BankTransactions`"
+    $SQL = "Select COALESCE(sum(`amount`),0) from `banktransactions`"
          . " where `bankcode`='" . mysqli_real_escape_string($db, (string)$_POST['Bank_Code']) . "'"
          . " and `cleared`=1";
 
@@ -649,7 +649,7 @@ Function GetClearedDB(){
 Function GetUnClearedDB(){
     global $db,$statementstartdate,$PostingGroup;
 
-    $SQL = "Select COALESCE(sum(`amount`),0) from `BankTransactions`"
+    $SQL = "Select COALESCE(sum(`amount`),0) from `banktransactions`"
          . " where `bankcode`='" . mysqli_real_escape_string($db, (string)$_POST['Bank_Code']) . "'"
          . " and (`cleared`=0 or `cleared` is null)"
          . " and `reconciled` is null";
