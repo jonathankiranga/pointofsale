@@ -86,7 +86,6 @@ if($InputError !=1){
         'POS_DefaultCustomer' => array('label' => 'Default POS customer', 'table' => 'debtors', 'field' => 'itemcode'),
         'POS_DefaultStore' => array('label' => 'Default POS store', 'table' => 'stores', 'field' => 'code'),
         'POS_DefaultCurrency' => array('label' => 'Default POS currency', 'table' => 'currencies', 'field' => 'currabrev'),
-        'POS_DefaultPostingGroup' => array('label' => 'Sales posting group', 'table' => 'postinggroups', 'field' => 'code'),
         'POS_CashBankAccount' => array('label' => 'Cash bank account', 'table' => 'bankaccounts', 'field' => 'accountcode'),
         'POS_MPesaBankAccount' => array('label' => 'M-Pesa bank account', 'table' => 'bankaccounts', 'field' => 'accountcode')
     );
@@ -403,14 +402,6 @@ while ($POSRow = DB_fetch_array($POSCurrencyResult)) {
     echo '<option value="' . htmlspecialchars($POSRow['currabrev'], ENT_QUOTES, 'UTF-8') . '"' . $POSSelected . '>' . htmlspecialchars($POSRow['currency'] . ' (' . $POSRow['currabrev'] . ')', ENT_QUOTES, 'UTF-8') . '</option>';
 }
 echo '</select></td><td>' . _('Currency used for POS sales.') . '</td></tr>';
-
-$POSPostingResult = DB_query("SELECT code FROM postinggroups ORDER BY code", $db);
-echo '<tr><td>' . _('POS sales posting group') . ':</td><td><select name="POS_DefaultPostingGroup"><option value="">-- ' . _('Not configured') . ' --</option>';
-while ($POSRow = DB_fetch_array($POSPostingResult)) {
-    $POSSelected = (isset($_SESSION['POS_DefaultPostingGroup']) && $_SESSION['POS_DefaultPostingGroup'] == $POSRow['code']) ? ' selected="selected"' : '';
-    echo '<option value="' . htmlspecialchars($POSRow['code'], ENT_QUOTES, 'UTF-8') . '"' . $POSSelected . '>' . htmlspecialchars($POSRow['code'], ENT_QUOTES, 'UTF-8') . '</option>';
-}
-echo '</select></td><td>' . _('Posting group applied to POS sales.') . '</td></tr>';
 
 $POSBankResult = DB_query("SELECT accountcode, bankName, AcctName, currency FROM bankaccounts WHERE accountcode IS NOT NULL AND accountcode <> '' AND COALESCE(Makeinactive,0)=0 ORDER BY bankName, accountcode", $db);
 $POSBanks = array();
