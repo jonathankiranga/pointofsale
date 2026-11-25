@@ -132,7 +132,8 @@ $ErrMsg =  _('The system configuration could not be updated because');
 
 }
 
-echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '">';
+// Preserve the routed page query string when this screen is included by index.php.
+echo '<form method="post" action="' . htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') . '">';
 echo '<div class="card">';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 echo '<table class="table-bordered">';
