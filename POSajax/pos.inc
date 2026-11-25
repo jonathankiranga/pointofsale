@@ -87,15 +87,7 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
 
         <?php if (!empty($POSIsSalonTerminal)) { ?>
         <section id="salon-appointment-summary" class="salon-appointment-summary" style="display:none;" aria-live="polite"></section>
-        <section class="salon-service-picker" aria-label="Salon service catalogue">
-            <div class="salon-service-picker-heading">
-                <div><span class="pos-eyebrow">SALON SERVICE MENU</span><h1>Choose a service and hairdresser</h1></div>
-                <div class="salon-service-heading-actions"><a class="salon-add-service-link" href="index.php?link=SalonManagement&amp;view=services">Add Service</a><span class="pos-scan-hint">Services are charged through the standard POS payment workflow</span></div>
-            </div>
-            <div id="salon-service-catalogue" class="salon-service-grid">
-                <div class="pos-empty-hint">Loading salon services...</div>
-            </div>
-        </section>
+
         <?php } ?>
         <main class="pos-main">
             <section class="pos-cart-card" aria-label="Current sale">
@@ -104,7 +96,10 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                         <span class="pos-eyebrow">CURRENT TRANSACTION</span>
                         <h1>Sale items</h1>
                     </div>
-                    <span class="pos-cart-count" id="pos-cart-label">Cart</span>
+                    <div class="salon-till-actions">
+                        <button type="button" id="salon-browse-services" class="pos-primary-button">Browse Services</button>
+                        <span class="pos-cart-count" id="pos-cart-label">Cart</span>
+                    </div>
                 </div>
                 <div class="pos-table-wrap">
                     <table id="sales-table">
@@ -156,6 +151,24 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
             </aside>
         </main>
     </div>
+
+    <?php if (!empty($POSIsSalonTerminal)) { ?>
+    <div id="salon-service-modal" class="modal salon-service-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="salon-service-modal-title">
+        <div class="modal-content pos-dialog salon-service-modal-content">
+            <div class="pos-dialog-header">
+                <div><span class="pos-eyebrow">SALON SERVICE MENU</span><h2 id="salon-service-modal-title">Choose a service and hairdresser</h2></div>
+                <button type="button" class="pos-close-button salon-service-modal-close" aria-label="Close service catalogue">&times;</button>
+            </div>
+            <div class="salon-service-modal-actions">
+                <a class="salon-add-service-link" href="index.php?link=SalonManagement&amp;view=services">Manage Services</a>
+                <span class="pos-scan-hint">Select a service to add it to the current sale.</span>
+            </div>
+            <div id="salon-service-catalogue" class="salon-service-grid">
+                <div class="pos-empty-hint">Loading salon services...</div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 
     <div id="modal-overlay"></div>
 
