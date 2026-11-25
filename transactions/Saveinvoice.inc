@@ -213,7 +213,7 @@ function PostGL($period,$journal,$doc,$discount){
         ? mysqli_real_escape_string($db, (string)$_POST['DimensionOne']) : '';
     $dimensionTwo = isset($_POST['DimensionTwo'])
         ? mysqli_real_escape_string($db, (string)$_POST['DimensionTwo']) : '';
-    $sql=SPRINTF("Insert into [Generalledger]
+    $sql=SPRINTF("Insert into [generalledger]
       ([journalno]
       ,[Docdate]
       ,[period]
@@ -264,7 +264,7 @@ function PostGL($period,$journal,$doc,$discount){
 }
 
 function VATPostGL($period,$journal,$doc,$discount){
-    $sql=SPRINTF("Insert into [Generalledger]
+    $sql=SPRINTF("Insert into [generalledger]
       ([journalno]
       ,[Docdate]
       ,[period]
