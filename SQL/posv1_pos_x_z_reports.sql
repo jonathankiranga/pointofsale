@@ -39,6 +39,3 @@ ALTER TABLE SalesLine
 
 -- Required defaults use the existing config table. Configure these ERP master
 -- records in POSConfiguration.php; this migration deliberately invents none.
-INSERT INTO config (confname, confvalue) VALUES
-('POS_DefaultPostingGroup', '')
-ON DUPLICATE KEY UPDATE confname = VALUES(confname);
