@@ -87,7 +87,6 @@ foreach ($requiredConfig as $key) {
 $customerCode = $config['POS_DefaultCustomer'];
 $storeCode = $config['POS_DefaultStore'];
 $currencyCode = $config['POS_DefaultCurrency'];
-$postingGroup = $config['POS_DefaultPostingGroup'];
 
 $customerStmt = $db->prepare("SELECT d.customer,d.customerposting,p.debtorsaccount,p.VATinclusive
     FROM debtors d
