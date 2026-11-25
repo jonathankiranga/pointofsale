@@ -246,7 +246,7 @@ function PostGL($period,$journal,$doc,$discount){
       join [postinggroups] on [salesheader].[postinggroup]=[postinggroups].[code]
       join salesline on [salesline].[documentno] = [salesheader].[documentno] 
         and [salesline].[documenttype]=[salesheader].[documenttype]
-      join stockmaster on stockmaster.code=salesline.code
+      join stockmaster on stockmaster.itemcode=salesline.code
       join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
       join [currencies] on [salesheader].[currencycode]=[currencies].[currabrev]
       where salesheader.documentno='%s' AND salesheader.documenttype=10
@@ -290,7 +290,7 @@ function VATPostGL($period,$journal,$doc,$discount){
       from salesheader join [postinggroups] on [salesheader].[postinggroup]=[postinggroups].[code]
       join salesline on [salesline].[documentno] = [salesheader].[documentno]
         and [salesline].[documenttype]=[salesheader].[documenttype]
-     join stockmaster on stockmaster.code=salesline.code
+     join stockmaster on stockmaster.itemcode=salesline.code
      join inventorypostinggroup on inventorypostinggroup.code=stockmaster.postinggroup
        join [currencies] on [salesheader].[currencycode]=[currencies].[currabrev]
       where salesheader.documentno='%s' AND salesheader.documenttype=10
