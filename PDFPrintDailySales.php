@@ -33,27 +33,27 @@ if(isset($_POST['salesreport'])){
      salesHeader();
     
      $SQL=Sprintf("SELECT 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[userid]
-      ,sum(SalesLine.invoiceamount) as invoiceamount
-      ,sum(SalesLine.vatamount) as vatamount
-      ,sum(SalesLine.invoiceamount-SalesLine.vatamount) as netamt
-  FROM [SalesHeader] join SalesLine 
-        on SalesHeader.documentno=SalesLine.documentno 
-        and SalesHeader.documenttype=SalesLine.documenttype
-        and SalesHeader.documenttype=10
-        where SalesHeader.[docdate] between '%s' and '%s' 
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[status]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[userid]
+      ,sum(salesline.invoiceamount) as invoiceamount
+      ,sum(salesline.vatamount) as vatamount
+      ,sum(salesline.invoiceamount-salesline.vatamount) as netamt
+  FROM [salesheader] join salesline 
+        on salesheader.documentno=salesline.documentno 
+        and salesheader.documenttype=salesline.documenttype
+        and salesheader.documenttype=10
+        where salesheader.[docdate] between '%s' and '%s' 
         group by 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[userid]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]",$castdate,$Tcastdate);
+       [salesheader].[documentno]
+      ,[salesheader].[userid]
+      ,[salesheader].[docdate]
+      ,[salesheader].[status]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]",$castdate,$Tcastdate);
      
      $FontSize =10; $YPos = $firstrowpos; 
      
@@ -122,27 +122,27 @@ echo '<table id="VATSALES" class="table">'
 
 echo '<tr><td>'._('PIN No.').'</td><td>'._('NAME').'</td><td>'._('DATE').'</td><td>'._('INVOICE').'</td><td>'._('Exc Amount.').'</td><td>'._('VAT Amount').'</td></tr>';
      $SQL=Sprintf("SELECT 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[userid]
-      ,sum(SalesLine.invoiceamount) as invoiceamount
-      ,sum(SalesLine.vatamount) as vatamount
-      ,sum(SalesLine.invoiceamount-SalesLine.vatamount) as netamt
-  FROM [SalesHeader] join SalesLine 
-        on SalesHeader.documentno=SalesLine.documentno 
-        and SalesHeader.documenttype=SalesLine.documenttype
-        and SalesHeader.documenttype=10
-        where SalesHeader.[docdate] between '%s' and '%s' 
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[status]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[userid]
+      ,sum(salesline.invoiceamount) as invoiceamount
+      ,sum(salesline.vatamount) as vatamount
+      ,sum(salesline.invoiceamount-salesline.vatamount) as netamt
+  FROM [salesheader] join salesline 
+        on salesheader.documentno=salesline.documentno 
+        and salesheader.documenttype=salesline.documenttype
+        and salesheader.documenttype=10
+        where salesheader.[docdate] between '%s' and '%s' 
         group by 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[userid]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]",$castdate,$Tcastdate);
+       [salesheader].[documentno]
+      ,[salesheader].[userid]
+      ,[salesheader].[docdate]
+      ,[salesheader].[status]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]",$castdate,$Tcastdate);
      
       $Results=DB_query($SQL,$db);
      while($rows = DB_fetch_array($Results)){
