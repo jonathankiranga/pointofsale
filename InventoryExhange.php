@@ -53,7 +53,7 @@ if(isset($_POST['submit'])){
               $sql[] = "Update [stockmaster] set [averagestock]='".$stockexchange[0]."' where itemcode='".$stockexchange[1]."'";
             }
             
-            $sql[] = "INSERT INTO [StockRegister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN]) 
+            $sql[] = "INSERT INTO [stockregister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN]) 
                       (select [item],[qty],[COST],0,[docno],[docno] from [stockexchange] 
                       where [authorised]=1 and [docno]='".$_POST['SelectedNo']."')";
 
@@ -310,7 +310,7 @@ $procodedure ="Create PROCEDURE [EMPTYFIFO]
      Select @partperunit = partperunit from stockmaster where itemcode=@stcode
    
 	DECLARE STOCKREGISTER CURSOR FOR 
-        select [cost],[StockBalance],[rowid]  from [StockRegister] 
+        select [cost],[StockBalance],[rowid]  from [stockregister] 
         where [itemcode]=@stcode and [StockBalance]>0  order by rowid asc
         
         open STOCKREGISTER
@@ -320,13 +320,13 @@ $procodedure ="Create PROCEDURE [EMPTYFIFO]
     
             if(@quantity>@stockbalance) 
             begin
-                Update [StockRegister] set [StockOut]=([StockOut] + @stockbalance) where rowid=@rowid
+                Update [stockregister] set [StockOut]=([StockOut] + @stockbalance) where rowid=@rowid
                 select @usequantity = @stockbalance
                 select @quantity = (@quantity-@usequantity)
             end
             else
             begin 
-                Update [StockRegister] set [StockOut]=([StockOut] + @quantity) where rowid=@rowid
+                Update [stockregister] set [StockOut]=([StockOut] + @quantity) where rowid=@rowid
                 select @usequantity = @quantity
                 select @quantity  = 0
             end
@@ -413,7 +413,7 @@ $procodedure ="Create PROCEDURE [FIFO]
         select @quantity=  abs(@qtyinput)
    
 	DECLARE STOCKREGISTER CURSOR FOR select [cost],[StockBalance],[rowid] 
-        from [StockRegister] where [itemcode]=@stcode and [StockBalance]>0  order by rowid asc
+        from [stockregister] where [itemcode]=@stcode and [StockBalance]>0  order by rowid asc
         open STOCKREGISTER
         FETCH NEXT FROM STOCKREGISTER into @avecost,@stockbalance,@rowid
         WHILE (@@FETCH_STATUS = 0)
@@ -421,13 +421,13 @@ $procodedure ="Create PROCEDURE [FIFO]
     
             if(@quantity>@stockbalance) 
             begin
-                Update [StockRegister] set [StockOut]=([StockOut] + @stockbalance) where rowid=@rowid
+                Update [stockregister] set [StockOut]=([StockOut] + @stockbalance) where rowid=@rowid
                 select @usequantity = @stockbalance
                 select @quantity = (@quantity - @usequantity)
             end
             else
             begin 
-                Update [StockRegister] set [StockOut]=([StockOut] + @quantity) where rowid=@rowid
+                Update [stockregister] set [StockOut]=([StockOut] + @quantity) where rowid=@rowid
                 select @usequantity = @quantity
                 select @quantity  = 0
             end
