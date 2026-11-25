@@ -26,7 +26,7 @@ CREATE TABLE `banktransactions` (
   `bankcode` char(10) NOT NULL,
   `DocDate` date NOT NULL,
   `doctype` int DEFAULT NULL,
-  `DocumentNo` char(10) NOT NULL,
+  `DocumentNo` varchar(50) NOT NULL,
   `TransType` char(10) NOT NULL,
   `itemcode` varchar(20) NOT NULL,
   `journal` varchar(20) NOT NULL,
