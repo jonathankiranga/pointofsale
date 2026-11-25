@@ -190,7 +190,7 @@ $MenuItems['Sales']['Transactions']['URL'] = array('/SalonPOS.php',
 // Salon workspace links are part of the existing legacy Sales menu.
 $MenuItems['Sales']['Transactions']['Caption'] = array_merge(
     $MenuItems['Sales']['Transactions']['Caption'],
-    array(_('Salon Dashboard'), _('Appointments'), _('Salon Services'), _('Hairdressers'), _('Customer Records'))
+    array(_('Salon Dashboard'), _('Appointments'), _('Salon Services'), _('Hairdressers'))
 );
 $MenuItems['Sales']['Transactions']['URL'] = array_merge(
     $MenuItems['Sales']['Transactions']['URL'],
