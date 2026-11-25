@@ -29,11 +29,11 @@ if(isset($_POST['submit']) and $_POST['submit']=='Run Production' ){
          $journal= GetNextTransNo(0,$db);
          $period = GetPeriod($_POST['Date'],$db,false);
          
-         $sql[] = sprintf("INSERT INTO [ProductionMaster] ([Batchno],[date],[userid]) VALUES ('%s','%s','%s')",
+         $sql[] = sprintf("INSERT INTO [productionmaster] ([Batchno],[date],[userid]) VALUES ('%s','%s','%s')",
                  $_POST['Batchno'],FormatDateForSQL($_POST['Date']),stripslashes($_SESSION['UserID']));
                  
          
-         $sql[]= sprintf("INSERT INTO [ProdcutionMasterLine] ([Batchno],[itemcode],[UOM],[qty],[cost])  "
+         $sql[]= sprintf("INSERT INTO [prodcutionmasterline] ([Batchno],[itemcode],[UOM],[qty],[cost])  "
                  . "VALUES ('%s','%s','%s','%s',%f) ",
                  $_POST['Batchno'] ,$_POST['BOM'],$_POST['FUOM'][$_POST['BOM']],
                  $_POST['production'],$_POST['averagecost']);
@@ -62,7 +62,7 @@ if(isset($_POST['submit']) and $_POST['submit']=='Run Production' ){
         
            $sql[] = "Update [stockmaster] set [averagestock]=".$_POST['averagecost']." where itemcode='".$_POST['BOM']."'";
            
-           $sql[] = " INSERT INTO [StockRegister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN]) 
+           $sql[] = " INSERT INTO [stockregister] ([itemcode],[StockIn],[cost],[StockOut],[journal],[GRN]) 
             VALUES  ('".$_POST['BOM']."', ".$_POST['production']." ,".$_POST['averagecost'].", 0 , '".$journal."' ,'".$_POST['Batchno']."')";
     }
           
@@ -85,7 +85,7 @@ if(isset($_POST['submit']) and $_POST['submit']=='Run Production' ){
         
     }
 
-    $sql[] = sprintf("INSERT INTO [ProdcutionMasterLine] ([Batchno],[itemcode],[UOM],[qty],[cost]) "
+    $sql[] = sprintf("INSERT INTO [prodcutionmasterline] ([Batchno],[itemcode],[UOM],[qty],[cost]) "
      . " VALUES ('%s','%s','%s','%s',%f) ",$_POST['Batchno'],$rowid,$_POST['RUOM'][$rowid],$tankvalue,$_POST["AVE"][$rowid]);
    
     
@@ -224,7 +224,7 @@ function Findstockdetails($stockcode){
 
 function tankbalance($tank){
     global $db;
-    $sql="select IFNULL([units],0) from [ProductionUnit] where tankname='".$tank."'";
+    $sql="select IFNULL([units],0) from [productionunit] where tankname='".$tank."'";
      
     $ResultIndex=DB_query($sql,$db);
     $value =DB_fetch_row($ResultIndex);
@@ -234,7 +234,7 @@ function tankbalance($tank){
 
 function tank_itemcode_balance($tank){
     global $db;
-    $sql="select IFNULL([units],0) from [ProductionUnit] where tankname='".$tank."'";
+    $sql="select IFNULL([units],0) from [productionunit] where tankname='".$tank."'";
     $ResultIndex=DB_query($sql,$db);
     $value =DB_fetch_row($ResultIndex);
     
@@ -244,7 +244,7 @@ function tank_itemcode_balance($tank){
 function Checktank($tank){
     global $db,$allhavetanks;
     
-    $ResultIndex=DB_query("select count(*) as 'T' from [ProductionUnit] where itemcode='".$tank."'", $db);
+    $ResultIndex=DB_query("select count(*) as 'T' from [productionunit] where itemcode='".$tank."'", $db);
     $value=DB_fetch_row($ResultIndex);
   
     if($value[0]==0){
@@ -257,7 +257,7 @@ function Checktank($tank){
 function Checkrowtank($tank){
     global $db,$allhavetanks;
     
-    $ResultIndex=DB_query("select count(*) as 'T' from [ProductionUnit] where itemcode='".$tank."'", $db);
+    $ResultIndex=DB_query("select count(*) as 'T' from [productionunit] where itemcode='".$tank."'", $db);
     $value=DB_fetch_row($ResultIndex);
     
     return $value[0];
@@ -266,7 +266,7 @@ function Checkrowtank($tank){
 Function GetcmbTank($itemcode){
     global $db;
     
-    $ResultIndex=DB_query("select tankname from [ProductionUnit] where itemcode='".$itemcode."'", $db);
+    $ResultIndex=DB_query("select tankname from [productionunit] where itemcode='".$itemcode."'", $db);
     while($value=DB_fetch_array($ResultIndex)){
         if($_POST['productiontank'][$itemcode]==trim($value['tankname'])){
             echo '<option value="'.trim($value['tankname']).'"  selected="selected">'.$value['tankname'].'</option>';
@@ -281,7 +281,7 @@ Function GetcmbTank($itemcode){
 function tankcapacity($itemcode){
     global $db;
     
-    $ResultIndex=DB_query("select sum([balance]) from [ProductionUnit] where itemcode='".$itemcode."'", $db);
+    $ResultIndex=DB_query("select sum([balance]) from [productionunit] where itemcode='".$itemcode."'", $db);
     $value =DB_fetch_row($ResultIndex);
     
     return $value[0];
@@ -291,7 +291,7 @@ function createstores($code){
        global $db;
        $line="";
       
-       $REsults=DB_query('SELECT [code],[Storename] FROM [Stores]', $db);
+       $REsults=DB_query('SELECT [code],[Storename] FROM [stores]', $db);
        $line .='<td><select name="location['.$code.']" required="required">';
               
        while($rows=  DB_fetch_array($REsults)){
