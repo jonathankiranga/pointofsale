@@ -77,8 +77,8 @@ if (isset($mysqli) && $mysqli instanceof mysqli) {
                 <span>Remove line</span>
             </button>
             <?php if (!empty($POSIsSalonTerminal)) { ?>
-            <a class="pos-action" href="SalonManagement.php?view=appointments" id="salon-appointments-link"><span>Appointments</span></a>
-            <a class="pos-action" href="SalonManagement.php?view=hairdressers" id="salon-management-link"><span>Salon setup</span></a>
+            <a class="pos-action" href="SalonManagement.php?view=appointments" target="_top" id="salon-appointments-link"><span>Appointments</span></a>
+            <a class="pos-action" href="SalonManagement.php?view=hairdressers" target="_top" id="salon-management-link"><span>Salon setup</span></a>
             <?php } ?>
             <button type="button" class="pos-action" id="pos-shift-open"><span>Open shift</span></button>
             <button type="button" class="pos-action" id="pos-x-report"><span>X report</span></button>
