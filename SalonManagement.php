@@ -72,13 +72,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $item = $itemStmt->get_result()->fetch_assoc();
                 $itemStmt->close();
                 if (!$item) { throw new Exception('The selected ERP stock item is no longer active or available. Refresh and select it again.'); }
-                $settingStmt = salon_exec($db, "SELECT stockmaster_pkey FROM salon_service_settings WHERE stockmaster_pkey=? LIMIT 1", 'i', array($stockmasterPkey));
-                $settingExists = (bool)$settingStmt->get_result()->fetch_assoc();
+                $settingStmt = salon_exec($db, "SELECT stockmaster_pkey,image_path FROM salon_service_settings WHERE stockmaster_pkey=? LIMIT 1", 'i', array($stockmasterPkey));
+                $existingSetting = $settingStmt->get_result()->fetch_assoc();
                 $settingStmt->close();
-                if ($settingExists) {
-                    $stmt = salon_exec($db, "UPDATE salon_service_settings SET duration_minutes=?,notes=?,is_active=? WHERE stockmaster_pkey=?", 'isii', array($duration,$notes,$active,$stockmasterPkey));
+                $imagePath = $existingSetting ? $existingSetting['image_path'] : null;
+
+                if (isset($_FILES['service_image']) && $_FILES['service_image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                    if ($_FILES['service_image']['error'] !== UPLOAD_ERR_OK) {
+                        throw new Exception('The service image upload failed. Choose the image again.');
+                    }
+                    if ((int)$_FILES['service_image']['size'] > 5 * 1024 * 1024) {
+                        throw new Exception('Service images must be 5 MB or smaller.');
+                    }
+                    if (!is_uploaded_file($_FILES['service_image']['tmp_name'])) {
+                        throw new Exception('The uploaded service image is not valid.');
+                    }
+                    $imageInfo = @getimagesize($_FILES['service_image']['tmp_name']);
+                    if (!$imageInfo || empty($imageInfo['mime'])) {
+                        throw new Exception('Upload a valid JPG, PNG or WebP image.');
+                    }
+                    $imageTypes = array('image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp');
+                    if (!isset($imageTypes[$imageInfo['mime']])) {
+                        throw new Exception('Only JPG, PNG and WebP service images are supported.');
+                    }
+                    $uploadDirectory = 'uploads/salon-services';
+                    if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0755, true) && !is_dir($uploadDirectory)) {
+                        throw new Exception('The salon service image directory could not be created.');
+                    }
+                    $fileName = 'service-' . $stockmasterPkey . '-' . bin2hex(random_bytes(8)) . '.' . $imageTypes[$imageInfo['mime']];
+                    if (!move_uploaded_file($_FILES['service_image']['tmp_name'], $uploadDirectory . '/' . $fileName)) {
+                        throw new Exception('The service image could not be saved. Check folder permissions.');
+                    }
+                    $imagePath = $uploadDirectory . '/' . $fileName;
+                }
+
+                if ($existingSetting) {
+                    $stmt = salon_exec($db, "UPDATE salon_service_settings SET duration_minutes=?,notes=?,is_active=?,image_path=? WHERE stockmaster_pkey=?", 'isisi', array($duration,$notes,$active,$imagePath,$stockmasterPkey));
                 } else {
-                    $stmt = salon_exec($db, "INSERT INTO salon_service_settings (stockmaster_pkey,duration_minutes,notes,is_active) VALUES (?,?,?,?)", 'iisi', array($stockmasterPkey,$duration,$notes,$active));
+                    $stmt = salon_exec($db, "INSERT INTO salon_service_settings (stockmaster_pkey,duration_minutes,notes,is_active,image_path) VALUES (?,?,?,?,?)", 'iisis', array($stockmasterPkey,$duration,$notes,$active,$imagePath));
                 }
                 $stmt->close();
                 $notice = 'Salon service settings saved against the ERP stock item.';
@@ -219,7 +250,7 @@ function salon_rows($db, $sql) {
     return $rows;
 }
 $hairdressers = salon_rows($db, "SELECT hairdresser_id,hairdresser_code,full_name,phone,email,is_active,notes FROM salon_hairdressers ORDER BY full_name");
-$services = salon_rows($db, "SELECT sm.pkey AS service_id,sm.itemcode AS service_code,sm.descrip AS service_name,sc.categorydescription AS service_category,ss.notes AS description,ss.duration_minutes,sm.sellingprice AS standard_price,sm.pkey AS stockmaster_pkey,sm.itemcode AS pos_itemcode,ss.is_active FROM salon_service_settings ss INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey LEFT JOIN stockcategory sc ON sc.categoryid=sm.category WHERE sm.sellingprice IS NOT NULL AND sm.sellingprice>=0 ORDER BY sm.descrip");
+$services = salon_rows($db, "SELECT sm.pkey AS service_id,sm.itemcode AS service_code,sm.descrip AS service_name,sc.categorydescription AS service_category,ss.notes AS description,ss.duration_minutes,sm.sellingprice AS standard_price,sm.pkey AS stockmaster_pkey,sm.itemcode AS pos_itemcode,ss.image_path,ss.is_active FROM salon_service_settings ss INNER JOIN stockmaster sm ON sm.pkey=ss.stockmaster_pkey LEFT JOIN stockcategory sc ON sc.categoryid=sm.category WHERE sm.sellingprice IS NOT NULL AND sm.sellingprice>=0 ORDER BY sm.descrip");
 $stockItems = salon_rows($db, "SELECT sm.pkey,sm.itemcode,sm.descrip,sm.sellingprice,sc.categorydescription FROM stockmaster sm LEFT JOIN stockcategory sc ON sc.categoryid=sm.category WHERE sm.itemcode IS NOT NULL AND sm.itemcode <> '' AND sm.sellingprice IS NOT NULL AND sm.sellingprice>=0 AND (sm.inactive IS NULL OR sm.inactive=0) ORDER BY sm.itemcode");
 $editingHairdresser = null;
 if (isset($_GET['edit_hairdresser'])) {
@@ -236,10 +267,12 @@ if ($view === 'hairdressers') {
     if (!$hairdressers) { echo '<tr><td colspan="6" class="text-muted">No hairdressers registered.</td></tr>'; }
     echo '</tbody></table></div></div></div></div>';
 } elseif ($view === 'services') {
-    echo '<div class="row g-3"><div class="col-lg-4"><div class="card"><div class="card-header">Configure salon service</div><div class="card-body"><form method="post"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="save_service"><div class="mb-2"><label class="form-label">Service</label><select class="form-select" name="stockmaster_pkey" required><option value="">Select service</option>';
+    echo '<div class="row g-3"><div class="col-lg-4"><div class="card"><div class="card-header">Configure salon service</div><div class="card-body"><form method="post" enctype="multipart/form-data"><input type="hidden" name="FormID" value="' . salon_h($_SESSION['FormID']) . '"><input type="hidden" name="action" value="save_service"><div class="mb-2"><label class="form-label">Service</label><select class="form-select" name="stockmaster_pkey" required><option value="">Select service</option>';
     foreach ($stockItems as $item) { echo '<option value="' . (int)$item['pkey'] . '" ' . ($editingService && (int)$editingService['stockmaster_pkey'] === (int)$item['pkey'] ? 'selected' : '') . '>' . salon_h($item['itemcode'] . ' — ' . $item['descrip']) . '</option>'; }
-    echo '</select><small class="text-muted">Name, category, item code, selling price, VAT and posting setup come directly from ERP stockmaster.</small></div><div class="mb-2"><label class="form-label">Duration (minutes)</label><input class="form-control" type="number" name="duration_minutes" min="1" value="' . (int)($editingService ? $editingService['duration_minutes'] : 30) . '" required></div><div class="mb-2"><label class="form-label">Status</label><select class="form-select" name="is_active"><option value="1" ' . (!$editingService || $editingService['is_active'] ? 'selected' : '') . '>Active</option><option value="0" ' . ($editingService && !$editingService['is_active'] ? 'selected' : '') . '>Inactive</option></select></div><div class="mb-3"><label class="form-label">Salon notes</label><textarea class="form-control" name="description" rows="2">' . salon_h($editingService ? $editingService['description'] : '') . '</textarea></div><button class="btn btn-primary">Save service settings</button></form></div></div></div><div class="col-lg-8"><div class="card"><div class="card-header">ERP items enabled for salon operations</div><div class="table-responsive"><table class="table table-striped mb-0"><thead><tr><th>Item code</th><th>ERP description</th><th>Category</th><th>Duration</th><th>ERP price (KES)</th><th>Status</th><th>Action</th></tr></thead><tbody>';
-    foreach ($services as $row) { echo '<tr><td>' . salon_h($row['service_code']) . '</td><td>' . salon_h($row['service_name']) . '</td><td>' . salon_h($row['service_category']) . '</td><td>' . (int)$row['duration_minutes'] . ' min</td><td>' . number_format((float)$row['standard_price'],2) . '</td><td>' . ($row['is_active'] ? 'Active' : 'Inactive') . '</td><td><a href="index.php?link=SalonManagement&view=services&edit_service=' . (int)$row['service_id'] . '">Configure</a></td></tr>'; }
+    echo '</select><small class="text-muted">Name, category, item code, selling price, VAT and posting setup come directly from ERP stockmaster.</small></div><div class="mb-2"><label class="form-label">Service picture (JPG, PNG or WebP; max 5 MB)</label><input class="form-control" type="file" name="service_image" accept="image/jpeg,image/png,image/webp"><small class="text-muted">Upload a picture to display on the salon POS service card. Leave empty to keep the current picture.</small></div>';
+    if ($editingService && !empty($editingService['image_path'])) { echo '<div class="mb-3"><img src="' . salon_h($editingService['image_path']) . '" alt="Current service picture" style="width:100%;max-height:150px;object-fit:cover;border-radius:8px;"><div class="small text-muted mt-1">Current service picture</div></div>'; }
+    echo '<div class="mb-2"><label class="form-label">Duration (minutes)</label><input class="form-control" type="number" name="duration_minutes" min="1" value="' . (int)($editingService ? $editingService['duration_minutes'] : 30) . '" required></div><div class="mb-2"><label class="form-label">Status</label><select class="form-select" name="is_active"><option value="1" ' . (!$editingService || $editingService['is_active'] ? 'selected' : '') . '>Active</option><option value="0" ' . ($editingService && !$editingService['is_active'] ? 'selected' : '') . '>Inactive</option></select></div><div class="mb-3"><label class="form-label">Salon notes</label><textarea class="form-control" name="description" rows="2">' . salon_h($editingService ? $editingService['description'] : '') . '</textarea></div><button class="btn btn-primary">Save service settings</button></form></div></div></div><div class="col-lg-8"><div class="card"><div class="card-header">ERP items enabled for salon operations</div><div class="table-responsive"><table class="table table-striped mb-0"><thead><tr><th>Picture</th><th>Item code</th><th>ERP description</th><th>Category</th><th>Duration</th><th>ERP price (KES)</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+    foreach ($services as $row) { echo '<tr><td>' . (!empty($row['image_path']) ? '<img src="' . salon_h($row['image_path']) . '" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">' : '<span class="text-muted">No picture</span>') . '</td><td>' . salon_h($row['service_code']) . '</td><td>' . salon_h($row['service_name']) . '</td><td>' . salon_h($row['service_category']) . '</td><td>' . (int)$row['duration_minutes'] . ' min</td><td>' . number_format((float)$row['standard_price'],2) . '</td><td>' . ($row['is_active'] ? 'Active' : 'Inactive') . '</td><td><a href="index.php?link=SalonManagement&view=services&edit_service=' . (int)$row['service_id'] . '">Configure</a></td></tr>'; }
     if (!$services) { echo '<tr><td colspan="8" class="text-muted">No ERP items enabled for salon operations.</td></tr>'; }
     echo '</tbody></table></div></div></div></div>';
 } elseif ($view === 'assignments') {
