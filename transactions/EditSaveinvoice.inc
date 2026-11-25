@@ -26,7 +26,7 @@ if($_SESSION['DocumentPosted']==true){
     $TransBuffer  = DB_Txn_Begin($db);
     
     $sql[] ="delete from customerstatement where Documentno='".$INVOICENO."' and Documenttype='10'";
-    $sql[] ="delete from Generalledger where DocumentNo='".$INVOICENO."' and DocumentType='10'";
+    $sql[] ="delete from generalledger where DocumentNo='".$INVOICENO."' and DocumentType='10'";
     $sql[] ="delete from debtorsledger where invref='".$INVOICENO."' and [systypes_1]='10'";
     $sql[] ="delete from salesline where documentno='".$INVOICENO."' and [documenttype]='10'";
     $sql[] ="delete from salesheader where documentno='".$INVOICENO."' and [documenttype]='10'";
@@ -203,7 +203,7 @@ function PostDebtors($period,$journal,$doc,$discount){
 }
 
 function PostGL($period,$journal,$doc,$discount){
-    $sql=SPRINTF("Insert into [Generalledger]
+    $sql=SPRINTF("Insert into [generalledger]
       ([journalno]
       ,[Docdate]
       ,[period]
@@ -250,7 +250,7 @@ function PostGL($period,$journal,$doc,$discount){
 }
 
 function VATPostGL($period,$journal,$doc,$discount){
-    $sql=SPRINTF("Insert into [Generalledger]
+    $sql=SPRINTF("Insert into [generalledger]
       ([journalno]
       ,[Docdate]
       ,[period]
