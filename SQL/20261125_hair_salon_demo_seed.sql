@@ -100,6 +100,28 @@ ON DUPLICATE KEY UPDATE
     is_active = 1,
     notes = VALUES(notes);
 
+-- 3b. Attach the bundled demo service artwork.
+-- These are real SVG files committed under uploads/salon-services/demo/.
+-- The images are deliberately mapped by the stockmaster service description.
+UPDATE salon_service_settings ss
+INNER JOIN stockmaster sm ON sm.pkey = ss.stockmaster_pkey
+SET ss.image_path = CASE
+    WHEN LOWER(sm.descrip) LIKE '%braid%' THEN 'uploads/salon-services/demo/braids.svg'
+    WHEN LOWER(sm.descrip) LIKE '%wash%' THEN 'uploads/salon-services/demo/wash.svg'
+    WHEN LOWER(sm.descrip) LIKE '%blow%' THEN 'uploads/salon-services/demo/blowdry.svg'
+    WHEN LOWER(sm.descrip) LIKE '%colour%' OR LOWER(sm.descrip) LIKE '%color%' THEN 'uploads/salon-services/demo/colour.svg'
+    WHEN LOWER(sm.descrip) LIKE '%manicure%' OR LOWER(sm.descrip) LIKE '%pedicure%' OR LOWER(sm.descrip) LIKE '%nail%' THEN 'uploads/salon-services/demo/nails.svg'
+    WHEN LOWER(sm.descrip) LIKE '%treatment%' OR LOWER(sm.descrip) LIKE '%relaxer%' THEN 'uploads/salon-services/demo/treatment.svg'
+    WHEN LOWER(sm.descrip) LIKE '%style%' THEN 'uploads/salon-services/demo/styling.svg'
+    WHEN LOWER(sm.descrip) LIKE '%hair%' OR LOWER(sm.descrip) LIKE '%cut%' THEN 'uploads/salon-services/demo/haircut.svg'
+    ELSE 'uploads/salon-services/demo/styling.svg'
+END
+WHERE ss.is_active = 1
+  AND sm.itemcode IS NOT NULL
+  AND sm.itemcode <> ''
+  AND LOWER(sm.descrip) REGEXP
+      'hair|cut|wash|braid|style|manicure|pedicure|treatment|blow|colour|color|relaxer';
+
 -- 4. Assign all four demo hairdressers to the selected demo services.
 INSERT INTO salon_hairdresser_services
     (hairdresser_id, stockmaster_pkey, is_active)
