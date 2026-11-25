@@ -18,7 +18,7 @@ if($_SESSION['DocumentPosted']==true){
     $INVOICENO       = GetNextTransNo(20,$db);
     $sql=array();
     
-    $sql[] ="insert into [PurchaseHeader] 
+    $sql[] ="insert into [purchaseheader] 
       ([documenttype]
       ,[documentno]
       ,[docdate]
@@ -52,7 +52,7 @@ if($_SESSION['DocumentPosted']==true){
       ,'".$_SESSION['UserID']."'
       ,'".$PeriodNo."'
       ,'".$VATinclusive ."'
-      from [PurchaseHeader] 
+      from [purchaseheader] 
       where documentno='".$_SESSION['DocumentNo']."') ";
     
     foreach ($_POST['subunits'] as $key => $value) {
@@ -68,7 +68,7 @@ if($_SESSION['DocumentPosted']==true){
         $grossamount = $_POST['grossamount'][$key];
 
   
-           $sql[] =  sprintf("INSERT INTO [PurchaseLine]
+           $sql[] =  sprintf("INSERT INTO [purchaseline]
            ([documenttype],[docdate],[documentno]
            ,[code],[description],[unitofmeasure]
            ,[Quantity],[UnitPrice],[vatamount]
@@ -76,7 +76,7 @@ if($_SESSION['DocumentPosted']==true){
            ,[inclusive],[locationcode],UOM) 
            (select '%s','%s' ,'%s' ,[code],[description],[unitofmeasure]
            ,[Qunatity_delivered],%f,%f,%f,[vatrate],[inclusive],'%s',[UOM]
-           from PurchaseLine where [entryno]='".$key."')"
+           from purchaseline where [entryno]='".$key."')"
            ,20
            ,FormatDateForSQL($_POST['date'])
            ,$INVOICENO
@@ -110,7 +110,7 @@ if($_SESSION['DocumentPosted']==true){
     }else{
         DB_Txn_Commit($db);
         prnMsg('This Purchase has successfully been posted in the General Ledger');
-        DB_query("Update PurchaseHeader set [released]=2 where documentno='".$_SESSION['DocumentNo']."'",$db);
+        DB_query("Update purchaseheader set [released]=2 where documentno='".$_SESSION['DocumentNo']."'",$db);
  
         $_SESSION['DocumentPosted']=true;
         unset($_SESSION['DocumentNo']);
@@ -137,46 +137,46 @@ function PostCreditors($period,$journal,$doc){
       ,[ledger]
       ,period)
   (SELECT 
-      PurchaseHeader.[postingdate]
-      ,(rtrim(PurchaseLine.[description]) +' X '+CAST(PurchaseLine.[Quantity] as nvarchar(10)))+' '+
-       (case [PurchaseLine].UOM when 'fulqty' 
-      then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code  and stockmaster.itemcode=PurchaseLine.code) 
-	  else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code  and stockmaster.itemcode=PurchaseLine.code)
+      purchaseheader.[postingdate]
+      ,(rtrim(purchaseline.[description]) +' X '+CAST(purchaseline.[Quantity] as nvarchar(10)))+' '+
+       (case [purchaseline].UOM when 'fulqty' 
+      then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code  and stockmaster.itemcode=purchaseline.code) 
+	  else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code  and stockmaster.itemcode=purchaseline.code)
 	  end)  as narration,'I'
-      ,PurchaseHeader.[externaldocumentno]
-      ,PurchaseHeader.[vendorcode]
-      ,SUM(PurchaseLine.invoiceamount *-1) as Value
+      ,purchaseheader.[externaldocumentno]
+      ,purchaseheader.[vendorcode]
+      ,SUM(purchaseline.invoiceamount *-1) as Value
       ,0.00
-      ,PurchaseHeader.[currencycode]
+      ,purchaseheader.[currencycode]
       ,'I'
       ,'%s'
       ,'I'
-      ,SUM(PurchaseLine.vatamount *-1) as VAT
-      ,PurchaseHeader.[documenttype]
-      ,PurchaseHeader.[postinggroup]
+      ,SUM(purchaseline.vatamount *-1) as VAT
+      ,purchaseheader.[documenttype]
+      ,purchaseheader.[postinggroup]
       ,'%s'
-  FROM [PurchaseHeader] join PurchaseLine 
-        on PurchaseHeader.documentno=PurchaseLine.documentno 
-        and PurchaseHeader.documenttype=PurchaseLine.documenttype 
-        where PurchaseHeader.documentno='%s' 
+  FROM [purchaseheader] join purchaseline 
+        on purchaseheader.documentno=purchaseline.documentno 
+        and purchaseheader.documenttype=purchaseline.documenttype 
+        where purchaseheader.documentno='%s' 
         group by
-       PurchaseHeader.[documenttype]
-      ,PurchaseHeader.[documentno]
-      ,PurchaseHeader.[postingdate]
-      ,PurchaseHeader.[vendorcode]
-      ,PurchaseHeader.[externaldocumentno]
-      ,PurchaseHeader.[postinggroup]
-      ,PurchaseHeader.[currencycode]
-      ,PurchaseLine.[Quantity]
-      ,PurchaseLine.[description]
-      ,PurchaseLine.[code]
-      ,PurchaseLine.[UOM])", $journal,$period,$doc);
+       purchaseheader.[documenttype]
+      ,purchaseheader.[documentno]
+      ,purchaseheader.[postingdate]
+      ,purchaseheader.[vendorcode]
+      ,purchaseheader.[externaldocumentno]
+      ,purchaseheader.[postinggroup]
+      ,purchaseheader.[currencycode]
+      ,purchaseline.[Quantity]
+      ,purchaseline.[description]
+      ,purchaseline.[code]
+      ,purchaseline.[UOM])", $journal,$period,$doc);
    
    return $SQL;
 }
 
 function PostGL($period,$journal,$doc){
-    $sql=SPRINTF("Insert into [Generalledger]
+    $sql=SPRINTF("Insert into [generalledger]
       ([journalno]
       ,[Docdate]
       ,[period]
@@ -195,32 +195,32 @@ function PostGL($period,$journal,$doc){
       ,[dimension2])
       (select
        '%s'
-      ,PurchaseHeader.[postingdate]
+      ,purchaseheader.[postingdate]
       ,'%s'
-      ,PurchaseHeader.[externaldocumentno]
-      ,PurchaseHeader.documenttype
+      ,purchaseheader.[externaldocumentno]
+      ,purchaseheader.documenttype
       ,[inventorypostinggroup].[defaultgl_purch]
       ,[arpostinggroups].[creditorsaccount]
       ,[inventorypostinggroup].[defaultgl_vat]
-      ,PurchaseLine.invoiceamount
-      ,IFNULL(PurchaseLine.vatamount,0) as vatamount
-      ,PurchaseHeader.[currencycode]
+      ,purchaseline.invoiceamount
+      ,IFNULL(purchaseline.vatamount,0) as vatamount
+      ,purchaseheader.[currencycode]
       ,[currencies].[rate]
-      ,PurchaseHeader.[vendorcode]
-      ,(rtrim(PurchaseLine.[description]) +'X'+CAST(PurchaseLine.[Quantity] as nvarchar(10)))+
-	  (case [PurchaseLine].UOM when 'fulqty' 
-          then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code  and stockmaster.itemcode=PurchaseLine.code) 
-	  else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code  and stockmaster.itemcode=PurchaseLine.code)
+      ,purchaseheader.[vendorcode]
+      ,(rtrim(purchaseline.[description]) +'X'+CAST(purchaseline.[Quantity] as nvarchar(10)))+
+	  (case [purchaseline].UOM when 'fulqty' 
+          then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code  and stockmaster.itemcode=purchaseline.code) 
+	  else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code  and stockmaster.itemcode=purchaseline.code)
 	  end) as narration
       ,'".trim($_POST['DimensionOne'])."'
       ,'".trim($_POST['DimensionTwo'])."'    
-      from PurchaseHeader 
-      join [arpostinggroups] on [PurchaseHeader].[postinggroup]=[arpostinggroups].[code]
-      join PurchaseLine on [PurchaseLine].[documentno] = [PurchaseHeader].[documentno] 
-      join [stockmaster] on [PurchaseLine].[code]=[stockmaster].itemcode
+      from purchaseheader 
+      join [arpostinggroups] on [purchaseheader].[postinggroup]=[arpostinggroups].[code]
+      join purchaseline on [purchaseline].[documentno] = [purchaseheader].[documentno] 
+      join [stockmaster] on [purchaseline].[code]=[stockmaster].itemcode
       join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-      join [currencies] on [PurchaseHeader].[currencycode]=[currencies].[currabrev]
-      where PurchaseHeader.documentno='%s'
+      join [currencies] on [purchaseheader].[currencycode]=[currencies].[currabrev]
+      where purchaseheader.documentno='%s'
       )",$journal,$period,$doc);
     
     return $sql;
@@ -228,7 +228,7 @@ function PostGL($period,$journal,$doc){
 }
 
 function VATPostGL($period,$journal,$doc){
-    $sql=SPRINTF("Insert into [Generalledger]
+    $sql=SPRINTF("Insert into [generalledger]
       ([journalno]
       ,[Docdate]
       ,[period]
@@ -245,30 +245,30 @@ function VATPostGL($period,$journal,$doc){
       ,[narration])
       (select
        '%s'
-      ,PurchaseHeader.[postingdate]
+      ,purchaseheader.[postingdate]
       ,'%s'
-      ,PurchaseHeader.[externaldocumentno]
-      ,PurchaseHeader.documenttype
+      ,purchaseheader.[externaldocumentno]
+      ,purchaseheader.documenttype
       ,[inventorypostinggroup].[defaultgl_vat]
       ,[inventorypostinggroup].[defaultgl_purch]
       ,''
-      ,PurchaseLine.vatamount
+      ,purchaseline.vatamount
       ,0
-      ,PurchaseHeader.[currencycode]
+      ,purchaseheader.[currencycode]
       ,[currencies].[rate]
       ,[inventorypostinggroup].[defaultgl_vat]
-      ,(rtrim(PurchaseLine.[description]) +' X '+CAST(PurchaseLine.[Quantity] as nvarchar(10)))+' '+
-	  (case [PurchaseLine].UOM when 'fulqty' 
-      then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code  and stockmaster.itemcode=PurchaseLine.code) 
-	  else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code  and stockmaster.itemcode=PurchaseLine.code)
+      ,(rtrim(purchaseline.[description]) +' X '+CAST(purchaseline.[Quantity] as nvarchar(10)))+' '+
+	  (case [purchaseline].UOM when 'fulqty' 
+      then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code  and stockmaster.itemcode=purchaseline.code) 
+	  else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code  and stockmaster.itemcode=purchaseline.code)
 	  end)  as narration
-      from PurchaseHeader 
-      join [arpostinggroups] on [PurchaseHeader].[postinggroup]=[arpostinggroups].[code]
-      join PurchaseLine on [PurchaseLine].[documentno] = [PurchaseHeader].[documentno] 
-      join [stockmaster] on [PurchaseLine].[code]=[stockmaster].itemcode
+      from purchaseheader 
+      join [arpostinggroups] on [purchaseheader].[postinggroup]=[arpostinggroups].[code]
+      join purchaseline on [purchaseline].[documentno] = [purchaseheader].[documentno] 
+      join [stockmaster] on [purchaseline].[code]=[stockmaster].itemcode
       join [inventorypostinggroup] on [inventorypostinggroup].[code]=[stockmaster].[postinggroup]
-      join [currencies] on [PurchaseHeader].[currencycode]=[currencies].[currabrev]
-      where PurchaseHeader.documentno='%s'
+      join [currencies] on [purchaseheader].[currencycode]=[currencies].[currabrev]
+      where purchaseheader.documentno='%s'
       )",$journal,$period,$doc);
     
     return $sql;
@@ -276,7 +276,7 @@ function VATPostGL($period,$journal,$doc){
 }
 
 Function SupplierStatemet($journal,$doc){
-    $sql=sprintf("INSERT INTO [SupplierStatement]
+    $sql=sprintf("INSERT INTO [supplierstatement]
            ([Date]
            ,[Documentno]
            ,[Documenttype]
@@ -287,24 +287,24 @@ Function SupplierStatemet($journal,$doc){
            ,[Dimension_Two]
            ,[Currency])
       (select
-              PurchaseHeader.[docdate]
-             ,PurchaseHeader.[externaldocumentno]
-             ,PurchaseHeader.documenttype
-             ,PurchaseHeader.[vendorcode]
-             ,sum(PurchaseLine.invoiceamount * -1)
+              purchaseheader.[docdate]
+             ,purchaseheader.[externaldocumentno]
+             ,purchaseheader.documenttype
+             ,purchaseheader.[vendorcode]
+             ,sum(purchaseline.invoiceamount * -1)
              ,'%s'
              ,'".$_POST['DimensionOne']."'
              ,'".$_POST['DimensionTwo']."'  
-             ,PurchaseHeader.[currencycode]   
-             From PurchaseHeader
-             join PurchaseLine on [PurchaseLine].[documentno] = [PurchaseHeader].[documentno] 
-             where PurchaseHeader.documentno='%s' 
-             Group By PurchaseHeader.[docdate]
-             ,PurchaseHeader.documentno
-             ,PurchaseHeader.documenttype
-             ,PurchaseHeader.[vendorcode]
-             ,PurchaseHeader.[currencycode],
-             PurchaseHeader.[externaldocumentno] 
+             ,purchaseheader.[currencycode]   
+             From purchaseheader
+             join purchaseline on [purchaseline].[documentno] = [purchaseheader].[documentno] 
+             where purchaseheader.documentno='%s' 
+             Group By purchaseheader.[docdate]
+             ,purchaseheader.documentno
+             ,purchaseheader.documenttype
+             ,purchaseheader.[vendorcode]
+             ,purchaseheader.[currencycode],
+             purchaseheader.[externaldocumentno] 
              ) ", $journal,$doc);
     
     return $sql;
