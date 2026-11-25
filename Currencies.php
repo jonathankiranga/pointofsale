@@ -154,18 +154,18 @@ if (isset($_POST['submit'])) {
 		$PeriodNo = GetPeriod($PostingDate,$db);
 
 		/* get all the bank accounts denominated on the selected currency */
-		$SQLBankAccounts = "SELECT bankName, 
+		$SQLbankaccounts = "SELECT bankName, 
 					accountcode,
                                         PostingGroup,
                                         Fluctuation
-					FROM BankAccounts
+					FROM bankaccounts
 					WHERE currency= '" . $SelectedCurrency . "'";
-		$resultBankAccounts = DB_query($SQLBankAccounts,$db);
-		while ($myrowBankAccount=DB_fetch_array($resultBankAccounts)){
+		$resultbankaccounts = DB_query($SQLbankaccounts,$db);
+		while ($myrowBankAccount=DB_fetch_array($resultbankaccounts)){
 
 			/*Get the balance of the bank account concerned */
 			$SQL = "SELECT sum([amount]) AS balance
-					FROM BankTransactions
+					FROM banktransactions
 					WHERE  bankcode='" . $myrowBankAccount['accountcode'] . "'";
 
 			$ErrMsg = _('The bank account balance could not be returned by the SQL because');
@@ -250,7 +250,7 @@ if (isset($_POST['submit'])) {
 			prnMsg(_('Cannot delete this currency because supplier accounts have been created referring to this currency')
 			 . '<br />' . _('There are') . ' ' . $myrow[0] . ' ' . _('supplier accounts that refer to this currency'),'warn');
 		} else {
-			$sql= "SELECT COUNT(*) FROM BankAccounts WHERE currency = '" . $SelectedCurrency . "'";
+			$sql= "SELECT COUNT(*) FROM bankaccounts WHERE currency = '" . $SelectedCurrency . "'";
 			$result = DB_query($sql,$db);
 			$myrow = DB_fetch_row($result);
 			if ($myrow[0] > 0){
