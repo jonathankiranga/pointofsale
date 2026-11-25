@@ -19,7 +19,8 @@ $PathPrefix = '../';
 include('../includes/globalsession.inc');
 include_once('../includes/DateFunctions.inc');
 include_once('../includes/SQL_CommonFunctions.inc');
-include_once('../Ajax/DatafunctionsForAjax.inc');
+// globalsession.inc already loads ConnectDB_mysqli.inc and its DB_* wrappers.
+// Do not load DatafunctionsForAjax.inc here: it redeclares those same functions.
 include_once('../includes/chartbalancing.inc');
 if (!defined('POS_ACCOUNTING_HELPERS_ONLY')) {
     define('POS_ACCOUNTING_HELPERS_ONLY', true);
