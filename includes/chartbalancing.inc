@@ -519,11 +519,18 @@ Class ShowBankAccounts {
 
         $this->BankObject='<tr><td>Select Bank:</td>'
                 . '<td><Select name="Bank_Code" required="required">';
-        $mpesa=$_SESSION['MpesaBank'];
-        $resultindex=DB_query("SELECT [accountcode],
+        $mpesa = isset($_SESSION['MpesaBank']) ? trim((string)$_SESSION['MpesaBank']) : '';
+        if ($mpesa === '' && isset($_SESSION['POS_MPesaBankAccount'])) {
+            $mpesa = trim((string)$_SESSION['POS_MPesaBankAccount']);
+        }
+        $bankSql = "SELECT [accountcode],
             [bankName] ,[currency],[lastreconcileddate],
             [AccountNo],[BranchCode] ,[BranchName],[lastreconbalance] ,[lastChequeno],[PostingGroup]
-                                    FROM [bankaccounts] where accountcode!='".$mpesa."'", $db);
+                                    FROM [bankaccounts]";
+        if ($mpesa !== '') {
+            $bankSql .= " WHERE accountcode!='" . DB_escape_string($mpesa) . "'";
+        }
+        $resultindex=DB_query($bankSql, $db);
         while($row=DB_fetch_array($resultindex)){
             if(Isset($_POST['Bank_Code'])){
                 $this->BankObject .= '<option value="'.$row['accountcode'].'"  '.((trim($_POST['Bank_Code'])==trim($row['accountcode']))?'selected="selected"':'').'>'.$row['bankName'].' '.$row['BranchName'].' '.$row['currency'].'</option>';
