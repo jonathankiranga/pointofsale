@@ -28,25 +28,25 @@ if(isset($_POST['salesreport'])){
      salesHeader();
     
      $SQL=Sprintf("SELECT 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,sum(PurchaseLine.invoiceamount) as invoiceamount
-      ,sum(PurchaseLine.vatamount) as vatamount
-      ,sum(PurchaseLine.invoiceamount-PurchaseLine.vatamount) as netamt
-  FROM [PurchaseHeader] join PurchaseLine 
-        on PurchaseHeader.documentno=PurchaseLine.documentno 
-        and PurchaseHeader.documenttype=PurchaseLine.documenttype
-        and PurchaseHeader.documenttype=24
-        where PurchaseHeader.[docdate] between '%s' and '%s' 
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,sum(purchaseline.invoiceamount) as invoiceamount
+      ,sum(purchaseline.vatamount) as vatamount
+      ,sum(purchaseline.invoiceamount-purchaseline.vatamount) as netamt
+  FROM [purchaseheader] join purchaseline 
+        on purchaseheader.documentno=purchaseline.documentno 
+        and purchaseheader.documenttype=purchaseline.documenttype
+        and purchaseheader.documenttype=24
+        where purchaseheader.[docdate] between '%s' and '%s' 
         group by 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]",$castdate,$Tcastdate);
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]",$castdate,$Tcastdate);
      
      $FontSize =10; $YPos = $firstrowpos; 
      
