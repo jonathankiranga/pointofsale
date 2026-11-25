@@ -2,6 +2,7 @@
 include('includes/session.inc');
 $Title = _('Salon Management');
 include('includes/header.inc');
+echo '<link rel="stylesheet" href="POScss/salon-management.css">';
 
 if (!isset($db) || !($db instanceof mysqli)) {
     prnMsg('The company database connection is unavailable.', 'error');
@@ -232,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-echo '<div class="container-fluid" style="max-width:1500px;padding:18px 8px;">';
+echo '<div class="container-fluid salon-management-page">';
 echo '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;"><div><h2 style="margin:0;">Salon operations</h2><div class="text-muted">Staff, services, appointments and commission control</div></div><div class="d-flex gap-2"><a class="btn btn-primary" href="SalonPOS.php">Open Salon POS</a><a class="btn btn-outline-secondary" href="posindex.php">Retail POS</a></div></div>';
 if ($notice !== '') { salon_message($notice, $noticeType); }
 echo '<nav class="nav nav-pills flex-wrap" style="gap:6px;margin-bottom:20px;">';
