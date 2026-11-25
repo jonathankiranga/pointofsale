@@ -11,32 +11,32 @@ include('includes/header.inc');
 echo '<p class="page_title_text"><img src="css/'.$Theme.'/images/sales.png" title="' . _('Sales Picking List') .'" alt="" />' . ' ' . _('Sales Picking List') . '</p>';
 
 $SQL="select 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid] ,
-      sum(SalesLine.[invoiceamount]) as OrderValue
-      from [SalesHeader] join SalesLine on 
-      [SalesHeader].[documentno]=SalesLine.[documentno] 
-      where [SalesHeader].[documenttype]='1' 
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid] ,
+      sum(salesline.[invoiceamount]) as OrderValue
+      from [salesheader] join salesline on 
+      [salesheader].[documentno]=salesline.[documentno] 
+      where [salesheader].[documenttype]='1' 
       and [released]=1
       group by 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid] ";
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid] ";
     $Result=DB_query($SQL,$db);
        
     Echo '<Table class="table table-bordered"><tr>'
