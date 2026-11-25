@@ -158,10 +158,10 @@ if ($recentResult) {
     <h2 class="pos-home-section-title">Quick access</h2>
     <div class="pos-home-actions">
         <a class="pos-home-action" href="SalonPOS.php" target="_blank" rel="noopener"><span class="action-icon"><i class="fa fa-scissors"></i></span><strong>Salon terminal</strong><small>Take a salon booking, select services and complete payment.</small></a>
-        <a class="pos-home-action" href="SalonManagement.php?view=appointments"><span class="action-icon"><i class="fa fa-calendar"></i></span><strong>Appointments</strong><small>View and manage salon appointments and schedules.</small></a>
-        <a class="pos-home-action" href="SalonManagement.php?view=services"><span class="action-icon"><i class="fa fa-list"></i></span><strong>Salon services</strong><small>Maintain service details, prices and service images.</small></a>
-        <a class="pos-home-action" href="SalonManagement.php?view=hairdressers"><span class="action-icon"><i class="fa fa-users"></i></span><strong>Hairdressers</strong><small>Manage salon staff and their active status.</small></a>
-        <a class="pos-home-action" href="POSReports.php"><span class="action-icon"><i class="fa fa-bar-chart"></i></span><strong>Sales and Z reports</strong><small>Review receipts, payment reconciliation and cashier shifts.</small></a>
+        <a class="pos-home-action" href="SalonManagement.php?view=appointments" target="_top"><span class="action-icon"><i class="fa fa-calendar"></i></span><strong>Appointments</strong><small>View and manage salon appointments and schedules.</small></a>
+        <a class="pos-home-action" href="SalonManagement.php?view=services" target="_top"><span class="action-icon"><i class="fa fa-list"></i></span><strong>Salon services</strong><small>Maintain service details, prices and service images.</small></a>
+        <a class="pos-home-action" href="SalonManagement.php?view=hairdressers" target="_top"><span class="action-icon"><i class="fa fa-users"></i></span><strong>Hairdressers</strong><small>Manage salon staff and their active status.</small></a>
+        <a class="pos-home-action" href="POSReports.php" target="_top"><span class="action-icon"><i class="fa fa-bar-chart"></i></span><strong>Sales and Z reports</strong><small>Review receipts, payment reconciliation and cashier shifts.</small></a>
         <a class="pos-home-action" href="Customer.php"><span class="action-icon"><i class="fa fa-user"></i></span><strong>Customers</strong><small>Open the customer records and account details.</small></a>
     </div>
 
@@ -200,7 +200,7 @@ if ($recentResult) {
                         <div><span>Opening float</span><strong>KES <?php echo posHomeMoney($activeShift['opening_float']); ?></strong></div>
                         <div><span>Shift sales</span><strong>KES <?php echo posHomeMoney($activeShift['total_sales']); ?></strong></div>
                     </div>
-                    <p style="margin:17px 0 0"><a href="POSReports.php?shift_id=<?php echo (int)$activeShift['id']; ?>">View shift details</a></p>
+                    <p style="margin:17px 0 0"><a href="POSReports.php?shift_id=<?php echo (int)$activeShift['id']; ?>" target="_top">View shift details</a></p>
                 <?php } else { ?>
                     <span class="pos-home-shift-status closed">No open shift</span>
                     <p style="margin:14px 0 0;color:#718096;font-size:12px">Open a cashier shift from the salon terminal before processing sales.</p>
