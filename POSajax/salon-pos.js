@@ -53,7 +53,7 @@
         services.forEach(function (service) {
             html += '<article class="salon-service-card">' +
                 (service.image_url ? '<img class="salon-service-image" src="' + escapeHtml(service.image_url) + '" alt="' + escapeHtml(service.name) + '" loading="lazy">' : '<div class="salon-service-image salon-service-image-placeholder" aria-hidden="true"><span>Salon service</span></div>') +
-                '<div><strong>' + escapeHtml(service.name) + '</strong><small>'
+                '<div><strong>' + escapeHtml(service.name) + '</strong><small>' +
                 escapeHtml(service.category || 'Salon service') + ' · ' + service.duration + ' min</small></div>' +
                 '<div class="salon-service-price">KES ' + Number(service.price).toLocaleString('en-KE', {minimumFractionDigits:2,maximumFractionDigits:2}) + '</div>' +
                 '<label for="salon-staff-' + service.id + '">Hairdresser</label>' +
