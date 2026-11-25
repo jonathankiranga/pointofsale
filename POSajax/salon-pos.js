@@ -67,6 +67,24 @@
         root._salonServices = services;
     }
 
+    function openServiceCatalogue() {
+        var modal = document.getElementById('salon-service-modal');
+        if (!modal) { return; }
+        modal.style.display = 'flex';
+        document.body.classList.add('salon-catalogue-open');
+        var firstSelect = modal.querySelector('.salon-staff-select');
+        if (firstSelect) { firstSelect.focus(); }
+    }
+
+    function closeServiceCatalogue() {
+        var modal = document.getElementById('salon-service-modal');
+        if (!modal) { return; }
+        modal.style.display = 'none';
+        document.body.classList.remove('salon-catalogue-open');
+        var trigger = document.getElementById('salon-browse-services');
+        if (trigger) { trigger.focus(); }
+    }
+
     function loadAppointment(appointmentId) {
         if (!appointmentId) { return; }
         $('#salon-appointment-summary').show().html('<strong>Loading appointment...</strong>');
@@ -131,6 +149,17 @@
             if (Number(window.POS_APPOINTMENT_ID) > 0) { loadAppointment(Number(window.POS_APPOINTMENT_ID)); }
         });
 
+        $('#salon-browse-services').on('click', openServiceCatalogue);
+        $(document).on('click', '.salon-service-modal-close', closeServiceCatalogue);
+        $('#salon-service-modal').on('click', function (event) {
+            if (event.target === this) { closeServiceCatalogue(); }
+        });
+        $(document).on('keydown', function (event) {
+            if (event.key === 'Escape' && $('#salon-service-modal').is(':visible')) {
+                closeServiceCatalogue();
+            }
+        });
+
         $(document).on('click', '.salon-add-service', function () {
             var root = document.getElementById('salon-service-catalogue');
             var serviceId = Number($(this).attr('data-service-id'));
@@ -145,6 +174,7 @@
                 return;
             }
             addSalonService(service, hairdresser);
+            closeServiceCatalogue();
         });
 
         $('#sales-table tbody').on('input', '.salon-service-line .quantity', function () {
