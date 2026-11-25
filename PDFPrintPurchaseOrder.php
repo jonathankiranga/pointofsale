@@ -6,31 +6,31 @@ $Title = _('Print Purchase Order');
 if(isset($_GET['No'])){
     
 $SQL="Select
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid]
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid]
       ,[creditors].email
       ,[creditors].city
       ,[creditors].postcode
       ,[creditors].country
       ,[creditors].phone
       ,[creditors].contact
-      ,[PurchaseHeader].[yourreference]
-      ,[PurchaseHeader].[printed]
+      ,[purchaseheader].[yourreference]
+      ,[purchaseheader].[printed]
       ,[creditors].vatregno
-      from [PurchaseHeader] 
-      join PurchaseLine on 
-      [PurchaseHeader].[documentno]=PurchaseLine.[documentno] 
-      join creditors on [PurchaseHeader].[vendorcode]=creditors.itemcode
-      where ([PurchaseHeader].[documenttype]='18'  
-      or [PurchaseHeader].[documenttype]='41'  or [PurchaseHeader].[documenttype]='20')
-      and [PurchaseHeader].[documentno]='".$_GET['No']."'";
+      from [purchaseheader] 
+      join purchaseline on 
+      [purchaseheader].[documentno]=purchaseline.[documentno] 
+      join creditors on [purchaseheader].[vendorcode]=creditors.itemcode
+      where ([purchaseheader].[documenttype]='18'  
+      or [purchaseheader].[documenttype]='41'  or [purchaseheader].[documenttype]='20')
+      and [purchaseheader].[documentno]='".$_GET['No']."'";
     $Result=DB_query($SQL,$db);
     $myrow=DB_fetch_row($Result);
     
@@ -53,28 +53,28 @@ $SQL="Select
      $SQL=Sprintf("SELECT 
        stockmaster.barcode
       ,Container.[descrip] as containername
-      ,PurchaseHeader.docdate
-      ,PurchaseLine.[description] 
-      ,PurchaseLine.Quantity
-      ,[PurchaseLine].UOM
-       ,PurchaseLine.UnitPrice as Sp 
-    ,(case [PurchaseLine].UOM when 'fulqty' 
-    then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code and stockmaster.itemcode=PurchaseLine.code) 
-    else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code and stockmaster.itemcode=PurchaseLine.code)
+      ,purchaseheader.docdate
+      ,purchaseline.[description] 
+      ,purchaseline.Quantity
+      ,[purchaseline].UOM
+       ,purchaseline.UnitPrice as Sp 
+    ,(case [purchaseline].UOM when 'fulqty' 
+    then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code and stockmaster.itemcode=purchaseline.code) 
+    else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code and stockmaster.itemcode=purchaseline.code)
     end) as UOMDesc
-      ,PurchaseHeader.[documentno]
-      ,PurchaseHeader.[vendorcode]
-      ,PurchaseLine.invoiceamount
-      ,PurchaseHeader.[currencycode]
-      ,PurchaseLine.vatamount
-      ,(PurchaseLine.invoiceamount - PurchaseLine.vatamount) as netamt
-      ,PurchaseHeader.[documenttype]
-      ,PurchaseLine.vatrate
-  FROM [PurchaseHeader] join PurchaseLine on PurchaseHeader.documentno=PurchaseLine.documentno 
-        and PurchaseHeader.documenttype=PurchaseLine.documenttype 
-        join stockmaster on stockmaster.itemcode=PurchaseLine.code
-        left join stockmaster Container on Container.itemcode=PurchaseLine.containercode
-        where PurchaseHeader.documentno='%s' ",$_GET['No']);
+      ,purchaseheader.[documentno]
+      ,purchaseheader.[vendorcode]
+      ,purchaseline.invoiceamount
+      ,purchaseheader.[currencycode]
+      ,purchaseline.vatamount
+      ,(purchaseline.invoiceamount - purchaseline.vatamount) as netamt
+      ,purchaseheader.[documenttype]
+      ,purchaseline.vatrate
+  FROM [purchaseheader] join purchaseline on purchaseheader.documentno=purchaseline.documentno 
+        and purchaseheader.documenttype=purchaseline.documenttype 
+        join stockmaster on stockmaster.itemcode=purchaseline.code
+        left join stockmaster Container on Container.itemcode=purchaseline.containercode
+        where purchaseheader.documentno='%s' ",$_GET['No']);
      
      $FontSize = 12;
      $YPos=$firstrowpos-20;
@@ -142,7 +142,7 @@ $SQL="Select
     $pdf->OutputD($_SESSION['DatabaseName'] . '_Purchase_' . $_GET['No'] . '_' . date('Y-m-d').'.pdf');
     $pdf->__destruct();
     
-    DB_query("Update [PurchaseHeader] set printed=1 where PurchaseHeader.documenttype=18 and PurchaseHeader.documentno='".$_GET['No']."'", $db);
+    DB_query("Update [purchaseheader] set printed=1 where purchaseheader.documenttype=18 and purchaseheader.documentno='".$_GET['No']."'", $db);
 }else{
 
 include('includes/header.inc');
@@ -161,33 +161,33 @@ echo '<div class="card"><table class="table table-bordered"><tr>'
     . '<input type="submit" value="GO"/></td></tr></table></div>';
 
 $SQL="select 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid] 
-      ,sum(PurchaseLine.[invoiceamount]) as OrderValue
-      ,[PurchaseHeader].printed
-      from [PurchaseHeader] join PurchaseLine on 
-      [PurchaseHeader].[documentno]=PurchaseLine.[documentno] 
-      where [PurchaseHeader].[documenttype]='18' or [PurchaseHeader].[documenttype]='20'".
-        (isset($_POST['VendorID'])?" and [PurchaseHeader].[vendorcode]='".$_POST['VendorID']."'":'')."
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid] 
+      ,sum(purchaseline.[invoiceamount]) as OrderValue
+      ,[purchaseheader].printed
+      from [purchaseheader] join purchaseline on 
+      [purchaseheader].[documentno]=purchaseline.[documentno] 
+      where [purchaseheader].[documenttype]='18' or [purchaseheader].[documenttype]='20'".
+        (isset($_POST['VendorID'])?" and [purchaseheader].[vendorcode]='".$_POST['VendorID']."'":'')."
        group by 
-       [PurchaseHeader].[documentno]
-      ,[PurchaseHeader].[docdate]
-      ,[PurchaseHeader].[oderdate]
-      ,[PurchaseHeader].[duedate]
-      ,[PurchaseHeader].[vendorcode]
-      ,[PurchaseHeader].[vendorname]
-      ,[PurchaseHeader].[currencycode]
-      ,[PurchaseHeader].[status]
-      ,[PurchaseHeader].[userid]  
-      ,[PurchaseHeader].printed 
-      order by [PurchaseHeader].[docdate] desc
+       [purchaseheader].[documentno]
+      ,[purchaseheader].[docdate]
+      ,[purchaseheader].[oderdate]
+      ,[purchaseheader].[duedate]
+      ,[purchaseheader].[vendorcode]
+      ,[purchaseheader].[vendorname]
+      ,[purchaseheader].[currencycode]
+      ,[purchaseheader].[status]
+      ,[purchaseheader].[userid]  
+      ,[purchaseheader].printed 
+      order by [purchaseheader].[docdate] desc
       limit ". $_SESSION['DefaultDisplayRecordsMax'] ."";
     $Result=DB_query($SQL,$db);
        
