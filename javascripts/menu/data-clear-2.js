@@ -260,7 +260,7 @@ var menuItems = [
     ["|Reports","", "icon_xp3_9.gif", "icon_xp3_9o.gif", "", "", "", "", "", "", "", ],
                 ["||Ledger Quick Report","selectReports.php", "", "", "", "", "", "", "", "", "", ],
                 ["||Trial Balance","PDFFinacials.php", "", "", "", "", "", "", "", "", "", ],
-                ["||Project Income statement","PDFprofitlossByProject.php", "", "", "", "", "", "", "", "", "", ],
+                ["||Project Budget Report","PDFprojects.php", "", "", "", "", "", "", "", "", "", ],
                 ["||Consolidated Income statement","PDFprofitloss.php", "", "", "", "", "", "", "", "", "", ],
                 ["||Monthly Consolidated Income statement","PDFprofitlossbymonth.php", "", "", "", "", "", "", "", "", "", ],
                 ["||Balance Sheet","PDFbalanceSheet.php", "", "", "", "", "", "", "", "", "", ],
