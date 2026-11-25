@@ -104,4 +104,14 @@ if(isset($ForceConfigReload) AND $ForceConfigReload==true
 }
 
 
+
+// Expose the configured M-Pesa bank account under the legacy session key used by bank selectors.
+// GetConfig stores database configuration values in the session, so this also works when
+// CompanyDefaultsLoaded is already true and the configuration query is not re-run.
+if (isset($_SESSION['POS_MPesaBankAccount']) && trim((string)$_SESSION['POS_MPesaBankAccount']) !== '') {
+    $_SESSION['MpesaBank'] = trim((string)$_SESSION['POS_MPesaBankAccount']);
+} else {
+    unset($_SESSION['MpesaBank']);
+}
+
 ?>
