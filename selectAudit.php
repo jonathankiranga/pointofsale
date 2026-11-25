@@ -117,10 +117,10 @@ Function GetAccount($journal){
            . " IFNULL(Creditors.customer,''),"
            . " IFNULL(debtors.customer,''),"
            . " IFNULL(BankAccounts.bankName,'')"
-           . " from  [Generalledger] "
+           . " from  [generalledger] "
            . " left join creditors on [suppliercode] = creditors.itemcode"
            . " left join debtors on [cutomercode] = debtors.itemcode"
-           . " left join [BankAccounts] on Generalledger.[bankcode] = BankAccounts.accountcode"
+           . " left join [BankAccounts] on generalledger.[bankcode] = BankAccounts.accountcode"
            . " where  [journalno]='".$journal."'";
    
    $ResultIndex = DB_query($sql,$db);
@@ -179,8 +179,8 @@ FUNCTION ShowPDF(){
       [VATamount] ,
       [dimension] ,
       [dimension2]   
-    from  [Generalledger] 
-    where  Generalledger.Docdate between '".FormatDateForSQL($_POST['fromdate'])."' "
+    from  [generalledger] 
+    where  generalledger.Docdate between '".FormatDateForSQL($_POST['fromdate'])."' "
         . " and '".FormatDateForSQL($_POST['Todate'])."'"
         . " order by [Docdate]";
     
