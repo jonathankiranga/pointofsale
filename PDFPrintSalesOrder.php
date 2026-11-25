@@ -6,28 +6,28 @@ $Title = _('Print Sales Order');
 if(isset($_GET['No'])){
     
 $SQL="select 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid]
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid]
       ,[debtors].email
       ,[debtors].city
       ,[debtors].postcode
       ,[debtors].country
       ,[debtors].phone
       ,[debtors].contact
-      ,[SalesHeader].[yourreference]
-      from [SalesHeader] join SalesLine on 
-      [SalesHeader].[documentno]=SalesLine.[documentno] 
-      join debtors on [SalesHeader].[customercode]=debtors.itemcode
-      where [SalesHeader].[documenttype]='1' 
-      and [SalesHeader].[documentno]='".$_GET['No']."'";
+      ,[salesheader].[yourreference]
+      from [salesheader] join salesline on 
+      [salesheader].[documentno]=salesline.[documentno] 
+      join debtors on [salesheader].[customercode]=debtors.itemcode
+      where [salesheader].[documenttype]='1' 
+      and [salesheader].[documentno]='".$_GET['No']."'";
     $Result=DB_query($SQL,$db);
     $myrow=DB_fetch_row($Result);
     
@@ -47,38 +47,38 @@ $SQL="select
      include('includes/PDFsalesorderheader.inc');
      
      /*
-      * (case [SalesLine].UOM when 'fulqty' 
-          then (select SalesLine.UnitPrice*stockmaster.partperunit from stockmaster where  stockmaster.itemcode=SalesLine.code) 
-	  else (SalesLine.UnitPrice)
+      * (case [salesline].UOM when 'fulqty' 
+          then (select salesline.UnitPrice*stockmaster.partperunit from stockmaster where  stockmaster.itemcode=salesline.code) 
+	  else (salesline.UnitPrice)
 	  end) as Sp 
       */
      $SQL=Sprintf("SELECT 
        stockmaster.barcode
        ,Container.[descrip] as containername
-      ,SalesHeader.docdate
-      ,SalesLine.[description] 
+      ,salesheader.docdate
+      ,salesline.[description] 
       ,salesline.Quantity,
-       [SalesLine].UOM,
-       SalesLine.UnitPrice as Sp ,
-	  (case [SalesLine].UOM when 'fulqty' 
-          then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code  and stockmaster.itemcode=SalesLine.code) 
-	  else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code  and stockmaster.itemcode=SalesLine.code)
+       [salesline].UOM,
+       salesline.UnitPrice as Sp ,
+	  (case [salesline].UOM when 'fulqty' 
+          then (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.units=[unit].code  and stockmaster.itemcode=salesline.code) 
+	  else (select rtrim([unit].[descrip]) from [unit] join stockmaster on stockmaster.subunits=[unit].code  and stockmaster.itemcode=salesline.code)
 	  end) as UOMDesc
-      ,SalesHeader.[documentno]
-      ,SalesHeader.[customercode]
-      ,SalesLine.invoiceamount
-      ,SalesHeader.[currencycode]
-      ,SalesLine.vatamount
-      ,SalesLine.invoiceamount-SalesLine.vatamount as netamt
-      ,SalesHeader.[documenttype]
+      ,salesheader.[documentno]
+      ,salesheader.[customercode]
+      ,salesline.invoiceamount
+      ,salesheader.[currencycode]
+      ,salesline.vatamount
+      ,salesline.invoiceamount-salesline.vatamount as netamt
+      ,salesheader.[documenttype]
       ,salesline.vatrate
       ,salesline.[totalchargedcontainers]
-  FROM [SalesHeader] join SalesLine 
-        on SalesHeader.documentno=SalesLine.documentno 
-        and SalesHeader.documenttype=SalesLine.documenttype and SalesHeader.documenttype=1
-        join stockmaster on stockmaster.itemcode=SalesLine.code
-        left join stockmaster Container on Container.itemcode=SalesLine.containercode
-        where SalesHeader.documentno='%s' ",$_GET['No']);
+  FROM [salesheader] join salesline 
+        on salesheader.documentno=salesline.documentno 
+        and salesheader.documenttype=salesline.documenttype and salesheader.documenttype=1
+        join stockmaster on stockmaster.itemcode=salesline.code
+        left join stockmaster Container on Container.itemcode=salesline.containercode
+        where salesheader.documentno='%s' ",$_GET['No']);
      
      $FontSize = 12;
      $YPos=$firstrowpos-20;
@@ -140,33 +140,33 @@ echo '<form action="'.htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8').
 echo '<div>';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 $SQL="select 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid] ,
-      sum(SalesLine.[invoiceamount]) as OrderValue
-      from [SalesHeader] join SalesLine on 
-      [SalesHeader].[documentno]=SalesLine.[documentno] 
-      where [SalesHeader].[documenttype]='1' 
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid] ,
+      sum(salesline.[invoiceamount]) as OrderValue
+      from [salesheader] join salesline on 
+      [salesheader].[documentno]=salesline.[documentno] 
+      where [salesheader].[documenttype]='1' 
        group by 
-       [SalesHeader].[documentno]
-      ,[SalesHeader].[docdate]
-      ,[SalesHeader].[oderdate]
-      ,[SalesHeader].[duedate]
-      ,[SalesHeader].[customercode]
-      ,[SalesHeader].[customername]
-      ,[SalesHeader].[currencycode]
-      ,[SalesHeader].[salespersoncode]
-      ,[SalesHeader].[status]
-      ,[SalesHeader].[userid]  
+       [salesheader].[documentno]
+      ,[salesheader].[docdate]
+      ,[salesheader].[oderdate]
+      ,[salesheader].[duedate]
+      ,[salesheader].[customercode]
+      ,[salesheader].[customername]
+      ,[salesheader].[currencycode]
+      ,[salesheader].[salespersoncode]
+      ,[salesheader].[status]
+      ,[salesheader].[userid]  
       order by 
-      [SalesHeader].[docdate] desc
+      [salesheader].[docdate] desc
    limit ". $_SESSION['DefaultDisplayRecordsMax'] ."   ";
     $Result=DB_query($SQL,$db);
        
