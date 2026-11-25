@@ -158,7 +158,7 @@ if ($recentResult) {
 
     <h2 class="pos-home-section-title">Quick access</h2>
     <div class="pos-home-actions">
-        <a class="pos-home-action" href="SalonPOS.php"><span class="action-icon"><i class="fa fa-scissors"></i></span><strong>Salon terminal</strong><small>Take a salon booking, select services and complete payment.</small></a>
+        <a class="pos-home-action" href="SalonPOS.php" target="_blank" rel="noopener"><span class="action-icon"><i class="fa fa-scissors"></i></span><strong>Salon terminal</strong><small>Take a salon booking, select services and complete payment.</small></a>
         <a class="pos-home-action" href="SalonManagement.php?view=appointments"><span class="action-icon"><i class="fa fa-calendar"></i></span><strong>Appointments</strong><small>View and manage salon appointments and schedules.</small></a>
         <a class="pos-home-action" href="SalonManagement.php?view=services"><span class="action-icon"><i class="fa fa-list"></i></span><strong>Salon services</strong><small>Maintain service details, prices and service images.</small></a>
         <a class="pos-home-action" href="SalonManagement.php?view=hairdressers"><span class="action-icon"><i class="fa fa-users"></i></span><strong>Hairdressers</strong><small>Manage salon staff and their active status.</small></a>
@@ -205,7 +205,7 @@ if ($recentResult) {
                 <?php } else { ?>
                     <span class="pos-home-shift-status closed">No open shift</span>
                     <p style="margin:14px 0 0;color:#718096;font-size:12px">Open a cashier shift from the salon terminal before processing sales.</p>
-                    <p style="margin:13px 0 0"><a href="SalonPOS.php">Open salon terminal</a></p>
+                    <p style="margin:13px 0 0"><a href="SalonPOS.php" target="_blank" rel="noopener">Open salon terminal</a></p>
                 <?php } ?>
                 <hr>
                 <div><span style="color:#718096;font-size:11px">Month-to-date sales</span><strong style="display:block;margin-top:5px;color:#203f63;font-size:20px">KES <?php echo posHomeMoney($monthSummary['sales']); ?></strong><small style="color:#718096"><?php echo (int)$monthSummary['receipts']; ?> posted receipts since <?php echo posHomeEscape(date('j M Y', strtotime($monthStart))); ?></small></div>
