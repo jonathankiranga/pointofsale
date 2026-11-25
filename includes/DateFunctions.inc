@@ -988,7 +988,7 @@ function GetPeriod ($TransDate, $db, $UseProhibit=false) {
 		$TransDate = mktime(0,0,0,$Date_Array[1],$Date_Array[2],$Date_Array[0]);
 	}
 
-	if (Is_Date(ConvertSQLDate($_SESSION['ProhibitPostingsBefore'])) AND $UseProhibit){ //then the ProhibitPostingsBefore configuration is set
+	if ($UseProhibit AND isset($_SESSION['ProhibitPostingsBefore']) AND $_SESSION['ProhibitPostingsBefore'] !== '' AND Is_Date(ConvertSQLDate($_SESSION['ProhibitPostingsBefore']))){ //then the ProhibitPostingsBefore configuration is set
 		$Date_Array = explode('-', $_SESSION['ProhibitPostingsBefore']); //its in ANSI SQL format
 		$ProhibitPostingsBefore = mktime(0,0,0,$Date_Array[1],$Date_Array[2],$Date_Array[0]);
 
