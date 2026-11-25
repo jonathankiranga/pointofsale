@@ -409,7 +409,7 @@ class journalentries {
        foreach ($this->JOURNAL as $key => $row)  {
            
            if($row['Grossamount']>0){
-           $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
+           $this->JournalArray[]= sprintf("INSERT INTO [generalledger]
            ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],
            [balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,
            [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],
@@ -419,7 +419,7 @@ class journalentries {
             $_POST['currencycode'], $Conrate,'',$_POST['VendorID'],'',0,$_POST['reference'].$_POST['comments'],
                    '0','','0',$_POST['DimensionOne'],$_POST['DimensionTwo'] );
            }else{
-                $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
+                $this->JournalArray[]= sprintf("INSERT INTO [generalledger]
            ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],
            [balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,
            [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],
@@ -432,7 +432,7 @@ class journalentries {
            if(mb_strlen($row['defaultgl_vat'])>2){
                
                if($row['vatamount']>0){
-                $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
+                $this->JournalArray[]= sprintf("INSERT INTO [generalledger]
                  ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],
                   [balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,
                   [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],
@@ -442,7 +442,7 @@ class journalentries {
                   $_POST['currencycode'], $Conrate,'',$_POST['VendorID'],'',0,
                   $_POST['reference'].$_POST['comments'],'0','','0',$_POST['DimensionOne'],$_POST['DimensionTwo'] );
                }else{
-                  $this->JournalArray[]= sprintf("INSERT INTO [Generalledger]
+                  $this->JournalArray[]= sprintf("INSERT INTO [generalledger]
                  ([journalno],[Docdate],[period],[DocumentNo],[DocumentType],[accountcode],
                   [balaccountcode],[amount],[currencycode],[ExchangeRate],[cutomercode],[suppliercode] ,
                   [bankcode],[reconcilled],[narration],[ExchangeRateDiff],[VATaccountcode],[VATamount],
