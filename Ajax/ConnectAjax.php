@@ -355,7 +355,7 @@ FUNCTION IssqldateGreater($PriodClosedDate,$CurrentDate){
    function EmployeeNamefind($offset,$height,$value){
  Global $db;
          
-    $ResultIndex = DB_query("SELECT code,salesman from productionEmployee", $db);
+    $ResultIndex = DB_query("SELECT code,salesman from productionemployee", $db);
     $left = $offset['left'];
     
     $return= '<div id="EmployeeNamefind" class="finderheader"  style="top:20vh; left:'. $left .'px;">'
@@ -381,7 +381,7 @@ FUNCTION IssqldateGreater($PriodClosedDate,$CurrentDate){
    function Samplefind($offset,$height,$value){
     Global $db;
          
-    $ResultIndex = DB_query("select [sampletypeid],[sampletypeName] FROM [SampleTypes] order by sampletypeName", $db);
+    $ResultIndex = DB_query("select [sampletypeid],[sampletypeName] FROM [sampletypes] order by sampletypeName", $db);
     $top  =  $offset['top'];
     $left = $offset['left'];
     
