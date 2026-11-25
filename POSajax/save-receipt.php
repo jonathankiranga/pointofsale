@@ -74,14 +74,14 @@ $receiptReference = ($paymentMethod === 'MPESA')
 
 $config = array();
 $configResult = $db->query("SELECT confname, confvalue FROM config WHERE confname IN
-    ('POS_DefaultCustomer','POS_DefaultStore','POS_DefaultCurrency','POS_DefaultPostingGroup','POS_CashBankAccount','POS_MPesaBankAccount')");
+    ('POS_DefaultCustomer','POS_DefaultStore','POS_DefaultCurrency','POS_CashBankAccount','POS_MPesaBankAccount')");
 if ($configResult) {
     while ($row = $configResult->fetch_assoc()) { $config[$row['confname']] = $row['confvalue']; }
 }
-$requiredConfig = array('POS_DefaultCustomer','POS_DefaultStore','POS_DefaultCurrency','POS_DefaultPostingGroup');
+$requiredConfig = array('POS_DefaultCustomer','POS_DefaultStore','POS_DefaultCurrency');
 foreach ($requiredConfig as $key) {
     if (empty($config[$key])) {
-        posSaveResponse(false, 'POS configuration is incomplete. Set the default customer, store, currency and posting group in POS Configuration.', 409);
+        posSaveResponse(false, 'POS configuration is incomplete. Set the default customer, store and currency in POS Configuration.', 409);
     }
 }
 $customerCode = $config['POS_DefaultCustomer'];
@@ -89,7 +89,7 @@ $storeCode = $config['POS_DefaultStore'];
 $currencyCode = $config['POS_DefaultCurrency'];
 $postingGroup = $config['POS_DefaultPostingGroup'];
 
-$customerStmt = $db->prepare("SELECT d.customer,d.customerposting,p.debtorsaccount
+$customerStmt = $db->prepare("SELECT d.customer,d.customerposting,p.debtorsaccount,p.VATinclusive
     FROM debtors d
     INNER JOIN postinggroups p ON p.code=d.customerposting
     WHERE d.itemcode=? LIMIT 1");
@@ -104,26 +104,13 @@ $customerRow = $customerStmt->get_result()->fetch_assoc();
 $customerStmt->close();
 if (!$customerRow || empty($customerRow['customer']) || trim((string)$customerRow['customer']) === '' ||
     empty($customerRow['customerposting']) || empty($customerRow['debtorsaccount'])) {
-    posSaveResponse(false, 'The configured POS customer has no valid debtor posting group/account. Correct the debtor master before selling.', 409);
+    posSaveResponse(false, 'The configured POS customer has no valid debtor posting group/account. Correct the debtor master and its posting-group setup before selling.', 409);
 }
-if (trim((string)$customerRow['customerposting']) !== trim((string)$postingGroup)) {
-    posSaveResponse(false, 'The POS default posting group must match the configured POS customer posting group.', 409);
+if ($customerRow['VATinclusive'] === null ||
+    !in_array((string)$customerRow['VATinclusive'], array('0','1'), true)) {
+    posSaveResponse(false, 'The configured POS customer posting group has a NULL or invalid VAT-inclusive setting.', 409);
 }
-$groupStmt = $db->prepare("SELECT VATinclusive FROM postinggroups WHERE code=? LIMIT 1");
-if (!$groupStmt) { posSaveResponse(false, 'Could not prepare the POS posting group validation query.', 500); }
-$groupStmt->bind_param('s', $postingGroup);
-if (!$groupStmt->execute()) {
-    $groupError = $groupStmt->error;
-    $groupStmt->close();
-    posSaveResponse(false, 'Could not validate the POS posting group: ' . $groupError, 500);
-}
-$groupRow = $groupStmt->get_result()->fetch_assoc();
-$groupStmt->close();
-if (!$groupRow || $groupRow['VATinclusive'] === null ||
-    !in_array((string)$groupRow['VATinclusive'], array('0','1'), true)) {
-    posSaveResponse(false, 'The configured POS posting group has a NULL or invalid VAT-inclusive setting.', 409);
-}
-$vatInclusive = (int)$groupRow['VATinclusive'];
+$vatInclusive = (int)$customerRow['VATinclusive'];
 
 $shiftStmt = $db->prepare("SELECT id FROM pos_shifts WHERE cashier_id=? AND status='OPEN' ORDER BY id DESC LIMIT 1");
 if (!$shiftStmt) { posSaveResponse(false, 'Could not prepare the cashier shift validation query.', 500); }
