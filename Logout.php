@@ -39,7 +39,7 @@ session_destroy();
 
 // Return to the application entry point. It will render the login form
 // because the authenticated session has been removed.
-$rootPath = str_replace('\\\\', '/', dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/Logout.php'));
+$rootPath = str_replace('\\', '/', dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/Logout.php'));
 $rootPath = rtrim($rootPath, '/');
 if ($rootPath === '.' || $rootPath === '/') {
     $rootPath = '';
