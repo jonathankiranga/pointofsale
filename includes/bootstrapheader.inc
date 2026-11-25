@@ -142,7 +142,7 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
     };
 
     /*
-     * Bootstrap's form-control/form-select classes impose large default
+     * Bootstrap form-control/form-select classes impose large default
      * padding, height and full-width sizing on legacy ERP controls. Keep the
      * Bootstrap grid, navigation and button classes, but remove those two
      * sizing classes from back-office form fields only.
@@ -179,7 +179,7 @@ echo '<input class="form-control form-control-dark w-100" type="text" placeholde
 
 
     /*
-     * Remove Bootstrap's visual table treatment from ordinary HTML tables.
+     * Remove Bootstrap visual table treatment from ordinary HTML tables.
      * Keep it on actual data grids (DataTables, tablesorter, or explicitly
      * marked grid tables/containers).
      */
