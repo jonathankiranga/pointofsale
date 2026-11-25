@@ -171,7 +171,7 @@ $MenuItems['Approval']['Maintenance']['URL'] = array('/DimensionTypes.php',
                                                      '/Budgets.php');
 
 /***********************************************/
-$MenuItems['Sales']['Transactions']['Caption'] = array(_('Point of Sale (Touch)'),
+$MenuItems['Sales']['Transactions']['Caption'] = array(_('Open Salon Terminal'),
                                                        _('Lab Sample Registration'),
                                                        _('Lab Data Entry'),
                                                        _('Lab First Review'),
@@ -190,11 +190,11 @@ $MenuItems['Sales']['Transactions']['URL'] = array('/SalonPOS.php',
 // Salon workspace links are part of the existing legacy Sales menu.
 $MenuItems['Sales']['Transactions']['Caption'] = array_merge(
     $MenuItems['Sales']['Transactions']['Caption'],
-    array(_('Salon Dashboard'), _('Appointments'), _('Salon Services'), _('Hairdressers'))
+    array(_('Salon Dashboard'), _('Appointments'), _('Salon Services'), _('Hairdressers'), _('Log out'))
 );
 $MenuItems['Sales']['Transactions']['URL'] = array_merge(
     $MenuItems['Sales']['Transactions']['URL'],
-    array('/SalonDashboard.php', '/SalonManagement.php?view=appointments', '/SalonManagement.php?view=services', '/SalonManagement.php?view=hairdressers', '/Customer.php')
+    array('/SalonDashboard.php', '/SalonManagement.php?view=appointments', '/SalonManagement.php?view=services', '/SalonManagement.php?view=hairdressers', '/Logout.php')
 );
 
 
