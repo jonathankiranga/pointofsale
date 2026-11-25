@@ -1,11 +1,6 @@
 <?php
-/*
- * Salon back-office application shell.
- * Navigation follows the Smart ERP LIMS workspace pattern:
- * persistent application banner/menu/footer with PHP pages loaded in a
- * dedicated content iframe. Each destination retains its own session,
- * permissions, header, footer and form handling.
- */
+<?php
+/* Salon back-office application shell. The legacy ERP menu remains the sole navigation. */
 session_name('smartlimserp');
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
@@ -27,18 +22,6 @@ $companyName = isset($_SESSION['CompanyRecord']['coyname'])
     ? $_SESSION['CompanyRecord']['coyname'] : 'Salon POS';
 $userName = isset($_SESSION['UsersRealName']) ? $_SESSION['UsersRealName'] : 'User';
 
-$salonMenuItems = array(
-    array('Salon', '', '', '', '', '', '', '', '', '', '', ''),
-    array('|Workspace', '', '', '', '', '', '', '', '', '', '', ''),
-    array('||Dashboard', 'SalonDashboard.php', '', '', '', '', '', '', '', '', '', ''),
-    array('||Appointments', 'SalonManagement.php?view=appointments', '', '', '', '', '', '', '', '', '', ''),
-    array('||Services', 'SalonManagement.php?view=services', '', '', '', '', '', '', '', '', '', ''),
-    array('||Hairdressers', 'SalonManagement.php?view=hairdressers', '', '', '', '', '', '', '', '', '', ''),
-    array('|Customers', '', '', '', '', '', '', '', '', '', '', ''),
-    array('||Customer Records', 'Customer.php', '', '', '', '', '', '', '', '', '', ''),
-    array('|Sales and Reports', '', '', '', '', '', '', '', '', '', '', ''),
-    array('||Sales and Z Reports', 'POSReports.php', '', '', '', '', '', '', '', '', '', ''),
-);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -59,13 +42,6 @@ $salonMenuItems = array(
         .salon-banner-meta{display:flex;align-items:center;gap:17px;color:#dbe7f3;font-size:12px}
         .salon-banner a{color:#fff;text-decoration:none}
         .salon-banner a:hover{text-decoration:underline}
-        .salon-menu-wrap{min-height:44px;background:#fff;border-bottom:1px solid #dce4ed;z-index:15;overflow:visible}
-        .salon-nav-groups{min-height:48px;display:flex;align-items:stretch;gap:0;padding:0 12px}
-        .salon-nav-group{display:flex;align-items:center;gap:3px;padding:0 13px;border-right:1px solid #e6ebf1;white-space:nowrap}
-        .salon-nav-group:first-child{padding-left:4px}
-        .salon-nav-heading{font-size:12px;font-weight:700;color:#64748b;margin-right:8px}
-        .salon-nav-group a{display:inline-flex;align-items:center;padding:8px 10px;border-radius:6px;color:#263b53;text-decoration:none;font-size:13px}
-        .salon-nav-group a:hover,.salon-nav-group a:focus{background:#edf4fa;color:#174f79;text-decoration:none;outline:none}
         .salon-content{flex:1;min-height:0;padding:12px 14px;background:#eef2f7}
         .salon-content iframe{width:100%;height:100%;display:block;border:1px solid #dfe6ee;border-radius:9px;background:#fff;box-shadow:0 4px 16px rgba(15,23,42,.06)}
         .salon-footer{height:30px;min-height:30px;display:flex;align-items:center;gap:18px;padding:0 16px;background:#fff;border-top:1px solid #dce4ed;color:#64748b;font-size:11px}
@@ -83,25 +59,6 @@ $salonMenuItems = array(
             <a href="Logout.php"><i class="fa fa-sign-out-alt"></i> Log out</a>
         </div>
     </header>
-    <nav class="salon-menu-wrap" aria-label="Salon navigation">
-        <div class="salon-nav-groups">
-            <section class="salon-nav-group" aria-label="Workspace">
-                <span class="salon-nav-heading">Workspace</span>
-                <a href="SalonDashboard.php" target="salonContentFrame">Dashboard</a>
-                <a href="SalonManagement.php?view=appointments" target="salonContentFrame">Appointments</a>
-                <a href="SalonManagement.php?view=services" target="salonContentFrame">Services</a>
-                <a href="SalonManagement.php?view=hairdressers" target="salonContentFrame">Hairdressers</a>
-            </section>
-            <section class="salon-nav-group" aria-label="Customers">
-                <span class="salon-nav-heading">Customers</span>
-                <a href="Customer.php" target="salonContentFrame">Customer Records</a>
-            </section>
-            <section class="salon-nav-group" aria-label="Sales and reports">
-                <span class="salon-nav-heading">Sales and reports</span>
-                <a href="POSReports.php" target="salonContentFrame">Sales and Z Reports</a>
-            </section>
-        </div>
-    </nav>
     <main class="salon-content">
         <iframe id="salonContentFrame" name="salonContentFrame"
             src="<?php echo htmlspecialchars($RootPath, ENT_QUOTES, 'UTF-8'); ?>/SalonDashboard.php"
