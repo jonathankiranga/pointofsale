@@ -63,7 +63,7 @@ if (isset($_POST['apply_prices']) && isset($_POST['itemcode']) && is_array($_POS
                 INNER JOIN purchaseheader ph ON ph.documentno=line_values.invref AND ph.documenttype='30'
                 INNER JOIN (
                     SELECT invref,
-                           SUM(COALESCE(price,0) * (COALESCE(fulqty,0) * COALESCE(partperunit,1) + COALESCE(loosqty,0))) AS total_value
+                           SUM(COALESCE(price,0) * (COALESCE(fulqty,0) + COALESCE(loosqty,0))) AS total_value
                     FROM stockledger
                     INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
                     WHERE doctyp='30'
@@ -154,13 +154,13 @@ while ($stock = DB_fetch_array($stockResult)) {
         INNER JOIN purchaseheader ph ON ph.documentno=line_values.invref AND ph.documenttype='30'
         INNER JOIN (
             SELECT invref,
-                   SUM(COALESCE(price,0) * (COALESCE(fulqty,0) * COALESCE(partperunit,1) + COALESCE(loosqty,0))) AS total_value
+                   SUM(COALESCE(price,0) * (COALESCE(fulqty,0) + COALESCE(loosqty,0))) AS total_value
             FROM stockledger
             INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
             WHERE doctyp='30'
             GROUP BY invref
         ) delivery_totals ON delivery_totals.invref=line_values.invref
-        WHERE sl.doctyp='30' AND sl.itemcode='".$code."'";
+        WHERE line_values.itemcode='".$code."'";
     $freightResult = DB_query($freightSql, $db);
     $freightRow = DB_fetch_array($freightResult);
     $freightPerLoose = 0;
