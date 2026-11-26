@@ -52,23 +52,23 @@ if (isset($_POST['apply_prices']) && isset($_POST['itemcode']) && is_array($_POS
                 ),0) AS allocated_freight,
                 COALESCE(SUM(line_values.loose_quantity),0) AS received_loose
                 FROM (
-                    SELECT stockledger.invref, stockledger.itemcode,
+                    SELECT stockledger.jobcard, stockledger.itemcode,
                            SUM(COALESCE(stockledger.price,0) * (COALESCE(stockledger.fulqty,0) + COALESCE(stockledger.loosqty,0))) AS line_value,
                            SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0)) AS loose_quantity
                     FROM stockledger
                     INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
                     WHERE stockledger.doctyp='30'
-                    GROUP BY stockledger.invref, stockledger.itemcode
+                    GROUP BY stockledger.jobcard, stockledger.itemcode
                 ) line_values
-                INNER JOIN purchaseheader ph ON ph.documentno=line_values.invref AND ph.documenttype='30'
+                INNER JOIN purchaseheader ph ON ph.documentno=line_values.jobcard AND ph.documenttype='30'
                 INNER JOIN (
-                    SELECT invref,
+                    SELECT jobcard,
                            SUM(COALESCE(price,0) * (COALESCE(fulqty,0) + COALESCE(loosqty,0))) AS total_value
                     FROM stockledger
                     INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
                     WHERE doctyp='30'
-                    GROUP BY invref
-                ) delivery_totals ON delivery_totals.invref=line_values.invref
+                    GROUP BY jobcard
+                ) delivery_totals ON delivery_totals.jobcard=line_values.jobcard
                 WHERE line_values.itemcode='".$code."'";
             $freightResult = DB_query($freightSql, $db);
             $freightRow = DB_fetch_array($freightResult);
@@ -143,23 +143,23 @@ while ($stock = DB_fetch_array($stockResult)) {
         COALESCE(SUM(CASE WHEN delivery_totals.total_value > 0 THEN COALESCE(ph.freight,0) * line_values.line_value / delivery_totals.total_value ELSE 0 END),0) AS allocated_freight,
         COALESCE(SUM(line_values.loose_quantity),0) AS received_loose
         FROM (
-            SELECT stockledger.invref, stockledger.itemcode,
+            SELECT stockledger.jobcard, stockledger.itemcode,
                    SUM(COALESCE(stockledger.price,0) * (COALESCE(stockledger.fulqty,0) + COALESCE(stockledger.loosqty,0))) AS line_value,
                    SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0)) AS loose_quantity
             FROM stockledger
             INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
             WHERE stockledger.doctyp='30'
-            GROUP BY stockledger.invref, stockledger.itemcode
+            GROUP BY stockledger.jobcard, stockledger.itemcode
         ) line_values
-        INNER JOIN purchaseheader ph ON ph.documentno=line_values.invref AND ph.documenttype='30'
+        INNER JOIN purchaseheader ph ON ph.documentno=line_values.jobcard AND ph.documenttype='30'
         INNER JOIN (
-            SELECT invref,
+            SELECT jobcard,
                    SUM(COALESCE(price,0) * (COALESCE(fulqty,0) + COALESCE(loosqty,0))) AS total_value
             FROM stockledger
             INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
             WHERE doctyp='30'
-            GROUP BY invref
-        ) delivery_totals ON delivery_totals.invref=line_values.invref
+            GROUP BY jobcard
+        ) delivery_totals ON delivery_totals.jobcard=line_values.jobcard
         WHERE line_values.itemcode='".$code."'";
     $freightResult = DB_query($freightSql, $db);
     $freightRow = DB_fetch_array($freightResult);
