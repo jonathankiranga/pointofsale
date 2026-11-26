@@ -246,6 +246,9 @@ $MenuItems['Purchases']['Transactions']['URL'] = array('/PurchaseOder.php',
                                                        '/PurchasevendorDBlist.php');
 
 
+$MenuItems['Purchases']['Maintenance']['Caption'] = array(_('Selling Price Setup'));
+$MenuItems['Purchases']['Maintenance']['URL'] = array('/Pricing.php');
+
 $MenuItems['Purchases']['Reports']['Caption'] = array(_('Last '. $_SESSION['DefaultDisplayRecordsMax'].' Goods Received Notes'),
                                                       _('Last '. $_SESSION['DefaultDisplayRecordsMax'].' Purchase Orders'),
                                                       _('Last '. $_SESSION['DefaultDisplayRecordsMax'].' Fixed assets GRN'));
