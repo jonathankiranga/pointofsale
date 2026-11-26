@@ -51,17 +51,16 @@ if (isset($_POST['apply_prices']) && isset($_POST['itemcode']) && is_array($_POS
                     ELSE 0 END
                 ),0) AS allocated_freight,
                 COALESCE(SUM(line_values.loose_quantity),0) AS received_loose
-                FROM stockledger sl
-                INNER JOIN purchaseheader ph ON ph.documentno=sl.invref AND ph.documenttype='30'
-                INNER JOIN (
-                    SELECT invref,
-                           SUM(COALESCE(price,0) * (COALESCE(fulqty,0) * COALESCE(partperunit,1) + COALESCE(loosqty,0))) AS line_value,
-                           SUM(COALESCE(fulqty,0) * COALESCE(partperunit,1) + COALESCE(loosqty,0)) AS loose_quantity
+                FROM (
+                    SELECT stockledger.invref, stockledger.itemcode,
+                           SUM(COALESCE(stockledger.price,0) * (COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0))) AS line_value,
+                           SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0)) AS loose_quantity
                     FROM stockledger
                     INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
-                    WHERE doctyp='30'
-                    GROUP BY invref
-                ) line_values ON line_values.invref=sl.invref
+                    WHERE stockledger.doctyp='30'
+                    GROUP BY stockledger.invref, stockledger.itemcode
+                ) line_values
+                INNER JOIN purchaseheader ph ON ph.documentno=line_values.invref AND ph.documenttype='30'
                 INNER JOIN (
                     SELECT invref,
                            SUM(COALESCE(price,0) * (COALESCE(fulqty,0) * COALESCE(partperunit,1) + COALESCE(loosqty,0))) AS total_value
@@ -70,7 +69,7 @@ if (isset($_POST['apply_prices']) && isset($_POST['itemcode']) && is_array($_POS
                     WHERE doctyp='30'
                     GROUP BY invref
                 ) delivery_totals ON delivery_totals.invref=sl.invref
-                WHERE sl.doctyp='30' AND sl.itemcode='".$code."'";
+                WHERE line_values.itemcode='".$code."'";
             $freightResult = DB_query($freightSql, $db);
             $freightRow = DB_fetch_array($freightResult);
             $freightPerLoose = 0;
@@ -143,17 +142,16 @@ while ($stock = DB_fetch_array($stockResult)) {
     $freightSql = "SELECT
         COALESCE(SUM(CASE WHEN delivery_totals.total_value > 0 THEN COALESCE(ph.freight,0) * line_values.line_value / delivery_totals.total_value ELSE 0 END),0) AS allocated_freight,
         COALESCE(SUM(line_values.loose_quantity),0) AS received_loose
-        FROM stockledger sl
-        INNER JOIN purchaseheader ph ON ph.documentno=sl.invref AND ph.documenttype='30'
-        INNER JOIN (
-            SELECT invref,
-                   SUM(COALESCE(price,0) * (COALESCE(fulqty,0) * COALESCE(partperunit,1) + COALESCE(loosqty,0))) AS line_value,
-                   SUM(COALESCE(fulqty,0) * COALESCE(partperunit,1) + COALESCE(loosqty,0)) AS loose_quantity
+        FROM (
+            SELECT stockledger.invref, stockledger.itemcode,
+                   SUM(COALESCE(stockledger.price,0) * (COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0))) AS line_value,
+                   SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0)) AS loose_quantity
             FROM stockledger
             INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
-            WHERE doctyp='30'
-            GROUP BY invref
-        ) line_values ON line_values.invref=sl.invref
+            WHERE stockledger.doctyp='30'
+            GROUP BY stockledger.invref, stockledger.itemcode
+        ) line_values
+        INNER JOIN purchaseheader ph ON ph.documentno=line_values.invref AND ph.documenttype='30'
         INNER JOIN (
             SELECT invref,
                    SUM(COALESCE(price,0) * (COALESCE(fulqty,0) * COALESCE(partperunit,1) + COALESCE(loosqty,0))) AS total_value
