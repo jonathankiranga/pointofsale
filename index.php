@@ -53,7 +53,7 @@ if (isset($_GET['link']) && $_GET['link'] !== '') {
     }
 
     $PageFile = $RequestedPage . '.php';
-    $PagePath = __DIR__ . DIRECTORY_SEPARATOR . $PageFile;
+    $PagePath = $PageFile;
 
     if (!is_file($PagePath)) {
         http_response_code(404);
