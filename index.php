@@ -34,7 +34,21 @@ if (isset($_GET['Stocks']) && $_GET['Stocks'] === '1') {
  * Do not render an empty page after destroying the session.
  */
 if (isset($_GET['link']) && $_GET['link'] === 'Logout') {
-    include 'Logout.php';
+    include 'config.php';
+
+    if (isset($SessionSavePath)) {
+        session_save_path($SessionSavePath);
+    }
+
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_name('smartlimserp');
+        session_start();
+    }
+
+    $_SESSION = array();
+    session_unset();
+    session_destroy();
+
     header('Location: index.php');
     exit;
 }
