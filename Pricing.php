@@ -68,7 +68,7 @@ if (isset($_POST['apply_prices']) && isset($_POST['itemcode']) && is_array($_POS
                     INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
                     WHERE doctyp='30'
                     GROUP BY invref
-                ) delivery_totals ON delivery_totals.invref=sl.invref
+                ) delivery_totals ON delivery_totals.invref=line_values.invref
                 WHERE line_values.itemcode='".$code."'";
             $freightResult = DB_query($freightSql, $db);
             $freightRow = DB_fetch_array($freightResult);
@@ -159,7 +159,7 @@ while ($stock = DB_fetch_array($stockResult)) {
             INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
             WHERE doctyp='30'
             GROUP BY invref
-        ) delivery_totals ON delivery_totals.invref=sl.invref
+        ) delivery_totals ON delivery_totals.invref=line_values.invref
         WHERE sl.doctyp='30' AND sl.itemcode='".$code."'";
     $freightResult = DB_query($freightSql, $db);
     $freightRow = DB_fetch_array($freightResult);
