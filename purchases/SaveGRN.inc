@@ -180,7 +180,7 @@ Function RecordGRN($DOCNO){
            ,[vatinclusive]
            ,[Dimension_1]
            ,[Dimension_2]
-           ,[freight] from [purchaseheader] where [documentno]='".$_POST['documentno']."')" ;
+           ,'".number_format(max(0, (float)$_POST['freight']), 2, '.', '')."' from [purchaseheader] where [documentno]='".$_POST['documentno']."')" ;
 
 
 
