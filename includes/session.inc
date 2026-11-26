@@ -456,25 +456,7 @@ if (!is_array($_SESSION['AllowedPageSecurityTokens']) AND !isset($AllowAnyone)) 
 /*The page security variable is now retrieved from the database in GetConfig.php and stored in the $SESSION['PageSecurityArray'] array
  * the key for the array is the script name - the script name is retrieved from the basename ($_SERVER['SCRIPT_NAME'])
  */
-if (!isset($PageSecurity)) {
-    /*
-     * Resolve permissions from the PHP page being executed.
-     * Routed requests supply $RequestedPage from index.php; direct page
-     * requests use the actual script filename. Page identity is not stored
-     * in the session.
-     */
-    if (isset($RequestedPage) && $RequestedPage !== '') {
-        $SecurityScriptName = basename($RequestedPage) . '.php';
-    } else {
-        $SecurityScriptName = basename($_SERVER['SCRIPT_NAME']);
-    }
 
-    if (isset($_SESSION['PageSecurityArray'][$SecurityScriptName])) {
-        $PageSecurity = $_SESSION['PageSecurityArray'][$SecurityScriptName];
-    } else {
-        $PageSecurity = null;
-    }
-}
 
 if (!isset($AllowAnyone)){
 	if ((!in_array($PageSecurity, $_SESSION['AllowedPageSecurityTokens'])
