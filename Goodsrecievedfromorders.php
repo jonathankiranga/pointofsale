@@ -244,15 +244,23 @@ while($stocklist=DB_fetch_array($ResultIndex)){
                  createstores($itemcode));
 }
    
+if (!isset($_POST['freight']) || !is_numeric($_POST['freight']) || (float)$_POST['freight'] < 0) {
+    $_POST['freight'] = '0.00';
+}
+$_POST['freight'] = number_format((float)$_POST['freight'], 2, '.', '');
+
 echo sprintf('<tfoot><tr>'
               . '<td colspan="10">TOTAL</td>'
               . '<td class="number">%s</td>'
               . '<td class="number">%s</td>'
               . '<td class="number">%s</td>'
+              . '<td class="number"><label for="delivery_freight">Transport cost</label>'
+              . '<input type="number" min="0" step="0.01" id="delivery_freight" name="freight" class="number form-control" value="%s" style="width:110px" /></td>'
               . '</tr></tfoot>', 
             number_format($runningnettotal,2),
             number_format($runningvattotal,2),
-            number_format($runninggrosstotal,2));
+            number_format($runninggrosstotal,2),
+            htmlspecialchars($_POST['freight'], ENT_QUOTES, 'UTF-8'));
 
 $_SESSION['Grossamounttotal']=$runninggrosstotal;
 
