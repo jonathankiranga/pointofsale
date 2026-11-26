@@ -53,7 +53,7 @@ if (isset($_POST['apply_prices']) && isset($_POST['itemcode']) && is_array($_POS
                 COALESCE(SUM(line_values.loose_quantity),0) AS received_loose
                 FROM (
                     SELECT stockledger.invref, stockledger.itemcode,
-                           SUM(COALESCE(stockledger.price,0) * (COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0))) AS line_value,
+                           SUM(COALESCE(stockledger.price,0) * (COALESCE(stockledger.fulqty,0) + COALESCE(stockledger.loosqty,0))) AS line_value,
                            SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0)) AS loose_quantity
                     FROM stockledger
                     INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
@@ -144,7 +144,7 @@ while ($stock = DB_fetch_array($stockResult)) {
         COALESCE(SUM(line_values.loose_quantity),0) AS received_loose
         FROM (
             SELECT stockledger.invref, stockledger.itemcode,
-                   SUM(COALESCE(stockledger.price,0) * (COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0))) AS line_value,
+                   SUM(COALESCE(stockledger.price,0) * (COALESCE(stockledger.fulqty,0) + COALESCE(stockledger.loosqty,0))) AS line_value,
                    SUM(COALESCE(stockledger.fulqty,0) * COALESCE(stockmaster.partperunit,1) + COALESCE(stockledger.loosqty,0)) AS loose_quantity
             FROM stockledger
             INNER JOIN stockmaster ON stockmaster.itemcode=stockledger.itemcode
