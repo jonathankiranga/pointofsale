@@ -1004,6 +1004,7 @@ INSERT INTO `scripts` (`script`, `pagesecurity`, `description`) VALUES
 ('ProductionRequisation.php', 0, 'Production Requisation'),
 ('ProductionSummary.php', 0, 'Lab Test'),
 ('PurchaseAssetsList.php', 0, 'Fixed Assets'),
+('Pricing.php', 12, 'Selling Price Setup'),
 ('PurchaseOder.php', 5, 'Create Purchase orders'),
 ('PurchaseOderAssets.php', 5, 'Purchase Assets'),
 ('PurchaseOrderDBlist.php', 5, 'Debit Note list'),
